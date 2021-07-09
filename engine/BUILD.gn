@@ -14,7 +14,11 @@
 import("//build/ohos.gni")
 
 ohos_prebuilt_etc("updater_sa.rc") {
-  source = "etc/updater_sa.rc"
+  if (use_musl) {
+    source = "etc/updater_sa.cfg"
+  } else {
+    source = "etc/updater_sa.rc"
+  }
   relative_install_dir = "init"
   part_name = "updater"
 }
