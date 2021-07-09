@@ -405,6 +405,13 @@ declare namespace update {
         off(eventType: 'downloadProgress', callback?: UpdateProgressCallback): void;
         off(eventType: 'upgradeProgress', callback?: UpdateProgressCallback): void;
         off(eventType: 'verifyProgress', callback?: UpdateProgressCallback): void;
+
+	 /**
+         * cancel download packages for the device.
+         *
+         * @since 6
+         */
+        cancel(): void;
     }
 
     export type UpdateTypes =
