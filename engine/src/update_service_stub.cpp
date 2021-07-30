@@ -141,7 +141,7 @@ static int32_t RebootAndInstallStub(UpdateServiceStub::UpdateServiceStubPtr serv
     ENGINE_CHECK(service != nullptr, return -1, "Invalid param");
     string miscFile = Str16ToStr8(data.ReadString16());
     string packageName = Str16ToStr8(data.ReadString16());
-    int32_t ret = service->RebootAndClean(miscFile, packageName);
+    int32_t ret = service->RebootAndInstall(miscFile, packageName);
     reply.WriteInt32(ret);
     return 0;
 }
