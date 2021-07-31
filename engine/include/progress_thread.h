@@ -50,14 +50,11 @@ constexpr int32_t TIMEOUT_FOR_CONNECT = 1;
 class ProgressThread {
 public:
     ProgressThread() = default;
-    virtual ~ProgressThread()
-    {
-        StopProgress();
-    }
-
+    virtual ~ProgressThread();
 protected:
     int32_t StartProgress();
     void StopProgress();
+    void ExitThread();
     void ExecuteThreadFunc();
 
     virtual bool ProcessThreadExecute() = 0;
@@ -75,7 +72,10 @@ class DownloadThread : public ProgressThread {
 public:
     using ProgressCallback = std::function<int (const std::string &fileName, const Progress &progress)>;
     DownloadThread(ProgressCallback callback) : ProgressThread(), callback_(callback) {}
-    ~DownloadThread() override {}
+    ~DownloadThread() override 
+    {
+        ProgressThread::ExitThread();
+    }
 
     int32_t StartDownload(const std::string &fileName, const std::string &url);
     void StopDownload();

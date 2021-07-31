@@ -218,7 +218,10 @@ int32_t UpdateServiceKitsImpl::RebootAndClean(const std::string &miscFile, const
     ENGINE_LOGI("UpdateServiceKitsImpl::RebootAndCleanUserData");
     auto updateService = GetService();
     ENGINE_CHECK(updateService != nullptr, return -1, "Get updateService failed");
+#ifndef UPDATER_API_TEST
     return updateService->RebootAndClean(miscFile, cmd);
+#endif
+    return 1;
 }
 
 int32_t UpdateServiceKitsImpl::RebootAndInstall(const std::string &miscFile, const std::string &packageName)

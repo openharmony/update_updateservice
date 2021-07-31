@@ -462,9 +462,6 @@ int32_t UpdateService::Cancel(int32_t service)
     ENGINE_LOGI("Cancel %d", service);
     if (downloadThread_ != nullptr && service == DOWNLOAD) {
         downloadThread_->StopDownload();
-        ENGINE_LOGI("StopDownload");
-        delete downloadThread_;
-        downloadThread_ = nullptr;
     }
     return 0;
 }

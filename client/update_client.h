@@ -148,7 +148,9 @@ public:
     #ifdef UPDATER_UT
     UpdateSession *GetUpdateSession(uint32_t sessId)
     {
+    #ifndef UPDATER_API_TEST
         std::lock_guard<std::mutex> guard(sessionMutex_);
+    #endif
         auto iter = sessions_.find(sessId);
         if (iter != sessions_.end()) {
             return iter->second.get();
@@ -198,7 +200,9 @@ private:
     napi_env env_ {};
     napi_ref thisReference_ {};
     std::map<uint32_t, std::shared_ptr<UpdateSession>> sessions_ {};
+#ifndef UPDATER_API_TEST
     std::mutex sessionMutex_;
+#endif
     bool isInit = false;
     int32_t result_ = 0;
     std::string upgradeFile_;

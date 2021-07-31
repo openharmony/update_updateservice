@@ -22,20 +22,9 @@
 
 namespace OHOS {
 namespace update_engine {
-int32_t ProgressThread::StartProgress()
-{
-    if (pDealThread_ == nullptr) {
-        pDealThread_ = new (std::nothrow)std::thread(&ProgressThread::ExecuteThreadFunc, this);
-        ENGINE_CHECK(pDealThread_ != nullptr, return -1, "Failed to create thread");
-    }
-    ENGINE_LOGI("StartProgress");
-    std::unique_lock<std::mutex> lock(mutex_);
-    isWake_ = true;
-    condition_.notify_one();
-    return 0;
-}
+ProgressThread::~ProgressThread() {}
 
-void ProgressThread::StopProgress()
+void ProgressThread::ExitThread()
 {
     {
         std::unique_lock<std::mutex> lock(mutex_);
@@ -43,12 +32,32 @@ void ProgressThread::StopProgress()
         isExitThread_ = true;
         condition_.notify_one();
     }
-
     if (pDealThread_ != nullptr) {
         pDealThread_->join();
         delete pDealThread_;
         pDealThread_ = nullptr;
     }
+}
+
+int32_t ProgressThread::StartProgress()
+{
+    std::unique_lock<std::mutex> lock(mutex_);
+    if (pDealThread_ == nullptr) {
+        pDealThread_ = new (std::nothrow)std::thread(&ProgressThread::ExecuteThreadFunc, this);
+        ENGINE_CHECK(pDealThread_ != nullptr, return -1, "Failed to create thread");
+    }
+    ENGINE_LOGI("StartProgress");
+    isWake_ = true;
+    condition_.notify_one();
+    return 0;
+}
+
+void ProgressThread::StopProgress()
+{
+    std::unique_lock<std::mutex> lock(mutex_);
+    isWake_ = true;
+    isExitThread_ = false;
+    condition_.notify_one();
 }
 
 void ProgressThread::ExecuteThreadFunc()
@@ -65,10 +74,7 @@ void ProgressThread::ExecuteThreadFunc()
             }
             isWake_ = false;
         }
-        bool isExit = ProcessThreadExecute();
-        if (isExit) {
-            break;
-        }
+        ProcessThreadExecute();
     }
     // thread exit and release resource
     ProcessThreadExit();
