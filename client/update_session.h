@@ -19,7 +19,9 @@
 #include <functional>
 #include <iostream>
 #include <memory>
+#include <mutex>
 #include <string>
+#include <thread>
 #include <vector>
 
 #include "iupdate_service.h"
@@ -60,7 +62,7 @@ public:
     virtual void CompleteWork(napi_env env, napi_status status) {}
     virtual void ExecuteWork(napi_env env);
     virtual napi_value StartWork(napi_env env, size_t startIndex, const napi_value *args) = 0;
-    virtual void NotifyJS(napi_env env, napi_value thisVar, int32_t retcode, const UpdateResult &result) const
+    virtual void NotifyJS(napi_env env, napi_value thisVar, int32_t retcode, const UpdateResult &result)
     {
         return;
     }
@@ -153,7 +155,7 @@ public:
 
     napi_value StartWork(napi_env env, size_t startIndex, const napi_value *args) override;
 
-    void NotifyJS(napi_env env, napi_value thisVar, int32_t retcode, const UpdateResult &result) const override;
+    void NotifyJS(napi_env env, napi_value thisVar, int32_t retcode, const UpdateResult &result) override;
 
     bool IsOnce() const
     {
@@ -165,16 +167,14 @@ public:
         return eventType_;
     }
 
-    bool CheckEqual(napi_env env, napi_value handler, const std::string &type) const;
+    bool CheckEqual(napi_env env, napi_value handler, const std::string &type);
 
-    void RemoveHandlerRef(napi_env env)
-    {
-        napi_delete_reference(env, handlerRef_);
-    }
+    void RemoveHandlerRef(napi_env env);
 private:
     bool isOnce_ = false;
     std::string eventType_;
     napi_ref handlerRef_ = nullptr;
+    std::mutex mutex_;
 };
 } // namespace updateClient
 #endif // UPDATE_SESSION_H
