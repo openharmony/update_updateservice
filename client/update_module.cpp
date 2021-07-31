@@ -83,7 +83,9 @@ napi_value GetUpdater(napi_env env, napi_callback_info info)
             return obj;
         }
     }
-    return obj;
+    napi_remove_wrap(env, obj, (void**)&client);
+    delete client;
+    return nullptr;
 }
 
 napi_value GetUpdaterForOther(napi_env env, napi_callback_info info)
@@ -233,7 +235,7 @@ static napi_value UpdateClientInit(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("getUpdatePolicy", GetUpdatePolicy),
         DECLARE_NAPI_FUNCTION("getUpgradeStatus", GetUpgradeStatus),
 
-        DECLARE_NAPI_FUNCTION("cancelUpgrade", CancelUpgrade),
+        DECLARE_NAPI_FUNCTION("cancel", CancelUpgrade),
         DECLARE_NAPI_FUNCTION("download", DownloadVersion),
         DECLARE_NAPI_FUNCTION("upgrade", UpgradeVersion),
 
@@ -251,7 +253,7 @@ static napi_value UpdateClientInit(napi_env env, napi_value exports)
     napi_set_named_property(env, exports, CLASS_NAME.c_str(), result);
     napi_status status = napi_create_reference(env, result, REF_COUNT, &g_reference);
     CLIENT_CHECK_NAPI_CALL(env, status == napi_ok, return nullptr, "Failed to create_reference");
-
+    CLIENT_LOGI("UpdateClient g_reference %p", g_reference);
     return exports;
 }
 
