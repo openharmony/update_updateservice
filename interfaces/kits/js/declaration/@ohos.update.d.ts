@@ -406,7 +406,7 @@ declare namespace update {
         off(eventType: 'upgradeProgress', callback?: UpdateProgressCallback): void;
         off(eventType: 'verifyProgress', callback?: UpdateProgressCallback): void;
 
-	 /**
+        /**
          * cancel download packages for the device.
          *
          * @since 6

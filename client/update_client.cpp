@@ -75,7 +75,9 @@ UpdateClient::~UpdateClient()
 UpdateSession *UpdateClient::RemoveSession(uint32_t sessionId)
 {
     CLIENT_LOGI("RemoveSession sess");
+#ifndef UPDATER_API_TEST
     std::lock_guard<std::mutex> guard(sessionMutex_);
+#endif
     UpdateSession *sess = nullptr;
     auto iter = sessions_.find(sessionId);
     if (iter != sessions_.end()) {
@@ -88,7 +90,9 @@ UpdateSession *UpdateClient::RemoveSession(uint32_t sessionId)
 void UpdateClient::AddSession(std::shared_ptr<UpdateSession> session)
 {
     CLIENT_CHECK(session != nullptr, return, "Invalid param");
+#ifndef UPDATER_API_TEST
     std::lock_guard<std::mutex> guard(sessionMutex_);
+#endif
     sessions_.insert(make_pair(session->GetSessionId(), session));
 }
 
@@ -176,7 +180,7 @@ napi_value UpdateClient::GetUpdater(napi_env env, napi_callback_info info, int32
     napi_status status = napi_get_cb_info(env, info, &argc, args, nullptr, nullptr);
     CLIENT_CHECK_NAPI_CALL(env, status == napi_ok, return nullptr, "Error get cb info");
     CLIENT_CHECK_NAPI_CALL(env, argc >= 1, return nullptr, "Invalid param");
-    CLIENT_CHECK_NAPI_CALL(env, !isInit, return nullptr, "Has beed init");
+    CLIENT_CHECK_NAPI_CALL(env, !isInit, return result, "Has beed init");
 
     int ret = GetStringValue(env, args[0], context_.upgradeFile);
     CLIENT_CHECK_NAPI_CALL(env, ret == napi_ok && CheckUpgradeFile(context_.upgradeFile),
@@ -201,7 +205,7 @@ napi_value UpdateClient::GetUpdater(napi_env env, napi_callback_info info, int32
     };
     UpdateServiceKits::GetInstance().RegisterUpdateCallback(context_, callback);
     isInit = true;
-    return nullptr;
+    return result;
 }
 
 napi_value UpdateClient::StartSession(napi_env env,
@@ -212,7 +216,8 @@ napi_value UpdateClient::StartSession(napi_env env,
     napi_status status = napi_get_cb_info(env, info, &argc, args, nullptr, nullptr);
     CLIENT_CHECK_NAPI_CALL(env, status == napi_ok, return nullptr, "Error get cb info");
 
-    CLIENT_LOGE("StartSession type %d argc %zu callbackStartIndex %d", type, argc, callbackStartIndex);
+    CLIENT_LOGE("StartSession type %d argc %zu callbackStartIndex %d", type, argc,
+        static_cast<int>(callbackStartIndex));
     std::shared_ptr<UpdateSession> sess = nullptr;
     if (argc > callbackStartIndex) {
         sess = std::make_shared<UpdateAsyncession>(this, type, argc, 1);
@@ -243,7 +248,7 @@ napi_value UpdateClient::CancelUpgrade(napi_env env, napi_callback_info info)
     size_t argc = MAX_ARGC;
     napi_value args[MAX_ARGC] = {0};
     napi_status status = napi_get_cb_info(env, info, &argc, args, nullptr, nullptr);
-    CLIENT_CHECK_NAPI_CALL(env, status == napi_ok, return nullptr, "Error get cb info");
+    CLIENT_CHECK_NAPI_CALL(env, status == napi_ok && argc == 0, return nullptr, "Error get cb info");
     CLIENT_LOGE("CancelUpgrade");
     std::shared_ptr<UpdateSession> sess = nullptr;
     sess = std::make_shared<UpdateAsyncessionNoCallback>(this, SESSION_CANCEL_UPGRADE, argc, 0);
@@ -360,7 +365,9 @@ napi_value UpdateClient::ApplyNewVersion(napi_env env, napi_callback_info info)
 {
     napi_value retValue = StartSession(env, info, SESSION_APPLY_NEW_VERSION, 0,
         [&](int32_t type, void *context) -> int {
+#ifndef UPDATER_API_TEST
             result_ = UpdateServiceKits::GetInstance().RebootAndInstall(MISC_FILE, UPDATER_PKG_NAME);
+        #endif
             return result_;
         });
     CLIENT_CHECK(retValue != nullptr, return nullptr, "Failed to GetNewVersionInfo.");
@@ -371,7 +378,9 @@ napi_value UpdateClient::RebootAndClean(napi_env env, napi_callback_info info)
 {
     napi_value retValue = StartSession(env, info, SESSION_REBOOT_AND_CLEAN, 0,
         [&](int32_t type, void *context) -> int {
+#ifndef UPDATER_API_TEST
             result_ = UpdateServiceKits::GetInstance().RebootAndClean(MISC_FILE, CMD_WIPE_DATA);
+#endif
             return result_;
         });
     CLIENT_CHECK(retValue != nullptr, return nullptr, "Failed to GetNewVersionInfo.");
@@ -445,7 +454,7 @@ napi_value UpdateClient::UnsubscribeEvent(napi_env env, napi_callback_info info)
     int ret = UpdateClient::GetStringValue(env, args[0], eventType);
     CLIENT_CHECK_NAPI_CALL(env, ret == napi_ok, return nullptr, "Failed to get event type");
 
-    CLIENT_LOGI("UnsubscribeEvent %s argc %d", eventType.c_str(), argc);
+    CLIENT_LOGI("UnsubscribeEvent %s argc %d", eventType.c_str(), static_cast<int>(argc));
     if (argc >= MID_ARGC) {
         napi_valuetype valuetype;
         napi_status status = napi_typeof(env, args[1], &valuetype);
@@ -518,7 +527,9 @@ UpdateSession *UpdateClient::FindSessionByHandle(napi_env env, const std::string
 
 bool UpdateClient::GetNextSessionId(uint32_t &sessionId)
 {
+#ifndef UPDATER_API_TEST
     std::lock_guard<std::mutex> guard(sessionMutex_);
+#endif    
     {
         auto iter = sessions_.find(sessionId);
         if (iter == sessions_.end()) {
@@ -535,7 +546,9 @@ bool UpdateClient::GetNextSessionId(uint32_t &sessionId)
 
 bool UpdateClient::GetFirstSessionId(uint32_t &sessionId)
 {
+#ifndef UPDATER_API_TEST
     std::lock_guard<std::mutex> guard(sessionMutex_);
+#endif
     {
         if (sessions_.empty()) {
             return false;

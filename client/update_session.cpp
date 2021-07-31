@@ -14,16 +14,11 @@
  */
 
 #include "update_session.h"
-
-#include <csignal>
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
 #include <iostream>
 #include <memory>
+#include <mutex>
 #include <string>
 #include <thread>
-#include <unistd.h>
 #include <vector>
 
 #include "node_api.h"
@@ -48,7 +43,7 @@ int32_t UpdateSession::CreateReference(napi_env env, napi_value arg, uint32_t re
     napi_valuetype valuetype;
     napi_status status = napi_typeof(env, arg, &valuetype);
     CLIENT_CHECK(status == napi_ok, return status, "Failed to napi_typeof");
-    CLIENT_CHECK(valuetype == napi_function, return status, "Invalid callback type");
+    CLIENT_CHECK(valuetype == napi_function, return -1, "Invalid callback type");
 
     status = napi_create_reference(env, arg, refcount, &reference);
     CLIENT_CHECK(status == napi_ok, return status, "Failed to create reference");
@@ -102,7 +97,7 @@ napi_value UpdateAsyncession::StartWork(napi_env env, size_t startIndex, const n
 
     // Check whether a callback exists. Only one callback is allowed.
     for (size_t i = 0; (i < (totalArgc_ - startIndex)) && (i < callbackNumber_); i++) {
-        CLIENT_LOGI("CreateReference index:%u", i + startIndex);
+        CLIENT_LOGI("CreateReference index:%u", static_cast<unsigned int>(i + startIndex));
         int32_t ret = CreateReference(env, args[i + startIndex], 1, callbackRef_[i]);
         CLIENT_CHECK_NAPI_CALL(env, ret == napi_ok, return nullptr, "Failed to create reference");
     }
@@ -210,23 +205,40 @@ napi_value UpdateListener::StartWork(napi_env env, size_t startIndex, const napi
     return result;
 }
 
-void UpdateListener::NotifyJS(napi_env env, napi_value thisVar, int32_t retcode, const UpdateResult &result) const
+void UpdateListener::NotifyJS(napi_env env, napi_value thisVar, int32_t retcode, const UpdateResult &result)
 {
     CLIENT_LOGI("NotifyJS retcode:%d", retcode);
     napi_value jsEvent;
-    result.buildJSObject(env, jsEvent, result);
     napi_value handler = nullptr;
     napi_value callResult;
-    napi_get_reference_value(env, handlerRef_, &handler);
+    int32_t ret = result.buildJSObject(env, jsEvent, result);
+    CLIENT_CHECK_NAPI_CALL(env, ret == napi_ok, return, "Failed to build json");
+    {
+        std::unique_lock<std::mutex> lock(mutex_);
+        CLIENT_CHECK_NAPI_CALL(env, handlerRef_ != nullptr, return, "handlerRef_ has beed freed");
+        napi_status status = napi_get_reference_value(env, handlerRef_, &handler);
+        CLIENT_CHECK_NAPI_CALL(env, status == napi_ok && handler != nullptr, return, "Failed to get reference");
+    }
+     CLIENT_CHECK_NAPI_CALL(env, handler != nullptr, return, "handlerRef_ has beed freed");
     napi_call_function(env, thisVar, handler, 1, &jsEvent, &callResult);
 }
 
-bool UpdateListener::CheckEqual(napi_env env, napi_value handler, const std::string &type) const
+bool UpdateListener::CheckEqual(napi_env env, napi_value handler, const std::string &type)
 {
+    std::unique_lock<std::mutex> lock(mutex_);
     bool isEquals = false;
     napi_value handlerTemp = nullptr;
-    napi_get_reference_value(env, handlerRef_, &handlerTemp);
+    napi_status status = napi_get_reference_value(env, handlerRef_, &handlerTemp);
+    CLIENT_CHECK_NAPI_CALL(env, status == napi_ok, return false, "Failed to get reference");
     napi_strict_equals(env, handler, handlerTemp, &isEquals);
     return isEquals && (type.compare(eventType_) == 0);
+}
+
+void UpdateListener::RemoveHandlerRef(napi_env env)
+{
+    std::unique_lock<std::mutex> lock(mutex_);
+    CLIENT_LOGI("RemoveHandlerRef handlerRef_:%{public}p %{public}u", handlerRef_, GetSessionId());
+    napi_delete_reference(env, handlerRef_);
+    handlerRef_ = nullptr;
 }
 } // namespace updateClient
