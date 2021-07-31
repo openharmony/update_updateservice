@@ -49,6 +49,7 @@ const int32_t MID_ARGC = 2;
 const int32_t CLIENT_STRING_MAX_LENGTH = 200;
 constexpr int PROGRESS_DOWNLOAD_FINISH = 100;
 const std::string MISC_FILE = "/dev/block/platform/soc/10100000.himci.eMMC/by-name/misc";
+const std::string CMD_WIPE_DATA = "--user_wipe_data";
 const std::string UPDATER_PKG_NAME = "/data/updater/updater.zip";
 
 UpdateClient::UpdateClient(napi_env env, napi_value thisVar)
@@ -370,7 +371,7 @@ napi_value UpdateClient::RebootAndClean(napi_env env, napi_callback_info info)
 {
     napi_value retValue = StartSession(env, info, SESSION_REBOOT_AND_CLEAN, 0,
         [&](int32_t type, void *context) -> int {
-            result_ = UpdateServiceKits::GetInstance().RebootAndClean(MISC_FILE, UPDATER_PKG_NAME);
+            result_ = UpdateServiceKits::GetInstance().RebootAndClean(MISC_FILE, CMD_WIPE_DATA);
             return result_;
         });
     CLIENT_CHECK(retValue != nullptr, return nullptr, "Failed to GetNewVersionInfo.");
