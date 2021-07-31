@@ -367,7 +367,7 @@ napi_value UpdateClient::ApplyNewVersion(napi_env env, napi_callback_info info)
         [&](int32_t type, void *context) -> int {
 #ifndef UPDATER_API_TEST
             result_ = UpdateServiceKits::GetInstance().RebootAndInstall(MISC_FILE, UPDATER_PKG_NAME);
-        #endif
+#endif
             return result_;
         });
     CLIENT_CHECK(retValue != nullptr, return nullptr, "Failed to GetNewVersionInfo.");
