@@ -82,7 +82,7 @@ public:
         g_testEnv.testStage = SESSION_GET_UPDATER;
         g_testEnv.engineType = 0;
         g_testEnv.noneClient = noneClient;
-        g_testEnv.eventType = "OTA";
+        g_testEnv.eventType = "/data/updater/updater/updater.zip";
         napi_value value = GetUpdater((napi_env)&g_testEnv, nullptr);
         CLIENT_CHECK(value == nullptr, return -1, "TestGetUpdate");
         return 0;
@@ -390,7 +390,7 @@ public:
     int TestCancelUpgrade(int type)
     {
         g_testEnv.testStage = SESSION_CANCEL_UPGRADE;
-        g_testEnv.testAsyncorPermose = false;
+        g_testEnv.testAsyncorPermose = true;
         napi_value value = CancelUpgrade((napi_env)&g_testEnv, nullptr);
         CLIENT_CHECK(value != nullptr, return -1, "TestCancelUpgrade");
 

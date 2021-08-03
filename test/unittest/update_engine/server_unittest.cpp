@@ -64,17 +64,15 @@ public:
     UpdateServerTest()
     {
         updateServer_ = GetUpdateService();
-    }
-    virtual ~UpdateServerTest() {}
-
-    void SetUp()
-    {
         updateCallBack_ = new UpdateCallback();
     }
-    void TearDown()
+    virtual ~UpdateServerTest()
     {
         delete updateCallBack_;
     }
+
+    void SetUp() {}
+    void TearDown() {}
     void TestBody() {}
 
     int TestRegisterCallback()
@@ -112,7 +110,17 @@ public:
         MessageParcel reply;
         MessageOption msgOption;
         updateServer_->OnRemoteRequest(IUpdateService::UPGRADE, inData, reply, msgOption);
-        EXPECT_EQ(0, reply.ReadInt32());
+        EXPECT_EQ(-1, reply.ReadInt32());
+        sptr<IUpdateCallback> callback_ {};
+        UpdateContext ctx {};
+        ctx.upgradeFile = "/data/updater/updater/updater.zip";
+        UpdateService *updateServer = new UpdateService(0, true);
+        int ret = updateServer->RegisterUpdateCallback(ctx, callback_);
+        EXPECT_NE(updateServer, nullptr);
+        updateServer->DoUpdate();
+        ret = updateServer->UnregisterUpdateCallback();
+        EXPECT_EQ(0, ret);
+        delete updateServer;
         return 0;
     }
 
@@ -239,6 +247,9 @@ public:
         EXPECT_NE(remoteObj, nullptr);
         UpdateServiceProxy *proxy = new UpdateServiceProxy(remoteObj);
         UpdateCallbackProxy *updateCallBack = new UpdateCallbackProxy(remoteObj);
+        std::string miscFile = "/dev/block/platform/soc/10100000.himci.eMMC/by-name/misc";
+        std::string packageName = "/data/updater/updater/updater.zip";
+        const std::string cmd = "--update_package=/data/updater/updater.zip";
         VersionInfo info {};
         Progress progress {};
         UpdateContext ctx {};
@@ -248,6 +259,8 @@ public:
         proxy->RegisterUpdateCallback(ctx, updateCallBack);
         proxy->UnregisterUpdateCallback();
         proxy->DoUpdate();
+        proxy->RebootAndClean(miscFile, cmd);
+        proxy->RebootAndInstall(miscFile, packageName);
         EXPECT_EQ(info.status, HAS_NEW_VERSION);
         EXPECT_EQ(progress.status, UPDATE_STATE_INIT);
         delete proxy;
@@ -318,7 +331,6 @@ public:
             UpdateService::ParseJsonFile(buffer, versionInfo);
             DownloadThread::WriteFunc((void *)buffer.data(), length, 1, downloadFile);
         }
-        sleep(1);
         delete download;
         return 0;
     }
@@ -604,4 +616,30 @@ TEST(UpdateServerTest, TestKits)
     UpdateServiceKits *kit = new MockUpdateServiceKits();
     EXPECT_NE(kit, nullptr);
     delete kit;
+}
+
+TEST(UpdateServerTest, TestUpdateServiceKitsImpl)
+{
+    std::string miscFile = "/dev/block/platform/soc/10100000.himci.eMMC/by-name/misc";
+    std::string packageName = "/data/updater/updater/updater.zip";
+    int ret = UpdateServiceKits::GetInstance().RebootAndInstall(miscFile, packageName);
+    printf("RebootAndInstall: %d\n", ret);
+}
+
+TEST(UpdateServerTest, TestUpdateServiceRegisterUpdateCallback)
+{
+    UpdateContext ctx {};
+    UpdateService *updateServer = new UpdateService(0, true);
+    updateServer->RegisterUpdateCallback(ctx, nullptr);
+    delete updateServer;
+}
+
+TEST(UpdateServerTest, TestVerifyDownloadPkg)
+{
+    Progress downloadProgress {};
+    std::string path = "/data/updater/updater/test.txt";
+    UpdateService *updateServer = new UpdateService(0, true);
+    EXPECT_NE(updateServer, nullptr);
+    updateServer->VerifyDownloadPkg(path, downloadProgress);
+    delete updateServer;
 }
