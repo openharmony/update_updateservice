@@ -72,10 +72,8 @@ public:
     void OnStart() override;
     void OnStop() override;
 private:
-    void SearchCallback(const std::string &msg, SearchStatus status);
     void DownloadCallback(const std::string &fileName, const Progress &progress);
     void UpgradeCallback(const Progress &progress);
-    bool VerifyDownloadPkg(const std::string &pkgName, Progress &progress);
     std::string GetDownloadServerUrl() const;
     void InitVersionInfo(VersionInfo &versionInfo) const;
 #ifndef UPDATER_UT
@@ -83,6 +81,8 @@ private:
 #else
 public:
 #endif
+    void SearchCallback(const std::string &msg, SearchStatus status);
+    bool VerifyDownloadPkg(const std::string &pkgName, Progress &progress);
     void ReadDataFromSSL(int32_t engineSocket);
 private:
     std::string serverAddr_;

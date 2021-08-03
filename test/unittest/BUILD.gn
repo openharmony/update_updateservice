@@ -50,7 +50,8 @@ ohos_executable("updaterserver_ut") {
         "//base/update/updateservice/callback/src/update_callback_proxy.cpp",
         "//base/update/updateservice/callback/src/update_callback_stub.cpp",
         "//base/update/updateservice/callback/src/update_callback.cpp",
-        "//base/update/updater/interfaces/kits/packages/package.cpp"
+        "//base/update/updater/interfaces/kits/packages/package.cpp",
+        "//base/update/updater/interfaces/kits/updaterkits/updaterkits.cpp"
     ]
     include_dirs = [
         "//base/update/updater/interfaces/kits/include/",
@@ -64,7 +65,7 @@ ohos_executable("updaterserver_ut") {
         "//base/update/updater/services/include/",
         "//base/update/updater/services/include/log",
         "//base/update/updater/services/include/package",
-        "//base/update/updater/tests/unittest",
+        "//base/update/updater/test/unittest",
         "//third_party/bounds_checking_function/include",
         "//third_party/node/src",
         "//foundation/ace/napi/interfaces/kits",
