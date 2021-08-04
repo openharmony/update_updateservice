@@ -141,6 +141,7 @@ int32_t UpdateService::CheckNewVersion()
         SearchCallback("Connect error !", SERVER_BUSY);
         close(engineSocket);
 #else
+        versionInfo_.result[0].verifyInfo = "updater/test.txt";
         SearchCallback("update service test connect error !", HAS_NEW_VERSION);
         close(engineSocket);
 #endif
@@ -246,7 +247,7 @@ void UpdateService::DownloadCallback(const std::string &fileName, const Progress
     upgradeStatus_ = UPDATE_STATE_DOWNLOAD_SUCCESS;
 #endif
     ENGINE_LOGI("DownloadCallback status %d  %d", progress.status, progress.percent);
-    if (progress.status == UPDATE_STATE_DOWNLOAD_SUCCESS) {
+    if (upgradeStatus_ == UPDATE_STATE_DOWNLOAD_SUCCESS) {
         ENGINE_LOGI("DownloadCallback fileName %s %s", fileName.c_str(), updateContext_.upgradeFile.c_str());
         if (rename(fileName.c_str(), updateContext_.upgradeFile.c_str())) {
             ENGINE_LOGE("Rename file fail %s", fileName.c_str());

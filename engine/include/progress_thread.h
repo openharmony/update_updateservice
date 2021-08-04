@@ -72,7 +72,7 @@ class DownloadThread : public ProgressThread {
 public:
     using ProgressCallback = std::function<int (const std::string &fileName, const Progress &progress)>;
     DownloadThread(ProgressCallback callback) : ProgressThread(), callback_(callback) {}
-    ~DownloadThread() override 
+    ~DownloadThread() override
     {
         ProgressThread::ExitThread();
     }

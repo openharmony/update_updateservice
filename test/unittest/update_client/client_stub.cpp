@@ -385,8 +385,8 @@ napi_status napi_get_cb_info(
         case SESSION_GET_UPDATER: {
             if (*argc > 1) {
                 *argc = (testEnv->engineType != 0) ? NUMBER_2 : 1;
-                argv[0] = CreateNapiValue(napi_string, "OTA");
-                argv[1] = CreateNapiValue(napi_string, testEnv->eventType.c_str());
+                argv[0] = CreateNapiValue(napi_string, testEnv->eventType.c_str());
+                argv[1] = CreateNapiValue(napi_string, "OTA");
             } else {
                 argv[0] = CreateNapiValue(napi_string, "OTA");
                 *argc = 1;
