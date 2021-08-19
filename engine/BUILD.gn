@@ -26,7 +26,7 @@ ohos_prebuilt_etc("updater_sa.rc") {
 ohos_shared_library("updateservice") {
   defines = [
     "DUAL_ADAPTER",
-    "UPDATE_SERVICE"
+    "UPDATE_SERVICE",
   ]
   sources = [
     "//base/update/updateservice/callback/src/update_callback.cpp",
