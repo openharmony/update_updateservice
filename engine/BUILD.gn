@@ -27,7 +27,6 @@ ohos_shared_library("updateservice") {
   defines = [
     "DUAL_ADAPTER",
     "UPDATE_SERVICE",
-    "UPDATER_UT"
   ]
   sources = [
     "//base/update/updateservice/callback/src/update_callback.cpp",

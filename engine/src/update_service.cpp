@@ -218,7 +218,7 @@ void UpdateService::SearchCallback(const std::string &msg, SearchStatus status)
         upgradeStatus_ = UPDATE_STATE_CHECK_VERSION_SUCCESS;
 
         // Compare the downloaded version with the local version.
-        std::string loadVersion = OHOS::system::GetParameter("ro.build.id", "");
+        std::string loadVersion = OHOS::system::GetParameter("hw_sc.build.os.version", "");
         int32_t ret = UpdateHelper::CompareVersion(versionInfo_.result[0].versionCode, loadVersion);
         if (ret <= 0) {
             versionInfo_.status = NO_NEW_VERSION;
@@ -401,7 +401,7 @@ int32_t UpdateService::ReadCheckVersiondescriptInfo(const cJSON *descriptInfo, V
 bool UpdateService::VerifyDownloadPkg(const std::string &pkgName, Progress &progress)
 {
     // Compare the downloaded version with the local version. Only update is supported.
-    std::string loadVersion = OHOS::system::GetParameter("ro.build.id", "");
+    std::string loadVersion = OHOS::system::GetParameter("hw_sc.build.os.version", "");
     int32_t ret = UpdateHelper::CompareVersion(versionInfo_.result[0].versionCode, loadVersion);
     if (ret <= 0) {
         progress.endReason = "Update package version earlier than the local version";
@@ -488,7 +488,7 @@ int32_t UpdateService::RebootAndInstall(const std::string &miscFile, const std::
 void UpdateService::InitVersionInfo(VersionInfo &versionInfo) const
 {
     versionInfo.status = HAS_NEW_VERSION;
-    std::string versionName = OHOS::system::GetParameter("ro.build.id", "");
+    std::string versionName = OHOS::system::GetParameter("hw_sc.build.os.version", "");
     if (versionName.empty()) {
         versionInfo.status = SYSTEM_ERROR;
         versionInfo.errMsg = "Can not get local version";
