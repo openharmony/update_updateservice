@@ -298,7 +298,7 @@ public:
     }
     void GetServerIp(std::string &ip)
     {
-        ip = OHOS::system::GetParameter("update.serverip", "127.0.01");
+        ip = OHOS::system::GetParameter("update.serverip", "127.0.0.1");
     }
 
     int TestDownLoadProgress()
