@@ -656,7 +656,7 @@ int32_t UpdateClient::GetInt32(napi_env env, napi_value arg, const std::string &
     bool result = false;
     napi_status status = napi_has_named_property(env, arg, attrName.c_str(), &result);
     if (result && (status == napi_ok)) {
-        napi_value value;
+        napi_value value = nullptr;
         napi_get_named_property(env, arg, attrName.c_str(), &value);
         napi_get_value_int32(env, value, &intValue);
     }
@@ -668,7 +668,7 @@ int32_t UpdateClient::GetBool(napi_env env, napi_value arg, const std::string &a
     bool result = false;
     napi_status status = napi_has_named_property(env, arg, attrName.c_str(), &result);
     if (result && (status == napi_ok)) {
-        napi_value obj;
+        napi_value obj = nullptr;
         napi_get_named_property(env, arg, attrName.c_str(), &obj);
         napi_get_value_bool(env, obj, &value);
     }
@@ -691,7 +691,7 @@ int32_t UpdateClient::GetStringValue(napi_env env, napi_value arg, std::string &
 
 int32_t UpdateClient::SetString(napi_env env, napi_value arg, const std::string &attrName, const std::string &string)
 {
-    napi_value value;
+    napi_value value = nullptr;
     napi_create_string_utf8(env, string.c_str(), string.length(), &value);
     napi_set_named_property(env, arg, attrName.c_str(), value);
     return CLIENT_SUCCESS;
@@ -699,7 +699,7 @@ int32_t UpdateClient::SetString(napi_env env, napi_value arg, const std::string 
 
 int32_t UpdateClient::SetInt32(napi_env env, napi_value arg, const std::string &attrName, int32_t intValue)
 {
-    napi_value infoStatus;
+    napi_value infoStatus = nullptr;
     napi_create_int32(env, intValue, &infoStatus);
     napi_set_named_property(env, arg, attrName.c_str(), infoStatus);
     return CLIENT_SUCCESS;
@@ -707,7 +707,7 @@ int32_t UpdateClient::SetInt32(napi_env env, napi_value arg, const std::string &
 
 int32_t UpdateClient::SetBool(napi_env env, napi_value arg, const std::string &attrName, bool value)
 {
-    napi_value infoStatus;
+    napi_value infoStatus = nullptr;
     napi_create_int32(env, value, &infoStatus);
     napi_set_named_property(env, arg, attrName.c_str(), infoStatus);
     return CLIENT_SUCCESS;
@@ -715,7 +715,7 @@ int32_t UpdateClient::SetBool(napi_env env, napi_value arg, const std::string &a
 
 int32_t UpdateClient::SetInt64(napi_env env, napi_value arg, const std::string &attrName, int64_t intValue)
 {
-    napi_value infoStatus;
+    napi_value infoStatus = nullptr;
     napi_create_int64(env, intValue, &infoStatus);
     napi_set_named_property(env, arg, attrName.c_str(), infoStatus);
     return CLIENT_SUCCESS;
