@@ -473,6 +473,7 @@ napi_status napi_strict_equals(napi_env env, napi_value lhs, napi_value rhs, boo
 
 napi_status napi_create_promise(napi_env env, napi_deferred* deferred, napi_value* promise)
 {
+    *promise = CreateNapiValue(napi_object, nullptr);
     return napi_status::napi_ok;
 }
 

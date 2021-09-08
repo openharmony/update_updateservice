@@ -61,12 +61,15 @@ const std::string SIGNING_CERT_NAME = "/data/update_sa/signing_cert.crt";
 #else
 const std::string SIGNING_CERT_NAME = "/data/updater/src/signing_cert.crt";
 #endif
+const std::string PARAM_NAME_FOR_VERSION = "hw_sc.build.os.version";
+const std::string DEFAULT_VERSION = "2.2.0";
+const std::string PARAM_NAME_FOR_SEARCH = "update.serverip.search";
+const std::string PARAM_NAME_FOR_DOWNLOAD = "update.serverip.download";
+const std::string DEFAULT_SERVER_IP = "127.0.0.1";
 
 UpdateService::UpdateService(int32_t systemAbilityId, bool runOnCreate)
     : SystemAbility(systemAbilityId, runOnCreate)
 {
-    GetServerIp(serverAddr_);
-    ENGINE_LOGI("UpdateService serverAddr: %s ", serverAddr_.c_str());
     InitVersionInfo(versionInfo_);
 }
 
@@ -127,10 +130,13 @@ int32_t UpdateService::CheckNewVersion()
     int32_t engineSocket = socket(AF_INET, SOCK_STREAM, 0);
     ENGINE_CHECK(engineSocket >= 0, SearchCallback("socket error !", SERVER_BUSY); return 1, "socket error !");
 
+    std::string serverIp = OHOS::system::GetParameter(PARAM_NAME_FOR_SEARCH, DEFAULT_SERVER_IP);
+    ENGINE_LOGI("CheckNewVersion serverIp: %s ", serverIp.c_str());
+
     sockaddr_in engineSin {};
     engineSin.sin_family = AF_INET;
     engineSin.sin_port = htons(PORT_NUMBER);
-    int32_t ret = inet_pton(AF_INET, serverAddr_.c_str(), &engineSin.sin_addr);
+    int32_t ret = inet_pton(AF_INET, serverIp.c_str(), &engineSin.sin_addr);
     ENGINE_CHECK(ret > 0, close(engineSocket); SearchCallback("Invalid ip!", SERVER_BUSY); return 1, "socket error");
 
     struct timeval tv = {TIMEOUT_FOR_CONNECT, 0};
@@ -218,7 +224,7 @@ void UpdateService::SearchCallback(const std::string &msg, SearchStatus status)
         upgradeStatus_ = UPDATE_STATE_CHECK_VERSION_SUCCESS;
 
         // Compare the downloaded version with the local version.
-        std::string loadVersion = OHOS::system::GetParameter("hw_sc.build.os.version", "");
+        std::string loadVersion = OHOS::system::GetParameter(PARAM_NAME_FOR_VERSION, DEFAULT_VERSION);
         int32_t ret = UpdateHelper::CompareVersion(versionInfo_.result[0].versionCode, loadVersion);
         if (ret <= 0) {
             versionInfo_.status = NO_NEW_VERSION;
@@ -401,7 +407,7 @@ int32_t UpdateService::ReadCheckVersiondescriptInfo(const cJSON *descriptInfo, V
 bool UpdateService::VerifyDownloadPkg(const std::string &pkgName, Progress &progress)
 {
     // Compare the downloaded version with the local version. Only update is supported.
-    std::string loadVersion = OHOS::system::GetParameter("hw_sc.build.os.version", "");
+    std::string loadVersion = OHOS::system::GetParameter(PARAM_NAME_FOR_VERSION, DEFAULT_VERSION);
     int32_t ret = UpdateHelper::CompareVersion(versionInfo_.result[0].versionCode, loadVersion);
     if (ret <= 0) {
         progress.endReason = "Update package version earlier than the local version";
@@ -424,38 +430,13 @@ bool UpdateService::VerifyDownloadPkg(const std::string &pkgName, Progress &prog
 
 std::string UpdateService::GetDownloadServerUrl() const
 {
+    std::string serverIp = OHOS::system::GetParameter(PARAM_NAME_FOR_DOWNLOAD, DEFAULT_SERVER_IP);
+    ENGINE_LOGI("GetDownloadServerUrl serverIp: %s ", serverIp.c_str());
     std::string url = "http://";
-    url += serverAddr_;
+    url += serverIp;
     url += "/";
     url += versionInfo_.result[0].descriptPackageId;
     return url;
-}
-
-void UpdateService::GetServerIp(std::string &ip)
-{
-    if (access("/data/update_sa", 0) == -1) {
-        mkdir("/data/update_sa", MKDIR_MODE);
-    }
-
-    xmlDocPtr doc = xmlReadFile("/data/update_sa/update_config.xml", "UTF-8", XML_PARSE_NOBLANKS);
-    ENGINE_CHECK(doc != nullptr, return, "Open config Failed");
-
-    xmlNodePtr rootNode = xmlDocGetRootElement(doc);
-    ENGINE_CHECK(rootNode != nullptr, xmlFreeDoc(doc); return, "Get root node Failed");
-
-    xmlChar *nodeContent = nullptr;
-    for (xmlNodePtr node = rootNode->children; node; node = node->next) {
-        if ((!xmlStrcmp(node->name, (const xmlChar *)"serverIp"))) {
-            nodeContent = xmlNodeGetContent(node);
-            break;
-        }
-    }
-    if (nodeContent != nullptr) {
-        ip = (char*)nodeContent;
-        xmlFree(nodeContent);
-    }
-    xmlFreeDoc(doc);
-    return;
 }
 
 int32_t UpdateService::Cancel(int32_t service)
@@ -488,7 +469,7 @@ int32_t UpdateService::RebootAndInstall(const std::string &miscFile, const std::
 void UpdateService::InitVersionInfo(VersionInfo &versionInfo) const
 {
     versionInfo.status = HAS_NEW_VERSION;
-    std::string versionName = OHOS::system::GetParameter("hw_sc.build.os.version", "");
+    std::string versionName = OHOS::system::GetParameter(PARAM_NAME_FOR_VERSION, DEFAULT_VERSION);
     if (versionName.empty()) {
         versionInfo.status = SYSTEM_ERROR;
         versionInfo.errMsg = "Can not get local version";
