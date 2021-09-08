@@ -296,6 +296,10 @@ public:
         EXPECT_EQ(reply.ReadInt32(), 0);
         return 0;
     }
+    void GetServerIp(std::string &ip)
+    {
+        ip = OHOS::system::GetParameter("update.serverip", "127.0.0.1");
+    }
 
     int TestDownLoadProgress()
     {
