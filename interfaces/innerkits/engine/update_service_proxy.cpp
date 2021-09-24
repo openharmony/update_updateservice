@@ -189,7 +189,10 @@ int32_t UpdateServiceProxy::RebootAndClean(const std::string &miscFile, const st
     data.WriteString16(Str8ToStr16(cmd));
     MessageParcel reply;
     MessageOption option;
-    int32_t ret = remote->SendRequest(REBOOT_CLEAN, data, reply, option);
+    int32_t ret = ERR_OK;
+#ifndef UPDATER_UT
+    ret = remote->SendRequest(REBOOT_CLEAN, data, reply, option);
+#endif
     ENGINE_CHECK(ret == ERR_OK, return ERR_FLATTEN_OBJECT, "Transact error");
     return reply.ReadInt32();
 }
@@ -205,7 +208,10 @@ int32_t UpdateServiceProxy::RebootAndInstall(const std::string &miscFile, const 
     data.WriteString16(Str8ToStr16(packageName));
     MessageParcel reply;
     MessageOption option;
-    int32_t ret = remote->SendRequest(REBOOT_INSTALL, data, reply, option);
+    int32_t ret = ERR_OK;
+#ifndef UPDATER_UT
+    ret = remote->SendRequest(REBOOT_INSTALL, data, reply, option);
+#endif
     ENGINE_CHECK(ret == ERR_OK, return ERR_FLATTEN_OBJECT, "Transact error");
     return reply.ReadInt32();
 }

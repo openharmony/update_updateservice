@@ -63,7 +63,6 @@ public:
     static int32_t ParseJsonFile(const std::vector<char> &buffer, VersionInfo &info);
     static int32_t ReadCheckVersionResult(const cJSON* results, VersionInfo &info);
     static int32_t ReadCheckVersiondescriptInfo(const cJSON *descriptInfo, VersionInfo &info);
-    static void GetServerIp(std::string &ip);
 #ifndef UPDATER_UT
 protected:
 #else
@@ -85,7 +84,6 @@ public:
     bool VerifyDownloadPkg(const std::string &pkgName, Progress &progress);
     void ReadDataFromSSL(int32_t engineSocket);
 private:
-    std::string serverAddr_;
     UpdatePolicy policy_ = {
         1, 1, INSTALLMODE_AUTO, AUTOUPGRADECONDITION_IDLE, { 10, 20 }
     };
