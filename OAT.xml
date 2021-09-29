@@ -69,7 +69,9 @@ Note:If the text contains special characters, please escape them according to th
 			<filefilter name="binaryFileTypePolicyFilter" desc="Filters for binary file policies" >		
 				<filteritem type="filepath" name="engine/etc/updater_sa.cfg" desc="升级服务应用的资源文件"/>
 			</filefilter>				
-	
+	        <filefilter name="defaultFilter" desc="Files not to check">
+				<filteritem type="filepath" name="test/fuzztest/UpdaterOnRemoteRequest_fuzzer/corpus/.*" desc="升级客户端功能Fuzz测试的资源文件"/>
+            </filefilter>
 		</filefilterlist>
 	
     </oatconfig>
