@@ -50,7 +50,7 @@ ohos_fuzztest("UpdaterOnRemoteRequestFuzzTest") {
     "//third_party/cJSON:cjson_static",
     "//third_party/curl:curl",
     "//third_party/libxml2:xml2",
-    "//third_party/openssl:crypto_source",
+    "//third_party/openssl:libcrypto_static",
     "//third_party/openssl:ssl_source",
     "//utils/native/base:utils",
  ]
