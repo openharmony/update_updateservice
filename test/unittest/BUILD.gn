@@ -96,7 +96,7 @@ ohos_executable("updaterserver_ut") {
         "//base/update/updater/interfaces/kits/packages:libpackageExt",
         "//third_party/cJSON:cjson_static",
         "//third_party/curl:curl",
-        "//third_party/openssl:crypto_source",
+        "//third_party/openssl:libcrypto_static",
         "//third_party/openssl:ssl_source",
         "//third_party/libxml2:xml2",
         "//base/startup/syspara_lite/interfaces/innerkits/native/syspara:syspara",
