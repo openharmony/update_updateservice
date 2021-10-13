@@ -46,7 +46,7 @@ ohos_shared_library("update") {
     "//base/update/updateservice/interfaces/innerkits/engine:updateservicekits",
     "//foundation/ace/napi:ace_napi",
     "//third_party/bounds_checking_function:libsec_static",
-    "//third_party/openssl:libcrypto_static",
+    "//third_party/openssl:crypto_source",
     "//third_party/openssl:ssl_source",
     "//utils/native/base:utils",
   ]
