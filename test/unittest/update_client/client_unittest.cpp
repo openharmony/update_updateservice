@@ -36,6 +36,7 @@
 
 using namespace std;
 using namespace updateClient;
+using namespace testing::ext;
 using namespace OHOS::update_engine;
 static constexpr int PERCENT_20 = 20;
 static constexpr int PERCENT_40 = 40;
@@ -406,7 +407,7 @@ public:
     }
 };
 
-TEST(UpdateClientTest, TestGetUpdate)
+HWTEST_F(UpdateClientTest, TestGetUpdate, TestSize.Level1)
 {
     napi_value exports = nullptr;
     UpdateClientInit((napi_env)&g_testEnv, exports);
@@ -416,7 +417,7 @@ TEST(UpdateClientTest, TestGetUpdate)
     test.TestGetUpdaterForOther(false);
 }
 
-TEST(UpdateClientTest, TestGetUpdate2)
+HWTEST_F(UpdateClientTest, TestGetUpdate2, TestSize.Level1)
 {
     UpdateClientTest test;
     test.TestGetUpdate(true);
@@ -424,7 +425,7 @@ TEST(UpdateClientTest, TestGetUpdate2)
     test.TestGetUpdaterForOther(true);
 }
 
-TEST(UpdateClientTest, TestCheckNewVersion)
+HWTEST_F(UpdateClientTest, TestCheckNewVersion, TestSize.Level1)
 {
     UpdateClientTest test;
     test.TestGetUpdate(false);
@@ -432,119 +433,119 @@ TEST(UpdateClientTest, TestCheckNewVersion)
     EXPECT_EQ(0, test.TestCheckNewVersion(true));
 }
 
-TEST(UpdateClientTest, TestDownloadVersion)
+HWTEST_F(UpdateClientTest, TestDownloadVersion, TestSize.Level1)
 {
     UpdateClientTest test;
     EXPECT_EQ(0, test.TestDownloadVersion(false));
     EXPECT_EQ(0, test.TestDownloadVersion(true));
 }
 
-TEST(UpdateClientTest, TestUpgradeVersion)
+HWTEST_F(UpdateClientTest, TestUpgradeVersion, TestSize.Level1)
 {
     UpdateClientTest test;
     EXPECT_EQ(0, test.TestUpgradeVersion(false));
     EXPECT_EQ(0, test.TestUpgradeVersion(true));
 }
 
-TEST(UpdateClientTest, TestSetUpdatePolicy)
+HWTEST_F(UpdateClientTest, TestSetUpdatePolicy, TestSize.Level1)
 {
     UpdateClientTest test;
     EXPECT_EQ(0, test.TestSetUpdatePolicy(false));
     EXPECT_EQ(0, test.TestSetUpdatePolicy(true));
 }
 
-TEST(UpdateClientTest, TestGetUpdatePolicy)
+HWTEST_F(UpdateClientTest, TestGetUpdatePolicy, TestSize.Level1)
 {
     UpdateClientTest test;
     EXPECT_EQ(0, test.TestGetUpdatePolicy(false));
     EXPECT_EQ(0, test.TestGetUpdatePolicy(true));
 }
 
-TEST(UpdateClientTest, TestGetUpgradeStatus)
+HWTEST_F(UpdateClientTest, TestGetUpgradeStatus, TestSize.Level1)
 {
     UpdateClientTest test;
     EXPECT_EQ(0, test.TestGetUpgradeStatus(false));
     EXPECT_EQ(0, test.TestGetUpgradeStatus(true));
 }
 
-TEST(UpdateClientTest, TestGetNewVersionInfo)
+HWTEST_F(UpdateClientTest, TestGetNewVersionInfo, TestSize.Level1)
 {
     UpdateClientTest test;
     EXPECT_EQ(0, test.TestGetNewVersionInfo(false));
     EXPECT_EQ(0, test.TestGetNewVersionInfo(true));
 }
 
-TEST(UpdateClientTest, TestApplyNewVersion)
+HWTEST_F(UpdateClientTest, TestApplyNewVersion, TestSize.Level1)
 {
     UpdateClientTest test;
     EXPECT_EQ(0, test.TestApplyNewVersion(false));
     EXPECT_EQ(0, test.TestApplyNewVersion(true));
 }
 
-TEST(UpdateClientTest, TestRebootAndClean)
+HWTEST_F(UpdateClientTest, TestRebootAndClean, TestSize.Level1)
 {
     UpdateClientTest test;
     EXPECT_EQ(0, test.TestRebootAndClean(false));
     EXPECT_EQ(0, test.TestRebootAndClean(true));
 }
 
-TEST(UpdateClientTest, TestVerifyUpdatePackage)
+HWTEST_F(UpdateClientTest, TestVerifyUpdatePackage, TestSize.Level1)
 {
     UpdateClientTest test;
     EXPECT_EQ(0, test.TestVerifyUpdatePackage(false));
     EXPECT_EQ(0, test.TestVerifyUpdatePackage(true));
 }
 
-TEST(UpdateClientTest, TestSubscribeEvent)
+HWTEST_F(UpdateClientTest, TestSubscribeEvent, TestSize.Level1)
 {
     UpdateClientTest test;
     EXPECT_EQ(0, test.TestSubscribeEvent("downloadProgress"));
     EXPECT_EQ(0, test.TestUnsubscribeEvent(false, "downloadProgress"));
 }
 
-TEST(UpdateClientTest, TestSubscribeEvent2)
+HWTEST_F(UpdateClientTest, TestSubscribeEvent2, TestSize.Level1)
 {
     UpdateClientTest test;
     EXPECT_EQ(0, test.TestSubscribeEvent("downloadProgress"));
     EXPECT_EQ(0, test.TestUnsubscribeEvent(true, "downloadProgress"));
 }
 
-TEST(UpdateClientTest, TestSubscribeEvent3)
+HWTEST_F(UpdateClientTest, TestSubscribeEvent3, TestSize.Level1)
 {
     UpdateClientTest test;
     EXPECT_EQ(0, test.TestSubscribeEvent("upgradeProgress"));
     EXPECT_EQ(0, test.TestUnsubscribeEvent(false, "upgradeProgress"));
 }
 
-TEST(UpdateClientTest, TestSubscribeEvent4)
+HWTEST_F(UpdateClientTest, TestSubscribeEvent4, TestSize.Level1)
 {
     UpdateClientTest test;
     EXPECT_EQ(0, test.TestSubscribeEvent("upgradeProgress"));
     EXPECT_EQ(0, test.TestUnsubscribeEvent(true, "upgradeProgress"));
 }
 
-TEST(UpdateClientTest, TestCancelUpgrade)
+HWTEST_F(UpdateClientTest, TestCancelUpgrade, TestSize.Level1)
 {
     UpdateClientTest test;
     EXPECT_EQ(0, test.TestCancelUpgrade(2));
     EXPECT_EQ(0, test.TestCancelUpgrade(3));
 }
 
-TEST(UpdateClientTest, TestNewClient)
+HWTEST_F(UpdateClientTest, TestNewClient, TestSize.Level1)
 {
     napi_value thisVar = nullptr;
     UpdateClient *client = new UpdateClient((napi_env)&g_testEnv, thisVar);
     delete client;
 }
 
-TEST(UpdateClientTest, TestUpdateAsyncessionNoCallback)
+HWTEST_F(UpdateClientTest, TestUpdateAsyncessionNoCallback, TestSize.Level1)
 {
     UpdateSession *sess = new UpdateAsyncessionNoCallback(g_testClient, 2, 1, 0);
     EXPECT_NE(sess, nullptr);
     delete sess;
 }
 
-TEST(UpdateClientTest, TestUpdatePromiseSession)
+HWTEST_F(UpdateClientTest, TestUpdatePromiseSession, TestSize.Level1)
 {
     UpdateSession *sess = new UpdatePromiseSession (g_testClient, 2, 1, 0);
     EXPECT_NE(sess, nullptr);

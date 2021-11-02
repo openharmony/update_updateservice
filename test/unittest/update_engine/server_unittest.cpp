@@ -29,6 +29,7 @@
 #include "iservice_registry.h"
 #include "iupdate_callback.h"
 #include "iupdate_service.h"
+#include "parameters.h"
 #include "unittest_comm.h"
 #include "update_callback.h"
 #include "update_callback_proxy.h"
@@ -38,6 +39,7 @@
 #include "update_service_proxy.h"
 
 using namespace std;
+using namespace testing::ext;
 using namespace OHOS;
 using namespace OHOS::update_engine;
 static const int32_t DLNOW_10 = 10;
@@ -309,7 +311,7 @@ public:
         });
         EXPECT_EQ(download == 0, 0);
         std::string serverAddr;
-        UpdateService::GetServerIp(serverAddr);
+        GetServerIp(serverAddr);
         std::string url = "http://";
         url += serverAddr;
         url += "/updater.zip";
@@ -429,105 +431,105 @@ public:
     }
 };
 
-TEST(UpdateServerTest, TestDownload)
+HWTEST_F(UpdateServerTest, TestDownload, TestSize.Level1)
 {
     UpdateServerTest test;
     test.TestCheckNewVersion();
     test.TestDownload();
 }
 
-TEST(UpdateServerTest, TestDoUpdate)
+HWTEST_F(UpdateServerTest, TestDoUpdate, TestSize.Level1)
 {
     UpdateServerTest test;
     test.TestDoUpdate();
 }
 
-TEST(UpdateServerTest, TestGetNewVersion)
+HWTEST_F(UpdateServerTest, TestGetNewVersion, TestSize.Level1)
 {
     UpdateServerTest test;
     test.TestCheckNewVersion();
     test.TestGetNewVersion();
 }
 
-TEST(UpdateServerTest, TestUpdatePolicy)
+HWTEST_F(UpdateServerTest, TestUpdatePolicy, TestSize.Level1)
 {
     UpdateServerTest test;
     test.TestUpdatePolicy();
 }
 
-TEST(UpdateServerTest, TestGetUpgradeStatus)
+HWTEST_F(UpdateServerTest, TestGetUpgradeStatus, TestSize.Level1)
 {
     UpdateServerTest test;
     test.TestGetUpgradeStatus();
 }
 
-TEST(UpdateServerTest, TestRebootAndClean)
+HWTEST_F(UpdateServerTest, TestRebootAndClean, TestSize.Level1)
 {
     UpdateServerTest test;
     test.TestRebootAndClean();
 }
 
-TEST(UpdateServerTest, TestRebootAndInstall)
+HWTEST_F(UpdateServerTest, TestRebootAndInstall, TestSize.Level1)
 {
     UpdateServerTest test;
     test.TestRebootAndInstall();
 }
 
-TEST(UpdateServerTest, TestRegisterUpdateCallback)
+HWTEST_F(UpdateServerTest, TestRegisterUpdateCallback, TestSize.Level1)
 {
     UpdateServerTest test;
     test.TestRegisterUpdateCallback();
 }
 
-TEST(UpdateServerTest, TestUnRegisterUpdateCallback)
+HWTEST_F(UpdateServerTest, TestUnRegisterUpdateCallback, TestSize.Level1)
 {
     UpdateServerTest test;
     test.TestUnRegisterUpdateCallback();
 }
 
-TEST(UpdateServerTest, TestReadCheckVersiondescriptInfo)
+HWTEST_F(UpdateServerTest, TestReadCheckVersiondescriptInfo, TestSize.Level1)
 {
     UpdateServerTest test;
     test.TestReadCheckVersiondescriptInfo();
 }
 
-TEST(UpdateServerTest, TestUpdateCallbackCheckNewVersion)
+HWTEST_F(UpdateServerTest, TestUpdateCallbackCheckNewVersion, TestSize.Level1)
 {
     UpdateServerTest test;
     test.TestUpdateCallbackCheckNewVersion();
 }
 
-TEST(UpdateServerTest, TestUpdateCallbackDownload)
+HWTEST_F(UpdateServerTest, TestUpdateCallbackDownload, TestSize.Level1)
 {
     UpdateServerTest test;
     test.TestUpdateCallbackDownload();
 }
 
-TEST(UpdateServerTest, TestUpdateCallbackUpgrade)
+HWTEST_F(UpdateServerTest, TestUpdateCallbackUpgrade, TestSize.Level1)
 {
     UpdateServerTest test;
     test.TestUpdateCallbackUpgrade();
 }
 
-TEST(UpdateServerTest, TestDownLoadProgress)
+HWTEST_F(UpdateServerTest, TestDownLoadProgress, TestSize.Level1)
 {
     UpdateServerTest test;
     test.TestDownLoadProgress();
 }
 
-TEST(UpdateServerTest, TestNewUpdateService)
+HWTEST_F(UpdateServerTest, TestNewUpdateService, TestSize.Level1)
 {
     UpdateServerTest test;
     test.TestNewUpdateService();
 }
 
-TEST(UpdateServerTest, TestUpdateServiceProxy)
+HWTEST_F(UpdateServerTest, TestUpdateServiceProxy, TestSize.Level1)
 {
     UpdateServerTest test;
     test.TestUpdateServiceProxy();
 }
 
-TEST(UpdateServerTest, TestKitsResetService)
+HWTEST_F(UpdateServerTest, TestKitsResetService, TestSize.Level1)
 {
     sptr<ISystemAbilityManager> systemMgr = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     EXPECT_NE(systemMgr, nullptr);
@@ -545,7 +547,7 @@ TEST(UpdateServerTest, TestKitsResetService)
     delete saServer;
 }
 
-TEST(UpdateServerTest, TestKitsRemoteCallbackOnCheckVersionDone)
+HWTEST_F(UpdateServerTest, TestKitsRemoteCallbackOnCheckVersionDone, TestSize.Level1)
 {
     VersionInfo info {};
     UpdateCallbackInfo callBackFun {};
@@ -555,7 +557,7 @@ TEST(UpdateServerTest, TestKitsRemoteCallbackOnCheckVersionDone)
     EXPECT_NE(remoteCallBack, nullptr);
 }
 
-TEST(UpdateServerTest, TestKitsRemoteCallbackOnDownloadProgress)
+HWTEST_F(UpdateServerTest, TestKitsRemoteCallbackOnDownloadProgress, TestSize.Level1)
 {
     Progress progress {};
     UpdateCallbackInfo callBackFun {};
@@ -565,7 +567,7 @@ TEST(UpdateServerTest, TestKitsRemoteCallbackOnDownloadProgress)
     EXPECT_NE(remoteCallBack, nullptr);
 }
 
-TEST(UpdateServerTest, TestKitsRemoteCallbackOnUpgradeProgress)
+HWTEST_F(UpdateServerTest, TestKitsRemoteCallbackOnUpgradeProgress, TestSize.Level1)
 {
     Progress progress {};
     UpdateCallbackInfo callBackFun {};
@@ -575,7 +577,7 @@ TEST(UpdateServerTest, TestKitsRemoteCallbackOnUpgradeProgress)
     EXPECT_NE(remoteCallBack, nullptr);
 }
 
-TEST(UpdateServerTest, TestKitsRegisterUpdateCallback)
+HWTEST_F(UpdateServerTest, TestKitsRegisterUpdateCallback, TestSize.Level1)
 {
     UpdateCallbackInfo callBackFun {};
     UpdateContext ctx {};
@@ -585,20 +587,20 @@ TEST(UpdateServerTest, TestKitsRegisterUpdateCallback)
     EXPECT_EQ(ret, 0);
 }
 
-TEST(UpdateServerTest, TestKitsDoUpdate)
+HWTEST_F(UpdateServerTest, TestKitsDoUpdate, TestSize.Level1)
 {
     int ret = UpdateServiceKits::GetInstance().DoUpdate();
     EXPECT_EQ(ret, 0);
 }
 
-TEST(UpdateServerTest, TestKitsCancel)
+HWTEST_F(UpdateServerTest, TestKitsCancel, TestSize.Level1)
 {
     int32_t service = 0;
     int ret = UpdateServiceKits::GetInstance().Cancel(service);
     EXPECT_EQ(ret, 0);
 }
 
-TEST(UpdateServerTest, TestKitsRebootAndClean)
+HWTEST_F(UpdateServerTest, TestKitsRebootAndClean, TestSize.Level1)
 {
     const std::string miscFile = "/dev/block/platform/soc/10100000.himci.eMMC/by-name/misc";
     const std::string cmd = "--update_package=/data/updater/updater.zip";
@@ -606,7 +608,7 @@ TEST(UpdateServerTest, TestKitsRebootAndClean)
     EXPECT_NE(ret, 0);
 }
 
-TEST(UpdateServerTest, TestKitsReadDataFromSSL)
+HWTEST_F(UpdateServerTest, TestKitsReadDataFromSSL, TestSize.Level1)
 {
     int32_t engineSocket = 10;
     UpdateService *updateServer = new UpdateService(0, true);
@@ -615,14 +617,14 @@ TEST(UpdateServerTest, TestKitsReadDataFromSSL)
     delete updateServer;
 }
 
-TEST(UpdateServerTest, TestKits)
+HWTEST_F(UpdateServerTest, TestKits, TestSize.Level1)
 {
     UpdateServiceKits *kit = new MockUpdateServiceKits();
     EXPECT_NE(kit, nullptr);
     delete kit;
 }
 
-TEST(UpdateServerTest, TestUpdateServiceKitsImpl)
+HWTEST_F(UpdateServerTest, TestUpdateServiceKitsImpl, TestSize.Level1)
 {
     std::string miscFile = "/dev/block/platform/soc/10100000.himci.eMMC/by-name/misc";
     std::string packageName = "/data/updater/updater/updater.zip";
@@ -630,7 +632,7 @@ TEST(UpdateServerTest, TestUpdateServiceKitsImpl)
     printf("RebootAndInstall: %d\n", ret);
 }
 
-TEST(UpdateServerTest, TestUpdateServiceRegisterUpdateCallback)
+HWTEST_F(UpdateServerTest, TestUpdateServiceRegisterUpdateCallback, TestSize.Level1)
 {
     UpdateContext ctx {};
     UpdateService *updateServer = new UpdateService(0, true);
@@ -638,7 +640,7 @@ TEST(UpdateServerTest, TestUpdateServiceRegisterUpdateCallback)
     delete updateServer;
 }
 
-TEST(UpdateServerTest, TestVerifyDownloadPkg)
+HWTEST_F(UpdateServerTest, TestVerifyDownloadPkg, TestSize.Level1)
 {
     Progress downloadProgress {};
     std::string path = "/data/updater/updater/test.txt";
