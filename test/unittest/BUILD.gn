@@ -11,8 +11,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("//build/ohos.gni")
+import("//build/test.gni")
 
+module_output_path = "updater/updateservice_test"
 config("utest_config") {
   visibility = [ ":*" ]
 
@@ -27,7 +28,9 @@ config("utest_config") {
   ldflags = [ "--coverage" ]
 }
 
-ohos_executable("updaterserver_ut") {
+ohos_unittest("updateservice_unittest") {
+  testonly = true
+  module_out_path = module_output_path
   sources = [
     "update_client/client_stub.cpp",
     "update_client/client_unittest.cpp",
@@ -65,13 +68,13 @@ ohos_executable("updaterserver_ut") {
     "//base/update/updater/services/include/package",
     "//base/update/updater/test/unittest",
     "//third_party/bounds_checking_function/include",
+    "//third_party/googletest/googletest/include",
     "//third_party/node/src",
     "//foundation/ace/napi/interfaces/kits",
     "//third_party/cJSON",
     "//third_party/libxml2/include",
     "//third_party/curl/include",
     "//third_party/openssl/include",
-    "//third_party/bounds_checking_function/include",
     "//foundation/communication/ipc/interfaces/innerkits/ipc_core/include",
     "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy/include",
     "//foundation/distributedschedule/safwk/services/safwk/include",
@@ -91,8 +94,8 @@ ohos_executable("updaterserver_ut") {
     "//third_party/bounds_checking_function:libsec_static",
     "//third_party/cJSON:cjson_static",
     "//third_party/curl:curl",
-    "//third_party/googletest:gmock",
-    "//third_party/googletest:gtest",
+    "//third_party/googletest:gmock_main",
+    "//third_party/googletest:gtest_main",
     "//third_party/libxml2:xml2",
     "//third_party/lz4:liblz4_static",
     "//third_party/openssl:libcrypto_static",
