@@ -373,12 +373,12 @@ declare namespace update {
         applyNewVersion(): Promise<number>;
 
         /**
-         * Reboot to clean cache.
+         * Reboot to clean userdata.
          *
          * @since 6
          */
-        rebootAndCleanCache(callback: AsyncCallback<number>): void;
-        rebootAndCleanCache(): Promise<number>;
+        rebootAndCleanUserData(callback: AsyncCallback<number>): void;
+        rebootAndCleanUserData(): Promise<number>;
 
         /**
          * verify update package.
