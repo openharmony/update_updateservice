@@ -265,7 +265,7 @@ static napi_module g_module = {
     .nm_flags = 0,
     .nm_filename = nullptr,
     .nm_register_func = UpdateClientInit,
-    .nm_modname = "libupdate.z.so",
+    .nm_modname = "update",
     .nm_priv = ((void*)0),
     .reserved = { 0 }
 };
