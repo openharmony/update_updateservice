@@ -17,3 +17,9 @@ group("unittest") {
   testonly = true
   deps = [ "test/unittest:updateservice_unittest" ]
 }
+
+group("update_client_jsapi") {
+  if (support_jsapi) {
+    deps = [ "//base/update/updateservice/client:update" ]
+  }
+}
