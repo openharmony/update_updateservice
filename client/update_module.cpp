@@ -20,7 +20,7 @@
 namespace updateClient {
 const std::string CLASS_NAME  = "UpdateClient";
 constexpr int32_t REF_COUNT = 20;
-napi_ref g_reference = nullptr;
+napi_ref thread_local g_reference = nullptr;
 
 napi_value UpdateClientJSConstructor(napi_env env, napi_callback_info info)
 {
@@ -251,9 +251,6 @@ static napi_value UpdateClientInit(napi_env env, napi_value exports)
     napi_define_class(env, CLASS_NAME.c_str(), CLASS_NAME.size(), UpdateClientJSConstructor,
         nullptr, sizeof(descriptors) / sizeof(*descriptors), descriptors, &result);
     napi_set_named_property(env, exports, CLASS_NAME.c_str(), result);
-    if (g_reference != nullptr) {
-        return exports;
-    }
     napi_status status = napi_create_reference(env, result, REF_COUNT, &g_reference);
     CLIENT_CHECK_NAPI_CALL(env, status == napi_ok, return nullptr, "Failed to create_reference");
     CLIENT_LOGI("UpdateClient g_reference %p", g_reference);
