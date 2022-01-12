@@ -17,8 +17,8 @@
         "update",
         "updateservice"
     ],
-    "envs": [],
-    "dirs": [],
+    "envs": {},
+    "dirs": {},
     "author": {
         "name": "",
         "email": "",
