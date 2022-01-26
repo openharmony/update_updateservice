@@ -16,7 +16,7 @@ import("//build/ohos.gni")
 ohos_prebuilt_etc("updater_sa.rc") {
   source = "etc/updater_sa.rc"
   relative_install_dir = "init"
-  part_name = "updater"
+  part_name = "update_service"
 }
 
 ohos_static_library("updateservicekits") {
@@ -60,5 +60,5 @@ ohos_static_library("updateservicekits") {
     "startup_l2:syspara",
   ]
 
-  part_name = "updater"
+  part_name = "update_service"
 }
