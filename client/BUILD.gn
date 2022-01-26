@@ -61,5 +61,5 @@ ohos_shared_library("update") {
 
   install_enable = true
   relative_install_dir = "module"
-  part_name = "updater"
+  part_name = "update_service"
 }
