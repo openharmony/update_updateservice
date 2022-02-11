@@ -120,5 +120,5 @@ ohos_unittest("updateservice_unittest") {
 
   public_configs = [ ":utest_config" ]
   install_enable = true
-  part_name = "updater"
+  part_name = "update_service"
 }
