@@ -1,0 +1,66 @@
+{
+  "name": "@ohos/update_service",
+  "description": "A system ability started by the init process of OHOS to implement an update",
+  "version": "3.1",
+  "license": "Apache License 2.0",
+  "publishAs": "code-segment",
+  "segment": {
+    "destPath": "base/update/updateservice"
+  },
+  "dirs": {},
+  "scripts": {},
+  "component": {
+    "name": "update_service",
+    "subsystem": "updater",
+    "syscap": [
+      "SystemCapability.Updater.update_service"
+    ],
+    "features": [],
+    "adapted_system_type": [
+      "standard"
+    ],
+    "deps": {
+      "components": [
+        "utils_base",
+        "hiviewdfx_hilog_native",
+        "ipc",
+        "safwk",
+        "samgr_standard",
+        "napi",
+        "startup_l2"
+      ],
+      "third_party": [
+        "curl",
+        "libxml2",
+        "cJSON",
+        "bounds_checking_function",
+        "openssl"
+      ]
+    },
+    "build": {
+      "sub_component": [
+        "//base/update/updateservice/client:update",
+        "//base/update/updateservice/engine:updateservice",
+        "//base/update/updateservice/engine:updater_sa.rc",
+        "//base/update/updateservice/engine/sa_profile:updater_sa_profile",
+        "//base/update/updateservice/interfaces/innerkits/engine:updateservicekits"
+      ],
+      "inner_kits": [
+        {
+          "header": {
+            "header_base":"//base/update/updateservice/interfaces/innerkits/include",
+            "header_files": [
+              "iupdate_callback.h",
+              "iupdate_service.h",
+              "update_helper.h",
+              "update_service_kits_impl.h",
+              "update_service_kits.h"
+            ]
+          },
+          "name": "//base/update/updateservice/interfaces/innerkits/engine:updateservicekits"
+        }
+      ],
+      "test": []
+    }
+  }
+}
