@@ -134,7 +134,8 @@ public:
     UpdateSession *RemoveSession(uint32_t sessionId);
     void AddSession(std::shared_ptr<UpdateSession> session);
 
-    void Emit(const std::string &type, int32_t retCode, const UpdateResult &result);
+    void PublishToJS(const std::string &type, int32_t retcode, const UpdateResult &result);
+    void Emit(const std::string &type, int32_t retcode, const UpdateResult &result);
 
     static int32_t GetStringValue(napi_env env, napi_value arg, std::string &strValue);
     static int32_t BuildErrorResult(napi_env env, napi_value &obj, int32_t result);
