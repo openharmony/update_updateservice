@@ -129,7 +129,7 @@ public:
     napi_value SubscribeEvent(napi_env env, napi_callback_info info);
     napi_value UnsubscribeEvent(napi_env env, napi_callback_info info);
 
-    int32_t GetUpdateResult(int type, UpdateResult &result, int32_t &isFail);
+    int32_t GetUpdateResult(int type, UpdateResult &result, int32_t &fail);
 
     UpdateSession *RemoveSession(uint32_t sessionId);
     void AddSession(std::shared_ptr<UpdateSession> session);
@@ -144,7 +144,7 @@ public:
     void NotifyCheckVersionDone(const OHOS::update_engine::VersionInfo &info);
     void NotifyDownloadProgress(const OHOS::update_engine::Progress &progress);
     void NotifyUpgradeProgresss(const OHOS::update_engine::Progress &progress);
-    void NotifyVerifyProgresss(int32_t result, uint32_t percent);
+    void NotifyVerifyProgresss(int32_t retCode, uint32_t percent);
 
     #ifdef UPDATER_UT
     UpdateSession *GetUpdateSession(uint32_t sessId)
