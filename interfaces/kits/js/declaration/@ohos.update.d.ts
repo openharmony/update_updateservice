@@ -18,9 +18,8 @@ import { AsyncCallback, BussinessError } from "./basic";
 /**
  * A static class to do update for device.
  *
- * @devices all
  * @since 6
- * @Syscap SystemCapability.Updater.Raw
+ * @Syscap SystemCapability.Updater.update_service
  */
 declare namespace update {
     /**
@@ -311,9 +310,7 @@ declare namespace update {
     /**
      * A static class to do update for the specified device.
      *
-     * @devices all
      * @since 6
-     * @Syscap SystemCapability.Updater.Raw
      */
     export interface Updater {
         /**
