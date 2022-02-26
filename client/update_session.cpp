@@ -127,8 +127,8 @@ void UpdateAsyncession::CompleteWork(napi_env env, napi_status status)
     UpdateResult result;
     int32_t fail = 0;
     client_->GetUpdateResult(type_, result, fail);
-    int ret = UpdateClient::BuildErrorResult(env, retArgs[0], fail);
-    ret |= result.buildJSObject(env, retArgs[1], result);
+    uint32_t ret = (uint32_t)UpdateClient::BuildErrorResult(env, retArgs[0], fail);
+    ret |= (uint32_t)result.buildJSObject(env, retArgs[1], result);
     CLIENT_CHECK_NAPI_CALL(env, ret == napi_ok, return, "Failed to build json");
 
     status = napi_get_reference_value(env, callbackRef_[0], &callback);
