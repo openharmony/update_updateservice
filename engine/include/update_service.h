@@ -60,8 +60,8 @@ public:
     int32_t RebootAndClean(const std::string &miscFile, const std::string &cmd) override;
 
     int32_t RebootAndInstall(const std::string &miscFile, const std::string &packageName) override;
-    static int32_t ParseJsonFile(const std::vector<char> &buffer, VersionInfo &info);
-    static int32_t ReadCheckVersionResult(const cJSON* results, VersionInfo &info);
+    static int32_t ParseJsonFile(const std::vector<char> &buffer, VersionInfo &info, std::string &url);
+    static int32_t ReadCheckVersionResult(const cJSON* results, VersionInfo &info, std::string &url);
     static int32_t ReadCheckVersiondescriptInfo(const cJSON *descriptInfo, VersionInfo &info);
 #ifndef UPDATER_UT
 protected:
@@ -93,6 +93,7 @@ private:
     sptr<IUpdateCallback> updateCallback_ { nullptr };
     DownloadThread *downloadThread_  { nullptr };
     UpdateContext updateContext_ {};
+    std::string downloadUrl_;
 };
 }
 } // namespace OHOS
