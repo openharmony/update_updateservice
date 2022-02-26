@@ -75,7 +75,7 @@ UpdateService::UpdateService(int32_t systemAbilityId, bool runOnCreate)
 
 UpdateService::~UpdateService()
 {
-    ENGINE_LOGE("UpdateServerTest free %p", this);
+    ENGINE_LOGE("UpdateServerTest free now");
     if (downloadThread_ != nullptr) {
         downloadThread_->StopDownload();
         delete downloadThread_;
@@ -352,7 +352,7 @@ int32_t UpdateService::ParseJsonFile(const std::vector<char> &buffer, VersionInf
 
 int32_t UpdateService::ReadCheckVersionResult(const cJSON* results, VersionInfo &info)
 {
-    size_t number = cJSON_GetArraySize(results);
+    size_t number = (size_t)cJSON_GetArraySize(results);
     for (size_t i = 0; i < number && i < sizeof(info.result) / sizeof(info.result[0]); i++) {
         cJSON *result = cJSON_GetArrayItem(results, i);
         ENGINE_CHECK(result != nullptr, return -1, "Error get result");
@@ -371,7 +371,7 @@ int32_t UpdateService::ReadCheckVersionResult(const cJSON* results, VersionInfo 
 
         item = cJSON_GetObjectItem(result, "size");
         ENGINE_CHECK(item != nullptr,  return -1, "Error get size");
-        info.result[i].size = item->valueint;
+        info.result[i].size = (size_t)item->valueint;
 
         item = cJSON_GetObjectItem(result, "packageType");
         ENGINE_CHECK(item != nullptr, return -1, "Error get packageType");
@@ -386,7 +386,7 @@ int32_t UpdateService::ReadCheckVersionResult(const cJSON* results, VersionInfo 
 
 int32_t UpdateService::ReadCheckVersiondescriptInfo(const cJSON *descriptInfo, VersionInfo &info)
 {
-    size_t number = cJSON_GetArraySize(descriptInfo);
+    size_t number = (size_t)cJSON_GetArraySize(descriptInfo);
     for (size_t i = 0; i < number && i < sizeof(info.result) / sizeof(info.result[0]); i++) {
         cJSON* descript = cJSON_GetArrayItem(descriptInfo, i);
         ENGINE_CHECK(descript != nullptr, return -1, "Error get descriptInfo");
