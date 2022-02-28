@@ -297,7 +297,7 @@ void UpdateService::ReadDataFromSSL(int32_t engineSocket)
     int32_t ret = SSL_connect(ssl);
     if (ret != -1) {
         int32_t len = SSL_read(ssl, buffer.data(), JSON_MAX_SIZE);
-        if (len > 0 && ParseJsonFile(buffer, versionInfo_) == 0) {
+        if (len > 0 && ParseJsonFile(buffer, versionInfo_, downloadUrl_) == 0) {
             result = HAS_NEW_VERSION;
             errMsg = "";
         } else {
@@ -317,7 +317,7 @@ void UpdateService::ReadDataFromSSL(int32_t engineSocket)
     return;
 }
 
-int32_t UpdateService::ParseJsonFile(const std::vector<char> &buffer, VersionInfo &info)
+int32_t UpdateService::ParseJsonFile(const std::vector<char> &buffer, VersionInfo &info, std::string &url)
 {
     ENGINE_CHECK(buffer.size() > 0, return -1, "JsonFile length must > 0");
     cJSON *root = cJSON_Parse(buffer.data());
@@ -333,7 +333,7 @@ int32_t UpdateService::ParseJsonFile(const std::vector<char> &buffer, VersionInf
 
     cJSON *results = cJSON_GetObjectItem(root, "checkResults");
     ENGINE_CHECK(results != nullptr, cJSON_Delete(root); return -1, "Error get checkResults");
-    int32_t ret = ReadCheckVersionResult(results, info);
+    int32_t ret = ReadCheckVersionResult(results, info, url);
     ENGINE_CHECK(ret == 0, cJSON_Delete(root); return -1, "Error get checkResults");
 
     cJSON *descriptInfo = cJSON_GetObjectItem(root, "descriptInfo");
@@ -350,7 +350,7 @@ int32_t UpdateService::ParseJsonFile(const std::vector<char> &buffer, VersionInf
     return 0;
 }
 
-int32_t UpdateService::ReadCheckVersionResult(const cJSON* results, VersionInfo &info)
+int32_t UpdateService::ReadCheckVersionResult(const cJSON* results, VersionInfo &info, std::string &url)
 {
     size_t number = cJSON_GetArraySize(results);
     for (size_t i = 0; i < number && i < sizeof(info.result) / sizeof(info.result[0]); i++) {
@@ -376,6 +376,10 @@ int32_t UpdateService::ReadCheckVersionResult(const cJSON* results, VersionInfo 
         item = cJSON_GetObjectItem(result, "packageType");
         ENGINE_CHECK(item != nullptr, return -1, "Error get packageType");
         info.result[i].packageType = (PackageType)(item->valueint);
+
+        item = cJSON_GetObjectItem(result, "url");
+        ENGINE_CHECK(item != nullptr, return -1, "Error get url");
+        url = item->valuestring;
 
         item = cJSON_GetObjectItem(result, "descriptPackageId");
         ENGINE_CHECK(item != nullptr, return -1, "Error get descriptPackageId");
@@ -430,13 +434,7 @@ bool UpdateService::VerifyDownloadPkg(const std::string &pkgName, Progress &prog
 
 std::string UpdateService::GetDownloadServerUrl() const
 {
-    std::string serverIp = OHOS::system::GetParameter(PARAM_NAME_FOR_DOWNLOAD, DEFAULT_SERVER_IP);
-    ENGINE_LOGI("GetDownloadServerUrl serverIp: %s ", serverIp.c_str());
-    std::string url = "http://";
-    url += serverIp;
-    url += "/";
-    url += versionInfo_.result[0].descriptPackageId;
-    return url;
+    return downloadUrl_;
 }
 
 int32_t UpdateService::Cancel(int32_t service)
