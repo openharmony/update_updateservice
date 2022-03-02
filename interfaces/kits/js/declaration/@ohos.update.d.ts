@@ -19,7 +19,7 @@ import { AsyncCallback, BussinessError } from "./basic";
  * A static class to do update for device.
  *
  * @since 6
- * @Syscap SystemCapability.Updater.update_service
+ * @syscap SystemCapability.Updater.update_service
  */
 declare namespace update {
     /**
