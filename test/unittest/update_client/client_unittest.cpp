@@ -73,8 +73,11 @@ public:
         size_t bytes = fread(buffer.data(), 1, JSON_MAX_SIZE, fp);
         if (bytes > 0) {
             int32_t ret = UpdateService::ParseJsonFile(buffer, info);
-            CLIENT_CHECK(ret == 0, return 0, "parse json error");
+            CLIENT_CHECK(ret == 0,
+            (void)fclose(fp);
+            return 0, "parse json error");
         }
+        (void)fclose(fp);
         return 0;
     }
 
