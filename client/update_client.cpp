@@ -161,11 +161,11 @@ bool UpdateClient::CheckUpgradeFile(const std::string &upgradeFile)
     std::string file = upgradeFile;
     file.erase(0, file.find_first_not_of(" "));
     file.erase(file.find_last_not_of(" ") + 1);
-    int32_t pos = file.find_first_of('/');
+    int32_t pos = (int32_t)file.find_first_of('/');
     if (pos != 0) {
         return false;
     }
-    pos = file.find_last_of('.');
+    pos = (int32_t)file.find_last_of('.');
     if (pos < 0) {
         return false;
     }
@@ -791,7 +791,7 @@ int32_t UpdateClient::GetUpdatePolicyFromArg(napi_env env,
 
     // updatePolicy
     int32_t tmpValue = 0;
-    int32_t ret = GetBool(env, arg, "autoDownload", updatePolicy.autoDownload);
+    uint32_t ret = GetBool(env, arg, "autoDownload", updatePolicy.autoDownload);
     ret |= GetBool(env, arg, "autoDownloadNet", updatePolicy.autoDownloadNet);
     ret |= GetInt32(env, arg, "mode", tmpValue);
     updatePolicy.mode = static_cast<InstallMode>(tmpValue);
@@ -842,10 +842,10 @@ int32_t UpdateClient::BuildCheckVersionResult(napi_env env, napi_value &obj, con
     VersionInfo *info = result.result.versionInfo;
 
     // Add the result.
-    int32_t ret = SetInt32(env, obj, "status", info->status);
+    SetInt32(env, obj, "status", info->status);
     if (info->status == SERVER_BUSY || info->status == SYSTEM_ERROR) {
-        ret = SetString(env, obj, "errMsg", info->errMsg);
-        return ret;
+        SetString(env, obj, "errMsg", info->errMsg);
+        return CLIENT_SUCCESS;
     }
     napi_value checkResults;
     napi_create_array_with_length(env, sizeof(info->result) / sizeof(info->result[0]), &checkResults);
@@ -853,12 +853,12 @@ int32_t UpdateClient::BuildCheckVersionResult(napi_env env, napi_value &obj, con
         napi_value result;
         status = napi_create_object(env, &result);
 
-        ret |= SetString(env, result, "versionName", info->result[i].versionName);
-        ret |= SetString(env, result, "versionCode", info->result[i].versionCode);
-        ret |= SetString(env, result, "verifyInfo", info->result[i].verifyInfo);
-        ret |= SetString(env, result, "descriptionId", info->result[i].descriptPackageId);
-        ret |= SetInt64(env, result, "size", info->result[i].size);
-        ret |= SetInt32(env, result, "packageType", info->result[i].packageType);
+        SetString(env, result, "versionName", info->result[i].versionName);
+        SetString(env, result, "versionCode", info->result[i].versionCode);
+        SetString(env, result, "verifyInfo", info->result[i].verifyInfo);
+        SetString(env, result, "descriptionId", info->result[i].descriptPackageId);
+        SetInt64(env, result, "size", info->result[i].size);
+        SetInt32(env, result, "packageType", info->result[i].packageType);
         napi_set_element(env, checkResults, i, result);
     }
     napi_set_named_property(env, obj, "checkResults", checkResults);
@@ -868,8 +868,8 @@ int32_t UpdateClient::BuildCheckVersionResult(napi_env env, napi_value &obj, con
     for (size_t i = 0; i < sizeof(info->descriptInfo) / sizeof(info->descriptInfo[0]); i++) {
         napi_value descriptInfo;
         status = napi_create_object(env, &descriptInfo);
-        ret |= SetString(env, descriptInfo, "descriptionId", info->descriptInfo[i].descriptPackageId);
-        ret |= SetString(env, descriptInfo, "content", info->descriptInfo[i].content);
+        SetString(env, descriptInfo, "descriptionId", info->descriptInfo[i].descriptPackageId);
+        SetString(env, descriptInfo, "content", info->descriptInfo[i].content);
         napi_set_element(env, descriptInfos, i, descriptInfo);
     }
     napi_set_named_property(env, obj, "descriptionInfo", descriptInfos);
@@ -881,9 +881,9 @@ int32_t UpdateClient::BuildProgress(napi_env env, napi_value &obj, const UpdateR
     napi_status status = napi_create_object(env, &obj);
     CLIENT_CHECK(status == napi_ok, return CLIENT_INVALID_TYPE,
         "Failed to create napi_create_object %d", static_cast<int32_t>(status));
-    int32_t ret = SetInt32(env, obj, "status", result.result.progress->status);
-    ret |= SetInt32(env, obj, "percent", result.result.progress->percent);
-    ret |= SetString(env, obj, "endReason", result.result.progress->endReason);
+    SetInt32(env, obj, "status", result.result.progress->status);
+    SetInt32(env, obj, "percent", result.result.progress->percent);
+    SetString(env, obj, "endReason", result.result.progress->endReason);
     return CLIENT_SUCCESS;
 }
 
@@ -909,10 +909,9 @@ int32_t UpdateClient::BuildUpdatePolicy(napi_env env, napi_value &obj, const Upd
     UpdatePolicy &updatePolicy = *result.result.updatePolicy;
 
     // Add the result.
-    int32_t ret = SetBool(env, obj, "autoDownload", updatePolicy.autoDownload);
-    ret |= SetBool(env, obj, "autoDownloadNet", updatePolicy.autoDownloadNet);
-    ret |= SetInt32(env, obj, "mode", static_cast<int32_t>(updatePolicy.mode));
-    CLIENT_CHECK(ret == napi_ok, return ret, "Failed to add value %d", ret);
+    SetBool(env, obj, "autoDownload", updatePolicy.autoDownload);
+    SetBool(env, obj, "autoDownloadNet", updatePolicy.autoDownloadNet);
+    SetInt32(env, obj, "mode", static_cast<int32_t>(updatePolicy.mode));
 
     napi_value autoUpgradeInterval;
     size_t count = sizeof(updatePolicy.autoUpgradeInterval) / sizeof(updatePolicy.autoUpgradeInterval[0]);
@@ -926,8 +925,7 @@ int32_t UpdateClient::BuildUpdatePolicy(napi_env env, napi_value &obj, const Upd
     }
     status = napi_set_named_property(env, obj, "autoUpgradeInterval", autoUpgradeInterval);
     CLIENT_CHECK(status == napi_ok, return status, "Failed to add autoUpgradeInterval %d", status);
-    ret |= SetInt32(env, obj, "autoUpgradeCondition", static_cast<int32_t>(updatePolicy.autoUpgradeCondition));
-    CLIENT_CHECK(ret == napi_ok, return ret, "Failed to add autoUpgradeCondition %d", ret);
+    SetInt32(env, obj, "autoUpgradeCondition", static_cast<int32_t>(updatePolicy.autoUpgradeCondition));
     return napi_ok;
 }
 
