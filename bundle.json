@@ -13,7 +13,7 @@
     "name": "update_service",
     "subsystem": "updater",
     "syscap": [
-      "SystemCapability.Updater.update_service"
+      "SystemCapability.Update.UpdateService"
     ],
     "features": [],
     "adapted_system_type": [
