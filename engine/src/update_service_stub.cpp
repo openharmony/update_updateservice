@@ -149,6 +149,10 @@ static int32_t RebootAndInstallStub(UpdateServiceStub::UpdateServiceStubPtr serv
 int32_t UpdateServiceStub::OnRemoteRequest(uint32_t code,
     MessageParcel& data, MessageParcel& reply, MessageOption &option)
 {
+    if (data.ReadInterfaceToken() != GetDescriptor()) {
+        ENGINE_LOGI("UpdateServiceStub ReadInterfaceToken fail");
+        return -1;
+    }
     static std::map<uint32_t, UpdateServiceStub::RequestFuncType> requestFuncMap = {
         {IUpdateService::CHECK_VERSION, CheckNewVersionStub},
         {IUpdateService::DOWNLOAD, DownloadVersionStub},
