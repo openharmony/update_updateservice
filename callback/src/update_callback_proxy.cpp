@@ -26,6 +26,11 @@ void UpdateCallbackProxy::OnCheckVersionDone(const VersionInfo &info)
     MessageParcel reply;
     MessageOption option { MessageOption::TF_SYNC };
 
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        ENGINE_LOGI("UpdateCallbackProxy WriteInterfaceToken fail");
+        return;
+    }
+
     auto remote = Remote();
     ENGINE_CHECK(remote != nullptr, return, "Can not get remote");
 
@@ -44,6 +49,11 @@ void UpdateCallbackProxy::OnDownloadProgress(const Progress &progress)
     MessageParcel reply;
     MessageOption option { MessageOption::TF_SYNC };
 
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        ENGINE_LOGI("UpdateCallbackProxy WriteInterfaceToken fail");
+        return;
+    }
+
     auto remote = Remote();
     ENGINE_CHECK(remote != nullptr, return, "Can not get remote");
 
@@ -61,6 +71,11 @@ void UpdateCallbackProxy::OnUpgradeProgress(const Progress &progress)
     MessageParcel data;
     MessageParcel reply;
     MessageOption option { MessageOption::TF_SYNC };
+
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        ENGINE_LOGI("UpdateCallbackProxy WriteInterfaceToken fail");
+        return;
+    }
 
     auto remote = Remote();
     ENGINE_CHECK(remote != nullptr, return, "Can not get remote");
