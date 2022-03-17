@@ -29,6 +29,12 @@ int32_t UpdateServiceProxy::RegisterUpdateCallback(const UpdateContext &ctx,
     ENGINE_CHECK(remote != nullptr, return ERR_FLATTEN_OBJECT, "Can not get remote");
 
     MessageParcel data;
+
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        ENGINE_LOGI("UpdateServiceProxy WriteInterfaceToken fail");
+        return -1;
+    }
+
     UpdateHelper::WriteUpdateContext(data, ctx);
     bool ret = data.WriteRemoteObject(updateCallback->AsObject());
     ENGINE_CHECK(ret, return ERR_FLATTEN_OBJECT, "Can not get remote");
@@ -45,6 +51,11 @@ int32_t UpdateServiceProxy::UnregisterUpdateCallback()
     ENGINE_CHECK(remote != nullptr, return ERR_FLATTEN_OBJECT, "Can not get remote");
 
     MessageParcel data;
+
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        ENGINE_LOGI("UpdateServiceProxy WriteInterfaceToken fail");
+        return -1;
+    }
     MessageParcel reply;
     MessageOption option { MessageOption::TF_SYNC };
     int32_t res = remote->SendRequest(UNREGISTER_CALLBACK, data, reply, option);
@@ -59,6 +70,11 @@ int32_t UpdateServiceProxy::CheckNewVersion()
     ENGINE_CHECK(remote != nullptr, return ERR_FLATTEN_OBJECT, "Can not get remote");
 
     MessageParcel data;
+
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        ENGINE_LOGI("UpdateServiceProxy WriteInterfaceToken fail");
+        return -1;
+    }
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
     int32_t res = remote->SendRequest(CHECK_VERSION, data, reply, option);
@@ -74,6 +90,11 @@ int32_t UpdateServiceProxy::DownloadVersion()
 
     // Construct a data sending message to the stub.
     MessageParcel data;
+
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        ENGINE_LOGI("UpdateServiceProxy WriteInterfaceToken fail");
+        return -1;
+    }
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
     int32_t ret = remote->SendRequest(DOWNLOAD, data, reply, option);
@@ -89,6 +110,11 @@ int32_t UpdateServiceProxy::DoUpdate()
 
     // Construct a data sending message to the stub.
     MessageParcel data;
+
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        ENGINE_LOGI("UpdateServiceProxy WriteInterfaceToken fail");
+        return -1;
+    }
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
     int32_t ret = remote->SendRequest(UPGRADE, data, reply, option);
@@ -103,6 +129,11 @@ int32_t UpdateServiceProxy::GetNewVersion(VersionInfo &versionInfo)
     ENGINE_CHECK(remote != nullptr, return ERR_FLATTEN_OBJECT, "Can not get remote");
 
     MessageParcel data;
+
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        ENGINE_LOGI("UpdateServiceProxy WriteInterfaceToken fail");
+        return -1;
+    }
     MessageParcel reply;
     MessageOption option;
     int32_t ret = remote->SendRequest(GET_NEW_VERSION, data, reply, option);
@@ -118,6 +149,10 @@ int32_t UpdateServiceProxy::GetUpgradeStatus(UpgradeInfo &info)
     ENGINE_CHECK(remote != nullptr, return ERR_FLATTEN_OBJECT, "Can not get remote");
 
     MessageParcel data;
+
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        return -1;
+    }
     MessageParcel reply;
     MessageOption option;
     int32_t ret = remote->SendRequest(GET_STATUS, data, reply, option);
@@ -133,6 +168,11 @@ int32_t UpdateServiceProxy::SetUpdatePolicy(const UpdatePolicy &policy)
     ENGINE_CHECK(remote != nullptr, return ERR_FLATTEN_OBJECT, "Can not get remote");
 
     MessageParcel data;
+
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        ENGINE_LOGI("UpdateServiceProxy WriteInterfaceToken fail");
+        return -1;
+    }
     UpdateHelper::WriteUpdatePolicy(data, policy);
     MessageParcel reply;
     MessageOption option;
@@ -152,6 +192,11 @@ int32_t UpdateServiceProxy::GetUpdatePolicy(UpdatePolicy &policy)
     ENGINE_CHECK(remote != nullptr, return ERR_FLATTEN_OBJECT, "Can not get remote");
 
     MessageParcel data;
+
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        ENGINE_LOGI("UpdateServiceProxy WriteInterfaceToken fail");
+        return -1;
+    }
     MessageParcel reply;
     MessageOption option;
     int32_t ret = remote->SendRequest(GET_POLICY, data, reply, option);
@@ -166,6 +211,11 @@ int32_t UpdateServiceProxy::Cancel(int32_t service)
     ENGINE_CHECK(remote != nullptr, return ERR_FLATTEN_OBJECT, "Can not get remote");
 
     MessageParcel data;
+
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        ENGINE_LOGI("UpdateServiceProxy WriteInterfaceToken fail");
+        return -1;
+    }
     data.WriteInt32(static_cast<int32_t>(service));
     MessageParcel reply;
     MessageOption option;
@@ -185,6 +235,11 @@ int32_t UpdateServiceProxy::RebootAndClean(const std::string &miscFile, const st
     ENGINE_CHECK(remote != nullptr, return ERR_FLATTEN_OBJECT, "Can not get remote");
 
     MessageParcel data;
+
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        ENGINE_LOGI("UpdateServiceProxy WriteInterfaceToken fail");
+        return -1;
+    }
     data.WriteString16(Str8ToStr16(miscFile));
     data.WriteString16(Str8ToStr16(cmd));
     MessageParcel reply;
@@ -204,6 +259,11 @@ int32_t UpdateServiceProxy::RebootAndInstall(const std::string &miscFile, const 
     ENGINE_CHECK(remote != nullptr, return ERR_FLATTEN_OBJECT, "Can not get remote");
 
     MessageParcel data;
+
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        ENGINE_LOGI("UpdateServiceProxy WriteInterfaceToken fail");
+        return -1;
+    }
     data.WriteString16(Str8ToStr16(miscFile));
     data.WriteString16(Str8ToStr16(packageName));
     MessageParcel reply;
