@@ -34,8 +34,6 @@ const std::string LOG_NAME = "/data/update_service_log.txt";
 const std::string LOG_LABEL = "update_engine";
 const std::string LOG_NAME = "/data/update_client.log.txt";
 #endif
-constexpr int VECTOR_MAX_BUF_SIZE = 1024;
-constexpr int MAX_TIME_SIZE = 20;
 constexpr int HEX_DIGEST_NUM = 2;
 constexpr int HEX_DIGEST_BASE = 16;
 
@@ -192,29 +190,6 @@ int32_t UpdateHelper::CopyUpdatePolicy(const UpdatePolicy &srcInfo, UpdatePolicy
         dstInfo.autoUpgradeInterval[i] = srcInfo.autoUpgradeInterval[i];
     }
     return 0;
-}
-
-void UpdateHelper::Logger(const std::string &fileName, int32_t line, const char *format, ...)
-{
-    std::string name = UpdateHelper::GetBriefFileName(fileName);
-    std::ofstream logStream(LOG_NAME, std::ios::app | std::ios::out);
-    static std::vector<char> buff(VECTOR_MAX_BUF_SIZE);
-    va_list list;
-    va_start(list, format);
-    int size = vsnprintf_s(reinterpret_cast<char*>(buff.data()), buff.capacity(), buff.capacity() - 1, format, list);
-    ENGINE_CHECK(size != -1, return, "");
-    va_end(list);
-    std::string str(buff.data(), size);
-    char realTime[MAX_TIME_SIZE] = {0};
-    auto sysTime = std::chrono::system_clock::now();
-    auto currentTime = std::chrono::system_clock::to_time_t(sysTime);
-    struct tm *localTime = std::localtime(&currentTime);
-    if (localTime != nullptr) {
-        std::strftime(realTime, sizeof(realTime), "%Y-%m-%d %H:%M:%S", localTime);
-    }
-    logStream << realTime <<  "[" << LOG_LABEL << "]" << name << " " << line << " : " << str << std::endl;
-    std::cout << realTime <<  "[" << LOG_LABEL << "]" << name << " " << line << " : " << str << std::endl;
-    logStream.close();
 }
 
 bool UpdateHelper::JudgeLevel(const UpdateLogLevel& level)
