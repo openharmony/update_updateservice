@@ -194,29 +194,6 @@ int32_t UpdateHelper::CopyUpdatePolicy(const UpdatePolicy &srcInfo, UpdatePolicy
     return 0;
 }
 
-void UpdateHelper::Logger(const std::string &fileName, int32_t line, const char *format, ...)
-{
-    std::string name = UpdateHelper::GetBriefFileName(fileName);
-    std::ofstream logStream(LOG_NAME, std::ios::app | std::ios::out);
-    static std::vector<char> buff(VECTOR_MAX_BUF_SIZE);
-    va_list list;
-    va_start(list, format);
-    int size = vsnprintf_s(reinterpret_cast<char*>(buff.data()), buff.capacity(), buff.capacity() - 1, format, list);
-    ENGINE_CHECK(size != -1, return, "");
-    va_end(list);
-    std::string str(buff.data(), size);
-    char realTime[MAX_TIME_SIZE] = {0};
-    auto sysTime = std::chrono::system_clock::now();
-    auto currentTime = std::chrono::system_clock::to_time_t(sysTime);
-    struct tm *localTime = std::localtime(&currentTime);
-    if (localTime != nullptr) {
-        std::strftime(realTime, sizeof(realTime), "%Y-%m-%d %H:%M:%S", localTime);
-    }
-    logStream << realTime <<  "[" << LOG_LABEL << "]" << name << " " << line << " : " << str << std::endl;
-    std::cout << realTime <<  "[" << LOG_LABEL << "]" << name << " " << line << " : " << str << std::endl;
-    logStream.close();
-}
-
 bool UpdateHelper::JudgeLevel(const UpdateLogLevel& level)
 {
     const UpdateLogLevel& curLevel = UpdateHelper::GetLogLevel();
