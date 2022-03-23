@@ -33,12 +33,10 @@
 
 static constexpr OHOS::HiviewDFX::HiLogLabel UPDATE_CLIENT = {LOG_CORE, 0, "UPDATE_CLIENT"};
 #define CLIENT_LOGE(format, ...)  \
-    OHOS::update_engine::UpdateHelper::Logger(__FILE__,  (__LINE__), format, ##__VA_ARGS__); \
     OHOS::HiviewDFX::HiLog::Error(UPDATE_CLIENT, "[%{public}s(%{public}d)] " format, \
         OHOS::update_engine::UpdateHelper::GetBriefFileName(std::string(__FILE__)).c_str(), __LINE__, ##__VA_ARGS__)
 
 #define CLIENT_LOGI(format, ...)  \
-    OHOS::update_engine::UpdateHelper::Logger(__FILE__,  (__LINE__), format, ##__VA_ARGS__); \
     OHOS::HiviewDFX::HiLog::Info(UPDATE_CLIENT, "[%{public}s(%{public}d)] " format, \
         OHOS::update_engine::UpdateHelper::GetBriefFileName(std::string(__FILE__)).c_str(), __LINE__, ##__VA_ARGS__)
 
