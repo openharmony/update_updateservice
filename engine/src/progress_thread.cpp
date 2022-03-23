@@ -127,13 +127,13 @@ bool DownloadThread::ProcessThreadExecute()
     CURLcode res = curl_easy_perform(downloadHandle_);
     if (res != CURLE_OK) {
         ProcessThreadExit();
-        ENGINE_LOGI("Failed to download %s res %s", serverUrl_.c_str(), curl_easy_strerror(res));
+        ENGINE_LOGI("Failed to download res %s", curl_easy_strerror(res));
         if (res != CURLE_ABORTED_BY_CALLBACK) { // cancel by user, do not callback
             DownloadCallback(0, UPDATE_STATE_DOWNLOAD_FAIL, curl_easy_strerror(res));
         }
     } else {
         ProcessThreadExit();
-        ENGINE_LOGI("Success to download %s", serverUrl_.c_str());
+        ENGINE_LOGI("Success to download");
         DownloadCallback(DOWNLOAD_FINISH_PERCENT, UPDATE_STATE_DOWNLOAD_SUCCESS, "");
     }
     // clear up
