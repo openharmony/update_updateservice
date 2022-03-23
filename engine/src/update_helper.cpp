@@ -34,8 +34,6 @@ const std::string LOG_NAME = "/data/update_service_log.txt";
 const std::string LOG_LABEL = "update_engine";
 const std::string LOG_NAME = "/data/update_client.log.txt";
 #endif
-constexpr int VECTOR_MAX_BUF_SIZE = 1024;
-constexpr int MAX_TIME_SIZE = 20;
 constexpr int HEX_DIGEST_NUM = 2;
 constexpr int HEX_DIGEST_BASE = 16;
 
