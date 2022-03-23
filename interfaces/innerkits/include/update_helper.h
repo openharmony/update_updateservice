@@ -178,8 +178,6 @@ public:
     static int32_t CompareVersion(const std::string &version1, const std::string &version2);
     static std::vector<std::string> SplitString(const std::string &str, const std::string &delimiter);
 
-    static void Logger(const std::string &fileName, int32_t line, const char *format, ...);
-
     static bool JudgeLevel(const UpdateLogLevel& level);
 
     static void SetLogLevel(const UpdateLogLevel& level)
@@ -200,7 +198,6 @@ private:
 
 // 暂时记录两边日志
 #define PRINT_LOG(LEVEL, Level, fmt, ...) \
-    UpdateHelper::Logger(__FILE__,  (__LINE__), fmt, ##__VA_ARGS__); \
     if (UpdateHelper::JudgeLevel(UpdateLogLevel::LEVEL)) \
         OHOS::HiviewDFX::HiLog::Level(UPDATE_LABEL, "[%{public}s(%{public}d)] " fmt, \
         UpdateHelper::GetBriefFileName(std::string(__FILE__)).c_str(), __LINE__, ##__VA_ARGS__)
