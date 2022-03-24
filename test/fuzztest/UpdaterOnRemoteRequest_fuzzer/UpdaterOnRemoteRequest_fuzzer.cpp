@@ -65,6 +65,7 @@ public:
 
     virtual int32_t GetUpgradeStatus (UpgradeInfo &info)
     {
+        UNUSED(info);
         return 0;
     }
 
@@ -80,6 +81,7 @@ public:
 
     virtual int32_t Cancel(int32_t service)
     {
+        UNUSED(service);
         return 0;
     }
 
