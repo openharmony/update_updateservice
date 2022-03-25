@@ -28,6 +28,6 @@ public:
     int32_t OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply,
         MessageOption &option) override;
 };
-}
-}
-#endif // !defined(UPDATE_CALLBACK_STUB_H_)
+} // update_engine
+} // OHOS
+#endif // UPDATE_CALLBACK_STUB_H_

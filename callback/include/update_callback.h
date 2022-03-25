@@ -38,6 +38,6 @@ public:
 
     void OnUpgradeProgress(const Progress &progress) override;
 };
-}
+} // update_engine
 } // namespace OHOS
 #endif // UPDATER_CALLBACK_H
