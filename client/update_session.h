@@ -39,7 +39,7 @@ public:
 
     UpdateSession(UpdateClient *client, int32_t type, size_t argc, size_t callbackNumber);
 
-    virtual ~UpdateSession() {};
+    virtual ~UpdateSession() {}
 
     napi_value StartWork(napi_env env, size_t startIndex,
         const napi_value *args, UpdateClient::DoWorkFunction worker, void *context);
@@ -76,7 +76,7 @@ public:
         // If the share ptr is used, you can directly remove the share ptr.
         UpdateClient *client = sess->GetUpdateClient();
         if (client != nullptr) {
-            client->RemoveSession(sess->GetSessionId());
+            (void)client->RemoveSession(sess->GetSessionId());
         }
     }
 
@@ -88,6 +88,7 @@ public:
         CLIENT_CHECK(sess != nullptr, return, "sess is null");
         sess->ExecuteWork(env);
     }
+
 protected:
     napi_value CreateWorkerName(napi_env env) const;
     int32_t CreateReference(napi_env env, napi_value arg, uint32_t refcount, napi_ref &reference) const;
@@ -170,6 +171,7 @@ public:
     bool CheckEqual(napi_env env, napi_value handler, const std::string &type);
 
     void RemoveHandlerRef(napi_env env);
+
 private:
     bool isOnce_ = false;
     std::string eventType_;
