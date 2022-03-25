@@ -33,13 +33,15 @@
 
 static constexpr OHOS::HiviewDFX::HiLogLabel UPDATE_CLIENT = {LOG_CORE, 0, "UPDATE_CLIENT"};
 #define CLIENT_LOGE(format, ...)  \
-    OHOS::HiviewDFX::HiLog::Error(UPDATE_CLIENT, "[%{public}s(%{public}d)] " format, \
-        OHOS::update_engine::UpdateHelper::GetBriefFileName(std::string(__FILE__)).c_str(), __LINE__, ##__VA_ARGS__)
-
+    do { \
+        OHOS::HiviewDFX::HiLog::Error(UPDATE_CLIENT, "[%{public}s(%{public}d)] " format, \
+        OHOS::update_engine::UpdateHelper::GetBriefFileName(std::string(__FILE__)).c_str(), __LINE__, ##__VA_ARGS__); \
+    } while (0)
 #define CLIENT_LOGI(format, ...)  \
-    OHOS::HiviewDFX::HiLog::Info(UPDATE_CLIENT, "[%{public}s(%{public}d)] " format, \
-        OHOS::update_engine::UpdateHelper::GetBriefFileName(std::string(__FILE__)).c_str(), __LINE__, ##__VA_ARGS__)
-
+    do { \
+        OHOS::HiviewDFX::HiLog::Info(UPDATE_CLIENT, "[%{public}s(%{public}d)] " format, \
+        OHOS::update_engine::UpdateHelper::GetBriefFileName(std::string(__FILE__)).c_str(), __LINE__, ##__VA_ARGS__); \
+    } while (0)
 #define CLIENT_CHECK(retCode, exper, ...) \
     if (!(retCode)) {                     \
         CLIENT_LOGE(__VA_ARGS__);         \
