@@ -239,7 +239,8 @@ napi_value UpdateClient::StartSession(napi_env env,
     CLIENT_CHECK_NAPI_CALL(env, sess != nullptr, return nullptr, "Failed to create update session");
     AddSession(sess);
     napi_value retValue = sess->StartWork(env, callbackStartIndex, args, function, nullptr);
-    CLIENT_CHECK(retValue != nullptr, RemoveSession(sess->GetSessionId()); return nullptr, "Failed to start worker.");
+    CLIENT_CHECK(retValue != nullptr, (void)RemoveSession(sess->GetSessionId());
+        return nullptr, "Failed to start worker.");
 
     return retValue;
 }
@@ -270,7 +271,8 @@ napi_value UpdateClient::CancelUpgrade(napi_env env, napi_callback_info info)
         [&](int32_t type, void *context) -> int {
             return UpdateServiceKits::GetInstance().Cancel(IUpdateService::DOWNLOAD);
         }, nullptr);
-    CLIENT_CHECK(retValue != nullptr, RemoveSession(sess->GetSessionId()); return nullptr, "Failed to start worker.");
+    CLIENT_CHECK(retValue != nullptr, (void)RemoveSession(sess->GetSessionId());
+        return nullptr, "Failed to start worker.");
     return retValue;
 }
 
@@ -289,7 +291,8 @@ napi_value UpdateClient::DownloadVersion(napi_env env, napi_callback_info info)
         [&](int32_t type, void *context) -> int {
             return UpdateServiceKits::GetInstance().DownloadVersion();
         }, nullptr);
-    CLIENT_CHECK(retValue != nullptr, RemoveSession(sess->GetSessionId()); return nullptr, "Failed to start worker.");
+    CLIENT_CHECK(retValue != nullptr, (void)RemoveSession(sess->GetSessionId());
+        return nullptr, "Failed to start worker.");
     return retValue;
 }
 
@@ -311,7 +314,8 @@ napi_value UpdateClient::UpgradeVersion(napi_env env, napi_callback_info info)
             return 0;
 #endif
         }, nullptr);
-    CLIENT_CHECK(retValue != nullptr, RemoveSession(sess->GetSessionId()); return nullptr, "Failed to start worker.");
+    CLIENT_CHECK(retValue != nullptr, (void)RemoveSession(sess->GetSessionId());
+        return nullptr, "Failed to start worker.");
     return retValue;
 }
 
@@ -338,7 +342,7 @@ napi_value UpdateClient::SetUpdatePolicy(napi_env env, napi_callback_info info)
             result_ = UpdateServiceKits::GetInstance().SetUpdatePolicy(updatePolicy_);
             return result_;
         }, nullptr);
-    CLIENT_CHECK(retValue != nullptr, RemoveSession(sess->GetSessionId());
+    CLIENT_CHECK(retValue != nullptr, (void)RemoveSession(sess->GetSessionId());
         return nullptr, "Failed to SetUpdatePolicy.");
     return retValue;
 }
@@ -426,7 +430,8 @@ napi_value UpdateClient::VerifyUpdatePackage(napi_env env, napi_callback_info in
             return result_;
         },
         nullptr);
-    CLIENT_CHECK(retValue != nullptr, RemoveSession(sess->GetSessionId()); return nullptr, "Failed to start worker.");
+    CLIENT_CHECK(retValue != nullptr, (void)RemoveSession(sess->GetSessionId());
+        return nullptr, "Failed to start worker.");
     return retValue;
 }
 
@@ -451,7 +456,8 @@ napi_value UpdateClient::SubscribeEvent(napi_env env, napi_callback_info info)
         [&](int32_t type, void *context) -> int {
             return 0;
         }, nullptr);
-    CLIENT_CHECK(retValue != nullptr, RemoveSession(sess->GetSessionId()); return nullptr, "Failed to SubscribeEvent.");
+    CLIENT_CHECK(retValue != nullptr, (void)RemoveSession(sess->GetSessionId());
+        return nullptr, "Failed to SubscribeEvent.");
     return retValue;
 }
 
@@ -469,7 +475,7 @@ napi_value UpdateClient::UnsubscribeEvent(napi_env env, napi_callback_info info)
     CLIENT_LOGI("UnsubscribeEvent %s argc %d", eventType.c_str(), static_cast<int>(argc));
     if (argc >= MID_ARGC) {
         napi_valuetype valuetype;
-        napi_status status = napi_typeof(env, args[1], &valuetype);
+        status = napi_typeof(env, args[1], &valuetype);
         CLIENT_CHECK_NAPI_CALL(env, status == napi_ok, return nullptr, "Failed to napi_typeof");
         CLIENT_CHECK_NAPI_CALL(env, valuetype == napi_function, return nullptr, "Invalid callback type");
     }
@@ -503,10 +509,10 @@ int32_t UpdateClient::ProcessUnsubscribe(const std::string &eventType, size_t ar
         CLIENT_LOGI("ProcessUnsubscribe remove session");
         if (argc == 1) {
             listener->RemoveHandlerRef(env_);
-            RemoveSession(currSessId);
+            (void)RemoveSession(currSessId);
         } else if (listener->CheckEqual(env_, arg, eventType)) {
             listener->RemoveHandlerRef(env_);
-            RemoveSession(currSessId);
+            (void)RemoveSession(currSessId);
             break;
         }
     }
@@ -541,7 +547,7 @@ bool UpdateClient::GetNextSessionId(uint32_t &sessionId)
 {
 #ifndef UPDATER_API_TEST
     std::lock_guard<std::mutex> guard(sessionMutex_);
-#endif    
+#endif
     {
         auto iter = sessions_.find(sessionId);
         if (iter == sessions_.end()) {
@@ -600,7 +606,7 @@ void UpdateClient::PublishToJS(const std::string &type, int32_t retcode, const U
         listener = static_cast<UpdateListener *>((iter->second).get());
         if (listener->IsOnce()) {
             listener->RemoveHandlerRef(env_);
-            RemoveSession(currSessId);
+            (void)RemoveSession(currSessId);
         }
     }
     napi_close_handle_scope(env_, scope);
@@ -635,7 +641,7 @@ void UpdateClient::Emit(const std::string &type, int32_t retcode, const UpdateRe
     CLIENT_CHECK(work != nullptr,
         freeUpdateResult(res);
         return, "alloc work failed.");
-    work->data = (void*)new(std::nothrow) NotifyInput(this, type, retcode, res);
+    work->data = reinterpret_cast<void*>(new(std::nothrow) NotifyInput(this, type, retcode, res));
     CLIENT_CHECK(work != nullptr,
         freeUpdateResult(res);
         delete work;
@@ -644,9 +650,9 @@ void UpdateClient::Emit(const std::string &type, int32_t retcode, const UpdateRe
     uv_queue_work(
         loop,
         work,
-        [](uv_work_t *work) {}, // run in C++ thread
-        [](uv_work_t *work, int status) {
-            NotifyInput *input = (NotifyInput *)work->data;
+        [](uv_work_t *workCpp) {}, // run in C++ thread
+        [](uv_work_t *workCpp, int status) {
+            NotifyInput *input = reinterpret_cast<NotifyInput *>(workCpp->data);
             input->client->PublishToJS(input->type, input->retcode, *input->result);
             delete input->result->result.progress;
             delete input->result;
@@ -743,7 +749,8 @@ int32_t UpdateClient::GetStringValue(napi_env env, napi_value arg, std::string &
     CLIENT_CHECK(valuetype == napi_string, return CLIENT_INVALID_TYPE, "Invalid type");
     std::vector<char> buff(CLIENT_STRING_MAX_LENGTH);
     size_t copied;
-    status = napi_get_value_string_utf8(env, arg, (char*)buff.data(), CLIENT_STRING_MAX_LENGTH, &copied);
+    status = napi_get_value_string_utf8(env, arg, reinterpret_cast<char*>(buff.data()),
+        CLIENT_STRING_MAX_LENGTH, &copied);
     CLIENT_CHECK(status == napi_ok, return CLIENT_INVALID_TYPE, "Error get string");
     strValue.assign(buff.data(), copied);
     return napi_ok;
@@ -849,7 +856,8 @@ int32_t UpdateClient::BuildCheckVersionResult(napi_env env, napi_value &obj, con
     }
     napi_value checkResults;
     napi_create_array_with_length(env, sizeof(info->result) / sizeof(info->result[0]), &checkResults);
-    for (size_t i = 0; i < sizeof(info->result) / sizeof(info->result[0]); i++) {
+    size_t i;
+    for (i = 0; i < sizeof(info->result) / sizeof(info->result[0]); i++) {
         napi_value result;
         status = napi_create_object(env, &result);
 
@@ -865,7 +873,7 @@ int32_t UpdateClient::BuildCheckVersionResult(napi_env env, napi_value &obj, con
 
     napi_value descriptInfos;
     napi_create_array_with_length(env, sizeof(info->descriptInfo) / sizeof(info->descriptInfo[0]), &descriptInfos);
-    for (size_t i = 0; i < sizeof(info->descriptInfo) / sizeof(info->descriptInfo[0]); i++) {
+    for (i = 0; i < sizeof(info->descriptInfo) / sizeof(info->descriptInfo[0]); i++) {
         napi_value descriptInfo;
         status = napi_create_object(env, &descriptInfo);
         SetString(env, descriptInfo, "descriptionId", info->descriptInfo[i].descriptPackageId);

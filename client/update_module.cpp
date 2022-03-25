@@ -35,9 +35,9 @@ napi_value UpdateClientJSConstructor(napi_env env, napi_callback_info info)
     napi_wrap(env, thisVar, client,
         [](napi_env env, void* data, void* hint) {
             CLIENT_LOGI("UpdateClient Destructor");
-            UpdateClient* client = (UpdateClient*)data;
-            delete client;
-            client = nullptr;
+            UpdateClient* clientDel = reinterpret_cast<UpdateClient*>(data);
+            delete clientDel;
+            clientDel = nullptr;
         },
         nullptr, nullptr);
     return thisVar;
@@ -52,7 +52,7 @@ UpdateClient *GetAndCreateJsUpdateClient(napi_env env, napi_callback_info info, 
     status = napi_new_instance(env, constructor, 0, nullptr, &obj);
     CLIENT_CHECK_NAPI_CALL(env, status == napi_ok, return nullptr, "Error get client");
 
-    napi_unwrap(env, obj, (void**)&client);
+    napi_unwrap(env, obj, reinterpret_cast<void**>(&client));
     return client;
 }
 
@@ -65,7 +65,7 @@ UpdateClient *GetUpdateClient(napi_env env, napi_callback_info info)
     napi_get_cb_info(env, info, &argc, argv, &thisVar, &data);
 
     UpdateClient *client = nullptr;
-    napi_unwrap(env, thisVar, (void**)&client);
+    napi_unwrap(env, thisVar, reinterpret_cast<void**>(&client));
     return client;
 }
 
@@ -83,7 +83,7 @@ napi_value GetUpdater(napi_env env, napi_callback_info info)
             return obj;
         }
     }
-    napi_remove_wrap(env, obj, (void**)&client);
+    napi_remove_wrap(env, obj, reinterpret_cast<void**>(&client));
     delete client;
     return nullptr;
 }
@@ -97,7 +97,7 @@ napi_value GetUpdaterForOther(napi_env env, napi_callback_info info)
     napi_value obj = nullptr;
     client = GetAndCreateJsUpdateClient(env, info, obj);
     if (client != nullptr) {
-        client->GetUpdaterForOther(env, info);
+        (void)client->GetUpdaterForOther(env, info);
     }
     return obj;
 }
@@ -111,7 +111,7 @@ napi_value GetUpdaterFromOther(napi_env env, napi_callback_info info)
     napi_value obj = nullptr;
     client = GetAndCreateJsUpdateClient(env, info, obj);
     if (client != nullptr) {
-        client->GetUpdaterFromOther(env, info);
+        (void)client->GetUpdaterFromOther(env, info);
     }
     return obj;
 }
@@ -266,7 +266,7 @@ static napi_module g_module = {
     .nm_filename = nullptr,
     .nm_register_func = UpdateClientInit,
     .nm_modname = "update",
-    .nm_priv = ((void*)0),
+    .nm_priv = (reinterpret_cast<void*>(0)),
     .reserved = { 0 }
 };
 
