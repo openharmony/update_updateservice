@@ -126,7 +126,7 @@ public:
         CLIENT_CHECK(sess != nullptr, return -1, "TestCheckNewVersion");
         UpdateResult result = {};
         sess->NotifyJS((napi_env)&g_testEnv, nullptr, 0, result);
-        UpdateSession::ExecuteWork((napi_env)&g_testEnv, (void*)sess);
+        UpdateSession::ExecuteWork((napi_env)&g_testEnv, reinterpret_cast<void*>(sess));
 
         // Call back the search result and save the result information
         VersionInfo info;
@@ -135,7 +135,7 @@ public:
         g_testClient->NotifyCheckVersionDone(info);
 
         // end of execution
-        UpdateSession::CompleteWork((napi_env)&g_testEnv, napi_status::napi_ok, (void*)sess);
+        UpdateSession::CompleteWork((napi_env)&g_testEnv, napi_status::napi_ok, reinterpret_cast<void*>(sess));
 
         // Check the data
         CLIENT_LOGI("g_testEnv.pakcageInfo.versionCode %s \n", g_testEnv.pakcageInfo.result[0].versionCode.c_str());
@@ -155,7 +155,7 @@ public:
         // Trigger thread execution
         UpdateSession *sess = TestGetUpdateSession();
         CLIENT_CHECK(sess != nullptr, return -1, "TestDownloadVersion");
-        UpdateSession::ExecuteWork((napi_env)&g_testEnv, (void*)sess);
+        UpdateSession::ExecuteWork((napi_env)&g_testEnv, reinterpret_cast<void*>(sess));
 
         // Call back the download result and save the result information
         Progress info;
@@ -176,7 +176,7 @@ public:
         g_testClient->NotifyDownloadProgress(info);
 
         // end of execution
-        UpdateSession::CompleteWork((napi_env)&g_testEnv, napi_status::napi_ok, (void*)sess);
+        UpdateSession::CompleteWork((napi_env)&g_testEnv, napi_status::napi_ok, reinterpret_cast<void*>(sess));
 
         FreeAllNapiValues();
         return 0;
@@ -192,7 +192,7 @@ public:
         // Trigger thread execution
         UpdateSession *sess = TestGetUpdateSession();
         CLIENT_CHECK(sess != nullptr, return -1, "UpgradeVersion");
-        UpdateSession::ExecuteWork((napi_env)&g_testEnv, (void*)sess);
+        UpdateSession::ExecuteWork((napi_env)&g_testEnv, reinterpret_cast<void*>(sess));
 
         // Call back the download result and save the result information
         Progress info;
@@ -213,7 +213,7 @@ public:
         g_testClient->NotifyUpgradeProgresss(info);
 
         // end of execution
-        UpdateSession::CompleteWork((napi_env)&g_testEnv, napi_status::napi_ok, (void*)sess);
+        UpdateSession::CompleteWork((napi_env)&g_testEnv, napi_status::napi_ok, reinterpret_cast<void*>(sess));
 
         FreeAllNapiValues();
         return 0;
@@ -230,9 +230,9 @@ public:
         // Trigger thread execution
         UpdateSession *sess = TestGetUpdateSession();
         CLIENT_CHECK(sess != nullptr, return -1, "TestSetUpdatePolicy");
-        UpdateSession::ExecuteWork((napi_env)&g_testEnv, (void*)sess);
+        UpdateSession::ExecuteWork((napi_env)&g_testEnv, reinterpret_cast<void*>(sess));
         // end of execution
-        UpdateSession::CompleteWork((napi_env)&g_testEnv, napi_status::napi_ok, (void*)sess);
+        UpdateSession::CompleteWork((napi_env)&g_testEnv, napi_status::napi_ok, reinterpret_cast<void*>(sess));
 
         FreeAllNapiValues();
         return 0;
@@ -248,9 +248,9 @@ public:
         // Trigger thread execution
         UpdateSession *sess = TestGetUpdateSession();
         CLIENT_CHECK(sess != nullptr, return -1, "TestGetUpdatePolicy");
-        UpdateSession::ExecuteWork((napi_env)&g_testEnv, (void*)sess);
+        UpdateSession::ExecuteWork((napi_env)&g_testEnv, reinterpret_cast<void*>(sess));
         // end of execution
-        UpdateSession::CompleteWork((napi_env)&g_testEnv, napi_status::napi_ok, (void*)sess);
+        UpdateSession::CompleteWork((napi_env)&g_testEnv, napi_status::napi_ok, reinterpret_cast<void*>(sess));
 
         FreeAllNapiValues();
         return 0;
@@ -265,9 +265,9 @@ public:
         // Trigger thread execution
         UpdateSession *sess = TestGetUpdateSession();
         CLIENT_CHECK(sess != nullptr, return -1, "TestGetNewVersionInfo");
-        UpdateSession::ExecuteWork((napi_env)&g_testEnv, (void*)sess);
+        UpdateSession::ExecuteWork((napi_env)&g_testEnv, reinterpret_cast<void*>(sess));
         // end of execution
-        UpdateSession::CompleteWork((napi_env)&g_testEnv, napi_status::napi_ok, (void*)sess);
+        UpdateSession::CompleteWork((napi_env)&g_testEnv, napi_status::napi_ok, reinterpret_cast<void*>(sess));
 
         FreeAllNapiValues();
         return 0;
@@ -283,9 +283,9 @@ public:
         // Trigger thread execution
         UpdateSession *sess = TestGetUpdateSession();
         CLIENT_CHECK(sess != nullptr, return -1, "TestGetUpgradeStatus");
-        UpdateSession::ExecuteWork((napi_env)&g_testEnv, (void*)sess);
+        UpdateSession::ExecuteWork((napi_env)&g_testEnv, reinterpret_cast<void*>(sess));
         // end of execution
-        UpdateSession::CompleteWork((napi_env)&g_testEnv, napi_status::napi_ok, (void*)sess);
+        UpdateSession::CompleteWork((napi_env)&g_testEnv, napi_status::napi_ok, reinterpret_cast<void*>(sess));
 
         FreeAllNapiValues();
         return 0;
@@ -301,9 +301,9 @@ public:
         // Trigger thread execution
         UpdateSession *sess = TestGetUpdateSession();
         CLIENT_CHECK(sess != nullptr, return -1, "TestApplyNewVersion");
-        UpdateSession::ExecuteWork((napi_env)&g_testEnv, (void*)sess);
+        UpdateSession::ExecuteWork((napi_env)&g_testEnv, reinterpret_cast<void*>(sess));
         // end of execution
-        UpdateSession::CompleteWork((napi_env)&g_testEnv, napi_status::napi_ok, (void*)sess);
+        UpdateSession::CompleteWork((napi_env)&g_testEnv, napi_status::napi_ok, reinterpret_cast<void*>(sess));
 
         FreeAllNapiValues();
         return 0;
@@ -319,9 +319,9 @@ public:
         // Trigger thread execution
         UpdateSession *sess = TestGetUpdateSession();
         CLIENT_CHECK(sess != nullptr, return -1, "TestRebootAndClean");
-        UpdateSession::ExecuteWork((napi_env)&g_testEnv, (void*)sess);
+        UpdateSession::ExecuteWork((napi_env)&g_testEnv, reinterpret_cast<void*>(sess));
         // end of execution
-        UpdateSession::CompleteWork((napi_env)&g_testEnv, napi_status::napi_ok, (void*)sess);
+        UpdateSession::CompleteWork((napi_env)&g_testEnv, napi_status::napi_ok, reinterpret_cast<void*>(sess));
 
         FreeAllNapiValues();
         return 0;
@@ -339,14 +339,14 @@ public:
         UpdateSession *sess1 = static_cast<UpdateSession*>(sess);
         EXPECT_NE(sess1, nullptr);
         sess1->UpdateSession::CompleteWork((napi_env)&g_testEnv, napi_status::napi_ok);
-        UpdateSession::ExecuteWork((napi_env)&g_testEnv, (void*)sess);
+        UpdateSession::ExecuteWork((napi_env)&g_testEnv, reinterpret_cast<void*>(sess));
 
         // Call back the download result and save the result information
         g_testClient->NotifyVerifyProgresss(0, PERCENT_60);
         g_testClient->NotifyVerifyProgresss(0, PERCENT_100);
 
         // end of execution
-        UpdateSession::CompleteWork((napi_env)&g_testEnv, napi_status::napi_ok, (void*)sess);
+        UpdateSession::CompleteWork((napi_env)&g_testEnv, napi_status::napi_ok, reinterpret_cast<void*>(sess));
         FreeAllNapiValues();
         return 0;
     }
@@ -401,9 +401,9 @@ public:
         // Trigger thread execution
         UpdateSession *sess = TestGetUpdateSession();
         CLIENT_CHECK(sess != nullptr, return -1, "TestCancelUpgrade");
-        UpdateSession::ExecuteWork((napi_env)&g_testEnv, (void*)sess);
+        UpdateSession::ExecuteWork((napi_env)&g_testEnv, reinterpret_cast<void*>(sess));
         // end of execution
-        UpdateSession::CompleteWork((napi_env)&g_testEnv, napi_status::napi_ok, (void*)sess);
+        UpdateSession::CompleteWork((napi_env)&g_testEnv, napi_status::napi_ok, reinterpret_cast<void*>(sess));
 
         FreeAllNapiValues();
         return 0;

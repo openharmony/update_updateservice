@@ -151,7 +151,7 @@ public:
         MessageOption msgOption;
         updateServer_->OnRemoteRequest(IUpdateService::SET_POLICY, inData, reply, msgOption);
         UpdatePolicy policy2;
-        TestGetUpdatePolicy(policy2);
+        (void)TestGetUpdatePolicy(policy2);
         EXPECT_EQ(policy.autoUpgradeInterval[0], policy2.autoUpgradeInterval[0]);
         return 0;
     }
@@ -360,58 +360,58 @@ public:
     MockUpdateServiceKits() = default;
     virtual ~MockUpdateServiceKits() = default;
 
-    virtual int32_t RegisterUpdateCallback(const UpdateContext &ctx, const UpdateCallbackInfo &cb) override
+    int32_t RegisterUpdateCallback(const UpdateContext &ctx, const UpdateCallbackInfo &cb) override
     {
         UNUSED(ctx);
         UNUSED(cb);
         return 0;
     }
 
-    virtual int32_t UnregisterUpdateCallback() override
+    int32_t UnregisterUpdateCallback() override
     {
         return 0;
     }
 
-    virtual int32_t CheckNewVersion() override
+    int32_t CheckNewVersion() override
     {
         return 0;
     }
 
-    virtual int32_t DownloadVersion() override
+    int32_t DownloadVersion() override
     {
         return 0;
     }
 
-    virtual int32_t DoUpdate() override
+    int32_t DoUpdate() override
     {
         return 0;
     }
 
-    virtual int32_t GetNewVersion(VersionInfo &versionInfo) override
+    int32_t GetNewVersion(VersionInfo &versionInfo) override
     {
         UNUSED(versionInfo);
         return 0;
     }
 
-    virtual int32_t GetUpgradeStatus(UpgradeInfo &info) override
+    int32_t GetUpgradeStatus(UpgradeInfo &info) override
     {
         UNUSED(info);
         return 0;
     }
 
-    virtual int32_t SetUpdatePolicy(const UpdatePolicy &policy) override
+    int32_t SetUpdatePolicy(const UpdatePolicy &policy) override
     {
         UNUSED(policy);
         return 0;
     }
 
-    virtual int32_t GetUpdatePolicy(UpdatePolicy &policy) override
+    int32_t GetUpdatePolicy(UpdatePolicy &policy) override
     {
         UNUSED(policy);
         return 0;
     }
 
-    virtual int32_t Cancel(int32_t service) override
+    int32_t Cancel(int32_t service) override
     {
         return service;
     }
@@ -434,99 +434,99 @@ public:
 HWTEST_F(UpdateServerTest, TestDownload, TestSize.Level1)
 {
     UpdateServerTest test;
-    test.TestCheckNewVersion();
-    test.TestDownload();
+    (void)test.TestCheckNewVersion();
+    (void)test.TestDownload();
 }
 
 HWTEST_F(UpdateServerTest, TestDoUpdate, TestSize.Level1)
 {
     UpdateServerTest test;
-    test.TestDoUpdate();
+    (void)test.TestDoUpdate();
 }
 
 HWTEST_F(UpdateServerTest, TestGetNewVersion, TestSize.Level1)
 {
     UpdateServerTest test;
-    test.TestCheckNewVersion();
-    test.TestGetNewVersion();
+    (void)test.TestCheckNewVersion();
+    (void)test.TestGetNewVersion();
 }
 
 HWTEST_F(UpdateServerTest, TestUpdatePolicy, TestSize.Level1)
 {
     UpdateServerTest test;
-    test.TestUpdatePolicy();
+    (void)test.TestUpdatePolicy();
 }
 
 HWTEST_F(UpdateServerTest, TestGetUpgradeStatus, TestSize.Level1)
 {
     UpdateServerTest test;
-    test.TestGetUpgradeStatus();
+    (void)test.TestGetUpgradeStatus();
 }
 
 HWTEST_F(UpdateServerTest, TestRebootAndClean, TestSize.Level1)
 {
     UpdateServerTest test;
-    test.TestRebootAndClean();
+    (void)test.TestRebootAndClean();
 }
 
 HWTEST_F(UpdateServerTest, TestRebootAndInstall, TestSize.Level1)
 {
     UpdateServerTest test;
-    test.TestRebootAndInstall();
+    (void)test.TestRebootAndInstall();
 }
 
 HWTEST_F(UpdateServerTest, TestRegisterUpdateCallback, TestSize.Level1)
 {
     UpdateServerTest test;
-    test.TestRegisterUpdateCallback();
+    (void)test.TestRegisterUpdateCallback();
 }
 
 HWTEST_F(UpdateServerTest, TestUnRegisterUpdateCallback, TestSize.Level1)
 {
     UpdateServerTest test;
-    test.TestUnRegisterUpdateCallback();
+    (void)test.TestUnRegisterUpdateCallback();
 }
 
 HWTEST_F(UpdateServerTest, TestReadCheckVersiondescriptInfo, TestSize.Level1)
 {
     UpdateServerTest test;
-    test.TestReadCheckVersiondescriptInfo();
+    (void)test.TestReadCheckVersiondescriptInfo();
 }
 
 HWTEST_F(UpdateServerTest, TestUpdateCallbackCheckNewVersion, TestSize.Level1)
 {
     UpdateServerTest test;
-    test.TestUpdateCallbackCheckNewVersion();
+    (void)test.TestUpdateCallbackCheckNewVersion();
 }
 
 HWTEST_F(UpdateServerTest, TestUpdateCallbackDownload, TestSize.Level1)
 {
     UpdateServerTest test;
-    test.TestUpdateCallbackDownload();
+    (void)test.TestUpdateCallbackDownload();
 }
 
 HWTEST_F(UpdateServerTest, TestUpdateCallbackUpgrade, TestSize.Level1)
 {
     UpdateServerTest test;
-    test.TestUpdateCallbackUpgrade();
+    (void)test.TestUpdateCallbackUpgrade();
 }
 
 HWTEST_F(UpdateServerTest, TestDownLoadProgress, TestSize.Level1)
 {
     UpdateServerTest test;
-    test.TestDownLoadProgress();
+    (void)test.TestDownLoadProgress();
 }
 
 HWTEST_F(UpdateServerTest, TestNewUpdateService, TestSize.Level1)
 {
     UpdateServerTest test;
-    test.TestNewUpdateService();
+    (void)test.TestNewUpdateService();
 }
 
 HWTEST_F(UpdateServerTest, TestUpdateServiceProxy, TestSize.Level1)
 {
     UpdateServerTest test;
-    test.TestUpdateServiceProxy();
+    (void)test.TestUpdateServiceProxy();
 }
 
 HWTEST_F(UpdateServerTest, TestKitsResetService, TestSize.Level1)
