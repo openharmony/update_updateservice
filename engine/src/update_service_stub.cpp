@@ -177,5 +177,5 @@ int32_t UpdateServiceStub::OnRemoteRequest(uint32_t code,
     ENGINE_LOGE("UpdateServiceStub OnRemoteRequest code %u not found", code);
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
 }
-}
-} // namespace OHO
+} // namespace update_engine
+} // namespace OHOS

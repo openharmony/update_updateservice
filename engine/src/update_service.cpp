@@ -473,7 +473,8 @@ void UpdateService::InitVersionInfo(VersionInfo &versionInfo) const
         versionInfo.errMsg = "Can not get local version";
     }
 
-    for (size_t i = 0; i < sizeof(versionInfo.result) / sizeof(versionInfo.result[0]); i++) {
+    size_t i;
+    for (i = 0; i < sizeof(versionInfo.result) / sizeof(versionInfo.result[0]); i++) {
         versionInfo.result[i].size = 0;
         versionInfo.result[i].packageType = PACKAGE_TYPE_NORMAL;
         versionInfo.result[i].versionName = versionName;
@@ -481,7 +482,7 @@ void UpdateService::InitVersionInfo(VersionInfo &versionInfo) const
         versionInfo.result[i].verifyInfo = "";
         versionInfo.result[i].descriptPackageId = "";
     }
-    for (size_t i = 0; i < sizeof(versionInfo.descriptInfo) / sizeof(versionInfo.descriptInfo[0]); i++) {
+    for (i = 0; i < sizeof(versionInfo.descriptInfo) / sizeof(versionInfo.descriptInfo[0]); i++) {
         versionInfo.descriptInfo[i].content = "";
         versionInfo.descriptInfo[i].descriptPackageId = "";
     }
