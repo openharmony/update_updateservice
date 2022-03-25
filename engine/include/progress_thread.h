@@ -71,7 +71,7 @@ private:
 class DownloadThread : public ProgressThread {
 public:
     using ProgressCallback = std::function<int (const std::string &fileName, const Progress &progress)>;
-    DownloadThread(ProgressCallback callback) : ProgressThread(), callback_(callback) {}
+    explicit DownloadThread(ProgressCallback callback) : ProgressThread(), callback_(callback) {}
     ~DownloadThread() override
     {
         ProgressThread::ExitThread();
@@ -89,6 +89,7 @@ public:
     {
         return static_cast<double>(packageSize_);
     };
+
 protected:
     bool ProcessThreadExecute() override;
     void ProcessThreadExit() override;
@@ -104,6 +105,6 @@ private:
     size_t packageSize_ { 1 };
     std::string downloadFileName_;
 };
-}
+} // namespace update_engine
 } // namespace OHOS
 #endif // UPDATER_THREAD_H
