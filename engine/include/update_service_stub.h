@@ -35,6 +35,6 @@ public:
     using RequestFuncType = std::function<int(UpdateServiceStubPtr service,
         MessageParcel &data, MessageParcel &reply, MessageOption &option)>;
 };
-}
-}
+} // namespace update_engine
+} // namespace OHOS
 #endif // UPDATE_SERVICE_STUB_H_
