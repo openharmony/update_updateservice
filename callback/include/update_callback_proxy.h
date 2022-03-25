@@ -36,6 +36,6 @@ public:
 private:
     static inline BrokerDelegator<UpdateCallbackProxy> delegator_;
 };
-}
+} // update_engine
 } // namespace OHOS
 #endif // UPDATER_CALLBACK_PROXY_H
