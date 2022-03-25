@@ -212,6 +212,6 @@ private:
             exper;                            \
         } \
     } while (0)
-}
+} // namespace update_engine
 } // namespace OHOS
 #endif // UPDATER_HELPER_H
