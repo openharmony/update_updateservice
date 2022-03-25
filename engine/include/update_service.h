@@ -49,7 +49,7 @@ public:
 
     int32_t GetNewVersion(VersionInfo &versionInfo) override;
 
-    int32_t GetUpgradeStatus (UpgradeInfo &info) override;
+    int32_t GetUpgradeStatus(UpgradeInfo &info) override;
 
     int32_t SetUpdatePolicy(const UpdatePolicy &policy) override;
 
@@ -63,6 +63,7 @@ public:
     static int32_t ParseJsonFile(const std::vector<char> &buffer, VersionInfo &info, std::string &url);
     static int32_t ReadCheckVersionResult(const cJSON* results, VersionInfo &info, std::string &url);
     static int32_t ReadCheckVersiondescriptInfo(const cJSON *descriptInfo, VersionInfo &info);
+
 #ifndef UPDATER_UT
 protected:
 #else
@@ -70,11 +71,13 @@ public:
 #endif
     void OnStart() override;
     void OnStop() override;
+
 private:
     void DownloadCallback(const std::string &fileName, const Progress &progress);
     void UpgradeCallback(const Progress &progress);
     std::string GetDownloadServerUrl() const;
     void InitVersionInfo(VersionInfo &versionInfo) const;
+
 #ifndef UPDATER_UT
 private:
 #else
@@ -83,6 +86,7 @@ public:
     void SearchCallback(const std::string &msg, SearchStatus status);
     bool VerifyDownloadPkg(const std::string &pkgName, Progress &progress);
     void ReadDataFromSSL(int32_t engineSocket);
+
 private:
     UpdatePolicy policy_ = {
         1, 1, INSTALLMODE_AUTO, AUTOUPGRADECONDITION_IDLE, { 10, 20 }
@@ -95,6 +99,6 @@ private:
     UpdateContext updateContext_ {};
     std::string downloadUrl_;
 };
-}
+} // namespace update_engine
 } // namespace OHOS
 #endif // UPDATER_SERVICE_H

@@ -37,7 +37,7 @@ public:
 
     int32_t GetNewVersion(VersionInfo &versionInfo) override;
 
-    int32_t GetUpgradeStatus (UpgradeInfo &info) override;
+    int32_t GetUpgradeStatus(UpgradeInfo &info) override;
 
     int32_t SetUpdatePolicy(const UpdatePolicy &policy) override;
 
@@ -51,6 +51,6 @@ public:
 private:
     static inline BrokerDelegator<UpdateServiceProxy> delegator_;
 };
-}
+} // namespace update_engine
 } // namespace OHOS
 #endif // UPDATER_PROXY_H

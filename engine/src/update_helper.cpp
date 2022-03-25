@@ -63,8 +63,9 @@ int32_t UpdateHelper::WriteVersionInfo(MessageParcel &data, const VersionInfo &i
 {
     data.WriteInt32(static_cast<int32_t>(info.status));
     data.WriteString16(Str8ToStr16(info.errMsg));
+    size_t i;
     data.WriteInt32(static_cast<int32_t>(sizeof(info.result) / sizeof(info.result[0])));
-    for (size_t i = 0; i < sizeof(info.result) / sizeof(info.result[0]); i++) {
+    for (i = 0; i < sizeof(info.result) / sizeof(info.result[0]); i++) {
         data.WriteUint64(static_cast<uint64_t>(info.result[i].size));
         data.WriteInt32(static_cast<int32_t>(info.result[i].packageType));
 
@@ -74,7 +75,7 @@ int32_t UpdateHelper::WriteVersionInfo(MessageParcel &data, const VersionInfo &i
         data.WriteString16(Str8ToStr16(info.result[i].descriptPackageId));
     }
     data.WriteInt32(static_cast<int32_t>(sizeof(info.descriptInfo) / sizeof(info.descriptInfo[0])));
-    for (size_t i = 0; i < sizeof(info.descriptInfo) / sizeof(info.descriptInfo[0]); i++) {
+    for (i = 0; i < sizeof(info.descriptInfo) / sizeof(info.descriptInfo[0]); i++) {
         data.WriteString16(Str8ToStr16(info.descriptInfo[i].descriptPackageId));
         data.WriteString16(Str8ToStr16(info.descriptInfo[i].content));
     }
@@ -87,7 +88,8 @@ int32_t UpdateHelper::ReadVersionInfo(MessageParcel &reply, VersionInfo &info)
     info.errMsg = Str16ToStr8(reply.ReadString16());
 
     int32_t count = reply.ReadInt32();
-    for (size_t i = 0; (i < static_cast<size_t>(count)) && (i < sizeof(info.result) / sizeof(info.result[0])); i++) {
+    size_t i;
+    for (i = 0; (i < static_cast<size_t>(count)) && (i < sizeof(info.result) / sizeof(info.result[0])); i++) {
         uint64_t uint64 = reply.ReadUint64();
         info.result[i].size = static_cast<size_t>(uint64);
         info.result[i].packageType = static_cast<PackageType>(reply.ReadInt32());
@@ -98,7 +100,7 @@ int32_t UpdateHelper::ReadVersionInfo(MessageParcel &reply, VersionInfo &info)
         info.result[i].descriptPackageId = Str16ToStr8(reply.ReadString16());
     }
     count = reply.ReadInt32();
-    for (size_t i = 0; (i < static_cast<size_t>(count))
+    for (i = 0; (i < static_cast<size_t>(count))
         && (i < sizeof(info.descriptInfo) / sizeof(info.descriptInfo[0])); i++) {
         info.descriptInfo[i].descriptPackageId = Str16ToStr8(reply.ReadString16());
         info.descriptInfo[i].content = Str16ToStr8(reply.ReadString16());
@@ -165,7 +167,8 @@ int32_t UpdateHelper::CopyVersionInfo(const VersionInfo &srcInfo, VersionInfo &d
 {
     dstInfo.status = srcInfo.status;
     dstInfo.errMsg = srcInfo.errMsg;
-    for (size_t i = 0; i < sizeof(dstInfo.result) / sizeof(dstInfo.result[0]); i++) {
+    size_t i;
+    for (i = 0; i < sizeof(dstInfo.result) / sizeof(dstInfo.result[0]); i++) {
         dstInfo.result[i].size = srcInfo.result[i].size;
         dstInfo.result[i].packageType = srcInfo.result[i].packageType;
         dstInfo.result[i].versionName = srcInfo.result[i].versionName;
@@ -173,7 +176,7 @@ int32_t UpdateHelper::CopyVersionInfo(const VersionInfo &srcInfo, VersionInfo &d
         dstInfo.result[i].verifyInfo = srcInfo.result[i].verifyInfo;
         dstInfo.result[i].descriptPackageId = srcInfo.result[i].descriptPackageId;
     }
-    for (size_t i = 0; i < sizeof(dstInfo.descriptInfo) / sizeof(dstInfo.descriptInfo[0]); i++) {
+    for (i = 0; i < sizeof(dstInfo.descriptInfo) / sizeof(dstInfo.descriptInfo[0]); i++) {
         dstInfo.descriptInfo[i].content = srcInfo.descriptInfo[i].content;
         dstInfo.descriptInfo[i].descriptPackageId = srcInfo.descriptInfo[i].descriptPackageId;
     }
