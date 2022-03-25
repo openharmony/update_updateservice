@@ -30,21 +30,21 @@ int32_t UpdateCallbackStub::OnRemoteRequest(uint32_t code,
     }
     switch (code) {
         case CHECK_VERSION: {
-            VersionInfo info;
-            UpdateHelper::ReadVersionInfo(data, info);
-            OnCheckVersionDone(info);
+            VersionInfo checkVersionInfo;
+            UpdateHelper::ReadVersionInfo(data, checkVersionInfo);
+            OnCheckVersionDone(checkVersionInfo);
             break;
         }
         case DOWNLOAD: {
-            Progress info;
-            UpdateHelper::ReadUpdateProgress(data, info);
-            OnDownloadProgress(info);
+            Progress downloadInfo;
+            UpdateHelper::ReadUpdateProgress(data, downloadInfo);
+            OnDownloadProgress(downloadInfo);
             break;
         }
         case UPGRADE: {
-            Progress info;
-            UpdateHelper::ReadUpdateProgress(data, info);
-            OnUpgradeProgress(info);
+            Progress upgradeInfo;
+            UpdateHelper::ReadUpdateProgress(data, upgradeInfo);
+            OnUpgradeProgress(upgradeInfo);
             break;
         }
         default: {
