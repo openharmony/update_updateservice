@@ -107,7 +107,9 @@ extern "C" {
 
 napi_status napi_create_string_utf8(napi_env env, const char *str, size_t length, napi_value *result)
 {
-    *result = CreateNapiValue(napi_string, str);
+    if (result != NULL) {
+        *result = CreateNapiValue(napi_string, str);
+    }
     return napi_status::napi_ok;
 }
 
@@ -303,7 +305,7 @@ napi_status napi_get_value_string_utf8(napi_env env, napi_value value, char* buf
         return napi_status::napi_invalid_arg;
     }
     if (buf != nullptr) {
-        memcpy_s(buf, bufsize, testValue->strValue.data(), testValue->strValue.size());
+        (void)memcpy_s(buf, bufsize, testValue->strValue.data(), testValue->strValue.size());
     }
     printf("napi_get_value_string_utf8 %s bufsize %zu  %zu \n",
         testValue->strValue.c_str(), bufsize, testValue->strValue.size());
@@ -456,7 +458,9 @@ napi_status napi_get_cb_info(
 
 napi_status napi_is_array(napi_env env, napi_value value, bool *result)
 {
-    *result = true;
+    if (result != nullptr) {
+        *result = true;
+    }
     return napi_status::napi_ok;
 }
 
@@ -483,6 +487,7 @@ napi_status napi_open_handle_scope(napi_env env, napi_handle_scope* result)
 
 napi_status napi_close_handle_scope(napi_env env, napi_handle_scope scope)
 {
+    UNUSED(env);
     return napi_status::napi_ok;
 }
 
@@ -550,11 +555,13 @@ napi_status napi_define_class(napi_env env, const char* utf8name, size_t length,
 napi_status napi_new_instance(napi_env env, napi_value constructor, size_t argc, const napi_value* argv,
     napi_value* result)
 {
+    UNUSED(argv);
     return napi_status::napi_ok;
 }
 
 napi_status napi_remove_wrap(napi_env env, napi_value js_object, void** result)
 {
+    UNUSED(result);
     return napi_status::napi_ok;
 }
 
