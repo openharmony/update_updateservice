@@ -71,6 +71,7 @@ public:
     virtual ~UpdateServerTest()
     {
         delete updateCallBack_;
+        updateCallBack_ = nullptr;
     }
 
     void SetUp() {}
@@ -536,9 +537,9 @@ HWTEST_F(UpdateServerTest, TestKitsResetService, TestSize.Level1)
     sptr<IRemoteObject> remoteObj = systemMgr->GetSystemAbility(UPDATE_DISTRIBUTED_SERVICE_ID);
     EXPECT_NE(remoteObj, nullptr);
     sptr<IRemoteObject::DeathRecipient> deathRecipient = new UpdateServiceKitsImpl::DeathRecipient();
-    deathRecipient->OnRemoteDied(remoteObj);
     EXPECT_NE(deathRecipient, nullptr);
-    UpdateService *saServer = new UpdateService(0, true);
+    deathRecipient->OnRemoteDied(remoteObj);
+    UpdateService *saServer = new (std::nothrow)UpdateService(0, true);
     EXPECT_NE(saServer, nullptr);
     const std::string miscFile = "/dev/block/platform/soc/10100000.himci.eMMC/by-name/misc";
     const std::string packageName = "--update_package=/data/updater/updater.zip";
@@ -552,9 +553,9 @@ HWTEST_F(UpdateServerTest, TestKitsRemoteCallbackOnCheckVersionDone, TestSize.Le
     VersionInfo info {};
     UpdateCallbackInfo callBackFun {};
     sptr<UpdateServiceKitsImpl::RemoteUpdateCallback> remoteCallBack =
-        new UpdateServiceKitsImpl::RemoteUpdateCallback(callBackFun);
-    remoteCallBack->OnCheckVersionDone(info);
+        new (std::nothrow)UpdateServiceKitsImpl::RemoteUpdateCallback(callBackFun);
     EXPECT_NE(remoteCallBack, nullptr);
+    remoteCallBack->OnCheckVersionDone(info);
 }
 
 HWTEST_F(UpdateServerTest, TestKitsRemoteCallbackOnDownloadProgress, TestSize.Level1)
@@ -562,9 +563,9 @@ HWTEST_F(UpdateServerTest, TestKitsRemoteCallbackOnDownloadProgress, TestSize.Le
     Progress progress {};
     UpdateCallbackInfo callBackFun {};
     sptr<UpdateServiceKitsImpl::RemoteUpdateCallback> remoteCallBack =
-        new UpdateServiceKitsImpl::RemoteUpdateCallback(callBackFun);
-    remoteCallBack->OnDownloadProgress(progress);
+        new (std::nothrow)UpdateServiceKitsImpl::RemoteUpdateCallback(callBackFun);
     EXPECT_NE(remoteCallBack, nullptr);
+    remoteCallBack->OnDownloadProgress(progress);
 }
 
 HWTEST_F(UpdateServerTest, TestKitsRemoteCallbackOnUpgradeProgress, TestSize.Level1)
@@ -572,9 +573,9 @@ HWTEST_F(UpdateServerTest, TestKitsRemoteCallbackOnUpgradeProgress, TestSize.Lev
     Progress progress {};
     UpdateCallbackInfo callBackFun {};
     sptr<UpdateServiceKitsImpl::RemoteUpdateCallback> remoteCallBack =
-        new UpdateServiceKitsImpl::RemoteUpdateCallback(callBackFun);
-    remoteCallBack->OnUpgradeProgress(progress);
+        new (std::nothrow)UpdateServiceKitsImpl::RemoteUpdateCallback(callBackFun);
     EXPECT_NE(remoteCallBack, nullptr);
+    remoteCallBack->OnUpgradeProgress(progress);
 }
 
 HWTEST_F(UpdateServerTest, TestKitsRegisterUpdateCallback, TestSize.Level1)
@@ -611,7 +612,7 @@ HWTEST_F(UpdateServerTest, TestKitsRebootAndClean, TestSize.Level1)
 HWTEST_F(UpdateServerTest, TestKitsReadDataFromSSL, TestSize.Level1)
 {
     int32_t engineSocket = 10;
-    UpdateService *updateServer = new UpdateService(0, true);
+    UpdateService *updateServer = new (std::nothrow)UpdateService(0, true);
     EXPECT_NE(updateServer, nullptr);
     updateServer->ReadDataFromSSL(engineSocket);
     delete updateServer;
@@ -619,7 +620,7 @@ HWTEST_F(UpdateServerTest, TestKitsReadDataFromSSL, TestSize.Level1)
 
 HWTEST_F(UpdateServerTest, TestKits, TestSize.Level1)
 {
-    UpdateServiceKits *kit = new MockUpdateServiceKits();
+    UpdateServiceKits *kit = new (std::nothrow)MockUpdateServiceKits();
     EXPECT_NE(kit, nullptr);
     delete kit;
 }
@@ -635,7 +636,8 @@ HWTEST_F(UpdateServerTest, TestUpdateServiceKitsImpl, TestSize.Level1)
 HWTEST_F(UpdateServerTest, TestUpdateServiceRegisterUpdateCallback, TestSize.Level1)
 {
     UpdateContext ctx {};
-    UpdateService *updateServer = new UpdateService(0, true);
+    UpdateService *updateServer = new (std::nothrow)UpdateService(0, true);
+    EXPECT_NE(updateServer, nullptr);
     updateServer->RegisterUpdateCallback(ctx, nullptr);
     delete updateServer;
 }
@@ -644,7 +646,7 @@ HWTEST_F(UpdateServerTest, TestVerifyDownloadPkg, TestSize.Level1)
 {
     Progress downloadProgress {};
     std::string path = "/data/updater/updater/test.txt";
-    UpdateService *updateServer = new UpdateService(0, true);
+    UpdateService *updateServer = new (std::nothrow)UpdateService(0, true);
     EXPECT_NE(updateServer, nullptr);
     updateServer->VerifyDownloadPkg(path, downloadProgress);
     delete updateServer;
