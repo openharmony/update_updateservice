@@ -70,6 +70,9 @@ void FreeAllNapiValues()
 
 TestNApiValue::TestNApiValue(int type, const void *value)
 {
+    if (value == nullptr) {
+        return;
+    }
     type_ = type;
     switch (type) {
         case napi_boolean:
@@ -110,14 +113,17 @@ napi_status napi_create_string_utf8(napi_env env, const char *str, size_t length
 
 napi_status napi_typeof(napi_env env, napi_value value, napi_valuetype *result)
 {
-    if (((TestNApiValue*)value)->GetType() == TEST_NVALUE_TYPE_CONTEXT) {
+    if ((reinterpret_cast<TestNApiValue*>(value)) == nullptr) {
+        return napi_status::napi_invalid_arg;
+    }
+    if ((reinterpret_cast<TestNApiValue*>(value))->GetType() == TEST_NVALUE_TYPE_CONTEXT) {
         *result = napi_object;
-    } else if (((TestNApiValue*)value)->GetType() == TEST_NVALUE_TYPE_UPGRADE) {
+    } else if ((reinterpret_cast<TestNApiValue*>(value))->GetType() == TEST_NVALUE_TYPE_UPGRADE) {
         *result = napi_object;
-    } else if (((TestNApiValue*)value)->GetType() == TEST_NVALUE_TYPE_UPDATE_POLICY) {
+    } else if ((reinterpret_cast<TestNApiValue*>(value))->GetType() == TEST_NVALUE_TYPE_UPDATE_POLICY) {
         *result = napi_object;
     } else {
-        *result = (napi_valuetype)((TestNApiValue*)value)->GetType();
+        *result = (napi_valuetype)(reinterpret_cast<TestNApiValue*>(value))->GetType();
     }
     return napi_status::napi_ok;
 }
@@ -227,7 +233,10 @@ napi_status napi_has_named_property(napi_env env, napi_value object, const char 
     bool *result)
 {
     *result = false;
-    TestNApiValue* testValue = (TestNApiValue*)object;
+    TestNApiValue* testValue = reinterpret_cast<TestNApiValue*>(object);
+    if (testValue == nullptr) {
+        return napi_status::napi_invalid_arg;
+    }
     if (testValue->GetType() == TEST_NVALUE_TYPE_CONTEXT) {
         *result = true;
     } else if (testValue->GetType() == TEST_NVALUE_TYPE_UPGRADE ||
@@ -240,8 +249,11 @@ napi_status napi_has_named_property(napi_env env, napi_value object, const char 
 napi_status napi_get_named_property(napi_env env, napi_value object, const char* utf8name,
     napi_value* result)
 {
-    TestNApiEnv* testEnv = (TestNApiEnv*)env;
-    TestNApiValue* testValue = (TestNApiValue*)object;
+    TestNApiEnv* testEnv = reinterpret_cast<TestNApiEnv*>(env);
+    TestNApiValue* testValue = reinterpret_cast<TestNApiValue*>(object);
+    if (testEnv == nullptr || testValue == nullptr) {
+        return napi_status::napi_invalid_arg;
+    }
 
     if (testValue->GetType() == TEST_NVALUE_TYPE_CONTEXT) {
         if (strcmp(utf8name, "serverAddr") == 0) {
@@ -271,13 +283,13 @@ napi_status napi_get_named_property(napi_env env, napi_value object, const char*
         }
     } else if (testValue->GetType() == TEST_NVALUE_TYPE_UPDATE_POLICY) {
         if (strcmp(utf8name, "autoDownload") == 0) {
-            *result = CreateNapiValue(napi_number, (void*)&g_updatePolicy.autoDownload);
+            *result = CreateNapiValue(napi_number, reinterpret_cast<void*>(&g_updatePolicy.autoDownload));
         } else if (strcmp(utf8name, "autoDownloadNet") == 0) {
-            *result = CreateNapiValue(napi_string, (void*)&g_updatePolicy.autoDownloadNet);
+            *result = CreateNapiValue(napi_string, reinterpret_cast<void*>(&g_updatePolicy.autoDownloadNet));
         } else if (strcmp(utf8name, "mode") == 0) {
-            *result = CreateNapiValue(napi_string, (void*)&g_updatePolicy.mode);
+            *result = CreateNapiValue(napi_string, reinterpret_cast<void*>(&g_updatePolicy.mode));
         } else if (strcmp(utf8name, "autoUpgradeCondition") == 0) {
-            *result = CreateNapiValue(napi_string, (void*)&g_updatePolicy.autoUpgradeCondition);
+            *result = CreateNapiValue(napi_string, reinterpret_cast<void*>(&g_updatePolicy.autoUpgradeCondition));
         }
     }
     return napi_status::napi_ok;
@@ -286,7 +298,10 @@ napi_status napi_get_named_property(napi_env env, napi_value object, const char*
 napi_status napi_get_value_string_utf8(napi_env env, napi_value value, char* buf,
     size_t bufsize, size_t* result)
 {
-    TestNApiValue* testValue = (TestNApiValue*)value;
+    TestNApiValue* testValue = reinterpret_cast<TestNApiValue*>(value);
+    if (testValue == nullptr) {
+        return napi_status::napi_invalid_arg;
+    }
     if (buf != nullptr) {
         memcpy_s(buf, bufsize, testValue->strValue.data(), testValue->strValue.size());
     }
@@ -298,21 +313,30 @@ napi_status napi_get_value_string_utf8(napi_env env, napi_value value, char* buf
 
 napi_status napi_get_value_int32(napi_env env, napi_value value, int32_t* result)
 {
-    TestNApiValue* testValue = (TestNApiValue*)value;
+    TestNApiValue* testValue = reinterpret_cast<TestNApiValue*>(value);
+    if (testValue == nullptr) {
+        return napi_status::napi_invalid_arg;
+    }
     *result = testValue->intValue;
     return napi_status::napi_ok;
 }
 
 napi_status napi_get_value_uint32(napi_env env, napi_value value, uint32_t* result)
 {
-    TestNApiValue* testValue = (TestNApiValue*)value;
+    TestNApiValue* testValue = reinterpret_cast<TestNApiValue*>(value);
+    if (testValue == nullptr) {
+        return napi_status::napi_invalid_arg;
+    }
     *result = static_cast<uint32_t>(testValue->intValue);
     return napi_status::napi_ok;
 }
 
 napi_status napi_get_value_int64(napi_env env, napi_value value, int64_t* result)
 {
-    TestNApiValue* testValue = (TestNApiValue*)value;
+    TestNApiValue* testValue = reinterpret_cast<TestNApiValue*>(value);
+    if (testValue == nullptr) {
+        return napi_status::napi_invalid_arg;
+    }
     *result = testValue->int64Value;
     return napi_status::napi_ok;
 }
@@ -379,7 +403,10 @@ napi_status napi_get_cb_info(
     napi_value *this_arg,      // [out] Receives the JS 'this' arg for the call
     void **data)               // [out] Receives the data pointer for the callback.
 {
-    TestNApiEnv* testEnv = (TestNApiEnv*)env;
+    TestNApiEnv* testEnv = reinterpret_cast<TestNApiEnv*>(env);
+    if (testEnv == nullptr) {
+        return napi_status::napi_invalid_arg;
+    }
     printf("++++++++++++++ napi_get_cb_info argc %zu testStage %d \n", *argc, testEnv->testStage);
     switch (testEnv->testStage) {
         case SESSION_GET_UPDATER: {
@@ -496,7 +523,10 @@ napi_status napi_wrap(napi_env env, napi_value jsObject,
 
 napi_status napi_unwrap(napi_env env, napi_value jsObject, void** result)
 {
-    TestNApiEnv* testEnv = (TestNApiEnv*)env;
+    TestNApiEnv* testEnv = reinterpret_cast<TestNApiEnv*>(env);
+    if (testEnv == nullptr) {
+        return napi_status::napi_invalid_arg;
+    }
     if (testEnv->testStage && testEnv->noneClient) {
         *result = nullptr;
         testEnv->noneClient = false;
