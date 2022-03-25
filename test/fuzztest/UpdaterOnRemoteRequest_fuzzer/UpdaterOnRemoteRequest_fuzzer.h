@@ -25,4 +25,4 @@
 
 #define FUZZ_PROJECT_NAME "UpdaterOnRemoteRequest_fuzzer"
 
-#endif /* UPDATER_ON_REMOTE_REQUEST_FUZZER_H */
+#endif // UPDATER_ON_REMOTE_REQUEST_FUZZER_H
