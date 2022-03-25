@@ -159,6 +159,7 @@ public:
         return nullptr;
     }
     #endif
+
 private:
     napi_value StartSession(napi_env env,
         napi_callback_info info, int32_t type, size_t startIndex, DoWorkFunction function);
@@ -197,6 +198,7 @@ private:
     static int32_t BuildProgress(napi_env env, napi_value &obj, const UpdateResult &result);
     static int32_t BuildUpdatePolicy(napi_env env, napi_value &obj, const UpdateResult &result);
     static int32_t BuildInt32Status(napi_env env, napi_value &obj, const UpdateResult &result);
+
 private:
     napi_env env_ {};
     napi_ref thisReference_ {};
