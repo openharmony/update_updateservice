@@ -47,7 +47,7 @@ public:
 
     virtual int32_t GetNewVersion(VersionInfo &versionInfo) = 0;
 
-    virtual int32_t GetUpgradeStatus (UpgradeInfo &info) = 0;
+    virtual int32_t GetUpgradeStatus(UpgradeInfo &info) = 0;
 
     virtual int32_t SetUpdatePolicy(const UpdatePolicy &policy) = 0;
 
