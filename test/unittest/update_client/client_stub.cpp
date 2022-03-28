@@ -107,7 +107,7 @@ extern "C" {
 
 napi_status napi_create_string_utf8(napi_env env, const char *str, size_t length, napi_value *result)
 {
-    if (result != NULL) {
+    if (result != nullptr) {
         *result = CreateNapiValue(napi_string, str);
     }
     return napi_status::napi_ok;
