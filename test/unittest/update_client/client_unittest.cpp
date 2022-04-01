@@ -46,11 +46,14 @@ static constexpr int NUMBER_2 = 2;
 
 extern TestNApiEnv g_testEnv;
 extern uint32_t g_testSessionId;
-extern bool g_callbackFuncationCalled;
 extern UpdateClient* g_testClient;
 
 namespace {
-#define CHECK_RESULT_EQ(ret, value) EXPECT_EQ(((TestNApiValue*)(ret))->intValue, (value));
+void  CHECK_RESULT_EQ(int ret, int value)
+{
+    EXPECT_EQ((reinterpret_cast<TestNApiValue*>(ret))->intValue, (value));
+    return;
+}
 const int32_t JSON_MAX_SIZE = 4096;
 
 class UpdateClientTest : public ::testing::Test {

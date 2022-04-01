@@ -492,7 +492,7 @@ void UpdateService::OnStart()
 {
     ENGINE_LOGI("UpdaterService OnStart");
     bool res = Publish(this);
-    if (res == false) {
+    if (!res) {
         ENGINE_LOGI("UpdaterService OnStart failed");
     }
     return;
