@@ -336,7 +336,7 @@ public:
             std::vector<char> buffer(JSON_MAX_SIZE);
             fread(buffer.data(), 1, JSON_MAX_SIZE, downloadFile);
             UpdateService::ParseJsonFile(buffer, versionInfo);
-            DownloadThread::WriteFunc((void *)buffer.data(), length, 1, downloadFile);
+            DownloadThread::WriteFunc(reinterpret_cast<void *>buffer.data(), length, 1, downloadFile);
         }
         delete download;
         return 0;
