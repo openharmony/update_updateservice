@@ -346,8 +346,8 @@ napi_status napi_get_value_int64(napi_env env, napi_value value, int64_t* result
 napi_status napi_set_named_property(napi_env env, napi_value object, const char *utf8name,
     napi_value value)
 {
-    TestNApiEnv* testEnv = (TestNApiEnv*)env;
-    TestNApiValue* testValue = (TestNApiValue*)value;
+    TestNApiEnv* testEnv = reinterpret_cast<TestNApiEnv*>(env);
+    TestNApiValue* testValue = reinterpret_cast<TestNApiValue*>(value);
     if (testValue == nullptr) {
         return napi_status::napi_ok;
     }
@@ -447,7 +447,7 @@ napi_status napi_get_cb_info(
             *argc = testEnv->testAsyncorPermose ? 1 : NUMBER_2;
             break;
         }
-        default:{
+        default: {
             *argc = testEnv->testAsyncorPermose ? 0 : 1;
             *argv = CreateNapiValue(napi_function, nullptr);
             break;
