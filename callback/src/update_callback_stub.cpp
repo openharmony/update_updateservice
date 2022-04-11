@@ -24,6 +24,10 @@ namespace update_engine {
 int32_t UpdateCallbackStub::OnRemoteRequest(uint32_t code,
     MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
+    if (data.ReadInterfaceToken() != GetDescriptor()) {
+        ENGINE_LOGI("UpdateCallbackStub ReadInterfaceToken fail");
+        return -1;
+    }
     switch (code) {
         case CHECK_VERSION: {
             VersionInfo info;
