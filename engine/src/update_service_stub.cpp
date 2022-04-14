@@ -13,9 +13,12 @@
  * limitations under the License.
  */
 
-#include "update_service_stub.h"
-#include "update_helper.h"
+#include "accesstoken_kit.h"
+#include "hap_token_info.h"
+#include "ipc_skeleton.h"
 #include "securec.h"
+#include "update_helper.h"
+#include "update_service_stub.h"
 
 using namespace std;
 
@@ -167,6 +170,30 @@ int32_t UpdateServiceStub::OnRemoteRequest(uint32_t code,
         {IUpdateService::REBOOT_CLEAN, RebootAndCleanStub},
         {IUpdateService::REBOOT_INSTALL, RebootAndInstallStub},
     };
+
+    Security::AccessToken::AccessTokenID callerToken = IPCSkeleton::GetCallingTokenID();
+    Security::AccessToken::HapTokenInfo hapTokenInfoRes = {};
+
+    int re = Security::AccessToken::AccessTokenKit::GetHapTokenInfo(callerToken, hapTokenInfoRes);
+    ENGINE_LOGI("UpdateServiceStub GetHapTokenInfo re %d, bundle name %s", re, hapTokenInfoRes.bundleName.c_str());
+
+    if (code != IUpdateService::REBOOT_CLEAN && code != IUpdateService::REBOOT_INSTALL) {
+        int result = Security::AccessToken::AccessTokenKit::VerifyAccessToken(callerToken,
+        "ohos.permission.UPDATE_SYSTEM");
+        if (result != Security::AccessToken::PERMISSION_GRANTED) {
+            ENGINE_LOGE("permissionCheck ohos.permission.UPDATE_SYSTEM false");
+            return -1;
+        }
+    }
+
+    if (code == IUpdateService::REBOOT_CLEAN) {
+        int result = Security::AccessToken::AccessTokenKit::VerifyAccessToken(callerToken,
+        "ohos.permission.FACTORY_RESET");
+        if (result != Security::AccessToken::PERMISSION_GRANTED) {
+            ENGINE_LOGE("permissionCheck ohos.permission.FACTORY_RESET false");
+            return -1;
+        }
+    }
 
     ENGINE_LOGI("UpdateServiceStub OnRemoteRequest code %u", code);
     for (auto inter = requestFuncMap.begin(); inter != requestFuncMap.end(); inter++) {
