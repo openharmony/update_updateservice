@@ -175,33 +175,28 @@ int32_t UpdateServiceStub::OnRemoteRequest(uint32_t code,
     Security::AccessToken::HapTokenInfo hapTokenInfoRes = {};
 
     int re = Security::AccessToken::AccessTokenKit::GetHapTokenInfo(callerToken, hapTokenInfoRes);
-    ENGINE_LOGI("UpdateServiceStub GetHapTokenInfo re %d, bundle name %s", re, hapTokenInfoRes.bundleName.c_str());
+    ENGINE_LOGI("UpdateServiceStub GetHapTokenInfo re %{public}d, bundle name %{public}s", re,
+        hapTokenInfoRes.bundleName.c_str());
 
-    if (code != IUpdateService::REBOOT_CLEAN && code != IUpdateService::REBOOT_INSTALL) {
-        int result = Security::AccessToken::AccessTokenKit::VerifyAccessToken(callerToken,
-        "ohos.permission.UPDATE_SYSTEM");
-        if (result != Security::AccessToken::PERMISSION_GRANTED) {
-            ENGINE_LOGE("permissionCheck ohos.permission.UPDATE_SYSTEM false");
-            return -1;
-        }
+    ENGINE_LOGI("UpdateServiceStub OnRemoteRequest code %{public}u", code);
+    string permission = "ohos.permission.UPDATE_SYSTEM";
+    if (code == IUpdateService::REBOOT_CLEAN){
+        permission = "ohos.permission.FACTORY_RESET";
     }
 
-    if (code == IUpdateService::REBOOT_CLEAN) {
-        int result = Security::AccessToken::AccessTokenKit::VerifyAccessToken(callerToken,
-        "ohos.permission.FACTORY_RESET");
-        if (result != Security::AccessToken::PERMISSION_GRANTED) {
-            ENGINE_LOGE("permissionCheck ohos.permission.FACTORY_RESET false");
-            return -1;
-        }
+    int result = Security::AccessToken::AccessTokenKit::VerifyAccessToken(callerToken, permission);
+    if (result != Security::AccessToken::PERMISSION_GRANTED) {
+        ENGINE_LOGE("permissionCheck %{public}s false", permission.c_str());
+        return -1;
     }
 
-    ENGINE_LOGI("UpdateServiceStub OnRemoteRequest code %u", code);
+    ENGINE_LOGI("UpdateServiceStub func code %{public}u", code);
     for (auto inter = requestFuncMap.begin(); inter != requestFuncMap.end(); inter++) {
         if (inter->first == code) {
             return inter->second(this, data, reply, option);
         }
     }
-    ENGINE_LOGE("UpdateServiceStub OnRemoteRequest code %u not found", code);
+    ENGINE_LOGE("UpdateServiceStub OnRemoteRequest code %{public}u not found", code);
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
 }
 } // namespace update_engine
