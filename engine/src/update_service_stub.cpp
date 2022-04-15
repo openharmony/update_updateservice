@@ -180,7 +180,7 @@ int32_t UpdateServiceStub::OnRemoteRequest(uint32_t code,
 
     ENGINE_LOGI("UpdateServiceStub OnRemoteRequest code %{public}u", code);
     string permission = "ohos.permission.UPDATE_SYSTEM";
-    if (code == IUpdateService::REBOOT_CLEAN){
+    if (code == IUpdateService::REBOOT_CLEAN) {
         permission = "ohos.permission.FACTORY_RESET";
     }
 
