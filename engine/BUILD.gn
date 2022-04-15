@@ -76,13 +76,13 @@ ohos_shared_library("updateservice") {
   ]
 
   external_deps = [
+    "access_token:libaccesstoken_sdk",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
+    "ipc:ipc_single",
     "safwk:system_ability_fwk",
     "samgr_standard:samgr_proxy",
     "startup_l2:syspara",
-    "ipc:ipc_single",
-    "access_token:libaccesstoken_sdk",
   ]
 
   part_name = "update_service"
