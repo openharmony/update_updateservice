@@ -25,6 +25,7 @@ ohos_shared_library("update") {
     "//base/update/updater/services/include",
     "//base/update/updater/utils/include",
     "//third_party/node/src",
+    "//third_party/libuv/include",
     "//foundation/ace/napi/interfaces/kits",
     "//utils/native/base/include",
     "//utils/system/safwk/native/include",
