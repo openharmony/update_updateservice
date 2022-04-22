@@ -26,7 +26,9 @@
 #include <sys/reboot.h>
 #include <sys/stat.h>
 #include <sys/syscall.h>
+#include <tuple>
 #include <unistd.h>
+#include <uv.h>
 #include <vector>
 
 #include "iupdate_service.h"
@@ -51,6 +53,16 @@ constexpr int PROGRESS_DOWNLOAD_FINISH = 100;
 const std::string MISC_FILE = "/dev/block/platform/soc/10100000.himci.eMMC/by-name/misc";
 const std::string CMD_WIPE_DATA = "--user_wipe_data";
 const std::string UPDATER_PKG_NAME = "/data/updater/updater.zip";
+
+struct NotifyInput {
+    NotifyInput() = default;
+    NotifyInput(UpdateClient* iclient, const string &itype, int32_t iretcode, UpdateResult *iresult)
+        :client(iclient), type(itype), retcode(iretcode), result(iresult) {}
+    UpdateClient* client;
+    string type;
+    int32_t retcode;
+    UpdateResult *result;
+};
 
 UpdateClient::UpdateClient(napi_env env, napi_value thisVar)
 {
@@ -558,7 +570,7 @@ bool UpdateClient::GetFirstSessionId(uint32_t &sessionId)
     }
 }
 
-void UpdateClient::Emit(const std::string &type, int32_t retcode, const UpdateResult &result)
+void UpdateClient::PublishToJS(const std::string &type, int32_t retcode, const UpdateResult &result)
 {
     napi_handle_scope scope;
     napi_status status = napi_open_handle_scope(env_, &scope);
@@ -592,6 +604,54 @@ void UpdateClient::Emit(const std::string &type, int32_t retcode, const UpdateRe
         }
     }
     napi_close_handle_scope(env_, scope);
+}
+
+void UpdateClient::Emit(const std::string &type, int32_t retcode, const UpdateResult &result)
+{
+    auto freeUpdateResult = [](const UpdateResult *lres) {
+        if (lres != nullptr) {
+            delete lres->result.progress;
+        }
+        delete lres;
+    };
+    UpdateResult *res = new(std::nothrow) UpdateResult();
+    CLIENT_CHECK(res != nullptr, return, "copy update result failed.");
+    res->type = result.type;
+    res->buildJSObject = result.buildJSObject;
+    res->result.progress = new(std::nothrow) Progress();
+    CLIENT_CHECK(res->result.progress != nullptr,
+        freeUpdateResult(res);
+        return, "copy update result failed.");
+    res->result.progress->status = result.result.progress->status;
+    res->result.progress->endReason = result.result.progress->endReason;
+    res->result.progress->percent = result.result.progress->percent;
+
+    uv_loop_s *loop = nullptr;
+    napi_get_uv_event_loop(env_, &loop);
+    CLIENT_CHECK(loop != nullptr,
+        freeUpdateResult(res);
+        return, "get event loop failed.");
+    uv_work_t *work = new(std::nothrow) uv_work_t;
+    CLIENT_CHECK(work != nullptr,
+        freeUpdateResult(res);
+        return, "alloc work failed.");
+    work->data = (void*)new(std::nothrow) NotifyInput(this, type, retcode, res);
+    CLIENT_CHECK(work != nullptr,
+        freeUpdateResult(res);
+        delete work;
+        return, "alloc work data failed.");
+
+    uv_queue_work(
+        loop,
+        work,
+        [](uv_work_t *work) {}, // run in C++ thread
+        [](uv_work_t *work, int status) {
+            NotifyInput *input = (NotifyInput *)work->data;
+            input->client->PublishToJS(input->type, input->retcode, *input->result);
+            delete input->result->result.progress;
+            delete input->result;
+            delete input;
+        });
 }
 
 void UpdateClient::NotifyDownloadProgress(const Progress &progress)

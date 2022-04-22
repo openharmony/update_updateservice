@@ -219,7 +219,7 @@ void UpdateListener::NotifyJS(napi_env env, napi_value thisVar, int32_t retcode,
         napi_status status = napi_get_reference_value(env, handlerRef_, &handler);
         CLIENT_CHECK_NAPI_CALL(env, status == napi_ok && handler != nullptr, return, "Failed to get reference");
     }
-     CLIENT_CHECK_NAPI_CALL(env, handler != nullptr, return, "handlerRef_ has beed freed");
+    CLIENT_CHECK_NAPI_CALL(env, handler != nullptr, return, "handlerRef_ has beed freed");
     napi_call_function(env, thisVar, handler, 1, &jsEvent, &callResult);
 }
 
