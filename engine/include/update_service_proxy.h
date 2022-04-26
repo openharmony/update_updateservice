@@ -48,6 +48,8 @@ public:
     int32_t RebootAndClean(const std::string &miscFile, const std::string &cmd) override;
 
     int32_t RebootAndInstall(const std::string &miscFile, const std::string &packageName) override;
+
+    ~UpdateServiceProxy() = default;
 private:
     static inline BrokerDelegator<UpdateServiceProxy> delegator_;
 };
