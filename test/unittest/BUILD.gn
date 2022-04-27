@@ -70,7 +70,7 @@ ohos_unittest("updateservice_unittest") {
     "//third_party/bounds_checking_function/include",
     "//third_party/googletest/googletest/include",
     "//third_party/node/src",
-    "//foundation/ace/napi/interfaces/kits",
+    "//foundation/arkui/napi/interfaces/kits",
     "//third_party/cJSON",
     "//third_party/libxml2/include",
     "//third_party/curl/include",
