@@ -55,7 +55,7 @@ constexpr int32_t JSON_MAX_SIZE = 4096;
 const mode_t MKDIR_MODE = 0777;
 
 const std::string UPDATER_PKG_NAME = "/data/ota_package/updater.zip";
-const std::string MISC_FILE = "/dev/block/platform/fe310000.sdhci/by-name/misc";
+const std::string MISC_FILE = "/dev/block/by-name/misc";
 const std::string BASE_PATH = "/data/ota_package";
 #ifndef UPDATER_UT
 const std::string SIGNING_CERT_NAME = "/data/ota_package/signing_cert.crt";

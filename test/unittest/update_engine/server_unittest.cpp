@@ -250,7 +250,7 @@ public:
         EXPECT_NE(remoteObj, nullptr);
         UpdateServiceProxy *proxy = new UpdateServiceProxy(remoteObj);
         UpdateCallbackProxy *updateCallBack = new UpdateCallbackProxy(remoteObj);
-        std::string miscFile = "/dev/block/platform/fe310000.sdhci/by-name/misc";
+        std::string miscFile = "/dev/block/by-name/misc";
         std::string packageName = "/data/ota_package/updater.zip";
         const std::string cmd = "--update_package=/data/ota_package/updater.zip";
         VersionInfo info {};
@@ -541,7 +541,7 @@ HWTEST_F(UpdateServerTest, TestKitsResetService, TestSize.Level1)
     deathRecipient->OnRemoteDied(remoteObj);
     UpdateService *saServer = new (std::nothrow)UpdateService(0, true);
     EXPECT_NE(saServer, nullptr);
-    const std::string miscFile = "/dev/block/platform/fe310000.sdhci/by-name/misc";
+    const std::string miscFile = "/dev/block/by-name/misc";
     const std::string packageName = "--update_package=/data/ota_package/updater.zip";
     int32_t ret = saServer->RebootAndInstall(miscFile, packageName);
     EXPECT_EQ(ret, 0);
@@ -603,7 +603,7 @@ HWTEST_F(UpdateServerTest, TestKitsCancel, TestSize.Level1)
 
 HWTEST_F(UpdateServerTest, TestKitsRebootAndClean, TestSize.Level1)
 {
-    const std::string miscFile = "/dev/block/platform/fe310000.sdhci/by-name/misc";
+    const std::string miscFile = "/dev/block/by-name/misc";
     const std::string cmd = "--update_package=/data/ota_package/updater.zip";
     int ret = UpdateServiceKits::GetInstance().RebootAndClean(miscFile, cmd);
     EXPECT_NE(ret, 0);
@@ -627,7 +627,7 @@ HWTEST_F(UpdateServerTest, TestKits, TestSize.Level1)
 
 HWTEST_F(UpdateServerTest, TestUpdateServiceKitsImpl, TestSize.Level1)
 {
-    std::string miscFile = "/dev/block/platform/fe310000.sdhci/by-name/misc";
+    std::string miscFile = "/dev/block/by-name/misc";
     std::string packageName = "/data/ota_package/updater.zip";
     int ret = UpdateServiceKits::GetInstance().RebootAndInstall(miscFile, packageName);
     printf("RebootAndInstall: %d\n", ret);

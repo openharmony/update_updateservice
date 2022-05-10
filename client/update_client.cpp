@@ -50,7 +50,7 @@ const int32_t DEVICE_ID_INDEX = 1;
 const int32_t MID_ARGC = 2;
 const int32_t CLIENT_STRING_MAX_LENGTH = 200;
 constexpr int PROGRESS_DOWNLOAD_FINISH = 100;
-const std::string MISC_FILE = "/dev/block/platform/fe310000.sdhci/by-name/misc";
+const std::string MISC_FILE = "/dev/block/by-name/misc";
 const std::string CMD_WIPE_DATA = "--user_wipe_data";
 const std::string UPDATER_PKG_NAME = "/data/ota_package/updater.zip";
 
