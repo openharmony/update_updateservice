@@ -54,12 +54,13 @@ constexpr int32_t PORT_NUMBER = 5022;
 constexpr int32_t JSON_MAX_SIZE = 4096;
 const mode_t MKDIR_MODE = 0777;
 
-const std::string MISC_FILE = "/dev/block/platform/soc/10100000.himci.eMMC/by-name/misc";
-const std::string BASE_PATH = "/data/updater";
+const std::string UPDATER_PKG_NAME = "/data/ota_package/updater.zip";
+const std::string MISC_FILE = "/dev/block/platform/fe310000.sdhci/by-name/misc";
+const std::string BASE_PATH = "/data/ota_package";
 #ifndef UPDATER_UT
-const std::string SIGNING_CERT_NAME = "/data/update_sa/signing_cert.crt";
+const std::string SIGNING_CERT_NAME = "/data/ota_package/signing_cert.crt";
 #else
-const std::string SIGNING_CERT_NAME = "/data/updater/src/signing_cert.crt";
+const std::string SIGNING_CERT_NAME = "/data/ota_package/signing_cert.crt";
 #endif
 const std::string PARAM_NAME_FOR_VERSION = "hw_sc.build.os.version";
 const std::string DEFAULT_VERSION = "2.2.0";
@@ -92,7 +93,7 @@ int32_t UpdateService::RegisterUpdateCallback(const UpdateContext &ctx,
     updateContext_.controlDevId = ctx.controlDevId;
     updateContext_.upgradeApp = ctx.upgradeApp;
     updateContext_.type = ctx.type;
-    updateContext_.upgradeFile = ctx.upgradeFile;
+    updateContext_.upgradeFile = UPDATER_PKG_NAME;
     return 0;
 }
 
