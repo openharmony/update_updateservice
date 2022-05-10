@@ -29,10 +29,10 @@ namespace OHOS {
 namespace update_engine {
 #ifdef UPDATE_SERVICE
 const std::string LOG_LABEL = "update_engine";
-const std::string LOG_NAME = "/data/update_service_log.txt";
+const std::string LOG_NAME = "/data/ota_package/update_service_log.txt";
 #else
 const std::string LOG_LABEL = "update_engine";
-const std::string LOG_NAME = "/data/update_client.log.txt";
+const std::string LOG_NAME = "/data/ota_package/update_client.log.txt";
 #endif
 constexpr int HEX_DIGEST_NUM = 2;
 constexpr int HEX_DIGEST_BASE = 16;

@@ -89,7 +89,7 @@ public:
         g_testEnv.testStage = SESSION_GET_UPDATER;
         g_testEnv.engineType = 0;
         g_testEnv.noneClient = noneClient;
-        g_testEnv.eventType = "/data/updater/updater/updater.zip";
+        g_testEnv.eventType = "/data/ota_package/updater.zip";
         napi_value value = GetUpdater((napi_env)&g_testEnv, nullptr);
         CLIENT_CHECK(value == nullptr, return -1, "TestGetUpdate");
         return 0;
