@@ -116,7 +116,7 @@ public:
         EXPECT_EQ(-1, reply.ReadInt32());
         sptr<IUpdateCallback> callback_ {};
         UpdateContext ctx {};
-        ctx.upgradeFile = "/data/updater/updater/updater.zip";
+        ctx.upgradeFile = "/data/ota_package/updater.zip";
         UpdateService *updateServer = new UpdateService(0, true);
         int ret = updateServer->RegisterUpdateCallback(ctx, callback_);
         EXPECT_NE(updateServer, nullptr);
@@ -250,9 +250,9 @@ public:
         EXPECT_NE(remoteObj, nullptr);
         UpdateServiceProxy *proxy = new UpdateServiceProxy(remoteObj);
         UpdateCallbackProxy *updateCallBack = new UpdateCallbackProxy(remoteObj);
-        std::string miscFile = "/dev/block/platform/soc/10100000.himci.eMMC/by-name/misc";
-        std::string packageName = "/data/updater/updater/updater.zip";
-        const std::string cmd = "--update_package=/data/updater/updater.zip";
+        std::string miscFile = "/dev/block/by-name/misc";
+        std::string packageName = "/data/ota_package/updater.zip";
+        const std::string cmd = "--update_package=/data/ota_package/updater.zip";
         VersionInfo info {};
         Progress progress {};
         UpdateContext ctx {};
@@ -541,8 +541,8 @@ HWTEST_F(UpdateServerTest, TestKitsResetService, TestSize.Level1)
     deathRecipient->OnRemoteDied(remoteObj);
     UpdateService *saServer = new (std::nothrow)UpdateService(0, true);
     EXPECT_NE(saServer, nullptr);
-    const std::string miscFile = "/dev/block/platform/soc/10100000.himci.eMMC/by-name/misc";
-    const std::string packageName = "--update_package=/data/updater/updater.zip";
+    const std::string miscFile = "/dev/block/by-name/misc";
+    const std::string packageName = "--update_package=/data/ota_package/updater.zip";
     int32_t ret = saServer->RebootAndInstall(miscFile, packageName);
     EXPECT_EQ(ret, 0);
     delete saServer;
@@ -603,8 +603,8 @@ HWTEST_F(UpdateServerTest, TestKitsCancel, TestSize.Level1)
 
 HWTEST_F(UpdateServerTest, TestKitsRebootAndClean, TestSize.Level1)
 {
-    const std::string miscFile = "/dev/block/platform/soc/10100000.himci.eMMC/by-name/misc";
-    const std::string cmd = "--update_package=/data/updater/updater.zip";
+    const std::string miscFile = "/dev/block/by-name/misc";
+    const std::string cmd = "--update_package=/data/ota_package/updater.zip";
     int ret = UpdateServiceKits::GetInstance().RebootAndClean(miscFile, cmd);
     EXPECT_NE(ret, 0);
 }
@@ -627,8 +627,8 @@ HWTEST_F(UpdateServerTest, TestKits, TestSize.Level1)
 
 HWTEST_F(UpdateServerTest, TestUpdateServiceKitsImpl, TestSize.Level1)
 {
-    std::string miscFile = "/dev/block/platform/soc/10100000.himci.eMMC/by-name/misc";
-    std::string packageName = "/data/updater/updater/updater.zip";
+    std::string miscFile = "/dev/block/by-name/misc";
+    std::string packageName = "/data/ota_package/updater.zip";
     int ret = UpdateServiceKits::GetInstance().RebootAndInstall(miscFile, packageName);
     printf("RebootAndInstall: %d\n", ret);
 }
@@ -645,7 +645,7 @@ HWTEST_F(UpdateServerTest, TestUpdateServiceRegisterUpdateCallback, TestSize.Lev
 HWTEST_F(UpdateServerTest, TestVerifyDownloadPkg, TestSize.Level1)
 {
     Progress downloadProgress {};
-    std::string path = "/data/updater/updater/test.txt";
+    std::string path = "/data/ota_package/test.txt";
     UpdateService *updateServer = new (std::nothrow)UpdateService(0, true);
     EXPECT_NE(updateServer, nullptr);
     updateServer->VerifyDownloadPkg(path, downloadProgress);

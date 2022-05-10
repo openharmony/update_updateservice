@@ -424,8 +424,8 @@ napi_status napi_get_cb_info(
         }
         case SESSION_VERIFY_PACKAGE:{
             if (*argc > 1) {
-                argv[0] = CreateNapiValue(napi_string, "/data/updater/updater/updater_success.zip");
-                argv[1] = CreateNapiValue(napi_string, "/data/updater/src/signing_cert.crt");
+                argv[0] = CreateNapiValue(napi_string, "/data/ota_package/updater_success.zip");
+                argv[1] = CreateNapiValue(napi_string, "/data/ota_package/signing_cert.crt");
             }
             *argc = NUMBER_2;
             break;
