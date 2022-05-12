@@ -151,9 +151,9 @@ updater.getUpdatePolicy(policy => {
 
 Update subsystem
 
-update\_app
+[update\_app](https://gitee.com/openharmony/update_app)
 
 **update\_updateservice**
 
-update\_updater
+[update\_updater](https://gitee.com/openharmony/update_updater)
 
