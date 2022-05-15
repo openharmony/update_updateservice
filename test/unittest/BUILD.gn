@@ -113,7 +113,7 @@ ohos_unittest("updateservice_unittest") {
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr_standard:samgr_proxy",
-    "startup_l2:syspara",
+    "init:libbegetutil",
   ]
 
   cflags_cc = [ "-fexceptions" ]
