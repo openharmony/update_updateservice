@@ -82,7 +82,7 @@ ohos_shared_library("updateservice") {
     "ipc:ipc_single",
     "safwk:system_ability_fwk",
     "samgr_standard:samgr_proxy",
-    "startup_l2:syspara",
+    "init:libbegetutil",
   ]
 
   part_name = "update_service"
