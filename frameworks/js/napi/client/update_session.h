@@ -105,8 +105,8 @@ protected:
 
 class UpdateAsyncession : public UpdateSession {
 public:
-    UpdateAsyncession(UpdateClient *client, int32_t type, size_t argc, size_t callbackNumber) :
-        UpdateSession(client, type, argc, callbackNumber)
+    UpdateAsyncession(UpdateClient *client, int32_t type, size_t argc, size_t callbackNumber)
+        : UpdateSession(client, type, argc, callbackNumber)
     {
         callbackRef_.resize(callbackNumber);
     }
@@ -125,8 +125,8 @@ private:
 
 class UpdateAsyncessionNoCallback : public UpdateAsyncession {
 public:
-    UpdateAsyncessionNoCallback(UpdateClient *client, int32_t type, size_t argc, size_t callbackNumber) :
-        UpdateAsyncession(client, type, argc, callbackNumber) {}
+    UpdateAsyncessionNoCallback(UpdateClient *client, int32_t type, size_t argc, size_t callbackNumber)
+        : UpdateAsyncession(client, type, argc, callbackNumber) {}
 
     ~UpdateAsyncessionNoCallback() override {   }
 
@@ -135,8 +135,8 @@ public:
 
 class UpdatePromiseSession : public UpdateSession {
 public:
-    UpdatePromiseSession(UpdateClient *client, int32_t type, size_t argc, size_t callbackNumber) :
-        UpdateSession(client, type, argc, callbackNumber) {}
+    UpdatePromiseSession(UpdateClient *client, int32_t type, size_t argc, size_t callbackNumber)
+        : UpdateSession(client, type, argc, callbackNumber) {}
 
     ~UpdatePromiseSession() override {}
 
@@ -149,8 +149,8 @@ private:
 
 class UpdateListener : public UpdateSession {
 public:
-    UpdateListener(UpdateClient *client, int32_t type, size_t argc, size_t callbackNumber, bool isOnce) :
-        UpdateSession(client, type, argc, callbackNumber), isOnce_(isOnce) {}
+    UpdateListener(UpdateClient *client, int32_t type, size_t argc, size_t callbackNumber, bool isOnce)
+        : UpdateSession(client, type, argc, callbackNumber), isOnce_(isOnce) {}
 
     ~UpdateListener() override {}
 

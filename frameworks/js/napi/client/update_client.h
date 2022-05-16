@@ -33,15 +33,11 @@
 
 static constexpr OHOS::HiviewDFX::HiLogLabel UPDATE_CLIENT = {LOG_CORE, 0, "UPDATE_CLIENT"};
 #define CLIENT_LOGE(format, ...)  \
-    do { \
-        OHOS::HiviewDFX::HiLog::Error(UPDATE_CLIENT, "[%{public}s(%{public}d)] " format, \
-        OHOS::update_engine::UpdateHelper::GetBriefFileName(std::string(__FILE__)).c_str(), __LINE__, ##__VA_ARGS__); \
-    } while (0)
+    OHOS::HiviewDFX::HiLog::Error(UPDATE_CLIENT, "[%{public}s(%{public}d)] " format, \
+    OHOS::update_engine::UpdateHelper::GetBriefFileName(std::string(__FILE__)).c_str(), __LINE__, ##__VA_ARGS__); \
 #define CLIENT_LOGI(format, ...)  \
-    do { \
-        OHOS::HiviewDFX::HiLog::Info(UPDATE_CLIENT, "[%{public}s(%{public}d)] " format, \
-        OHOS::update_engine::UpdateHelper::GetBriefFileName(std::string(__FILE__)).c_str(), __LINE__, ##__VA_ARGS__); \
-    } while (0)
+    OHOS::HiviewDFX::HiLog::Info(UPDATE_CLIENT, "[%{public}s(%{public}d)] " format, \
+    OHOS::update_engine::UpdateHelper::GetBriefFileName(std::string(__FILE__)).c_str(), __LINE__, ##__VA_ARGS__); \
 #define CLIENT_CHECK(retCode, exper, ...) \
     if (!(retCode)) {                     \
         CLIENT_LOGE(__VA_ARGS__);         \
@@ -129,13 +125,13 @@ public:
     napi_value SubscribeEvent(napi_env env, napi_callback_info info);
     napi_value UnsubscribeEvent(napi_env env, napi_callback_info info);
 
-    int32_t GetUpdateResult(int type, UpdateResult &result, int32_t &fail);
+    int32_t GetUpdateResult(int type, UpdateResult &result, int32_t &isFail);
 
     UpdateSession *RemoveSession(uint32_t sessionId);
     void AddSession(std::shared_ptr<UpdateSession> session);
 
-    void PublishToJS(const std::string &type, int32_t retcode, const UpdateResult &result);
-    void Emit(const std::string &type, int32_t retcode, const UpdateResult &result);
+    void PublishToJS(const std::string &type, int32_t retCode, const UpdateResult &result);
+    void Emit(const std::string &type, int32_t retCode, const UpdateResult &result);
 
     static int32_t GetStringValue(napi_env env, napi_value arg, std::string &strValue);
     static int32_t BuildErrorResult(napi_env env, napi_value &obj, int32_t result);
