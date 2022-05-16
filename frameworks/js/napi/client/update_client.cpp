@@ -653,7 +653,7 @@ void UpdateClient::Emit(const std::string &type, int32_t retCode, const UpdateRe
         [](uv_work_t *workCpp) {}, // run in C++ thread
         [](uv_work_t *workCpp, int status) {
             NotifyInput *input = reinterpret_cast<NotifyInput *>(workCpp->data);
-            input->client->PublishToJS(input->type, input->retCode, *input->result);
+            input->client->PublishToJS(input->type, input->retcode, *input->result);
             delete input->result->result.progress;
             delete input->result;
             delete input;
