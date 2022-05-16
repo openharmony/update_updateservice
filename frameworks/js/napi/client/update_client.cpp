@@ -576,7 +576,7 @@ bool UpdateClient::GetFirstSessionId(uint32_t &sessionId)
     }
 }
 
-void UpdateClient::PublishToJS(const std::string &type, int32_t retcode, const UpdateResult &result)
+void UpdateClient::PublishToJS(const std::string &type, int32_t retCode, const UpdateResult &result)
 {
     napi_handle_scope scope;
     napi_status status = napi_open_handle_scope(env_, &scope);
@@ -598,7 +598,7 @@ void UpdateClient::PublishToJS(const std::string &type, int32_t retcode, const U
         if ((listener->GetType() != SESSION_SUBSCRIBE) || (type.compare(listener->GetEventType()) != 0)) {
             continue;
         }
-        listener->NotifyJS(env_, thisVar, retcode, result);
+        listener->NotifyJS(env_, thisVar, retCode, result);
         iter = sessions_.find(currSessId);
         if (iter == sessions_.end()) {
             continue;
@@ -612,7 +612,7 @@ void UpdateClient::PublishToJS(const std::string &type, int32_t retcode, const U
     napi_close_handle_scope(env_, scope);
 }
 
-void UpdateClient::Emit(const std::string &type, int32_t retcode, const UpdateResult &result)
+void UpdateClient::Emit(const std::string &type, int32_t retCode, const UpdateResult &result)
 {
     auto freeUpdateResult = [](const UpdateResult *lres) {
         if (lres != nullptr) {
@@ -641,7 +641,7 @@ void UpdateClient::Emit(const std::string &type, int32_t retcode, const UpdateRe
     CLIENT_CHECK(work != nullptr,
         freeUpdateResult(res);
         return, "alloc work failed.");
-    work->data = reinterpret_cast<void*>(new(std::nothrow) NotifyInput(this, type, retcode, res));
+    work->data = reinterpret_cast<void*>(new(std::nothrow) NotifyInput(this, type, retCode, res));
     CLIENT_CHECK(work != nullptr,
         freeUpdateResult(res);
         delete work;
@@ -653,7 +653,7 @@ void UpdateClient::Emit(const std::string &type, int32_t retcode, const UpdateRe
         [](uv_work_t *workCpp) {}, // run in C++ thread
         [](uv_work_t *workCpp, int status) {
             NotifyInput *input = reinterpret_cast<NotifyInput *>(workCpp->data);
-            input->client->PublishToJS(input->type, input->retcode, *input->result);
+            input->client->PublishToJS(input->type, input->retCode, *input->result);
             delete input->result->result.progress;
             delete input->result;
             delete input;
@@ -798,11 +798,10 @@ int32_t UpdateClient::GetUpdatePolicyFromArg(napi_env env,
 
     // updatePolicy
     int32_t tmpValue = 0;
-    uint32_t ret = GetBool(env, arg, "autoDownload", updatePolicy.autoDownload);
-    ret |= GetBool(env, arg, "autoDownloadNet", updatePolicy.autoDownloadNet);
-    ret |= GetInt32(env, arg, "mode", tmpValue);
+    GetBool(env, arg, "autoDownload", updatePolicy.autoDownload);
+    GetBool(env, arg, "autoDownloadNet", updatePolicy.autoDownloadNet);
+    GetInt32(env, arg, "mode", tmpValue);
     updatePolicy.mode = static_cast<InstallMode>(tmpValue);
-    CLIENT_CHECK(ret == 0, return CLIENT_INVALID_TYPE, "Failed to get attr ");
 
     // Get the array.
     bool result = false;
@@ -818,18 +817,17 @@ int32_t UpdateClient::GetUpdatePolicyFromArg(napi_env env,
         CLIENT_CHECK(status == napi_ok, return CLIENT_FAIL, "napi_get_array_length failed");
         uint32_t i = 0;
         do {
-            napi_value element;
-            ret = napi_get_element(env, value, i, &element);
-            ret = napi_get_value_uint32(env, element, &updatePolicy.autoUpgradeInterval[i]);
-            CLIENT_LOGI("updatePolicy autoUpgradeInterval：%u ", updatePolicy.autoUpgradeInterval[i]);
             if (i >= sizeof(updatePolicy.autoUpgradeInterval) / sizeof(updatePolicy.autoUpgradeInterval[0])) {
                 break;
             }
+            napi_value element;
+            napi_get_element(env, value, i, &element);
+            napi_get_value_uint32(env, element, &updatePolicy.autoUpgradeInterval[i]);
+            CLIENT_LOGI("updatePolicy autoUpgradeInterval：%u ", updatePolicy.autoUpgradeInterval[i]);
             i++;
         } while (i < count);
     }
-    ret |= GetInt32(env, arg, "autoUpgradeCondition", tmpValue);
-    CLIENT_CHECK(ret == 0, return CLIENT_INVALID_TYPE, "Failed to get attr autoUpgradeCondition");
+    GetInt32(env, arg, "autoUpgradeCondition", tmpValue);
     updatePolicy.autoUpgradeCondition = static_cast<AutoUpgradeCondition>(tmpValue);
     CLIENT_LOGI("updatePolicy autoDownload：%d autoDownloadNet:%d mode:%d autoUpgradeCondition:%d",
         static_cast<int32_t>(updatePolicy.autoDownload),
