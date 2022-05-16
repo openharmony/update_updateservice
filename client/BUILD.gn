@@ -53,10 +53,10 @@ ohos_shared_library("update") {
 
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",
+    "init:libbegetutil",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr_standard:samgr_proxy",
-    "init:libbegetutil",
   ]
 
   install_enable = true
