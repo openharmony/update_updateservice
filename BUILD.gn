@@ -12,6 +12,44 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
+import("//build/ohos/ohos_kits.gni")
+import("//build/ohos/ohos_part.gni")
+import("//build/ohos/ohos_test.gni")
+
+ohos_part("update_service") {
+  subsystem_name = "updater"
+  module_list = [
+    "//base/update/updateservice/frameworks/js/napi/client/:update",
+    "//base/update/updateservice/services/engine:update_service",
+    "//base/update/updateservice/services/engine:updater_sa.rc",
+    "//base/update/updateservice/services/engine/sa_profile:updater_sa_profile",
+    "//base/update/updateservice/interfaces/inner_api/engine:updateservicekits",
+  ]
+  origin_name = "update_service"
+  variant = "phone"
+}
+
+ohos_inner_kits("update_service_inner_kits") {
+  sdk_libs = [
+    {
+      type = "so"
+      name = "//base/update/updateservice/interfaces/inner_api/engine:updateservicekits"
+      header = {
+        header_files = [
+          "iupdate_callback.h",
+          "iupdate_service.h",
+          "update_helper.h",
+          "update_service_kits_impl.h",
+          "update_service_kits.h",
+        ]
+        header_base = "//base/update/updateservice/interfaces/inner_api/include"
+      }
+    },
+  ]
+  part_name = "update_service"
+  origin_name = "update_service"
+  variant = "phone"
+}
 
 group("unittest") {
   testonly = true
@@ -20,6 +58,6 @@ group("unittest") {
 
 group("update_client_jsapi") {
   if (support_jsapi) {
-    deps = [ "//base/update/updateservice/frameworks/js/napi/client:update" ]
+    deps = [ "//base/update/updateservice/frameworks/js/napi/client/:update" ]
   }
 }
