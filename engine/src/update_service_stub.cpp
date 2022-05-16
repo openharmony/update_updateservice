@@ -13,9 +13,12 @@
  * limitations under the License.
  */
 
-#include "update_service_stub.h"
-#include "update_helper.h"
+#include "accesstoken_kit.h"
+#include "hap_token_info.h"
+#include "ipc_skeleton.h"
 #include "securec.h"
+#include "update_helper.h"
+#include "update_service_stub.h"
 
 using namespace std;
 
@@ -168,14 +171,33 @@ int32_t UpdateServiceStub::OnRemoteRequest(uint32_t code,
         {IUpdateService::REBOOT_INSTALL, RebootAndInstallStub},
     };
 
-    ENGINE_LOGI("UpdateServiceStub OnRemoteRequest code %u", code);
+    Security::AccessToken::AccessTokenID callerToken = IPCSkeleton::GetCallingTokenID();
+    Security::AccessToken::HapTokenInfo hapTokenInfoRes = {};
+
+    int re = Security::AccessToken::AccessTokenKit::GetHapTokenInfo(callerToken, hapTokenInfoRes);
+    ENGINE_LOGI("UpdateServiceStub GetHapTokenInfo re %{public}d, bundle name %{public}s", re,
+        hapTokenInfoRes.bundleName.c_str());
+
+    ENGINE_LOGI("UpdateServiceStub OnRemoteRequest code %{public}u", code);
+    string permission = "ohos.permission.UPDATE_SYSTEM";
+    if (code == IUpdateService::REBOOT_CLEAN) {
+        permission = "ohos.permission.FACTORY_RESET";
+    }
+
+    int result = Security::AccessToken::AccessTokenKit::VerifyAccessToken(callerToken, permission);
+    if (result != Security::AccessToken::PERMISSION_GRANTED) {
+        ENGINE_LOGE("permissionCheck %{public}s false", permission.c_str());
+        return -1;
+    }
+
+    ENGINE_LOGI("UpdateServiceStub func code %{public}u", code);
     for (auto inter = requestFuncMap.begin(); inter != requestFuncMap.end(); inter++) {
         if (inter->first == code) {
             return inter->second(this, data, reply, option);
         }
     }
-    ENGINE_LOGE("UpdateServiceStub OnRemoteRequest code %u not found", code);
+    ENGINE_LOGE("UpdateServiceStub OnRemoteRequest code %{public}u not found", code);
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
 }
-}
-} // namespace OHO
+} // namespace update_engine
+} // namespace OHOS
