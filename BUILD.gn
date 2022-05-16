@@ -20,6 +20,6 @@ group("unittest") {
 
 group("update_client_jsapi") {
   if (support_jsapi) {
-    deps = [ "//base/update/updateservice/client:update" ]
+    deps = [ "//base/update/updateservice/frameworks/js/napi/client:update" ]
   }
 }
