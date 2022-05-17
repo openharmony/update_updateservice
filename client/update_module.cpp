@@ -84,7 +84,6 @@ napi_value GetUpdater(napi_env env, napi_callback_info info)
         }
     }
     napi_remove_wrap(env, obj, reinterpret_cast<void**>(&client));
-    delete client;
     return nullptr;
 }
 
