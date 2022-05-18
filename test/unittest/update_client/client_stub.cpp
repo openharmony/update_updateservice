@@ -411,7 +411,7 @@ napi_status napi_get_cb_info(
     }
     printf("++++++++++++++ napi_get_cb_info argc %zu testStage %d \n", *argc, testEnv->testStage);
     switch (testEnv->testStage) {
-        case SESSION_GET_UPDATER: {
+        case static_cast<int32_t>(SessionType::SESSION_GET_UPDATER): {
             if (*argc > 1) {
                 *argc = (testEnv->engineType != 0) ? NUMBER_2 : 1;
                 argv[0] = CreateNapiValue(napi_string, testEnv->eventType.c_str());
@@ -422,7 +422,7 @@ napi_status napi_get_cb_info(
             }
             break;
         }
-        case SESSION_VERIFY_PACKAGE:{
+        case static_cast<int32_t>(SessionType::SESSION_VERIFY_PACKAGE): {
             if (*argc > 1) {
                 argv[0] = CreateNapiValue(napi_string, "/data/ota_package/updater_success.zip");
                 argv[1] = CreateNapiValue(napi_string, "/data/ota_package/signing_cert.crt");
@@ -430,7 +430,7 @@ napi_status napi_get_cb_info(
             *argc = NUMBER_2;
             break;
         }
-        case SESSION_SET_POLICY: {
+        case static_cast<int32_t>(SessionType::SESSION_SET_POLICY): {
             argv[0] = CreateNapiValue(TEST_NVALUE_TYPE_UPDATE_POLICY, nullptr);
             if (*argc > 1) {
                 argv[1] = CreateNapiValue(napi_function, nullptr);
@@ -438,8 +438,8 @@ napi_status napi_get_cb_info(
             *argc = testEnv->testAsyncorPermose ? 1 : NUMBER_2;
             break;
         }
-        case SESSION_SUBSCRIBE:
-        case SESSION_UNSUBSCRIBE: {
+        case static_cast<int32_t>(SessionType::SESSION_SUBSCRIBE):
+        case static_cast<int32_t>(SessionType::SESSION_UNSUBSCRIBE): {
             argv[0] = CreateNapiValue(napi_string, testEnv->eventType.c_str());
             if (*argc > 1) {
                 argv[1] = CreateNapiValue(napi_function, nullptr);

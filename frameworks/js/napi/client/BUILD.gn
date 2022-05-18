@@ -15,9 +15,9 @@ import("//build/ohos.gni")
 
 ohos_shared_library("update") {
   sources = [
-    "//base/update/updateservice/client/update_client.cpp",
-    "//base/update/updateservice/client/update_module.cpp",
-    "//base/update/updateservice/client/update_session.cpp",
+    "//base/update/updateservice/frameworks/js/napi/client/update_client.cpp",
+    "//base/update/updateservice/frameworks/js/napi/client/update_module.cpp",
+    "//base/update/updateservice/frameworks/js/napi/client/update_session.cpp",
   ]
 
   include_dirs = [
@@ -28,8 +28,8 @@ ohos_shared_library("update") {
     "//foundation/arkui/napi/interfaces/kits",
     "//utils/native/base/include",
     "//utils/system/safwk/native/include",
-    "//base/update/updateservice/interfaces/innerkits/include",
-    "//base/update/updateservice/client",
+    "//base/update/updateservice/interfaces/inner_api/include",
+    "//base/update/updateservice/frameworks/js/napi/client",
     "//base/startup/syspara_lite/adapter/native/syspara/include",
     "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy/include",
     "//foundation/distributedschedule/safwk/services/safwk/include",
@@ -43,7 +43,7 @@ ohos_shared_library("update") {
     "//base/update/updater/interfaces/kits/packages:libpackageExt",
     "//base/update/updater/services/log:libupdaterlog",
     "//base/update/updater/utils:libutils",
-    "//base/update/updateservice/interfaces/innerkits/engine:updateservicekits",
+    "//base/update/updateservice/interfaces/inner_api/engine:updateservicekits",
     "//foundation/arkui/napi:ace_napi",
     "//third_party/bounds_checking_function:libsec_static",
     "//third_party/openssl:libcrypto_static",
@@ -62,4 +62,10 @@ ohos_shared_library("update") {
   install_enable = true
   relative_install_dir = "module"
   part_name = "update_service"
+
+  cflags = [
+    "-fPIC",
+    "-Os",
+    "-Werror",
+  ]
 }

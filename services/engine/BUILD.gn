@@ -29,13 +29,13 @@ ohos_shared_library("updateservice") {
     "UPDATE_SERVICE",
   ]
   sources = [
-    "//base/update/updateservice/callback/src/update_callback.cpp",
-    "//base/update/updateservice/callback/src/update_callback_proxy.cpp",
-    "//base/update/updateservice/callback/src/update_callback_stub.cpp",
-    "//base/update/updateservice/engine/src/progress_thread.cpp",
-    "//base/update/updateservice/engine/src/update_helper.cpp",
-    "//base/update/updateservice/engine/src/update_service.cpp",
-    "//base/update/updateservice/engine/src/update_service_stub.cpp",
+    "//base/update/updateservice/services/callback/src/update_callback.cpp",
+    "//base/update/updateservice/services/callback/src/update_callback_proxy.cpp",
+    "//base/update/updateservice/services/callback/src/update_callback_stub.cpp",
+    "//base/update/updateservice/services/engine/src/progress_thread.cpp",
+    "//base/update/updateservice/services/engine/src/update_helper.cpp",
+    "//base/update/updateservice/services/engine/src/update_service.cpp",
+    "//base/update/updateservice/services/engine/src/update_service_stub.cpp",
   ]
 
   include_dirs = [
@@ -44,9 +44,9 @@ ohos_shared_library("updateservice") {
     "//base/update/updater/interfaces/kits/include",
     "//utils/native/base/include",
     "//utils/system/safwk/native/include",
-    "//base/update/updateservice/interfaces/innerkits/include",
-    "//base/update/updateservice/engine/include",
-    "//base/update/updateservice/callback/include",
+    "//base/update/updateservice/interfaces/inner_api/include",
+    "//base/update/updateservice/services/engine/include",
+    "//base/update/updateservice/services/callback/include",
     "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy/include",
     "//foundation/distributedschedule/safwk/services/safwk/include",
     "//foundation/distributedschedule/safwk/interfaces/innerkits/safwk",

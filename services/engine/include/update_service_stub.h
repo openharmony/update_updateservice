@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef UPDATE_SERVICE_STUB_H_
-#define UPDATE_SERVICE_STUB_H_
+#ifndef UPDATE_SERVICE_STUB_H
+#define UPDATE_SERVICE_STUB_H
 
 #include <functional>
 #include <iostream>
@@ -37,4 +37,4 @@ public:
 };
 } // namespace update_engine
 } // namespace OHOS
-#endif // UPDATE_SERVICE_STUB_H_
+#endif // UPDATE_SERVICE_STUB_H
