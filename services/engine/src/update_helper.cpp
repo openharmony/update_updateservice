@@ -261,7 +261,11 @@ std::vector<uint8_t> UpdateHelper::HexToDegist(const std::string &str)
     std::vector<uint8_t> result;
     for (size_t i = 0; i < str.length(); i += HEX_DIGEST_NUM) {
         std::string byte = str.substr(i, HEX_DIGEST_NUM);
-        auto chr = static_cast<uint8_t>(static_cast<int>(strtol(byte.c_str(), nullptr, HEX_DIGEST_BASE)));
+        long byteToLong = strtol(byte.c_str(), nullptr, HEX_DIGEST_BASE);
+        if (byteToLong == 0) {
+            return result;
+        }
+        auto chr = static_cast<uint8_t>(static_cast<int>(byteToLong));
         result.push_back(chr);
     }
     return result;

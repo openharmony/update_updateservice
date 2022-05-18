@@ -66,8 +66,6 @@ public:
 
 #ifndef UPDATER_UT
 protected:
-#else
-public:
 #endif
     void OnStart() override;
     void OnStop() override;

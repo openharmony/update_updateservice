@@ -31,7 +31,7 @@
 #include "update_helper.h"
 #include "update_service_kits.h"
 
-static constexpr OHOS::HiviewDFX::HiLogLabel UPDATE_CLIENT = {LOG_CORE, 0, "UPDATE_CLIENT"};
+constexpr OHOS::HiviewDFX::HiLogLabel UPDATE_CLIENT = {LOG_CORE, 0, "UPDATE_CLIENT"};
 #define CLIENT_LOGE(format, ...)  \
     OHOS::HiviewDFX::HiLog::Error(UPDATE_CLIENT, "[%{public}s(%{public}d)] " format, \
     OHOS::update_engine::UpdateHelper::GetBriefFileName(std::string(__FILE__)).c_str(), __LINE__, ##__VA_ARGS__);
@@ -52,7 +52,7 @@ static constexpr OHOS::HiviewDFX::HiLogLabel UPDATE_CLIENT = {LOG_CORE, 0, "UPDA
 
 namespace updateClient {
 // Update status
-enum ClientStatus {
+enum class ClientStatus {
     CLIENT_SUCCESS = 0,
     CLIENT_INVALID_PARAM = 1000,
     CLIENT_INVALID_TYPE,
@@ -61,7 +61,7 @@ enum ClientStatus {
     CLIENT_CHECK_NEW_FIRST,
 };
 
-enum SessionType {
+enum class SessionType {
     SESSION_CHECK_VERSION = 0,
     SESSION_DOWNLOAD,
     SESSION_UPGRADE,
