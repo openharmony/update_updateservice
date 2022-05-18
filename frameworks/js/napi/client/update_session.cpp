@@ -62,7 +62,7 @@ napi_value UpdateSession::CreateWorkerName(napi_env env) const
 napi_value UpdateSession::StartWork(napi_env env,
     size_t startIndex, const napi_value *args, UpdateClient::DoWorkFunction worker, void *context)
 {
-    static std::string sessName[(int32_t)SessionType::SESSION_MAX] = {
+    static std::string sessName[static_cast<int32_t>(SessionType::SESSION_MAX)] = {
         "check version", "download", "upgrade", "set policy", "get policy",
         "get new version", "get upgrade status", "subscribe", "unsubscribe", "get update",
         "apply new version", "reboot and clean", "verify package", "Cancel Upgrade"
