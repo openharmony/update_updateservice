@@ -422,7 +422,7 @@ napi_status napi_get_cb_info(
             }
             break;
         }
-        case static_cast<int32_t>(SessionType::SESSION_VERIFY_PACKAGE):{
+        case static_cast<int32_t>(SessionType::SESSION_VERIFY_PACKAGE): {
             if (*argc > 1) {
                 argv[0] = CreateNapiValue(napi_string, "/data/ota_package/updater_success.zip");
                 argv[1] = CreateNapiValue(napi_string, "/data/ota_package/signing_cert.crt");
