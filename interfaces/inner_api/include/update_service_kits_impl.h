@@ -55,8 +55,6 @@ public:
     int32_t RebootAndInstall(const std::string &miscFile, const std::string &packageName) final;
 #ifndef UPDATER_UT
 private:
-#else
-public:
 #endif
     // For call event procession
     class RemoteUpdateCallback final : public UpdateCallback {
