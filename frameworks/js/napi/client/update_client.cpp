@@ -248,7 +248,7 @@ napi_value UpdateClient::StartSession(napi_env env,
 napi_value UpdateClient::CheckNewVersion(napi_env env, napi_callback_info info)
 {
     versionInfo_.status = SYSTEM_ERROR;
-    napi_value ret = StartSession(env, info, SESSION_CHECK_VERSION, 0,
+    napi_value ret = StartSession(env, info, static_cast<int32_t>(SessionType::SESSION_CHECK_VERSION), 0,
         [&](int32_t type, void *context) -> int {
             return UpdateServiceKits::GetInstance().CheckNewVersion();
         });
@@ -264,7 +264,8 @@ napi_value UpdateClient::CancelUpgrade(napi_env env, napi_callback_info info)
     CLIENT_CHECK_NAPI_CALL(env, status == napi_ok && argc == 0, return nullptr, "Error get cb info");
     CLIENT_LOGE("CancelUpgrade");
     std::shared_ptr<UpdateSession> sess = nullptr;
-    sess = std::make_shared<UpdateAsyncessionNoCallback>(this, SESSION_CANCEL_UPGRADE, argc, 0);
+    sess = std::make_shared<UpdateAsyncessionNoCallback>(this,
+        static_cast<int32_t>(SessionType::SESSION_CANCEL_UPGRADE), argc, 0);
     CLIENT_CHECK_NAPI_CALL(env, sess != nullptr, return nullptr, "Failed to create update session");
     AddSession(sess);
     napi_value retValue = sess->StartWork(env, 0, args,
@@ -284,7 +285,8 @@ napi_value UpdateClient::DownloadVersion(napi_env env, napi_callback_info info)
     CLIENT_CHECK_NAPI_CALL(env, status == napi_ok, return nullptr, "Error get cb info");
     CLIENT_LOGE("DownloadVersion");
     std::shared_ptr<UpdateSession> sess = nullptr;
-    sess = std::make_shared<UpdateAsyncessionNoCallback>(this, SESSION_DOWNLOAD, argc, 0);
+    sess = std::make_shared<UpdateAsyncessionNoCallback>(this,
+        static_cast<int32_t>(SessionType::SESSION_DOWNLOAD), argc, 0);
     CLIENT_CHECK_NAPI_CALL(env, sess != nullptr, return nullptr, "Failed to create update session");
     AddSession(sess);
     napi_value retValue = sess->StartWork(env, 0, args,
@@ -303,7 +305,8 @@ napi_value UpdateClient::UpgradeVersion(napi_env env, napi_callback_info info)
     napi_status status = napi_get_cb_info(env, info, &argc, args, nullptr, nullptr);
     CLIENT_CHECK_NAPI_CALL(env, status == napi_ok, return nullptr, "Error get cb info");
     std::shared_ptr<UpdateSession> sess = nullptr;
-    sess = std::make_shared<UpdateAsyncessionNoCallback>(this, SESSION_UPGRADE, argc, 0);
+    sess = std::make_shared<UpdateAsyncessionNoCallback>(this,
+        static_cast<int32_t>(SessionType::SESSION_UPGRADE), argc, 0);
     CLIENT_CHECK_NAPI_CALL(env, sess != nullptr, return nullptr, "Failed to create update session");
     AddSession(sess);
     napi_value retValue = sess->StartWork(env, 0, args,
@@ -331,9 +334,11 @@ napi_value UpdateClient::SetUpdatePolicy(napi_env env, napi_callback_info info)
 
     std::shared_ptr<UpdateSession> sess = nullptr;
     if (argc >= MID_ARGC) {
-        sess = std::make_shared<UpdateAsyncession>(this, SESSION_SET_POLICY, argc, 1);
+        sess = std::make_shared<UpdateAsyncession>(this,
+            static_cast<int32_t>(SessionType::SESSION_SET_POLICY), argc, 1);
     } else {
-        sess = std::make_shared<UpdatePromiseSession>(this, SESSION_SET_POLICY, argc, 0);
+        sess = std::make_shared<UpdatePromiseSession>(this,
+            static_cast<int32_t>(SessionType::SESSION_SET_POLICY), argc, 0);
     }
     CLIENT_CHECK_NAPI_CALL(env, sess != nullptr, return nullptr, "Failed to create update session");
     AddSession(sess);
@@ -349,7 +354,7 @@ napi_value UpdateClient::SetUpdatePolicy(napi_env env, napi_callback_info info)
 
 napi_value UpdateClient::GetUpdatePolicy(napi_env env, napi_callback_info info)
 {
-    napi_value retValue = StartSession(env, info, SESSION_GET_POLICY, 0,
+    napi_value retValue = StartSession(env, info, static_cast<int32_t>(SessionType::SESSION_GET_POLICY), 0,
         [&](int32_t type, void *context) -> int {
             return UpdateServiceKits::GetInstance().GetUpdatePolicy(updatePolicy_);
         });
@@ -359,7 +364,7 @@ napi_value UpdateClient::GetUpdatePolicy(napi_env env, napi_callback_info info)
 
 napi_value UpdateClient::GetNewVersionInfo(napi_env env, napi_callback_info info)
 {
-    napi_value retValue = StartSession(env, info, SESSION_GET_NEW_VERSION, 0,
+    napi_value retValue = StartSession(env, info, static_cast<int32_t>(SessionType::SESSION_GET_NEW_VERSION), 0,
         [&](int32_t type, void *context) -> int {
             return UpdateServiceKits::GetInstance().GetNewVersion(versionInfo_);
         });
@@ -369,7 +374,7 @@ napi_value UpdateClient::GetNewVersionInfo(napi_env env, napi_callback_info info
 
 napi_value UpdateClient::GetUpgradeStatus(napi_env env, napi_callback_info info)
 {
-    napi_value retValue = StartSession(env, info, SESSION_GET_STATUS, 0,
+    napi_value retValue = StartSession(env, info, static_cast<int32_t>(SessionType::SESSION_GET_STATUS), 0,
         [&](int32_t type, void *context) -> int {
             return UpdateServiceKits::GetInstance().GetUpgradeStatus(upgradeInfo_);
         });
@@ -379,7 +384,7 @@ napi_value UpdateClient::GetUpgradeStatus(napi_env env, napi_callback_info info)
 
 napi_value UpdateClient::ApplyNewVersion(napi_env env, napi_callback_info info)
 {
-    napi_value retValue = StartSession(env, info, SESSION_APPLY_NEW_VERSION, 0,
+    napi_value retValue = StartSession(env, info, static_cast<int32_t>(SessionType::SESSION_APPLY_NEW_VERSION), 0,
         [&](int32_t type, void *context) -> int {
 #ifndef UPDATER_API_TEST
             result_ = UpdateServiceKits::GetInstance().RebootAndInstall(MISC_FILE, UPDATER_PKG_NAME);
@@ -392,7 +397,7 @@ napi_value UpdateClient::ApplyNewVersion(napi_env env, napi_callback_info info)
 
 napi_value UpdateClient::RebootAndClean(napi_env env, napi_callback_info info)
 {
-    napi_value retValue = StartSession(env, info, SESSION_REBOOT_AND_CLEAN, 0,
+    napi_value retValue = StartSession(env, info, static_cast<int32_t>(SessionType::SESSION_REBOOT_AND_CLEAN), 0,
         [&](int32_t type, void *context) -> int {
 #ifndef UPDATER_API_TEST
             result_ = UpdateServiceKits::GetInstance().RebootAndClean(MISC_FILE, CMD_WIPE_DATA);
@@ -418,7 +423,8 @@ napi_value UpdateClient::VerifyUpdatePackage(napi_env env, napi_callback_info in
 
     CLIENT_LOGE("VerifyUpdatePackage");
     std::shared_ptr<UpdateSession> sess = nullptr;
-    sess = std::make_shared<UpdateAsyncessionNoCallback>(this, SESSION_VERIFY_PACKAGE, argc, 0);
+    sess = std::make_shared<UpdateAsyncessionNoCallback>(this,
+        static_cast<int32_t>(SessionType::SESSION_VERIFY_PACKAGE), argc, 0);
     CLIENT_CHECK_NAPI_CALL(env, sess != nullptr, return nullptr, "Fail to create update session");
     AddSession(sess);
     size_t startIndex = 2;
@@ -449,7 +455,8 @@ napi_value UpdateClient::SubscribeEvent(napi_env env, napi_callback_info info)
     CLIENT_CHECK_NAPI_CALL(env, ret == napi_ok, return nullptr, "Failed to get event type");
     CLIENT_CHECK(FindSessionByHandle(env, eventType, args[1]) == nullptr, return nullptr, "Handle has been sub");
 
-    std::shared_ptr<UpdateSession> sess = std::make_shared<UpdateListener>(this, SESSION_SUBSCRIBE, argc, 1, false);
+    std::shared_ptr<UpdateSession> sess = std::make_shared<UpdateListener>(this,
+        static_cast<int32_t>(SessionType::SESSION_SUBSCRIBE), argc, 1, false);
     CLIENT_CHECK_NAPI_CALL(env, sess != nullptr, return nullptr, "Failed to create listener");
     AddSession(sess);
     napi_value retValue = sess->StartWork(env, 1, args,
@@ -502,7 +509,7 @@ int32_t UpdateClient::ProcessUnsubscribe(const std::string &eventType, size_t ar
         hasNext = GetNextSessionId(nextSessId);
 
         UpdateListener *listener = static_cast<UpdateListener *>(iter->second.get());
-        if (listener->GetType() != SESSION_SUBSCRIBE
+        if (listener->GetType() != static_cast<int32_t>(SessionType::SESSION_SUBSCRIBE)
             || eventType.compare(listener->GetEventType()) != 0) {
             continue;
         }
@@ -533,7 +540,7 @@ UpdateSession *UpdateClient::FindSessionByHandle(napi_env env, const std::string
         hasNext = GetNextSessionId(nextSessId);
 
         UpdateListener *listener = static_cast<UpdateListener *>(iter->second.get());
-        if (listener->GetType() != SESSION_SUBSCRIBE) {
+        if (listener->GetType() != static_cast<int32_t>(SessionType::SESSION_SUBSCRIBE)) {
             continue;
         }
         if ((eventType.compare(listener->GetEventType()) == 0) && listener->CheckEqual(env_, arg, eventType)) {
@@ -576,7 +583,7 @@ bool UpdateClient::GetFirstSessionId(uint32_t &sessionId)
     }
 }
 
-void UpdateClient::PublishToJS(const std::string &type, int32_t retcode, const UpdateResult &result)
+void UpdateClient::PublishToJS(const std::string &type, int32_t retCode, const UpdateResult &result)
 {
     napi_handle_scope scope;
     napi_status status = napi_open_handle_scope(env_, &scope);
@@ -595,10 +602,11 @@ void UpdateClient::PublishToJS(const std::string &type, int32_t retcode, const U
         }
         hasNext = GetNextSessionId(nextSessId);
         UpdateListener *listener = static_cast<UpdateListener *>((iter->second).get());
-        if ((listener->GetType() != SESSION_SUBSCRIBE) || (type.compare(listener->GetEventType()) != 0)) {
+        if ((listener->GetType() != static_cast<int32_t>(SessionType::SESSION_SUBSCRIBE))
+            || (type.compare(listener->GetEventType()) != 0)) {
             continue;
         }
-        listener->NotifyJS(env_, thisVar, retcode, result);
+        listener->NotifyJS(env_, thisVar, retCode, result);
         iter = sessions_.find(currSessId);
         if (iter == sessions_.end()) {
             continue;
@@ -612,7 +620,7 @@ void UpdateClient::PublishToJS(const std::string &type, int32_t retcode, const U
     napi_close_handle_scope(env_, scope);
 }
 
-void UpdateClient::Emit(const std::string &type, int32_t retcode, const UpdateResult &result)
+void UpdateClient::Emit(const std::string &type, int32_t retCode, const UpdateResult &result)
 {
     auto freeUpdateResult = [](const UpdateResult *lres) {
         if (lres != nullptr) {
@@ -641,7 +649,7 @@ void UpdateClient::Emit(const std::string &type, int32_t retcode, const UpdateRe
     CLIENT_CHECK(work != nullptr,
         freeUpdateResult(res);
         return, "alloc work failed.");
-    work->data = reinterpret_cast<void*>(new(std::nothrow) NotifyInput(this, type, retcode, res));
+    work->data = reinterpret_cast<void*>(new(std::nothrow) NotifyInput(this, type, retCode, res));
     CLIENT_CHECK(work != nullptr,
         freeUpdateResult(res);
         delete work;
@@ -670,7 +678,7 @@ void UpdateClient::NotifyDownloadProgress(const Progress &progress)
     progress_.status = progress.status;
     progress_.endReason = progress.endReason;
     UpdateResult result;
-    result.type = SESSION_DOWNLOAD;
+    result.type = static_cast<int32_t>(SessionType::SESSION_DOWNLOAD);
     result.result.progress = &progress_;
     result.buildJSObject = BuildProgress;
     int32_t fail = (progress_.status == UPDATE_STATE_DOWNLOAD_FAIL || progress_.status == UPDATE_STATE_VERIFY_FAIL) ?
@@ -685,7 +693,7 @@ void UpdateClient::NotifyUpgradeProgresss(const Progress &progress)
     progress_.status = progress.status;
 
     UpdateResult result;
-    result.type = SESSION_UPGRADE;
+    result.type = static_cast<int32_t>(SessionType::SESSION_UPGRADE);
     result.result.progress = &progress_;
     result.buildJSObject = BuildProgress;
     int32_t fail = (progress_.status == UPDATE_STATE_DOWNLOAD_FAIL) ? progress_.status : 0;
@@ -698,7 +706,7 @@ void UpdateClient::NotifyVerifyProgresss(int32_t retCode, uint32_t percent)
     verifyProgress_.percent = percent;
 
     UpdateResult result;
-    result.type = SESSION_VERIFY_PACKAGE;
+    result.type = static_cast<int32_t>(SessionType::SESSION_VERIFY_PACKAGE);
     result.result.progress = &verifyProgress_;
     result.buildJSObject = BuildProgress;
     Emit("verifyProgress", retCode, result);
@@ -726,7 +734,7 @@ int32_t UpdateClient::GetInt32(napi_env env, napi_value arg, const std::string &
         napi_get_named_property(env, arg, attrName.c_str(), &value);
         napi_get_value_int32(env, value, &intValue);
     }
-    return CLIENT_SUCCESS;
+    return static_cast<int32_t>(ClientStatus::CLIENT_SUCCESS);
 }
 
 int32_t UpdateClient::GetBool(napi_env env, napi_value arg, const std::string &attrName, bool &value)
@@ -738,7 +746,7 @@ int32_t UpdateClient::GetBool(napi_env env, napi_value arg, const std::string &a
         napi_get_named_property(env, arg, attrName.c_str(), &obj);
         napi_get_value_bool(env, obj, &value);
     }
-    return CLIENT_SUCCESS;
+    return static_cast<int32_t>(ClientStatus::CLIENT_SUCCESS);
 }
 
 int32_t UpdateClient::GetStringValue(napi_env env, napi_value arg, std::string &strValue)
@@ -746,12 +754,13 @@ int32_t UpdateClient::GetStringValue(napi_env env, napi_value arg, std::string &
     napi_valuetype valuetype;
     napi_status status = napi_typeof(env, arg, &valuetype);
     CLIENT_CHECK(status == napi_ok, return status, "Failed to napi_typeof");
-    CLIENT_CHECK(valuetype == napi_string, return CLIENT_INVALID_TYPE, "Invalid type");
+    CLIENT_CHECK(valuetype == napi_string,
+        return static_cast<int32_t>(ClientStatus::CLIENT_INVALID_TYPE), "Invalid type");
     std::vector<char> buff(CLIENT_STRING_MAX_LENGTH);
     size_t copied;
     status = napi_get_value_string_utf8(env, arg, reinterpret_cast<char*>(buff.data()),
         CLIENT_STRING_MAX_LENGTH, &copied);
-    CLIENT_CHECK(status == napi_ok, return CLIENT_INVALID_TYPE, "Error get string");
+    CLIENT_CHECK(status == napi_ok, return static_cast<int32_t>(ClientStatus::CLIENT_INVALID_TYPE), "Error get string");
     strValue.assign(buff.data(), copied);
     return napi_ok;
 }
@@ -761,7 +770,7 @@ int32_t UpdateClient::SetString(napi_env env, napi_value arg, const std::string 
     napi_value value = nullptr;
     napi_create_string_utf8(env, string.c_str(), string.length(), &value);
     napi_set_named_property(env, arg, attrName.c_str(), value);
-    return CLIENT_SUCCESS;
+    return static_cast<int32_t>(ClientStatus::CLIENT_SUCCESS);
 }
 
 int32_t UpdateClient::SetInt32(napi_env env, napi_value arg, const std::string &attrName, int32_t intValue)
@@ -769,7 +778,7 @@ int32_t UpdateClient::SetInt32(napi_env env, napi_value arg, const std::string &
     napi_value infoStatus = nullptr;
     napi_create_int32(env, intValue, &infoStatus);
     napi_set_named_property(env, arg, attrName.c_str(), infoStatus);
-    return CLIENT_SUCCESS;
+    return static_cast<int32_t>(ClientStatus::CLIENT_SUCCESS);
 }
 
 int32_t UpdateClient::SetBool(napi_env env, napi_value arg, const std::string &attrName, bool value)
@@ -777,7 +786,7 @@ int32_t UpdateClient::SetBool(napi_env env, napi_value arg, const std::string &a
     napi_value infoStatus = nullptr;
     napi_create_int32(env, value, &infoStatus);
     napi_set_named_property(env, arg, attrName.c_str(), infoStatus);
-    return CLIENT_SUCCESS;
+    return static_cast<int32_t>(ClientStatus::CLIENT_SUCCESS);
 }
 
 int32_t UpdateClient::SetInt64(napi_env env, napi_value arg, const std::string &attrName, int64_t intValue)
@@ -785,7 +794,7 @@ int32_t UpdateClient::SetInt64(napi_env env, napi_value arg, const std::string &
     napi_value infoStatus = nullptr;
     napi_create_int64(env, intValue, &infoStatus);
     napi_set_named_property(env, arg, attrName.c_str(), infoStatus);
-    return CLIENT_SUCCESS;
+    return static_cast<int32_t>(ClientStatus::CLIENT_SUCCESS);
 }
 
 int32_t UpdateClient::GetUpdatePolicyFromArg(napi_env env,
@@ -793,16 +802,17 @@ int32_t UpdateClient::GetUpdatePolicyFromArg(napi_env env,
 {
     napi_valuetype type = napi_undefined;
     napi_status status = napi_typeof(env, arg, &type);
-    CLIENT_CHECK(status == napi_ok, return CLIENT_INVALID_TYPE, "Invlid argc %d", static_cast<int32_t>(status));
-    CLIENT_CHECK(type == napi_object, return CLIENT_INVALID_TYPE, "Invlid argc %d", static_cast<int32_t>(type));
+    CLIENT_CHECK(status == napi_ok, return static_cast<int32_t>(ClientStatus::CLIENT_INVALID_TYPE),
+        "Invlid argc %d", static_cast<int32_t>(status));
+    CLIENT_CHECK(type == napi_object, return static_cast<int32_t>(ClientStatus::CLIENT_INVALID_TYPE),
+        "Invlid argc %d", static_cast<int32_t>(type));
 
     // updatePolicy
     int32_t tmpValue = 0;
-    uint32_t ret = GetBool(env, arg, "autoDownload", updatePolicy.autoDownload);
-    ret |= GetBool(env, arg, "autoDownloadNet", updatePolicy.autoDownloadNet);
-    ret |= GetInt32(env, arg, "mode", tmpValue);
+    GetBool(env, arg, "autoDownload", updatePolicy.autoDownload);
+    GetBool(env, arg, "autoDownloadNet", updatePolicy.autoDownloadNet);
+    GetInt32(env, arg, "mode", tmpValue);
     updatePolicy.mode = static_cast<InstallMode>(tmpValue);
-    CLIENT_CHECK(ret == 0, return CLIENT_INVALID_TYPE, "Failed to get attr ");
 
     // Get the array.
     bool result = false;
@@ -810,41 +820,43 @@ int32_t UpdateClient::GetUpdatePolicyFromArg(napi_env env,
     if (result && (status == napi_ok)) {
         napi_value value;
         status = napi_get_named_property(env, arg, "autoUpgradeInterval", &value);
-        CLIENT_CHECK(status == napi_ok, return CLIENT_FAIL, "Failed to get attr autoUpgradeInterval");
+        CLIENT_CHECK(status == napi_ok, return static_cast<int32_t>(ClientStatus::CLIENT_FAIL),
+            "Failed to get attr autoUpgradeInterval");
         status = napi_is_array(env, value, &result);
-        CLIENT_CHECK(status == napi_ok, return CLIENT_FAIL, "napi_is_array failed");
+        CLIENT_CHECK(status == napi_ok, return static_cast<int32_t>(ClientStatus::CLIENT_FAIL), "napi_is_array failed");
         uint32_t count = 0;
         status = napi_get_array_length(env, value, &count);
-        CLIENT_CHECK(status == napi_ok, return CLIENT_FAIL, "napi_get_array_length failed");
+        CLIENT_CHECK(status == napi_ok, return static_cast<int32_t>(ClientStatus::CLIENT_FAIL),
+            "napi_get_array_length failed");
         uint32_t i = 0;
         do {
-            napi_value element;
-            ret = napi_get_element(env, value, i, &element);
-            ret = napi_get_value_uint32(env, element, &updatePolicy.autoUpgradeInterval[i]);
-            CLIENT_LOGI("updatePolicy autoUpgradeInterval：%u ", updatePolicy.autoUpgradeInterval[i]);
             if (i >= sizeof(updatePolicy.autoUpgradeInterval) / sizeof(updatePolicy.autoUpgradeInterval[0])) {
                 break;
             }
+            napi_value element;
+            napi_get_element(env, value, i, &element);
+            napi_get_value_uint32(env, element, &updatePolicy.autoUpgradeInterval[i]);
+            CLIENT_LOGI("updatePolicy autoUpgradeInterval：%u ", updatePolicy.autoUpgradeInterval[i]);
             i++;
         } while (i < count);
     }
-    ret |= GetInt32(env, arg, "autoUpgradeCondition", tmpValue);
-    CLIENT_CHECK(ret == 0, return CLIENT_INVALID_TYPE, "Failed to get attr autoUpgradeCondition");
+    GetInt32(env, arg, "autoUpgradeCondition", tmpValue);
     updatePolicy.autoUpgradeCondition = static_cast<AutoUpgradeCondition>(tmpValue);
     CLIENT_LOGI("updatePolicy autoDownload：%d autoDownloadNet:%d mode:%d autoUpgradeCondition:%d",
         static_cast<int32_t>(updatePolicy.autoDownload),
         static_cast<int32_t>(updatePolicy.autoDownloadNet),
         static_cast<int32_t>(updatePolicy.mode),
         static_cast<int32_t>(updatePolicy.autoUpgradeCondition));
-    return CLIENT_SUCCESS;
+    return static_cast<int32_t>(ClientStatus::CLIENT_SUCCESS);
 }
 
 int32_t UpdateClient::BuildCheckVersionResult(napi_env env, napi_value &obj, const UpdateResult &result)
 {
-    CLIENT_CHECK(result.type == SESSION_CHECK_VERSION || result.type == SESSION_GET_NEW_VERSION,
-        return CLIENT_INVALID_TYPE, "invalid type %d", result.type);
+    CLIENT_CHECK(result.type == static_cast<int32_t>(SessionType::SESSION_CHECK_VERSION)
+        || result.type == static_cast<int32_t>(SessionType::SESSION_GET_NEW_VERSION),
+        return static_cast<int32_t>(ClientStatus::CLIENT_INVALID_TYPE), "invalid type %d", result.type);
     napi_status status = napi_create_object(env, &obj);
-    CLIENT_CHECK(status == napi_ok, return CLIENT_INVALID_TYPE,
+    CLIENT_CHECK(status == napi_ok, return static_cast<int32_t>(ClientStatus::CLIENT_INVALID_TYPE),
         "Failed to create napi_create_object %d", static_cast<int32_t>(status));
     VersionInfo *info = result.result.versionInfo;
 
@@ -852,7 +864,7 @@ int32_t UpdateClient::BuildCheckVersionResult(napi_env env, napi_value &obj, con
     SetInt32(env, obj, "status", info->status);
     if (info->status == SERVER_BUSY || info->status == SYSTEM_ERROR) {
         SetString(env, obj, "errMsg", info->errMsg);
-        return CLIENT_SUCCESS;
+        return static_cast<int32_t>(ClientStatus::CLIENT_SUCCESS);
     }
     napi_value checkResults;
     napi_create_array_with_length(env, sizeof(info->result) / sizeof(info->result[0]), &checkResults);
@@ -881,24 +893,24 @@ int32_t UpdateClient::BuildCheckVersionResult(napi_env env, napi_value &obj, con
         napi_set_element(env, descriptInfos, i, descriptInfo);
     }
     napi_set_named_property(env, obj, "descriptionInfo", descriptInfos);
-    return CLIENT_SUCCESS;
+    return static_cast<int32_t>(ClientStatus::CLIENT_SUCCESS);
 }
 
 int32_t UpdateClient::BuildProgress(napi_env env, napi_value &obj, const UpdateResult &result)
 {
     napi_status status = napi_create_object(env, &obj);
-    CLIENT_CHECK(status == napi_ok, return CLIENT_INVALID_TYPE,
+    CLIENT_CHECK(status == napi_ok, return static_cast<int32_t>(ClientStatus::CLIENT_INVALID_TYPE),
         "Failed to create napi_create_object %d", static_cast<int32_t>(status));
     SetInt32(env, obj, "status", result.result.progress->status);
     SetInt32(env, obj, "percent", result.result.progress->percent);
     SetString(env, obj, "endReason", result.result.progress->endReason);
-    return CLIENT_SUCCESS;
+    return static_cast<int32_t>(ClientStatus::CLIENT_SUCCESS);
 }
 
 int32_t UpdateClient::BuildErrorResult(napi_env env, napi_value &obj, int32_t result)
 {
     napi_status status = napi_create_object(env, &obj);
-    CLIENT_CHECK(status == napi_ok, return CLIENT_INVALID_TYPE,
+    CLIENT_CHECK(status == napi_ok, return static_cast<int32_t>(ClientStatus::CLIENT_INVALID_TYPE),
         "Failed to create napi_create_object %d", static_cast<int32_t>(status));
     return SetInt32(env, obj, "code", result);
 }
@@ -910,8 +922,9 @@ int32_t UpdateClient::BuildInt32Status(napi_env env, napi_value &obj, const Upda
 
 int32_t UpdateClient::BuildUpdatePolicy(napi_env env, napi_value &obj, const UpdateResult &result)
 {
-    CLIENT_CHECK(result.type == SESSION_GET_POLICY || result.type == SESSION_SET_POLICY,
-        return CLIENT_INVALID_TYPE, "invalid type %d", result.type);
+    CLIENT_CHECK(result.type == static_cast<int32_t>(SessionType::SESSION_GET_POLICY) ||
+        result.type == static_cast<int32_t>(SessionType::SESSION_SET_POLICY),
+        return static_cast<int32_t>(ClientStatus::CLIENT_INVALID_TYPE), "invalid type %d", result.type);
     napi_status status = napi_create_object(env, &obj);
     CLIENT_CHECK(status == napi_ok, return status, "Failed to create napi_create_object %d", status);
     UpdatePolicy &updatePolicy = *result.result.updatePolicy;
@@ -937,49 +950,49 @@ int32_t UpdateClient::BuildUpdatePolicy(napi_env env, napi_value &obj, const Upd
     return napi_ok;
 }
 
-int32_t UpdateClient::GetUpdateResult(int type, UpdateResult &result, int32_t &fail)
+int32_t UpdateClient::GetUpdateResult(int type, UpdateResult &result, int32_t &isFail)
 {
-    fail = 0;
+    isFail = 0;
     result.type = type;
     switch (type) {
-        case SESSION_CHECK_VERSION:
-        case SESSION_GET_NEW_VERSION: {
-            fail = (versionInfo_.status == SYSTEM_ERROR) ? versionInfo_.status : 0;
+        case static_cast<int32_t>(SessionType::SESSION_CHECK_VERSION):
+        case static_cast<int32_t>(SessionType::SESSION_GET_NEW_VERSION): {
+            isFail = (versionInfo_.status == SYSTEM_ERROR) ? versionInfo_.status : 0;
             result.result.versionInfo = &versionInfo_;
             result.buildJSObject = BuildCheckVersionResult;
             break;
         }
-        case SESSION_DOWNLOAD: {
-            fail = (progress_.status == UPDATE_STATE_DOWNLOAD_FAIL || progress_.status == UPDATE_STATE_VERIFY_FAIL) ?
+        case static_cast<int32_t>(SessionType::SESSION_DOWNLOAD): {
+            isFail = (progress_.status == UPDATE_STATE_DOWNLOAD_FAIL || progress_.status == UPDATE_STATE_VERIFY_FAIL) ?
                 progress_.status : 0;
             result.result.progress = &progress_;
             result.buildJSObject = BuildProgress;
             break;
         }
-        case SESSION_UPGRADE: {
-            fail = (progress_.status == UPDATE_STATE_DOWNLOAD_FAIL) ? progress_.status : 0;
+        case static_cast<int32_t>(SessionType::SESSION_UPGRADE): {
+            isFail = (progress_.status == UPDATE_STATE_DOWNLOAD_FAIL) ? progress_.status : 0;
             result.result.progress = &progress_;
             result.buildJSObject = BuildProgress;
             break;
         }
-        case SESSION_VERIFY_PACKAGE: {
-            fail = (verifyProgress_.status == UPDATE_STATE_VERIFY_FAIL) ? verifyProgress_.status : 0;
+        case static_cast<int32_t>(SessionType::SESSION_VERIFY_PACKAGE): {
+            isFail = (verifyProgress_.status == UPDATE_STATE_VERIFY_FAIL) ? verifyProgress_.status : 0;
             result.result.progress = &verifyProgress_;
             result.buildJSObject = BuildProgress;
             break;
         }
-        case SESSION_GET_POLICY: {
+        case static_cast<int32_t>(SessionType::SESSION_GET_POLICY): {
             result.result.updatePolicy = &updatePolicy_;
             result.buildJSObject = BuildUpdatePolicy;
             break;
         }
-        case SESSION_GET_STATUS: {
+        case static_cast<int32_t>(SessionType::SESSION_GET_STATUS): {
             result.result.status = upgradeInfo_.status;
             result.buildJSObject = BuildInt32Status;
             break;
         }
-        default:{
-            fail = result_;
+        default: {
+            isFail = result_;
             result.result.status = result_;
             result.buildJSObject = BuildInt32Status;
             break;

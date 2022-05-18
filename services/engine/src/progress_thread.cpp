@@ -205,9 +205,11 @@ size_t DownloadThread::GetLocalFileLength(const std::string &fileName)
 {
     FILE* fp = fopen(fileName.c_str(), "r");
     ENGINE_CHECK_NO_LOG(fp != nullptr, return 0);
-    fseek(fp, 0, SEEK_END);
+    int ret = fseek(fp, 0, SEEK_END);
+    ENGINE_CHECK_NO_LOG(ret == 0, return 0);
     size_t length = (size_t)ftell(fp);
-    fclose(fp);
+    ret = fclose(fp);
+    ENGINE_CHECK_NO_LOG(ret == 0, return 0);
     return length;
 }
 }

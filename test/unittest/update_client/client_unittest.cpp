@@ -86,7 +86,7 @@ public:
 
     int TestGetUpdate(bool noneClient)
     {
-        g_testEnv.testStage = SESSION_GET_UPDATER;
+        g_testEnv.testStage = static_cast<int32_t>(SessionType::SESSION_GET_UPDATER);
         g_testEnv.engineType = 0;
         g_testEnv.noneClient = noneClient;
         g_testEnv.eventType = "/data/ota_package/updater.zip";
@@ -97,7 +97,7 @@ public:
 
     int TestGetUpdaterForOther(bool noneClient)
     {
-        g_testEnv.testStage = SESSION_GET_UPDATER;
+        g_testEnv.testStage = static_cast<int32_t>(SessionType::SESSION_GET_UPDATER);
         g_testEnv.engineType = 1;
         g_testEnv.noneClient = noneClient;
         g_testEnv.eventType = "OTA";
@@ -108,7 +108,7 @@ public:
 
     int TestGetUpdaterFromOther(bool noneClient)
     {
-        g_testEnv.testStage = SESSION_GET_UPDATER;
+        g_testEnv.testStage = static_cast<int32_t>(SessionType::SESSION_GET_UPDATER);
         g_testEnv.engineType = NUMBER_2;
         g_testEnv.noneClient = noneClient;
         g_testEnv.eventType = "OTA";
@@ -119,7 +119,7 @@ public:
 
     int TestCheckNewVersion(bool isPormise)
     {
-        g_testEnv.testStage = SESSION_CHECK_VERSION;
+        g_testEnv.testStage = static_cast<int32_t>(SessionType::SESSION_CHECK_VERSION);
         g_testEnv.testAsyncorPermose = isPormise;
         napi_value value = CheckNewVersion((napi_env)&g_testEnv, nullptr);
         EXPECT_NE(value, nullptr);
@@ -150,7 +150,7 @@ public:
 
     int TestDownloadVersion(bool isPormise)
     {
-        g_testEnv.testStage = SESSION_DOWNLOAD;
+        g_testEnv.testStage = static_cast<int32_t>(SessionType::SESSION_DOWNLOAD);
         g_testEnv.testAsyncorPermose = isPormise;
         napi_value value = DownloadVersion((napi_env)&g_testEnv, nullptr);
         EXPECT_NE(value, nullptr);
@@ -187,7 +187,7 @@ public:
 
     int TestUpgradeVersion(bool isPormise)
     {
-        g_testEnv.testStage = SESSION_UPGRADE;
+        g_testEnv.testStage = static_cast<int32_t>(SessionType::SESSION_UPGRADE);
         g_testEnv.testAsyncorPermose = isPormise;
         napi_value value = UpgradeVersion((napi_env)&g_testEnv, nullptr);
         CLIENT_CHECK(value != nullptr, return -1, "UpgradeVersion");
@@ -224,7 +224,7 @@ public:
 
     int TestSetUpdatePolicy(bool isPormise)
     {
-        g_testEnv.testStage = SESSION_SET_POLICY;
+        g_testEnv.testStage = static_cast<int32_t>(SessionType::SESSION_SET_POLICY);
         g_testEnv.testAsyncorPermose = isPormise;
         napi_value value = SetUpdatePolicy((napi_env)&g_testEnv, nullptr);
         EXPECT_NE(value, nullptr);
@@ -243,7 +243,7 @@ public:
 
     int TestGetUpdatePolicy(bool isPormise)
     {
-        g_testEnv.testStage = SESSION_GET_POLICY;
+        g_testEnv.testStage = static_cast<int32_t>(SessionType::SESSION_GET_POLICY);
         g_testEnv.testAsyncorPermose = isPormise;
         napi_value value = GetUpdatePolicy((napi_env)&g_testEnv, nullptr);
         EXPECT_NE(value, nullptr);
@@ -261,7 +261,7 @@ public:
 
     int TestGetNewVersionInfo(bool isPormise)
     {
-        g_testEnv.testStage = SESSION_GET_NEW_VERSION;
+        g_testEnv.testStage = static_cast<int32_t>(SessionType::SESSION_GET_NEW_VERSION);
         g_testEnv.testAsyncorPermose = isPormise;
         napi_value value = GetNewVersionInfo((napi_env)&g_testEnv, nullptr);
         EXPECT_NE(value, nullptr);
@@ -278,7 +278,7 @@ public:
 
     int TestGetUpgradeStatus(bool isPormise)
     {
-        g_testEnv.testStage = SESSION_GET_STATUS;
+        g_testEnv.testStage = static_cast<int32_t>(SessionType::SESSION_GET_STATUS);
         g_testEnv.testAsyncorPermose = isPormise;
         napi_value value = GetUpgradeStatus((napi_env)&g_testEnv, nullptr);
         EXPECT_NE(value, nullptr);
@@ -296,7 +296,7 @@ public:
 
     int TestApplyNewVersion(bool isPormise)
     {
-        g_testEnv.testStage = SESSION_APPLY_NEW_VERSION;
+        g_testEnv.testStage = static_cast<int32_t>(SessionType::SESSION_APPLY_NEW_VERSION);
         g_testEnv.testAsyncorPermose = isPormise;
         napi_value value = ApplyNewVersion((napi_env)&g_testEnv, nullptr);
         EXPECT_NE(value, nullptr);
@@ -314,7 +314,7 @@ public:
 
     int TestRebootAndClean(bool isPormise)
     {
-        g_testEnv.testStage = SESSION_REBOOT_AND_CLEAN;
+        g_testEnv.testStage = static_cast<int32_t>(SessionType::SESSION_REBOOT_AND_CLEAN);
         g_testEnv.testAsyncorPermose = isPormise;
         napi_value value = RebootAndClean((napi_env)&g_testEnv, nullptr);
         EXPECT_NE(value, nullptr);
@@ -332,7 +332,7 @@ public:
 
     int TestVerifyUpdatePackage(bool isPormise)
     {
-        g_testEnv.testStage = SESSION_VERIFY_PACKAGE;
+        g_testEnv.testStage = static_cast<int32_t>(SessionType::SESSION_VERIFY_PACKAGE);
         g_testEnv.testAsyncorPermose = isPormise;
         napi_value value = VerifyUpdatePackage((napi_env)&g_testEnv, nullptr);
         EXPECT_NE(value, nullptr);
@@ -356,7 +356,7 @@ public:
 
     int TestSubscribeEvent(const std::string &eventType)
     {
-        g_testEnv.testStage = SESSION_SUBSCRIBE;
+        g_testEnv.testStage = static_cast<int32_t>(SessionType::SESSION_SUBSCRIBE);
         g_testEnv.testAsyncorPermose = false;
         g_testEnv.eventType = eventType;
         napi_value value = SubscribeEvent((napi_env)&g_testEnv, nullptr);
@@ -384,7 +384,7 @@ public:
 
     int TestUnsubscribeEvent(bool isPormise, const std::string &eventType)
     {
-        g_testEnv.testStage = SESSION_UNSUBSCRIBE;
+        g_testEnv.testStage = static_cast<int32_t>(SessionType::SESSION_UNSUBSCRIBE);
         g_testEnv.testAsyncorPermose = isPormise;
         g_testEnv.eventType = eventType;
         napi_value value = UnsubscribeEvent((napi_env)&g_testEnv, nullptr);
@@ -396,7 +396,7 @@ public:
 
     int TestCancelUpgrade(int type)
     {
-        g_testEnv.testStage = SESSION_CANCEL_UPGRADE;
+        g_testEnv.testStage = static_cast<int32_t>(SessionType::SESSION_CANCEL_UPGRADE);
         g_testEnv.testAsyncorPermose = true;
         napi_value value = CancelUpgrade((napi_env)&g_testEnv, nullptr);
         CLIENT_CHECK(value != nullptr, return -1, "TestCancelUpgrade");
