@@ -820,12 +820,14 @@ int32_t UpdateClient::GetUpdatePolicyFromArg(napi_env env,
     if (result && (status == napi_ok)) {
         napi_value value;
         status = napi_get_named_property(env, arg, "autoUpgradeInterval", &value);
-        CLIENT_CHECK(status == napi_ok, return static_cast<int32_t>(ClientStatus::CLIENT_FAIL), "Failed to get attr autoUpgradeInterval");
+        CLIENT_CHECK(status == napi_ok, return static_cast<int32_t>(ClientStatus::CLIENT_FAIL),
+            "Failed to get attr autoUpgradeInterval");
         status = napi_is_array(env, value, &result);
         CLIENT_CHECK(status == napi_ok, return static_cast<int32_t>(ClientStatus::CLIENT_FAIL), "napi_is_array failed");
         uint32_t count = 0;
         status = napi_get_array_length(env, value, &count);
-        CLIENT_CHECK(status == napi_ok, return static_cast<int32_t>(ClientStatus::CLIENT_FAIL), "napi_get_array_length failed");
+        CLIENT_CHECK(status == napi_ok, return static_cast<int32_t>(ClientStatus::CLIENT_FAIL),
+            "napi_get_array_length failed");
         uint32_t i = 0;
         do {
             if (i >= sizeof(updatePolicy.autoUpgradeInterval) / sizeof(updatePolicy.autoUpgradeInterval[0])) {
@@ -850,7 +852,8 @@ int32_t UpdateClient::GetUpdatePolicyFromArg(napi_env env,
 
 int32_t UpdateClient::BuildCheckVersionResult(napi_env env, napi_value &obj, const UpdateResult &result)
 {
-    CLIENT_CHECK(result.type == static_cast<int32_t>(SessionType::SESSION_CHECK_VERSION) || result.type == static_cast<int32_t>(SessionType::SESSION_GET_NEW_VERSION),
+    CLIENT_CHECK(result.type == static_cast<int32_t>(SessionType::SESSION_CHECK_VERSION)
+        || result.type == static_cast<int32_t>(SessionType::SESSION_GET_NEW_VERSION),
         return static_cast<int32_t>(ClientStatus::CLIENT_INVALID_TYPE), "invalid type %d", result.type);
     napi_status status = napi_create_object(env, &obj);
     CLIENT_CHECK(status == napi_ok, return static_cast<int32_t>(ClientStatus::CLIENT_INVALID_TYPE),
@@ -919,7 +922,8 @@ int32_t UpdateClient::BuildInt32Status(napi_env env, napi_value &obj, const Upda
 
 int32_t UpdateClient::BuildUpdatePolicy(napi_env env, napi_value &obj, const UpdateResult &result)
 {
-    CLIENT_CHECK(result.type == static_cast<int32_t>(SessionType::SESSION_GET_POLICY) || result.type == static_cast<int32_t>(SessionType::SESSION_SET_POLICY),
+    CLIENT_CHECK(result.type == static_cast<int32_t>(SessionType::SESSION_GET_POLICY) ||
+        result.type == static_cast<int32_t>(SessionType::SESSION_SET_POLICY),
         return static_cast<int32_t>(ClientStatus::CLIENT_INVALID_TYPE), "invalid type %d", result.type);
     napi_status status = napi_create_object(env, &obj);
     CLIENT_CHECK(status == napi_ok, return status, "Failed to create napi_create_object %d", status);
