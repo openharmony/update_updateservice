@@ -13,15 +13,15 @@
  * limitations under the License.
  */
 
+#ifndef UNREGISTER_UPDATE_CALLBACK_FUZZER_H
+#define UNREGISTER_UPDATE_CALLBACK_FUZZER_H
+
 #include "update_service_kits_impl.h"
 
+#include <cstddef>
 #include <cstdint>
-#include <unistd.h>
-#include <climits>
-#include <cstdio>
-#include <cstdlib>
-#include <fcntl.h>
 #include <securec.h>
 
 #define FUZZ_PROJECT_NAME "UnregisterUpdateCallback_fuzzer"
 
+#endif // UNREGISTER_UPDATE_CALLBACK_FUZZER_H
