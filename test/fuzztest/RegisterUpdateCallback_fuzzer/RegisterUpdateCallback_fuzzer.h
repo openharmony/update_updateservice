@@ -13,15 +13,15 @@
  * limitations under the License.
  */
 
+#ifndef REGISTER_UPDATE_CALLBACK_FUZZER_H
+#define REGISTER_UPDATE_CALLBACK_FUZZER_H
+
 #include "update_service_kits_impl.h"
 
+#include <cstddef>
 #include <cstdint>
-#include <unistd.h>
-#include <climits>
-#include <cstdio>
-#include <cstdlib>
-#include <fcntl.h>
 #include <securec.h>
 
 #define FUZZ_PROJECT_NAME "RegisterUpdateCallback_fuzzer"
 
+#endif // REGISTER_UPDATE_CALLBACK_FUZZER_H

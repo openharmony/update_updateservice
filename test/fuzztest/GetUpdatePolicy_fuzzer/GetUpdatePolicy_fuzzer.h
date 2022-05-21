@@ -13,15 +13,15 @@
  * limitations under the License.
  */
 
+#ifndef GET_UPDATE_POLICY_FUZZER_H
+#define GET_UPDATE_POLICY_FUZZER_H
+
 #include "update_service_kits_impl.h"
 
+#include <cstddef>
 #include <cstdint>
-#include <unistd.h>
-#include <climits>
-#include <cstdio>
-#include <cstdlib>
-#include <fcntl.h>
 #include <securec.h>
 
 #define FUZZ_PROJECT_NAME "GetUpdatePolicy_fuzzer"
 
+#endif // GET_UPDATE_POLICY_FUZZER_H
