@@ -61,35 +61,8 @@ namespace OHOS {
     {
     }
 
-    int32_t FuzzUpdateServiceCheckNewVersionImpl(UpdateContext &ctx, UpdateCallbackInfo &cb,
-        UpdatePolicy &policy)
+    int32_t FuzzUpdateServiceCheckNewVersionImpl(const uint8_t* data, size_t size)
     {
-        VersionInfo versionInfo;
-        memset_s(&versionInfo, sizeof(versionInfo), 0, sizeof(versionInfo));
-        int32_t service = static_cast<int32_t>(
-            (static_cast<uint32_t>(data[FUZZ_INT3_DATA + CHAR_TO_INT_INDEX0]) << CHAR_TO_INT_MOVE_LEFT3) +
-            (static_cast<uint32_t>(data[FUZZ_INT3_DATA + CHAR_TO_INT_INDEX1]) << CHAR_TO_INT_MOVE_LEFT2) +
-            (static_cast<uint32_t>(data[FUZZ_INT3_DATA + CHAR_TO_INT_INDEX2]) << CHAR_TO_INT_MOVE_LEFT1) +
-            (static_cast<uint32_t>(data[FUZZ_INT3_DATA + CHAR_TO_INT_INDEX3]) << CHAR_TO_INT_MOVE_LEFT0));
-        UpgradeInfo info;
-        info.status = UPDATE_STATE_INIT;
-        (void)UpdateServiceKits::GetInstance().RegisterUpdateCallback(ctx, cb);
-        (void)UpdateServiceKits::GetInstance().SetUpdatePolicy(policy);
-        (void)UpdateServiceKits::GetInstance().GetUpdatePolicy(policy);
-        int32_t ret = UpdateServiceKits::GetInstance().CheckNewVersion();
-        (void)UpdateServiceKits::GetInstance().GetNewVersion(versionInfo);
-        (void)UpdateServiceKits::GetInstance().DownloadVersion();
-        (void)UpdateServiceKits::GetInstance().Cancel(service);
-        (void)UpdateServiceKits::GetInstance().GetUpgradeStatus(info);
-        (void)UpdateServiceKits::GetInstance().UnregisterUpdateCallback();
-        return ret;
-    }
-
-    bool FuzzUpdateServiceCheckNewVersion(const uint8_t* data, size_t size)
-    {
-        if (size < FUZZ_DATA_LEN) {
-            return false;
-        }
         UpdateContext ctx;
         UpdateCallbackInfo cb = {
             .checkNewVersionDone = FtCheckProcess,
@@ -120,7 +93,32 @@ namespace OHOS {
         for (i = 0; i < FUZZ_CHAR_ARRAY_DEV_ID_LEN_DATA; i++) {
             ctx.controlDevId.push_back(static_cast<char>(data[i + FUZZ_CHAR_ARRAY3_DATA]));
         }
-        return !FuzzUpdateServiceCheckNewVersionImpl(ctx, cb, policy);
+        VersionInfo versionInfo;
+        memset_s(&versionInfo, sizeof(versionInfo), 0, sizeof(versionInfo));
+        int32_t service = static_cast<int32_t>(
+            (static_cast<uint32_t>(data[FUZZ_INT3_DATA + CHAR_TO_INT_INDEX0]) << CHAR_TO_INT_MOVE_LEFT3) +
+            (static_cast<uint32_t>(data[FUZZ_INT3_DATA + CHAR_TO_INT_INDEX1]) << CHAR_TO_INT_MOVE_LEFT2) +
+            (static_cast<uint32_t>(data[FUZZ_INT3_DATA + CHAR_TO_INT_INDEX2]) << CHAR_TO_INT_MOVE_LEFT1) +
+            (static_cast<uint32_t>(data[FUZZ_INT3_DATA + CHAR_TO_INT_INDEX3]) << CHAR_TO_INT_MOVE_LEFT0));
+        UpgradeInfo info = {UPDATE_STATE_INIT};
+        (void)UpdateServiceKits::GetInstance().RegisterUpdateCallback(ctx, cb);
+        (void)UpdateServiceKits::GetInstance().SetUpdatePolicy(policy);
+        (void)UpdateServiceKits::GetInstance().GetUpdatePolicy(policy);
+        int32_t ret = UpdateServiceKits::GetInstance().CheckNewVersion();
+        (void)UpdateServiceKits::GetInstance().GetNewVersion(versionInfo);
+        (void)UpdateServiceKits::GetInstance().DownloadVersion();
+        (void)UpdateServiceKits::GetInstance().Cancel(service);
+        (void)UpdateServiceKits::GetInstance().GetUpgradeStatus(info);
+        (void)UpdateServiceKits::GetInstance().UnregisterUpdateCallback();
+        return ret;
+    }
+
+    bool FuzzUpdateServiceCheckNewVersion(const uint8_t* data, size_t size)
+    {
+        if (size < FUZZ_DATA_LEN) {
+            return false;
+        }
+        return !FuzzUpdateServiceCheckNewVersionImpl(data, size);
     }
 }
 
