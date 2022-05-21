@@ -37,10 +37,13 @@ ohos_fuzztest("UpdateServiceSetUpdatePolicyFuzzTest") {
     "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy/include",
     "//third_party/bounds_checking_function/include",
   ]
-  cflags = ["-g","-O0","-Wno-unused-variable","-fno-omit-frame-pointer"]
-  sources = [
-    "SetUpdatePolicy_fuzzer.cpp",
+  cflags = [
+    "-g",
+    "-O0",
+    "-Wno-unused-variable",
+    "-fno-omit-frame-pointer",
   ]
+  sources = [ "SetUpdatePolicy_fuzzer.cpp" ]
   deps = [
     "//base/update/updateservice/interfaces/inner_api/engine:updateservicekits",
   ]
@@ -52,6 +55,7 @@ ohos_fuzztest("UpdateServiceSetUpdatePolicyFuzzTest") {
     "startup_l2:syspara",
   ]
 }
+
 ###############################################################################
 group("fuzztest") {
   testonly = true
