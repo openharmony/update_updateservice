@@ -61,15 +61,15 @@
         }
       ],
       "test": [
-        "//base/update/updateservice/test/fuzztest/RegisterUpdateCallback_fuzzer:UpdateServiceRegisterUpdateCallbackFuzzTest",
-        "//base/update/updateservice/test/fuzztest/SetUpdatePolicy_fuzzer:UpdateServiceSetUpdatePolicyFuzzTest",
-        "//base/update/updateservice/test/fuzztest/GetUpdatePolicy_fuzzer:UpdateServiceGetUpdatePolicyFuzzTest",
-        "//base/update/updateservice/test/fuzztest/CheckNewVersion_fuzzer:UpdateServiceCheckNewVersionFuzzTest",
-        "//base/update/updateservice/test/fuzztest/GetNewVersion_fuzzer:UpdateServiceGetNewVersionFuzzTest",
-        "//base/update/updateservice/test/fuzztest/DownloadVersion_fuzzer:UpdateServiceDownloadVersionFuzzTest",
-        "//base/update/updateservice/test/fuzztest/Cancel_fuzzer:UpdateServiceCancelFuzzTest",
-        "//base/update/updateservice/test/fuzztest/GetUpgradeStatus_fuzzer:UpdateServiceGetUpgradeStatusFuzzTest",
-        "//base/update/updateservice/test/fuzztest/UnregisterUpdateCallback_fuzzer:UpdateServiceUnregisterUpdateCallbackFuzzTest"
+        "//base/update/updateservice/test/fuzztest/updateservicecancel_fuzzer:UpdateServiceCancelFuzzTest",
+        "//base/update/updateservice/test/fuzztest/updateservicechecknewversion_fuzzer:UpdateServiceCheckNewVersionFuzzTest",
+        "//base/update/updateservice/test/fuzztest/updateservicedownloadversion_fuzzer:UpdateServiceDownloadVersionFuzzTest",
+        "//base/update/updateservice/test/fuzztest/updateservicegetnewversion_fuzzer:UpdateServiceGetNewVersionFuzzTest",
+        "//base/update/updateservice/test/fuzztest/updateservicegetupdatepolicy_fuzzer:UpdateServiceGetUpdatePolicyFuzzTest",
+        "//base/update/updateservice/test/fuzztest/updateservicegetupgradestatus_fuzzer:UpdateServiceGetUpgradeStatusFuzzTest",
+        "//base/update/updateservice/test/fuzztest/updateserviceregisterupdatecallback_fuzzer:UpdateServiceRegisterUpdateCallbackFuzzTest",
+        "//base/update/updateservice/test/fuzztest/updateservicesetupdatepolicy_fuzzer:UpdateServiceSetUpdatePolicyFuzzTest",
+        "//base/update/updateservice/test/fuzztest/updateserviceunregisterupdatecallback_fuzzer:UpdateServiceUnregisterUpdateCallbackFuzzTest"
       ]
     }
   }
