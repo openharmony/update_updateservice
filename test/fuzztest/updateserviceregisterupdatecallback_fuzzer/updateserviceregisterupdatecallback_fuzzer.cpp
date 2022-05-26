@@ -17,21 +17,7 @@
 
 using namespace OHOS::update_engine;
 
-const uint32_t CHAR_TO_INT_INDEX0 = 0;
-const uint32_t CHAR_TO_INT_INDEX1 = 1;
-const uint32_t CHAR_TO_INT_INDEX2 = 2;
-const uint32_t CHAR_TO_INT_INDEX3 = 3;
-
-const uint32_t CHAR_TO_INT_MOVE_LEFT0 = 0;
-const uint32_t CHAR_TO_INT_MOVE_LEFT1 = 8;
-const uint32_t CHAR_TO_INT_MOVE_LEFT2 = 16;
-const uint32_t CHAR_TO_INT_MOVE_LEFT3 = 24;
-
-const uint32_t COUNT_BOOL_TYPE = 2;
-const uint32_t COUNT_INSTALL_MODE_TYPE = 3;
-
 const uint32_t FUZZ_HEAD_DATA = 0;
-const uint32_t FUZZ_INT_LEN_DATA = 4;
 const uint32_t FUZZ_CHAR_ARRAY_UPD_APP_NAME_LEN_DATA = 64;
 const uint32_t FUZZ_CHAR_ARRAY_DEV_ID_LEN_DATA = 68;
 
