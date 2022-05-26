@@ -37,19 +37,21 @@ const uint32_t FUZZ_CHAR_ARRAY_DEV_ID_LEN_DATA = 68;
 
 const int FUZZ_DATA_LEN = 500;
 
-uint8_t g_data[FUZZ_DATA_LEN];
+static uint8_t g_data[FUZZ_DATA_LEN];
 
 uint32_t g_index = FUZZ_HEAD_DATA;
 
 namespace OHOS {
-    static void FtGetCharArray(char *getCharArray, uint32_t size) {
+    static void FtGetCharArray(char *getCharArray, uint32_t size)
+    {
         for (uint32_t i = 0; i < size; i++) {
             getCharArray[i] = static_cast<char>(g_data[i + g_index]);
         }
         g_index += size;
     }
 
-    static void FtGetUInt(uint32_t &getUInt) {
+    static void FtGetUInt(uint32_t &getUInt)
+    {
         getUInt = (static_cast<uint32_t>(g_data[g_index + CHAR_TO_INT_INDEX0]) << CHAR_TO_INT_MOVE_LEFT3) +
             (static_cast<uint32_t>(g_data[g_index + CHAR_TO_INT_INDEX1]) << CHAR_TO_INT_MOVE_LEFT2) +
             (static_cast<uint32_t>(g_data[g_index + CHAR_TO_INT_INDEX2]) << CHAR_TO_INT_MOVE_LEFT1) +
@@ -122,7 +124,7 @@ namespace OHOS {
         if (size < FUZZ_DATA_LEN) {
             return false;
         }
-        if (memcpy_s(g_data, FUZZ_DATA_LEN, data, FUZZ_DATA_LEN) != 0) {
+        if (memcpy_s(g_data, sizeof(g_data), data, FUZZ_DATA_LEN) != 0) {
             return false;
         }
         return !FuzzUpdateServiceGetUpdatePolicyImpl();
