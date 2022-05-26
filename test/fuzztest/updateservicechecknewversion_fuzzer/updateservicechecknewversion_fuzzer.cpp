@@ -17,38 +17,46 @@
 
 using namespace OHOS::update_engine;
 
-const int CHAR_TO_INT_INDEX0 = 0;
-const int CHAR_TO_INT_INDEX1 = 1;
-const int CHAR_TO_INT_INDEX2 = 2;
-const int CHAR_TO_INT_INDEX3 = 3;
+const uint32_t CHAR_TO_INT_INDEX0 = 0;
+const uint32_t CHAR_TO_INT_INDEX1 = 1;
+const uint32_t CHAR_TO_INT_INDEX2 = 2;
+const uint32_t CHAR_TO_INT_INDEX3 = 3;
 
-const int CHAR_TO_INT_MOVE_LEFT0 = 0;
-const int CHAR_TO_INT_MOVE_LEFT1 = 8;
-const int CHAR_TO_INT_MOVE_LEFT2 = 16;
-const int CHAR_TO_INT_MOVE_LEFT3 = 24;
+const uint32_t CHAR_TO_INT_MOVE_LEFT0 = 0;
+const uint32_t CHAR_TO_INT_MOVE_LEFT1 = 8;
+const uint32_t CHAR_TO_INT_MOVE_LEFT2 = 16;
+const uint32_t CHAR_TO_INT_MOVE_LEFT3 = 24;
 
-const int COUNT_BOOL_TYPE = 2;
-const int COUNT_INSTALL_MODE_TYPE = 3;
+const uint32_t COUNT_BOOL_TYPE = 2;
+const uint32_t COUNT_INSTALL_MODE_TYPE = 3;
 
-const int FUZZ_HEAD_DATA = 0;
-const int FUZZ_CHAR_LEN_DATA = 1;
-const int FUZZ_INT_LEN_DATA = 4;
-const int FUZZ_CHAR_ARRAY_UPD_APP_NAME_LEN_DATA = 64;
-const int FUZZ_CHAR_ARRAY_DEV_ID_LEN_DATA = 68;
+const uint32_t FUZZ_HEAD_DATA = 0;
+const uint32_t FUZZ_INT_LEN_DATA = 4;
+const uint32_t FUZZ_CHAR_ARRAY_UPD_APP_NAME_LEN_DATA = 64;
+const uint32_t FUZZ_CHAR_ARRAY_DEV_ID_LEN_DATA = 68;
 
-const int FUZZ_CHAR1_DATA = FUZZ_HEAD_DATA;
-const int FUZZ_CHAR2_DATA = FUZZ_CHAR1_DATA + FUZZ_CHAR_LEN_DATA;
-const int FUZZ_CHAR3_DATA = FUZZ_CHAR2_DATA + FUZZ_CHAR_LEN_DATA;
-const int FUZZ_INT1_DATA = FUZZ_CHAR3_DATA + FUZZ_CHAR_LEN_DATA;
-const int FUZZ_INT2_DATA = FUZZ_INT1_DATA + FUZZ_INT_LEN_DATA;
-const int FUZZ_CHAR_ARRAY1_DATA = FUZZ_INT2_DATA + FUZZ_INT_LEN_DATA;
-const int FUZZ_CHAR_ARRAY2_DATA = FUZZ_CHAR_ARRAY1_DATA + FUZZ_CHAR_ARRAY_UPD_APP_NAME_LEN_DATA;
-const int FUZZ_CHAR_ARRAY3_DATA = FUZZ_CHAR_ARRAY2_DATA + FUZZ_CHAR_ARRAY_DEV_ID_LEN_DATA;
-const int FUZZ_INT3_DATA = FUZZ_CHAR_ARRAY3_DATA + FUZZ_CHAR_ARRAY_DEV_ID_LEN_DATA;
+const int FUZZ_DATA_LEN = 500;
 
-const int FUZZ_DATA_LEN = FUZZ_INT3_DATA + FUZZ_INT_LEN_DATA;
+uint8_t g_data[FUZZ_DATA_LEN];
+
+uint32_t g_index = FUZZ_HEAD_DATA;
 
 namespace OHOS {
+    static void FtGetCharArray(char *getCharArray, uint32_t size) {
+        for (uint32_t i = 0; i < size; i++) {
+            getCharArray[i] = static_cast<char>(g_data[i + g_index]);
+        }
+        g_index += size;
+    }
+
+    static void FtGetUInt(uint32_t &getUInt) {
+        getUInt = (static_cast<uint32_t>(g_data[g_index + CHAR_TO_INT_INDEX0]) << CHAR_TO_INT_MOVE_LEFT3) +
+            (static_cast<uint32_t>(g_data[g_index + CHAR_TO_INT_INDEX1]) << CHAR_TO_INT_MOVE_LEFT2) +
+            (static_cast<uint32_t>(g_data[g_index + CHAR_TO_INT_INDEX2]) << CHAR_TO_INT_MOVE_LEFT1) +
+            (static_cast<uint32_t>(g_data[g_index + CHAR_TO_INT_INDEX3]) << CHAR_TO_INT_MOVE_LEFT0);
+        g_index += FUZZ_INT_LEN_DATA;
+    }
+
     static void FtCheckProcess(const VersionInfo &info)
     {
     }
@@ -61,7 +69,7 @@ namespace OHOS {
     {
     }
 
-    int32_t FuzzUpdateServiceCheckNewVersionImpl(const uint8_t* data, size_t size)
+    int32_t FuzzUpdateServiceCheckNewVersionImpl(void)
     {
         UpdateContext ctx;
         UpdateCallbackInfo cb = {
@@ -69,47 +77,43 @@ namespace OHOS {
             .downloadProgress = FtDownloadProgress,
             .upgradeProgress = FtUpgradeProgress,
         };
-        UpdatePolicy policy = {static_cast<bool>(data[FUZZ_CHAR1_DATA] % COUNT_BOOL_TYPE),
-            static_cast<bool>(data[FUZZ_CHAR2_DATA] % COUNT_BOOL_TYPE),
-            static_cast<InstallMode>(data[FUZZ_CHAR3_DATA] % COUNT_INSTALL_MODE_TYPE),
+
+        uint32_t autoDownload;
+        FtGetUInt(autoDownload);
+        uint32_t autoDownloadNet;
+        FtGetUInt(autoDownloadNet);
+        uint32_t mode;
+        FtGetUInt(mode);
+        UpdatePolicy policy = {static_cast<bool>(autoDownload % COUNT_BOOL_TYPE),
+            static_cast<bool>(autoDownloadNet % COUNT_BOOL_TYPE),
+            static_cast<InstallMode>(mode % COUNT_INSTALL_MODE_TYPE),
             static_cast<AutoUpgradeCondition>(0)};
-        policy.autoUpgradeInterval[0] =
-            (static_cast<uint32_t>(data[FUZZ_INT1_DATA + CHAR_TO_INT_INDEX0]) << CHAR_TO_INT_MOVE_LEFT3) +
-            (static_cast<uint32_t>(data[FUZZ_INT1_DATA + CHAR_TO_INT_INDEX1]) << CHAR_TO_INT_MOVE_LEFT2) +
-            (static_cast<uint32_t>(data[FUZZ_INT1_DATA + CHAR_TO_INT_INDEX2]) << CHAR_TO_INT_MOVE_LEFT1) +
-            (static_cast<uint32_t>(data[FUZZ_INT1_DATA + CHAR_TO_INT_INDEX3]) << CHAR_TO_INT_MOVE_LEFT0);
-        policy.autoUpgradeInterval[1] =
-            (static_cast<uint32_t>(data[FUZZ_INT2_DATA + CHAR_TO_INT_INDEX0]) << CHAR_TO_INT_MOVE_LEFT3) +
-            (static_cast<uint32_t>(data[FUZZ_INT2_DATA + CHAR_TO_INT_INDEX1]) << CHAR_TO_INT_MOVE_LEFT2) +
-            (static_cast<uint32_t>(data[FUZZ_INT2_DATA + CHAR_TO_INT_INDEX2]) << CHAR_TO_INT_MOVE_LEFT1) +
-            (static_cast<uint32_t>(data[FUZZ_INT2_DATA + CHAR_TO_INT_INDEX3]) << CHAR_TO_INT_MOVE_LEFT0);
-        int32_t i;
-        for (i = 0; i < FUZZ_CHAR_ARRAY_UPD_APP_NAME_LEN_DATA; i++) {
-            ctx.upgradeApp.push_back(static_cast<char>(data[i + FUZZ_CHAR_ARRAY1_DATA]));
-        }
-        for (i = 0; i < FUZZ_CHAR_ARRAY_DEV_ID_LEN_DATA; i++) {
-            ctx.upgradeDevId.push_back(static_cast<char>(data[i + FUZZ_CHAR_ARRAY2_DATA]));
-        }
-        for (i = 0; i < FUZZ_CHAR_ARRAY_DEV_ID_LEN_DATA; i++) {
-            ctx.controlDevId.push_back(static_cast<char>(data[i + FUZZ_CHAR_ARRAY3_DATA]));
-        }
-        VersionInfo versionInfo;
-        memset_s(&versionInfo, sizeof(versionInfo), 0, sizeof(versionInfo));
-        int32_t service = static_cast<int32_t>(
-            (static_cast<uint32_t>(data[FUZZ_INT3_DATA + CHAR_TO_INT_INDEX0]) << CHAR_TO_INT_MOVE_LEFT3) +
-            (static_cast<uint32_t>(data[FUZZ_INT3_DATA + CHAR_TO_INT_INDEX1]) << CHAR_TO_INT_MOVE_LEFT2) +
-            (static_cast<uint32_t>(data[FUZZ_INT3_DATA + CHAR_TO_INT_INDEX2]) << CHAR_TO_INT_MOVE_LEFT1) +
-            (static_cast<uint32_t>(data[FUZZ_INT3_DATA + CHAR_TO_INT_INDEX3]) << CHAR_TO_INT_MOVE_LEFT0));
-        UpgradeInfo info = {UPDATE_STATE_INIT};
+
+        uint32_t autoUpgradeInterval[2];
+        FtGetUInt(autoUpgradeInterval[0]);
+        policy.autoUpgradeInterval[0] = autoUpgradeInterval[0];
+        FtGetUInt(autoUpgradeInterval[1]);
+        policy.autoUpgradeInterval[1] = autoUpgradeInterval[1];
+
+        char upgradeApp[FUZZ_CHAR_ARRAY_UPD_APP_NAME_LEN_DATA];
+        FtGetCharArray(upgradeApp, FUZZ_CHAR_ARRAY_UPD_APP_NAME_LEN_DATA);
+        ctx.upgradeApp = upgradeApp;
+
+        char upgradeDevId[FUZZ_CHAR_ARRAY_DEV_ID_LEN_DATA];
+        FtGetCharArray(upgradeDevId, FUZZ_CHAR_ARRAY_DEV_ID_LEN_DATA);
+        ctx.upgradeDevId = upgradeDevId;
+
+        char controlDevId[FUZZ_CHAR_ARRAY_DEV_ID_LEN_DATA];
+        FtGetCharArray(controlDevId, FUZZ_CHAR_ARRAY_DEV_ID_LEN_DATA);
+        ctx.controlDevId = controlDevId;
+
+        g_index = FUZZ_HEAD_DATA;
+
         (void)UpdateServiceKits::GetInstance().RegisterUpdateCallback(ctx, cb);
         (void)UpdateServiceKits::GetInstance().SetUpdatePolicy(policy);
-        (void)UpdateServiceKits::GetInstance().GetUpdatePolicy(policy);
         int32_t ret = UpdateServiceKits::GetInstance().CheckNewVersion();
-        (void)UpdateServiceKits::GetInstance().GetNewVersion(versionInfo);
-        (void)UpdateServiceKits::GetInstance().DownloadVersion();
-        (void)UpdateServiceKits::GetInstance().Cancel(service);
-        (void)UpdateServiceKits::GetInstance().GetUpgradeStatus(info);
         (void)UpdateServiceKits::GetInstance().UnregisterUpdateCallback();
+
         return ret;
     }
 
@@ -118,7 +122,10 @@ namespace OHOS {
         if (size < FUZZ_DATA_LEN) {
             return false;
         }
-        return !FuzzUpdateServiceCheckNewVersionImpl(data, size);
+        if (memcpy_s(g_data, FUZZ_DATA_LEN, data, FUZZ_DATA_LEN) != 0) {
+            return false;
+        }
+        return !FuzzUpdateServiceCheckNewVersionImpl();
     }
 }
 
