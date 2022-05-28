@@ -26,6 +26,7 @@ ohos_fuzztest("UpdateServiceCancelFuzzTest") {
     "//base/update/updater/services/include",
     "//base/update/updater/utils/include",
     "//base/update/updater/interfaces/kits/include",
+    "//base/update/updateservice/test/fuzztest/common",
     "//utils/native/base/include",
     "//utils/system/safwk/native/include",
     "//base/update/updateservice/interfaces/inner_api/include",
@@ -44,7 +45,10 @@ ohos_fuzztest("UpdateServiceCancelFuzzTest") {
     "-Wno-unused-variable",
     "-fno-omit-frame-pointer",
   ]
-  sources = [ "updateservicecancel_fuzzer.cpp" ]
+  sources = [
+    "//base/update/updateservice/test/fuzztest/common/updateservicecommon_fuzzer.cpp",
+    "//base/update/updateservice/test/fuzztest/updateservicecancel_fuzzer/updateservicecancel_fuzzer.cpp",
+  ]
   deps = [
     "//base/update/updateservice/interfaces/inner_api/engine:updateservicekits",
   ]

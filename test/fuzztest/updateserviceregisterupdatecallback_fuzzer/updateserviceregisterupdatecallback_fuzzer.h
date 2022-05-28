@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,11 +16,7 @@
 #ifndef UPDATE_SERVICE_REGISTER_UPDATE_CALLBACK_FUZZER_H
 #define UPDATE_SERVICE_REGISTER_UPDATE_CALLBACK_FUZZER_H
 
-#include "update_service_kits_impl.h"
-
-#include <cstddef>
-#include <cstdint>
-#include <securec.h>
+#include "updateservicecommon_fuzzer.h"
 
 #define FUZZ_PROJECT_NAME "updateserviceregisterupdatecallback_fuzzer"
 
