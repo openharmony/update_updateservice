@@ -24,8 +24,8 @@ bool FuzzUpdateServiceGetNewVersion(const uint8_t* data, size_t size)
         return false;
     }
     FuzztestHelper fuzztestHelper(data, size);
-    return UpdateServiceKits::GetInstance().GetNewVersion(
-        fuzztestHelper.BuildVersionInfo()) == 0;
+    VersionInfo versionInfo = fuzztestHelper.BuildVersionInfo();
+    return UpdateServiceKits::GetInstance().GetNewVersion(versionInfo) == 0;
 }
 }
 

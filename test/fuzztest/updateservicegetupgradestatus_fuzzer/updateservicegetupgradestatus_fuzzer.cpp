@@ -24,8 +24,8 @@ bool FuzzUpdateServiceGetUpgradeStatus(const uint8_t* data, size_t size)
         return false;
     }
     FuzztestHelper fuzztestHelper(data, size);
-    return UpdateServiceKits::GetInstance().GetUpgradeStatus(
-        fuzztestHelper.BuildUpgradeInfo()) == 0;
+    UpgradeInfo upgradeInfo = fuzztestHelper.BuildUpgradeInfo();
+    return UpdateServiceKits::GetInstance().GetUpgradeStatus(upgradeInfo) == 0;
 }
 }
 
