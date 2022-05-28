@@ -33,8 +33,6 @@ public:
     virtual ~FuzztestHelper() = default;
     DISALLOW_COPY_AND_MOVE(FuzztestHelper);
 
-    int32_t BuildService();
-
     UpdateCallbackInfo BuildUpdateCallbackInfo();
 
     UpdateContext BuildUpdateContext();
@@ -45,13 +43,13 @@ public:
 
     VersionInfo BuildVersionInfo();
 
-    void GetCharArray(char *getCharArray, uint32_t arraySize);
-
-    void GetInt(int32_t &number);
-
-    void GetUInt(uint32_t &number);
+    int32_t GetInt();
 
 private:
+    void GetCharArray(char *charArray, uint32_t arraySize);
+
+    uint32_t GetUInt();
+
     uint32_t index_ = 0;
     uint8_t *data_;
 };
