@@ -23,11 +23,9 @@ bool FuzzUpdateServiceGetUpgradeStatus(const uint8_t* data, size_t size)
     if (size < FUZZ_DATA_LEN) {
         return false;
     }
-    if (memcpy_s(g_data, sizeof(g_data), data, FUZZ_DATA_LEN) != EOK) {
-        return false;
-    }
+    FuzztestHelper fuzztestHelper(data, size);
     return UpdateServiceKits::GetInstance().GetUpgradeStatus(
-        FuzztestHelper::GetInstance()->BuildUpgradeInfo(data, size)) == 0;
+        fuzztestHelper.BuildUpgradeInfo()) == 0;
 }
 }
 

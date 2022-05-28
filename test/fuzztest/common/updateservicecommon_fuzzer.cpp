@@ -15,67 +15,23 @@
 
 #include "updateservicecommon_fuzzer.h"
 
-const uint32_t CHAR_TO_INT_INDEX0 = 0;
-const uint32_t CHAR_TO_INT_INDEX1 = 1;
-const uint32_t CHAR_TO_INT_INDEX2 = 2;
-const uint32_t CHAR_TO_INT_INDEX3 = 3;
-
-const uint32_t CHAR_TO_INT_MOVE_LEFT0 = 0;
-const uint32_t CHAR_TO_INT_MOVE_LEFT1 = 8;
-const uint32_t CHAR_TO_INT_MOVE_LEFT2 = 16;
-const uint32_t CHAR_TO_INT_MOVE_LEFT3 = 24;
-
-const uint32_t COUNT_BOOL_TYPE = 2;
-const uint32_t COUNT_INSTALL_MODE_TYPE = 3;
-
-const uint32_t FUZZ_INT_LEN_DATA = 4;
-const uint32_t FUZZ_CHAR_ARRAY_LEN_DATA = 64;
-
 namespace OHOS {
 namespace update_engine {
-static void GetCharArray(char *getCharArray, uint32_t arraySize, const uint8_t* data, size_t size)
-{
-    if (FuzztestHelper::GetInstance()->index_ + arraySize > FUZZ_DATA_LEN) {
-        FuzztestHelper::GetInstance()->index_ = FUZZ_HEAD_DATA;
-    }
-    for (uint32_t i = 0; i < arraySize; i++) {
-        getCharArray[i] = static_cast<char>(data[i + FuzztestHelper::GetInstance()->index_]);
-    }
-    FuzztestHelper::GetInstance()->index_ += arraySize;
-}
+constexpr uint32_t CHAR_TO_INT_INDEX0 = 0;
+constexpr uint32_t CHAR_TO_INT_INDEX1 = 1;
+constexpr uint32_t CHAR_TO_INT_INDEX2 = 2;
+constexpr uint32_t CHAR_TO_INT_INDEX3 = 3;
 
-static void GetInt(int32_t &getInt, const uint8_t* data, size_t size)
-{
-    if (FuzztestHelper::GetInstance()->index_ + FUZZ_INT_LEN_DATA > FUZZ_DATA_LEN) {
-        FuzztestHelper::GetInstance()->index_ = FUZZ_HEAD_DATA;
-    }
-    getInt = static_cast<int32_t>(
-        (static_cast<uint32_t>(data[FuzztestHelper::GetInstance()->index_ + CHAR_TO_INT_INDEX0]) <<
-        CHAR_TO_INT_MOVE_LEFT3) +
-        (static_cast<uint32_t>(data[FuzztestHelper::GetInstance()->index_ + CHAR_TO_INT_INDEX1]) <<
-        CHAR_TO_INT_MOVE_LEFT2) +
-        (static_cast<uint32_t>(data[FuzztestHelper::GetInstance()->index_ + CHAR_TO_INT_INDEX2]) <<
-        CHAR_TO_INT_MOVE_LEFT1) +
-        (static_cast<uint32_t>(data[FuzztestHelper::GetInstance()->index_ + CHAR_TO_INT_INDEX3]) <<
-        CHAR_TO_INT_MOVE_LEFT0));
-    FuzztestHelper::GetInstance()->index_ += FUZZ_INT_LEN_DATA;
-}
+constexpr uint32_t CHAR_TO_INT_MOVE_LEFT0 = 0;
+constexpr uint32_t CHAR_TO_INT_MOVE_LEFT1 = 8;
+constexpr uint32_t CHAR_TO_INT_MOVE_LEFT2 = 16;
+constexpr uint32_t CHAR_TO_INT_MOVE_LEFT3 = 24;
 
-static void GetUInt(uint32_t &getUInt, const uint8_t* data, size_t size)
-{
-    if (FuzztestHelper::GetInstance()->index_ + FUZZ_INT_LEN_DATA > FUZZ_DATA_LEN) {
-        FuzztestHelper::GetInstance()->index_ = FUZZ_HEAD_DATA;
-    }
-    getUInt = (static_cast<uint32_t>(data[FuzztestHelper::GetInstance()->index_ + CHAR_TO_INT_INDEX0]) <<
-        CHAR_TO_INT_MOVE_LEFT3) +
-        (static_cast<uint32_t>(data[FuzztestHelper::GetInstance()->index_ + CHAR_TO_INT_INDEX1]) <<
-        CHAR_TO_INT_MOVE_LEFT2) +
-        (static_cast<uint32_t>(data[FuzztestHelper::GetInstance()->index_ + CHAR_TO_INT_INDEX2]) <<
-        CHAR_TO_INT_MOVE_LEFT1) +
-        (static_cast<uint32_t>(data[FuzztestHelper::GetInstance()->index_ + CHAR_TO_INT_INDEX3]) <<
-        CHAR_TO_INT_MOVE_LEFT0);
-    FuzztestHelper::GetInstance()->index_ += FUZZ_INT_LEN_DATA;
-}
+constexpr uint32_t COUNT_BOOL_TYPE = 2;
+constexpr uint32_t COUNT_INSTALL_MODE_TYPE = 3;
+
+constexpr uint32_t FUZZ_INT_LEN_DATA = 4;
+constexpr uint32_t FUZZ_CHAR_ARRAY_LEN_DATA = 64;
 
 static void FtCheckProcess(const VersionInfo &info)
 {
@@ -89,30 +45,19 @@ static void FtUpgradeProgress(const Progress &progress)
 {
 }
 
-FuzztestHelper::~FuzztestHelper()
+FuzztestHelper::FuzztestHelper(const uint8_t* data, size_t size)
 {
-    if (instance_ != nullptr) {
-        delete instance_;
-        instance_ = nullptr;
-    }
+    data_ = const_cast<uint8_t*>(data);
 }
 
-FuzztestHelper* FuzztestHelper::GetInstance()
-{
-    if (instance_ == nullptr) {
-        instance_ = new FuzztestHelper();
-    }
-    return instance_;
-}
-
-int32_t FuzztestHelper::BuildService(const uint8_t* data, size_t size)
+int32_t FuzztestHelper::BuildService(void)
 {
     int32_t service;
-    GetInt(service, data, size);
+    GetInt(service);
     return service;
 }
 
-UpdateCallbackInfo FuzztestHelper::BuildUpdateCallbackInfo(const uint8_t* data, size_t size)
+UpdateCallbackInfo FuzztestHelper::BuildUpdateCallbackInfo(void)
 {
     UpdateCallbackInfo cb {};
     cb.checkNewVersionDone = FtCheckProcess;
@@ -121,66 +66,110 @@ UpdateCallbackInfo FuzztestHelper::BuildUpdateCallbackInfo(const uint8_t* data, 
     return cb;
 }
 
-UpdateContext FuzztestHelper::BuildUpdateContext(const uint8_t* data, size_t size)
+UpdateContext FuzztestHelper::BuildUpdateContext(void)
 {
     UpdateContext ctx {};
     char controlDevId[FUZZ_CHAR_ARRAY_LEN_DATA];
-    GetCharArray(controlDevId, FUZZ_CHAR_ARRAY_LEN_DATA, data, size);
+    GetCharArray(controlDevId, FUZZ_CHAR_ARRAY_LEN_DATA);
     ctx.controlDevId = controlDevId;
 
     char type[FUZZ_CHAR_ARRAY_LEN_DATA];
-    GetCharArray(type, FUZZ_CHAR_ARRAY_LEN_DATA, data, size);
+    GetCharArray(type, FUZZ_CHAR_ARRAY_LEN_DATA);
     ctx.type = type;
 
     char upgradeApp[FUZZ_CHAR_ARRAY_LEN_DATA];
-    GetCharArray(upgradeApp, FUZZ_CHAR_ARRAY_LEN_DATA, data, size);
+    GetCharArray(upgradeApp, FUZZ_CHAR_ARRAY_LEN_DATA);
     ctx.upgradeApp = upgradeApp;
 
     char upgradeDevId[FUZZ_CHAR_ARRAY_LEN_DATA];
-    GetCharArray(upgradeDevId, FUZZ_CHAR_ARRAY_LEN_DATA, data, size);
+    GetCharArray(upgradeDevId, FUZZ_CHAR_ARRAY_LEN_DATA);
     ctx.upgradeDevId = upgradeDevId;
 
     char upgradeFile[FUZZ_CHAR_ARRAY_LEN_DATA];
-    GetCharArray(upgradeFile, FUZZ_CHAR_ARRAY_LEN_DATA, data, size);
+    GetCharArray(upgradeFile, FUZZ_CHAR_ARRAY_LEN_DATA);
     ctx.upgradeFile = upgradeFile;
     return ctx;
 }
 
-UpdatePolicy FuzztestHelper::BuildUpdatePolicy(const uint8_t* data, size_t size)
+UpdatePolicy FuzztestHelper::BuildUpdatePolicy(void)
 {
     UpdatePolicy updatePolicy {};
     uint32_t autoDownload;
-    GetUInt(autoDownload, data, size);
+    GetUInt(autoDownload);
     updatePolicy.autoDownload = static_cast<bool>(autoDownload % COUNT_BOOL_TYPE);
 
     uint32_t autoDownloadNet;
-    GetUInt(autoDownloadNet, data, size);
+    GetUInt(autoDownloadNet);
     updatePolicy.autoDownloadNet = static_cast<bool>(autoDownloadNet % COUNT_BOOL_TYPE);
 
     updatePolicy.autoUpgradeCondition = static_cast<AutoUpgradeCondition>(0);
 
     uint32_t autoUpgradeInterval[2];
-    GetUInt(autoUpgradeInterval[0], data, size);
+    GetUInt(autoUpgradeInterval[0]);
     updatePolicy.autoUpgradeInterval[0] = autoUpgradeInterval[0];
-    GetUInt(autoUpgradeInterval[1], data, size);
+    GetUInt(autoUpgradeInterval[1]);
     updatePolicy.autoUpgradeInterval[1] = autoUpgradeInterval[1];
 
     uint32_t mode;
-    GetUInt(mode, data, size);
+    GetUInt(mode);
     updatePolicy.mode = static_cast<InstallMode>(mode % COUNT_INSTALL_MODE_TYPE);
     return updatePolicy;
 }
 
-UpgradeInfo FuzztestHelper::BuildUpgradeInfo(const uint8_t* data, size_t size)
+UpgradeInfo FuzztestHelper::BuildUpgradeInfo(void)
 {
     UpgradeInfo upgradeInfo {};
     return upgradeInfo;
 }
 
-VersionInfo FuzztestHelper::BuildVersionInfo(const uint8_t* data, size_t size)
+VersionInfo FuzztestHelper::BuildVersionInfo(void)
 {
     VersionInfo versionInfo {};
     return versionInfo;
+}
+
+void FuzztestHelper::GetCharArray(char *getCharArray, uint32_t arraySize)
+{
+    if (index_ + arraySize > FUZZ_DATA_LEN) {
+        index_ = FUZZ_HEAD_DATA;
+    }
+    for (uint32_t i = 0; i < arraySize; i++) {
+        getCharArray[i] = static_cast<char>(data_[i + index_]);
+    }
+    index_ += arraySize;
+}
+
+void FuzztestHelper::GetInt(int32_t &getInt)
+{
+    if (index_ + FUZZ_INT_LEN_DATA > FUZZ_DATA_LEN) {
+        index_ = FUZZ_HEAD_DATA;
+    }
+    getInt = static_cast<int32_t>(
+        (static_cast<uint32_t>(data_[index_ + CHAR_TO_INT_INDEX0]) <<
+        CHAR_TO_INT_MOVE_LEFT3) +
+        (static_cast<uint32_t>(data_[index_ + CHAR_TO_INT_INDEX1]) <<
+        CHAR_TO_INT_MOVE_LEFT2) +
+        (static_cast<uint32_t>(data_[index_ + CHAR_TO_INT_INDEX2]) <<
+        CHAR_TO_INT_MOVE_LEFT1) +
+        (static_cast<uint32_t>(data_[index_ + CHAR_TO_INT_INDEX3]) <<
+        CHAR_TO_INT_MOVE_LEFT0));
+    index_ += FUZZ_INT_LEN_DATA;
+}
+
+void FuzztestHelper::GetUInt(uint32_t &getUInt)
+{
+    if (index_ + FUZZ_INT_LEN_DATA > FUZZ_DATA_LEN) {
+        index_ = FUZZ_HEAD_DATA;
+    }
+    getUInt = (static_cast<uint32_t>(data_[index_ + CHAR_TO_INT_INDEX0]) <<
+        CHAR_TO_INT_MOVE_LEFT3) +
+        (static_cast<uint32_t>(data_[index_ + CHAR_TO_INT_INDEX1]) <<
+        CHAR_TO_INT_MOVE_LEFT2) +
+        (static_cast<uint32_t>(data_[index_ + CHAR_TO_INT_INDEX2]) <<
+        CHAR_TO_INT_MOVE_LEFT1) +
+        (static_cast<uint32_t>(data_[index_ + CHAR_TO_INT_INDEX3]) <<
+        CHAR_TO_INT_MOVE_LEFT0);
+    index_ += FUZZ_INT_LEN_DATA;
 }
 } // namespace update_engine
 } // namespace OHOS

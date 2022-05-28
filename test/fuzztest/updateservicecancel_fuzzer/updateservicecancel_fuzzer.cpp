@@ -18,17 +18,13 @@
 using namespace OHOS::update_engine;
 
 namespace OHOS {
-int32_t FuzzUpdateServiceCancelImpl(void)
-{
-    return UpdateServiceKits::GetInstance().Cancel(FuzztestHelper::GetInstance()->BuildService(data, size));
-}
-
 bool FuzzUpdateServiceCancel(const uint8_t* data, size_t size)
 {
     if (size < FUZZ_DATA_LEN) {
         return false;
     }
-    return UpdateServiceKits::GetInstance().Cancel(FuzztestHelper::GetInstance()->BuildService(data, size)) == 0;
+    FuzztestHelper fuzztestHelper(data, size);
+    return UpdateServiceKits::GetInstance().Cancel(fuzztestHelper.BuildService()) == 0;
 }
 }
 

@@ -23,9 +23,6 @@ bool FuzzUpdateServiceCheckNewVersion(const uint8_t* data, size_t size)
     if (size < FUZZ_DATA_LEN) {
         return false;
     }
-    if (memcpy_s(g_data, sizeof(g_data), data, FUZZ_DATA_LEN) != EOK) {
-        return false;
-    }
     return UpdateServiceKits::GetInstance().CheckNewVersion() == 0;
 }
 }
