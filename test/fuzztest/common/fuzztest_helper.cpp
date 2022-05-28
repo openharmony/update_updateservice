@@ -48,6 +48,7 @@ static void FtUpgradeProgress(const Progress &progress)
 FuzztestHelper::FuzztestHelper(const uint8_t* data, size_t size)
 {
     data_ = const_cast<uint8_t*>(data);
+    size_ = size;
 }
 
 UpdateCallbackInfo FuzztestHelper::BuildUpdateCallbackInfo()
@@ -110,7 +111,7 @@ VersionInfo FuzztestHelper::BuildVersionInfo()
 
 void FuzztestHelper::GetCharArray(char *charArray, uint32_t arraySize)
 {
-    if (index_ + arraySize > FUZZ_DATA_LEN) {
+    if (index_ + arraySize > size_) {
         index_ = FUZZ_HEAD_DATA;
     }
     for (uint32_t i = 0; i < arraySize; i++) {
@@ -122,7 +123,7 @@ void FuzztestHelper::GetCharArray(char *charArray, uint32_t arraySize)
 int32_t FuzztestHelper::GetInt()
 {
     int32_t number {};
-    if (index_ + FUZZ_INT_LEN_DATA > FUZZ_DATA_LEN) {
+    if (index_ + FUZZ_INT_LEN_DATA > size_) {
         index_ = FUZZ_HEAD_DATA;
     }
     number = static_cast<int32_t>(
@@ -141,7 +142,7 @@ int32_t FuzztestHelper::GetInt()
 uint32_t FuzztestHelper::GetUInt()
 {
     uint32_t number {};
-    if (index_ + FUZZ_INT_LEN_DATA > FUZZ_DATA_LEN) {
+    if (index_ + FUZZ_INT_LEN_DATA > size_) {
         index_ = FUZZ_HEAD_DATA;
     }
     number = (static_cast<uint32_t>(data_[index_ + CHAR_TO_INT_INDEX0]) <<
