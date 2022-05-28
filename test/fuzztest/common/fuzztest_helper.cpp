@@ -50,14 +50,14 @@ FuzztestHelper::FuzztestHelper(const uint8_t* data, size_t size)
     data_ = const_cast<uint8_t*>(data);
 }
 
-int32_t FuzztestHelper::BuildService(void)
+int32_t FuzztestHelper::BuildService()
 {
     int32_t service;
     GetInt(service);
     return service;
 }
 
-UpdateCallbackInfo FuzztestHelper::BuildUpdateCallbackInfo(void)
+UpdateCallbackInfo FuzztestHelper::BuildUpdateCallbackInfo()
 {
     UpdateCallbackInfo cb {};
     cb.checkNewVersionDone = FtCheckProcess;
@@ -66,7 +66,7 @@ UpdateCallbackInfo FuzztestHelper::BuildUpdateCallbackInfo(void)
     return cb;
 }
 
-UpdateContext FuzztestHelper::BuildUpdateContext(void)
+UpdateContext FuzztestHelper::BuildUpdateContext()
 {
     UpdateContext ctx {};
     char controlDevId[FUZZ_CHAR_ARRAY_LEN_DATA];
@@ -91,7 +91,7 @@ UpdateContext FuzztestHelper::BuildUpdateContext(void)
     return ctx;
 }
 
-UpdatePolicy FuzztestHelper::BuildUpdatePolicy(void)
+UpdatePolicy FuzztestHelper::BuildUpdatePolicy()
 {
     UpdatePolicy updatePolicy {};
     uint32_t autoDownload;
@@ -116,13 +116,13 @@ UpdatePolicy FuzztestHelper::BuildUpdatePolicy(void)
     return updatePolicy;
 }
 
-UpgradeInfo FuzztestHelper::BuildUpgradeInfo(void)
+UpgradeInfo FuzztestHelper::BuildUpgradeInfo()
 {
     UpgradeInfo upgradeInfo {};
     return upgradeInfo;
 }
 
-VersionInfo FuzztestHelper::BuildVersionInfo(void)
+VersionInfo FuzztestHelper::BuildVersionInfo()
 {
     VersionInfo versionInfo {};
     return versionInfo;
