@@ -139,12 +139,12 @@ void FuzztestHelper::GetCharArray(char *getCharArray, uint32_t arraySize)
     index_ += arraySize;
 }
 
-void FuzztestHelper::GetInt(int32_t &getInt)
+void FuzztestHelper::GetInt(int32_t &number)
 {
     if (index_ + FUZZ_INT_LEN_DATA > FUZZ_DATA_LEN) {
         index_ = FUZZ_HEAD_DATA;
     }
-    getInt = static_cast<int32_t>(
+    number = static_cast<int32_t>(
         (static_cast<uint32_t>(data_[index_ + CHAR_TO_INT_INDEX0]) <<
         CHAR_TO_INT_MOVE_LEFT3) +
         (static_cast<uint32_t>(data_[index_ + CHAR_TO_INT_INDEX1]) <<
@@ -156,12 +156,12 @@ void FuzztestHelper::GetInt(int32_t &getInt)
     index_ += FUZZ_INT_LEN_DATA;
 }
 
-void FuzztestHelper::GetUInt(uint32_t &getUInt)
+void FuzztestHelper::GetUInt(uint32_t &number)
 {
     if (index_ + FUZZ_INT_LEN_DATA > FUZZ_DATA_LEN) {
         index_ = FUZZ_HEAD_DATA;
     }
-    getUInt = (static_cast<uint32_t>(data_[index_ + CHAR_TO_INT_INDEX0]) <<
+    number = (static_cast<uint32_t>(data_[index_ + CHAR_TO_INT_INDEX0]) <<
         CHAR_TO_INT_MOVE_LEFT3) +
         (static_cast<uint32_t>(data_[index_ + CHAR_TO_INT_INDEX1]) <<
         CHAR_TO_INT_MOVE_LEFT2) +
