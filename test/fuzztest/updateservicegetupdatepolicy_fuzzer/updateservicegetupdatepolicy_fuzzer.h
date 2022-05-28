@@ -16,7 +16,7 @@
 #ifndef UPDATE_SERVICE_GET_UPDATE_POLICY_FUZZER_H
 #define UPDATE_SERVICE_GET_UPDATE_POLICY_FUZZER_H
 
-#include "updateservicecommon_fuzzer.h"
+#include "fuzztest_helper.h"
 
 #define FUZZ_PROJECT_NAME "updateservicegetupdatepolicy_fuzzer"
 

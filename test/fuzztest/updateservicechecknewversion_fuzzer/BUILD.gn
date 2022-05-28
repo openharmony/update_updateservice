@@ -45,7 +45,7 @@ ohos_fuzztest("UpdateServiceCheckNewVersionFuzzTest") {
     "-fno-omit-frame-pointer",
   ]
   sources = [
-    "//base/update/updateservice/test/fuzztest/common/updateservicecommon_fuzzer.cpp",
+    "//base/update/updateservice/test/fuzztest/common/fuzztest_helper.cpp",
     "//base/update/updateservice/test/fuzztest/updateservicechecknewversion_fuzzer/updateservicechecknewversion_fuzzer.cpp",
   ]
   deps = [
