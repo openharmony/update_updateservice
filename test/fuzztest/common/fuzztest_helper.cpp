@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "updateservicecommon_fuzzer.h"
+#include "fuzztest_helper.h"
 
 namespace OHOS {
 namespace update_engine {
