@@ -47,13 +47,13 @@ public:
 
     void GetCharArray(char *getCharArray, uint32_t arraySize);
 
-    void GetInt(int32_t &getInt);
+    void GetInt(int32_t &number);
 
-    void GetUInt(uint32_t &getUInt);
+    void GetUInt(uint32_t &number);
 
 private:
     uint32_t index_ = 0;
-    uint8_t* data_;
+    uint8_t *data_;
 };
 } // namespace update_engine
 } // namespace OHOS
