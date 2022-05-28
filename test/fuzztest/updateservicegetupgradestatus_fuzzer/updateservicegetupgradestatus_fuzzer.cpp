@@ -18,21 +18,17 @@
 using namespace OHOS::update_engine;
 
 namespace OHOS {
-    int32_t FuzzUpdateServiceGetUpgradeStatusImpl(void)
-    {
-        return UpdateServiceKits::GetInstance().GetUpgradeStatus(FtBuildUpgradeInfo());
+bool FuzzUpdateServiceGetUpgradeStatus(const uint8_t* data, size_t size)
+{
+    if (size < FUZZ_DATA_LEN) {
+        return false;
     }
-
-    bool FuzzUpdateServiceGetUpgradeStatus(const uint8_t* data, size_t size)
-    {
-        if (size < FUZZ_DATA_LEN) {
-            return false;
-        }
-        if (memcpy_s(g_data, sizeof(g_data), data, FUZZ_DATA_LEN) != EOK) {
-            return false;
-        }
-        return !FuzzUpdateServiceGetUpgradeStatusImpl();
+    if (memcpy_s(g_data, sizeof(g_data), data, FUZZ_DATA_LEN) != EOK) {
+        return false;
     }
+    return UpdateServiceKits::GetInstance().GetUpgradeStatus(
+        FuzztestHelper::GetInstance()->BuildUpgradeInfo(data, size)) == 0;
+}
 }
 
 /* Fuzzer entry point */

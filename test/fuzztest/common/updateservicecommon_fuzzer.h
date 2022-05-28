@@ -24,25 +24,39 @@
 
 namespace OHOS {
 namespace update_engine {
-    int32_t FtBuildService(void);
+constexpr uint32_t FUZZ_HEAD_DATA = 0;
+constexpr uint32_t FUZZ_DATA_LEN = 500;
 
-    UpdateCallbackInfo FtBuildUpdateCallbackInfo(void);
+class FuzztestHelper {
+public:
+    FuzztestHelper() = default;
+    ~FuzztestHelper();
+    DISALLOW_COPY_AND_MOVE(FuzztestHelper);
 
-    UpdateContext FtBuildUpdateContext(void);
+    /**
+     * Get instance of FuzztestHelper.
+     *
+     * @return Instance of ohos FuzztestHelper.
+     */
+    static FuzztestHelper* GetInstance();
 
-    UpdatePolicy FtBuildUpdatePolicy(void);
+    int32_t BuildService(const uint8_t* data, size_t size);
 
-    UpgradeInfo FtBuildUpgradeInfo(void);
+    UpdateCallbackInfo BuildUpdateCallbackInfo(const uint8_t* data, size_t size);
 
-    VersionInfo FtBuildVersionInfo(void);
+    UpdateContext BuildUpdateContext(const uint8_t* data, size_t size);
 
-    const uint32_t FUZZ_HEAD_DATA = 0;
+    UpdatePolicy BuildUpdatePolicy(const uint8_t* data, size_t size);
 
-    const uint32_t FUZZ_DATA_LEN = 500;
+    UpgradeInfo BuildUpgradeInfo(const uint8_t* data, size_t size);
 
-    uint8_t g_data[FUZZ_DATA_LEN];
+    VersionInfo BuildVersionInfo(const uint8_t* data, size_t size);
 
-    uint32_t g_index = FUZZ_HEAD_DATA;
+    uint32_t index_ = FUZZ_HEAD_DATA;
+
+private:
+    static FuzztestHelper* instance_;
+};
 } // namespace update_engine
 } // namespace OHOS
 
