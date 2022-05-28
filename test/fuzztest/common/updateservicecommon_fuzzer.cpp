@@ -144,9 +144,9 @@ namespace update_engine {
 
         uint32_t autoUpgradeInterval[2];
         FtGetUInt(autoUpgradeInterval[0]);
-        policy.autoUpgradeInterval[0] = autoUpgradeInterval[0];
+        updatePolicy.autoUpgradeInterval[0] = autoUpgradeInterval[0];
         FtGetUInt(autoUpgradeInterval[1]);
-        policy.autoUpgradeInterval[1] = autoUpgradeInterval[1];
+        updatePolicy.autoUpgradeInterval[1] = autoUpgradeInterval[1];
 
         uint32_t mode;
         FtGetUInt(mode);
