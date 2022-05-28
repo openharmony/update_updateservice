@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,64 +17,10 @@
 
 using namespace OHOS::update_engine;
 
-const uint32_t FUZZ_HEAD_DATA = 0;
-const uint32_t FUZZ_CHAR_ARRAY_UPD_APP_NAME_LEN_DATA = 64;
-const uint32_t FUZZ_CHAR_ARRAY_DEV_ID_LEN_DATA = 68;
-
-const int FUZZ_DATA_LEN = 500;
-
-static uint8_t g_data[FUZZ_DATA_LEN];
-
-uint32_t g_index = FUZZ_HEAD_DATA;
-
 namespace OHOS {
-    static void FtGetCharArray(char *getCharArray, uint32_t size)
-    {
-        for (uint32_t i = 0; i < size; i++) {
-            getCharArray[i] = static_cast<char>(g_data[i + g_index]);
-        }
-        g_index += size;
-    }
-
-    static void FtCheckProcess(const VersionInfo &info)
-    {
-    }
-
-    static void FtDownloadProgress(const Progress &progress)
-    {
-    }
-
-    static void FtUpgradeProgress(const Progress &progress)
-    {
-    }
-
     int32_t FuzzUpdateServiceUnregisterUpdateCallbackImpl(void)
     {
-        UpdateContext ctx;
-        UpdateCallbackInfo cb = {
-            .checkNewVersionDone = FtCheckProcess,
-            .downloadProgress = FtDownloadProgress,
-            .upgradeProgress = FtUpgradeProgress,
-        };
-
-        char upgradeApp[FUZZ_CHAR_ARRAY_UPD_APP_NAME_LEN_DATA];
-        FtGetCharArray(upgradeApp, FUZZ_CHAR_ARRAY_UPD_APP_NAME_LEN_DATA);
-        ctx.upgradeApp = upgradeApp;
-
-        char upgradeDevId[FUZZ_CHAR_ARRAY_DEV_ID_LEN_DATA];
-        FtGetCharArray(upgradeDevId, FUZZ_CHAR_ARRAY_DEV_ID_LEN_DATA);
-        ctx.upgradeDevId = upgradeDevId;
-
-        char controlDevId[FUZZ_CHAR_ARRAY_DEV_ID_LEN_DATA];
-        FtGetCharArray(controlDevId, FUZZ_CHAR_ARRAY_DEV_ID_LEN_DATA);
-        ctx.controlDevId = controlDevId;
-
-        g_index = FUZZ_HEAD_DATA;
-
-        (void)UpdateServiceKits::GetInstance().RegisterUpdateCallback(ctx, cb);
-        int32_t ret = UpdateServiceKits::GetInstance().UnregisterUpdateCallback();
-
-        return ret;
+        return UpdateServiceKits::GetInstance().UnregisterUpdateCallback();
     }
 
     bool FuzzUpdateServiceUnregisterUpdateCallback(const uint8_t* data, size_t size)
@@ -82,7 +28,7 @@ namespace OHOS {
         if (size < FUZZ_DATA_LEN) {
             return false;
         }
-        if (memcpy_s(g_data, sizeof(g_data), data, FUZZ_DATA_LEN) != 0) {
+        if (memcpy_s(g_data, sizeof(g_data), data, FUZZ_DATA_LEN) != EOK) {
             return false;
         }
         return !FuzzUpdateServiceUnregisterUpdateCallbackImpl();
