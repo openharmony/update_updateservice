@@ -52,6 +52,7 @@ private:
 
     uint32_t index_ = 0;
     uint8_t *data_;
+    size_t size_;
 };
 } // namespace update_engine
 } // namespace OHOS
