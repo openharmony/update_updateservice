@@ -23,9 +23,10 @@ bool FuzzUpdateServiceRegisterUpdateCallback(const uint8_t* data, size_t size)
     if (size < FUZZ_DATA_LEN) {
         return false;
     }
+    FuzztestHelper fuzztestHelper(data, size);
     return UpdateServiceKits::GetInstance().RegisterUpdateCallback(
-        FuzztestHelper::GetInstance()->BuildUpdateContext(data, size),
-        FuzztestHelper::GetInstance()->BuildUpdateCallbackInfo(data, size)) == 0;
+        fuzztestHelper.BuildUpdateContext(),
+        fuzztestHelper.BuildUpdateCallbackInfo()) == 0;
 }
 }
 

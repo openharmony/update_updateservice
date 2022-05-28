@@ -29,33 +29,31 @@ constexpr uint32_t FUZZ_DATA_LEN = 500;
 
 class FuzztestHelper {
 public:
-    FuzztestHelper() = default;
-    ~FuzztestHelper();
+    FuzztestHelper(const uint8_t* data, size_t size);
+    virtual ~FuzztestHelper() = default;
     DISALLOW_COPY_AND_MOVE(FuzztestHelper);
 
-    /**
-     * Get instance of FuzztestHelper.
-     *
-     * @return Instance of ohos FuzztestHelper.
-     */
-    static FuzztestHelper* GetInstance();
+    int32_t BuildService(void);
 
-    int32_t BuildService(const uint8_t* data, size_t size);
+    UpdateCallbackInfo BuildUpdateCallbackInfo(void);
 
-    UpdateCallbackInfo BuildUpdateCallbackInfo(const uint8_t* data, size_t size);
+    UpdateContext BuildUpdateContext(void);
 
-    UpdateContext BuildUpdateContext(const uint8_t* data, size_t size);
+    UpdatePolicy BuildUpdatePolicy(void);
 
-    UpdatePolicy BuildUpdatePolicy(const uint8_t* data, size_t size);
+    UpgradeInfo BuildUpgradeInfo(void);
 
-    UpgradeInfo BuildUpgradeInfo(const uint8_t* data, size_t size);
+    VersionInfo BuildVersionInfo(void);
 
-    VersionInfo BuildVersionInfo(const uint8_t* data, size_t size);
+    void GetCharArray(char *getCharArray, uint32_t arraySize);
 
-    uint32_t index_ = FUZZ_HEAD_DATA;
+    void GetInt(int32_t &getInt);
+
+    void GetUInt(uint32_t &getUInt);
 
 private:
-    static FuzztestHelper* instance_;
+    uint32_t index_ = 0;
+    uint8_t* data_;
 };
 } // namespace update_engine
 } // namespace OHOS
