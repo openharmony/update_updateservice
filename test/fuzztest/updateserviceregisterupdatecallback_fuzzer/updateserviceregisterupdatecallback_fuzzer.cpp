@@ -20,7 +20,7 @@ using namespace OHOS::update_engine;
 namespace OHOS {
     int32_t FuzzUpdateServiceRegisterUpdateCallbackImpl(void)
     {
-        return UpdateServiceKits::GetInstance().RegisterUpdateCallback(FtBuildUpdateContext,
+        return UpdateServiceKits::GetInstance().RegisterUpdateCallback(FtBuildUpdateContext(),
             FtBuildUpdateCallbackInfo());
     }
 
