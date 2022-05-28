@@ -24,8 +24,8 @@ bool FuzzUpdateServiceGetUpdatePolicy(const uint8_t* data, size_t size)
         return false;
     }
     FuzztestHelper fuzztestHelper(data, size);
-    return UpdateServiceKits::GetInstance().GetUpdatePolicy(
-        fuzztestHelper.BuildUpdatePolicy()) == 0;
+    UpdatePolicy updatePolicy = fuzztestHelper.BuildUpdatePolicy();
+    return UpdateServiceKits::GetInstance().GetUpdatePolicy(updatePolicy) == 0;
 }
 }
 
