@@ -50,13 +50,6 @@ FuzztestHelper::FuzztestHelper(const uint8_t* data, size_t size)
     data_ = const_cast<uint8_t*>(data);
 }
 
-int32_t FuzztestHelper::BuildService()
-{
-    int32_t service;
-    GetInt(service);
-    return service;
-}
-
 UpdateCallbackInfo FuzztestHelper::BuildUpdateCallbackInfo()
 {
     UpdateCallbackInfo cb {};
@@ -94,25 +87,12 @@ UpdateContext FuzztestHelper::BuildUpdateContext()
 UpdatePolicy FuzztestHelper::BuildUpdatePolicy()
 {
     UpdatePolicy updatePolicy {};
-    uint32_t autoDownload;
-    GetUInt(autoDownload);
-    updatePolicy.autoDownload = static_cast<bool>(autoDownload % COUNT_BOOL_TYPE);
-
-    uint32_t autoDownloadNet;
-    GetUInt(autoDownloadNet);
-    updatePolicy.autoDownloadNet = static_cast<bool>(autoDownloadNet % COUNT_BOOL_TYPE);
-
+    updatePolicy.autoDownload = static_cast<bool>(GetUInt() % COUNT_BOOL_TYPE);
+    updatePolicy.autoDownloadNet = static_cast<bool>(GetUInt() % COUNT_BOOL_TYPE);
     updatePolicy.autoUpgradeCondition = static_cast<AutoUpgradeCondition>(0);
-
-    uint32_t autoUpgradeInterval[2];
-    GetUInt(autoUpgradeInterval[0]);
-    updatePolicy.autoUpgradeInterval[0] = autoUpgradeInterval[0];
-    GetUInt(autoUpgradeInterval[1]);
-    updatePolicy.autoUpgradeInterval[1] = autoUpgradeInterval[1];
-
-    uint32_t mode;
-    GetUInt(mode);
-    updatePolicy.mode = static_cast<InstallMode>(mode % COUNT_INSTALL_MODE_TYPE);
+    updatePolicy.autoUpgradeInterval[0] = GetUInt();
+    updatePolicy.autoUpgradeInterval[1] = GetUInt();
+    updatePolicy.mode = static_cast<InstallMode>(GetUInt() % COUNT_INSTALL_MODE_TYPE);
     return updatePolicy;
 }
 
@@ -128,19 +108,20 @@ VersionInfo FuzztestHelper::BuildVersionInfo()
     return versionInfo;
 }
 
-void FuzztestHelper::GetCharArray(char *getCharArray, uint32_t arraySize)
+void FuzztestHelper::GetCharArray(char *charArray, uint32_t arraySize)
 {
     if (index_ + arraySize > FUZZ_DATA_LEN) {
         index_ = FUZZ_HEAD_DATA;
     }
     for (uint32_t i = 0; i < arraySize; i++) {
-        getCharArray[i] = static_cast<char>(data_[i + index_]);
+        charArray[i] = static_cast<char>(data_[i + index_]);
     }
     index_ += arraySize;
 }
 
-void FuzztestHelper::GetInt(int32_t &number)
+int32_t FuzztestHelper::GetInt()
 {
+    int32_t number {};
     if (index_ + FUZZ_INT_LEN_DATA > FUZZ_DATA_LEN) {
         index_ = FUZZ_HEAD_DATA;
     }
@@ -154,10 +135,12 @@ void FuzztestHelper::GetInt(int32_t &number)
         (static_cast<uint32_t>(data_[index_ + CHAR_TO_INT_INDEX3]) <<
         CHAR_TO_INT_MOVE_LEFT0));
     index_ += FUZZ_INT_LEN_DATA;
+    return number;
 }
 
-void FuzztestHelper::GetUInt(uint32_t &number)
+uint32_t FuzztestHelper::GetUInt()
 {
+    uint32_t number {};
     if (index_ + FUZZ_INT_LEN_DATA > FUZZ_DATA_LEN) {
         index_ = FUZZ_HEAD_DATA;
     }
@@ -170,6 +153,7 @@ void FuzztestHelper::GetUInt(uint32_t &number)
         (static_cast<uint32_t>(data_[index_ + CHAR_TO_INT_INDEX3]) <<
         CHAR_TO_INT_MOVE_LEFT0);
     index_ += FUZZ_INT_LEN_DATA;
+    return number;
 }
 } // namespace update_engine
 } // namespace OHOS

@@ -24,7 +24,7 @@ bool FuzzUpdateServiceCancel(const uint8_t* data, size_t size)
         return false;
     }
     FuzztestHelper fuzztestHelper(data, size);
-    return UpdateServiceKits::GetInstance().Cancel(fuzztestHelper.BuildService()) == 0;
+    return UpdateServiceKits::GetInstance().Cancel(fuzztestHelper.GetInt()) == 0;
 }
 }
 
