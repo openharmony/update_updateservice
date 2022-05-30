@@ -11,50 +11,46 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-module_output_path = "updater/updater_on_remote_request"
+module_output_path = "update_service/update_service_test"
 
 #####################hydra-fuzz###################
 import("//build/config/features.gni")
 import("//build/test.gni")
 
 ##############################fuzztest##########################################
-ohos_fuzztest("UpdaterOnRemoteRequestFuzzTest") {
+ohos_fuzztest("UpdateServiceGetUpdatePolicyFuzzTest") {
   module_out_path = module_output_path
-
+  fuzz_config_file = "//base/update/updateservice/test/fuzztest/updateservicegetupdatepolicy_fuzzer"
   include_dirs = [
-    "//base/update/updater/utils/include",
-    "//base/update/updater/interfaces/kits/include/",
-    "//base/update/updater/services/include/log",
-    "//base/update/updater/services",
-    "//base/update/updater/services/ui",
     "//base/update/updater/services/include",
+    "//base/update/updater/utils/include",
+    "//base/update/updater/interfaces/kits/include",
+    "//base/update/updateservice/test/fuzztest/common",
+    "//utils/native/base/include",
+    "//utils/system/safwk/native/include",
     "//base/update/updateservice/interfaces/inner_api/include",
     "//base/update/updateservice/services/engine/include",
     "//base/update/updateservice/services/callback/include",
-    "//third_party/cJSON",
-    "//third_party/libxml2/include",
-    "//third_party/curl/include",
-    "//third_party/openssl/include",
+    "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy/include",
+    "//foundation/distributedschedule/safwk/services/safwk/include",
+    "//foundation/distributedschedule/safwk/interfaces/innerkits/safwk",
+    "//foundation/distributedschedule/samgr/adapter/interfaces/innerkits/include",
+    "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy/include",
     "//third_party/bounds_checking_function/include",
   ]
-
-  deps = [
-    "//base/startup/syspara_lite/interfaces/innerkits/native/syspara:syspara",
-    "//base/update/updater/interfaces/kits/misc_info:libmiscinfo",
-    "//base/update/updater/interfaces/kits/packages:libpackageExt",
-    "//base/update/updater/interfaces/kits/updaterkits:libupdaterkits",
-    "//base/update/updater/services/log:libupdaterlog",
-    "//base/update/updater/utils:libutils",
-    "//base/update/updateservice/services/engine:updateservice",
-    "//third_party/bounds_checking_function:libsec_static",
-    "//third_party/cJSON:cjson_static",
-    "//third_party/curl:curl",
-    "//third_party/libxml2:xml2",
-    "//third_party/openssl:libcrypto_static",
-    "//third_party/openssl:ssl_source",
-    "//utils/native/base:utils",
+  cflags = [
+    "-g",
+    "-O0",
+    "-Wno-unused-variable",
+    "-fno-omit-frame-pointer",
   ]
-
+  sources = [
+    "//base/update/updateservice/test/fuzztest/common/fuzztest_helper.cpp",
+    "//base/update/updateservice/test/fuzztest/updateservicegetupdatepolicy_fuzzer/updateservicegetupdatepolicy_fuzzer.cpp",
+  ]
+  deps = [
+    "//base/update/updateservice/interfaces/inner_api/engine:updateservicekits",
+  ]
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
@@ -62,14 +58,6 @@ ohos_fuzztest("UpdaterOnRemoteRequestFuzzTest") {
     "samgr_standard:samgr_proxy",
     "startup_l2:syspara",
   ]
-
-  cflags = [
-    "-g",
-    "-O0",
-    "-Wno-unused-variable",
-    "-fno-omit-frame-pointer",
-  ]
-  sources = [ "UpdaterOnRemoteRequest_fuzzer.cpp" ]
 }
 
 ###############################################################################
@@ -78,7 +66,7 @@ group("fuzztest") {
   deps = []
   deps += [
     # deps file
-    ":UpdaterOnRemoteRequestFuzzTest",
+    ":UpdateServiceGetUpdatePolicyFuzzTest",
   ]
 }
 ###############################################################################

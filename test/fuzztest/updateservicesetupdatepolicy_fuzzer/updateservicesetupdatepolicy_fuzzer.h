@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,16 +13,11 @@
  * limitations under the License.
  */
 
-#ifndef UPDATER_ON_REMOTE_REQUEST_FUZZER_H
-#define UPDATER_ON_REMOTE_REQUEST_FUZZER_H
+#ifndef UPDATE_SERVICE_SET_UPDATE_POLICY_FUZZER_H
+#define UPDATE_SERVICE_SET_UPDATE_POLICY_FUZZER_H
 
-#include <climits>
-#include <cstdint>
-#include <cstdio>
-#include <cstdlib>
-#include <fcntl.h>
-#include <unistd.h>
+#include "fuzztest_helper.h"
 
-#define FUZZ_PROJECT_NAME "UpdaterOnRemoteRequest_fuzzer"
+#define FUZZ_PROJECT_NAME "updateservicesetupdatepolicy_fuzzer"
 
-#endif // UPDATER_ON_REMOTE_REQUEST_FUZZER_H
+#endif // UPDATE_SERVICE_SET_UPDATE_POLICY_FUZZER_H
