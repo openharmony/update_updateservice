@@ -24,9 +24,6 @@
 
 namespace OHOS {
 namespace update_engine {
-constexpr uint32_t FUZZ_HEAD_DATA = 0;
-constexpr uint32_t FUZZ_DATA_LEN = 500;
-
 class FuzztestHelper {
 public:
     FuzztestHelper(const uint8_t* data, size_t size);
@@ -50,9 +47,9 @@ private:
 
     uint32_t GetUInt();
 
+    const uint32_t FUZZ_DATA_LEN = 500;
     uint32_t index_ = 0;
-    uint8_t *data_;
-    size_t size_;
+    uint8_t data_[FUZZ_DATA_LEN] {};
 };
 } // namespace update_engine
 } // namespace OHOS
