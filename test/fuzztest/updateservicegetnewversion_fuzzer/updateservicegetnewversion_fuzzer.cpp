@@ -20,7 +20,7 @@ using namespace OHOS::update_engine;
 namespace OHOS {
 bool FuzzUpdateServiceGetNewVersion(const uint8_t* data, size_t size)
 {
-    if (size < FUZZ_DATA_LEN) {
+    if (size < FuzztestHelper::FUZZ_DATA_LEN) {
         return false;
     }
     FuzztestHelper fuzztestHelper(data, size);
