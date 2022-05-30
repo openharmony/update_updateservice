@@ -51,7 +51,9 @@ FuzztestHelper::FuzztestHelper(const uint8_t* data, size_t size)
     if (size < FUZZ_DATA_LEN) {
         return;
     }
-    memcpy_s(data_, FUZZ_DATA_LEN, data, FUZZ_DATA_LEN);
+    if (memcpy_s(data_, sizeof(data_), data, sizeof(data_)) != EOK) {
+        return;
+    }
 }
 
 UpdateCallbackInfo FuzztestHelper::BuildUpdateCallbackInfo()
