@@ -42,7 +42,7 @@ public:
 
     int32_t GetInt();
 
-    const uint32_t FUZZ_DATA_LEN = 500;
+    static const uint32_t FUZZ_DATA_LEN = 500;
 
 private:
     void GetCharArray(char *charArray, uint32_t arraySize);
