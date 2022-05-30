@@ -42,12 +42,13 @@ public:
 
     int32_t GetInt();
 
+    const uint32_t FUZZ_DATA_LEN = 500;
+
 private:
     void GetCharArray(char *charArray, uint32_t arraySize);
 
     uint32_t GetUInt();
 
-    const uint32_t FUZZ_DATA_LEN = 500;
     uint32_t index_ = 0;
     uint8_t data_[FUZZ_DATA_LEN] {};
 };
