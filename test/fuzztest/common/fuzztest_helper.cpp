@@ -30,6 +30,7 @@ constexpr uint32_t CHAR_TO_INT_MOVE_LEFT3 = 24;
 constexpr uint32_t COUNT_BOOL_TYPE = 2;
 constexpr uint32_t COUNT_INSTALL_MODE_TYPE = 3;
 
+constexpr uint32_t FUZZ_HEAD_DATA = 0;
 constexpr uint32_t FUZZ_INT_LEN_DATA = 4;
 constexpr uint32_t FUZZ_CHAR_ARRAY_LEN_DATA = 64;
 
@@ -47,8 +48,10 @@ static void FtUpgradeProgress(const Progress &progress)
 
 FuzztestHelper::FuzztestHelper(const uint8_t* data, size_t size)
 {
-    data_ = const_cast<uint8_t*>(data);
-    size_ = size;
+    if (size < FUZZ_DATA_LEN) {
+        return;
+    }
+    memcpy_s(data_, FUZZ_DATA_LEN, data, FUZZ_DATA_LEN);
 }
 
 UpdateCallbackInfo FuzztestHelper::BuildUpdateCallbackInfo()
@@ -111,7 +114,7 @@ VersionInfo FuzztestHelper::BuildVersionInfo()
 
 void FuzztestHelper::GetCharArray(char *charArray, uint32_t arraySize)
 {
-    if (index_ + arraySize > size_) {
+    if (index_ + arraySize > FUZZ_DATA_LEN) {
         index_ = FUZZ_HEAD_DATA;
     }
     for (uint32_t i = 0; i < arraySize; i++) {
@@ -123,7 +126,7 @@ void FuzztestHelper::GetCharArray(char *charArray, uint32_t arraySize)
 int32_t FuzztestHelper::GetInt()
 {
     int32_t number {};
-    if (index_ + FUZZ_INT_LEN_DATA > size_) {
+    if (index_ + FUZZ_INT_LEN_DATA > FUZZ_DATA_LEN) {
         index_ = FUZZ_HEAD_DATA;
     }
     number = static_cast<int32_t>(
@@ -142,7 +145,7 @@ int32_t FuzztestHelper::GetInt()
 uint32_t FuzztestHelper::GetUInt()
 {
     uint32_t number {};
-    if (index_ + FUZZ_INT_LEN_DATA > size_) {
+    if (index_ + FUZZ_INT_LEN_DATA > FUZZ_DATA_LEN) {
         index_ = FUZZ_HEAD_DATA;
     }
     number = (static_cast<uint32_t>(data_[index_ + CHAR_TO_INT_INDEX0]) <<
