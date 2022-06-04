@@ -83,6 +83,7 @@ ohos_shared_library("updateservice") {
     "safwk:system_ability_fwk",
     "samgr_standard:samgr_proxy",
     "startup_l2:syspara",
+    "hisysevent_native:libhisysevent",
   ]
 
   part_name = "update_service"
