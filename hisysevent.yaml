@@ -1,0 +1,27 @@
+domain: UPDATE
+
+UPDATE_INTERVAL:
+  __BASE: {type: STATISTIC, level: MINOR, desc: system upgrade event interval}
+  VERSION_INFO: {type: STRING, desc: version info}
+  TYPE: {type: STRING, desc: check or download or install}
+  INTERVAL: {type: UINT64, desc: event interval}
+
+SYSTEM_UPGRADE_FAULT:
+  __BASE: {type: FAULT, level: CRITICAL, desc: system upgrade fault event}
+  DEVICE_ID: {type: STRING, desc: update devId and control devId}
+  VERSION_INFO: {type: STRING, desc: version info}
+  FAILED_REASON: {type: STRING, desc: update failed reason}
+  LOCATION: {type: STRING, desc: code location}
+
+SYSTEM_UPDATE:
+  __BASE: {type: BEHAVIOR, level: CRITICAL, desc: system update event}
+  UPDATE_RESULT: {type: STRING, desc: system update result}
+
+SYSTEM_RESET:
+  __BASE: {type: BEHAVIOR, level: CRITICAL, desc: system reset event}
+  RESET_RESULT: {type: STRING, desc: system reset result}
+
+SYSTEM_VERIFY_FAILED:
+  __BASE: {type: SECURITY, level: CRITICAL, desc: permission and data verify failed}
+  DEVICE_ID: {type: STRING, desc: upgrade devId and control devId}
+  DESCRIPTION: {type: STRING, desc: failed description}

@@ -26,6 +26,7 @@
 #include "update_helper.h"
 #include "package/package.h"
 #include "securec.h"
+#include "update_system_event.h"
 
 using namespace std;
 using namespace OHOS::update_engine;
@@ -129,6 +130,8 @@ void UpdateAsyncession::CompleteWork(napi_env env, napi_status status)
     client_->GetUpdateResult(type_, result, fail);
     uint32_t ret = (uint32_t)UpdateClient::BuildErrorResult(env, retArgs[0], fail);
     ret |= (uint32_t)result.buildJSObject(env, retArgs[1], result);
+    SYS_EVENT_SYSTEM_FAULT(ret == napi_ok, EMPTY, EMPTY, JSON_TRANSFOR_EXCEPTION,
+        "UpdateSession: CompleteWork");
     CLIENT_CHECK_NAPI_CALL(env, ret == napi_ok, return, "Failed to build json");
 
     status = napi_get_reference_value(env, callbackRef_[0], &callback);
@@ -212,6 +215,8 @@ void UpdateListener::NotifyJS(napi_env env, napi_value thisVar, int32_t retcode,
     napi_value handler = nullptr;
     napi_value callResult;
     int32_t ret = result.buildJSObject(env, jsEvent, result);
+    SYS_EVENT_SYSTEM_FAULT(ret == napi_ok, EMPTY, EMPTY, JSON_TRANSFOR_EXCEPTION,
+        "UpdateSession: CompleteWork");
     CLIENT_CHECK_NAPI_CALL(env, ret == napi_ok, return, "Failed to build json");
     {
         std::unique_lock<std::mutex> lock(mutex_);

@@ -57,6 +57,7 @@ ohos_shared_library("update") {
     "safwk:system_ability_fwk",
     "samgr_standard:samgr_proxy",
     "startup_l2:syspara",
+    "hisysevent_native:libhisysevent",
   ]
 
   install_enable = true
