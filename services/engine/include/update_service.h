@@ -61,7 +61,7 @@ public:
 
     int32_t RebootAndInstall(const std::string &miscFile, const std::string &packageName) override;
 
-    int Dump(int fd, const std::vector<std::ul6string> &args) override;
+    int Dump(int fd, const std::vector<std::u16string> &args) override;
 
     static int32_t ParseJsonFile(const std::vector<char> &buffer, VersionInfo &info, std::string &url);
     static int32_t ReadCheckVersionResult(const cJSON* results, VersionInfo &info, std::string &url);
@@ -94,6 +94,8 @@ private:
     };
     UpgradeStatus upgradeStatus_ = UPDATE_STATE_INIT;
     VersionInfo versionInfo_ {};
+    UpgradeInterval checkInterval_ {};
+    UpgradeInterval downloadInterval_ {};
     UpgradeInterval upgradeInterval_ {};
 
     sptr<IUpdateCallback> updateCallback_ { nullptr };

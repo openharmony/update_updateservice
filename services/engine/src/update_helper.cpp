@@ -278,7 +278,7 @@ std::string UpdateHelper::EncryptInfo(const std::string &src)
     if (len <= 0) {
         return std::string("");
     }
-    return std::string("***") + src.substr(len / 2);
+    return std::string("***") + src.substr(len / 2); // 2:string length divided by 2
 }
 
 std::string UpdateHelper::BuildEventVersionInfo(const VersionInfo &ver)

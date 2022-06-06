@@ -22,22 +22,20 @@
 
 namespace OHOS {
 namespace update_engine {
-const std::string EMPTY = "";
-const std::string EVENT_FAILED_RESULT = "failed";
-const std::string EVENT_SUCCESS_RESULT = "success";
+namespace upgrade_sys_event {
+constexpr const char *EMPTY = "";
+constexpr const char *EVENT_FAILED_RESULT = "failed";
+constexpr const char *EVENT_SUCCESS_RESULT = "success";
 
-const std::string UPGRADE_INTERVAL = "upgrade";
-const std::string CHECK_INTERVAL = "check";
-const std::string DOWNLOAD_INTERVAL = "download";
+constexpr const char *EVENT_UPGRADE_INTERVAL = "upgrade";
+constexpr const char *EVENT_CHECK_INTERVAL = "check";
+constexpr const char *EVENT_DOWNLOAD_INTERVAL = "download";
 
-const std::string PERMISSION_VERIFY_FAILED = "permission verify failed";
-const std::string JSON_TRANSFOR_EXCEPTION = "json transformation exception";
-const std::string PKG_VERIFY_FAILED = "upgrade package verify failed";
-const std::string VERSION_TOO_EARLIER = "update package version earlier than the local version";
-const std::string EMPTY_VERIFY_INFO = "invalid verify info";
+constexpr const char *EVENT_PERMISSION_VERIFY_FAILED = "permission verify failed";
+constexpr const char *EVENT_PKG_VERIFY_FAILED = "upgrade package verify failed";
 
 #define EVENT_WRITE(eventName, type, ...)    \
-    OHOS::HiviewDFX::HiSysEvent::Write("UPDATE", eventName, type, ##__VA_ARGS__);
+    OHOS::HiviewDFX::HiSysEvent::Write("UPDATE", eventName, type, ##__VA_ARGS__)
 
 #define SYS_EVENT_UPDATE_INTERVAL(validCheck, versionInfo, type, interval)   \
     if (!(validCheck)) {    \
@@ -45,7 +43,7 @@ const std::string EMPTY_VERIFY_INFO = "invalid verify info";
         "VERSION_INFO", versionInfo, "TYPE", type, "INTERVAL", interval);    \
     }
 
-#define SYS_EVENT_SYSTEM_FAULT(validCheck, deviceId, versionInfo, reason, location)   \
+#define SYS_EVENT_SYSTEM_UPGRADE_FAULT(validCheck, deviceId, versionInfo, reason, location)   \
     if (!(validCheck)) {    \
         EVENT_WRITE("SYSTEM_UPGRADE_FAULT", OHOS::HiviewDFX::HiSysEvent::EventType::FAULT,    \
         "DEVICE_ID", deviceId, "VERSION_INFO", versionInfo, "FAILED_REASON", reason,    \
@@ -54,7 +52,7 @@ const std::string EMPTY_VERIFY_INFO = "invalid verify info";
 
 #define SYS_EVENT_SYSTEM_UPGRADE(validCheck, result)   \
     if (!(validCheck)) {    \
-        EVENT_WRITE("SYSTEM_UPDATE", OHOS::HiviewDFX::HiSysEvent::EventType::BEHAVIOR,    \
+        EVENT_WRITE("SYSTEM_UPGRADE", OHOS::HiviewDFX::HiSysEvent::EventType::BEHAVIOR,    \
         "UPDATE_RESULT", result);    \
     }
 
@@ -66,9 +64,10 @@ const std::string EMPTY_VERIFY_INFO = "invalid verify info";
 
 #define SYS_EVENT_VERIFY_FAILED(validCheck, deviceId, description)   \
     if (!(validCheck)) {    \
-        EVENT_WRITE("SYSTEM_VERIFY_FAILED", OHOS::HiviewDFX::HiSysEvent::EventType::SECURITY,    \
+        EVENT_WRITE("VERIFY_FAILED", OHOS::HiviewDFX::HiSysEvent::EventType::SECURITY,    \
         "DEVICE_ID", deviceId, "DESCRIPTION", description);    \
     }
+} // namespace upgrade_sys_event
 } // namespace update_engine
 } // namespace OHOS
 #endif // UPDATE_SYSTEM_EVENT_H
