@@ -112,12 +112,8 @@ struct UpgradeInfo {
 };
 
 struct UpgradeInterval {
-    uint64_t checkStart;
-    uint64_t checkEnd;
-    uint64_t downloadStart;
-    uint64_t downloadEnd;
-    uint64_t upgradeStart;
-    uint64_t upgradeEnd;
+    uint64_t timeStart;
+    uint64_t timeEnd;
 };
 
 enum InstallMode {

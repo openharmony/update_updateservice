@@ -22,6 +22,7 @@
 #include "update_system_event.h"
 
 using namespace std;
+using namespace OHOS::update_engine::upgrade_sys_event;
 
 namespace OHOS {
 namespace update_engine {
@@ -191,7 +192,7 @@ int32_t UpdateServiceStub::OnRemoteRequest(uint32_t code,
 
     int result = Security::AccessToken::AccessTokenKit::VerifyAccessToken(callerToken, permission);
     if (result != Security::AccessToken::PERMISSION_GRANTED) {
-        SYS_EVENT_VERIFY_FAILED(0, UpdateHelper::BuildEventDevId(tmpContext), PERMISSION_VERIFY_FAILED)
+        SYS_EVENT_VERIFY_FAILED(0, UpdateHelper::BuildEventDevId(tmpContext), EVENT_PERMISSION_VERIFY_FAILED)
         ENGINE_LOGE("permissionCheck %{public}s false", permission.c_str());
         return -1;
     }
