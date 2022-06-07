@@ -52,6 +52,7 @@ ohos_shared_library("update") {
   ]
 
   external_deps = [
+    "hisysevent_native:libhisysevent",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",

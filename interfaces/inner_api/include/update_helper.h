@@ -111,6 +111,11 @@ struct UpgradeInfo {
     UpgradeStatus status;
 };
 
+struct UpgradeInterval {
+    uint64_t timeStart;
+    uint64_t timeEnd;
+};
+
 enum InstallMode {
     INSTALLMODE_NORMAL = 0,
     INSTALLMODE_NIGHT,
@@ -177,6 +182,12 @@ public:
     static std::vector<uint8_t> HexToDegist(const std::string &str);
     static int32_t CompareVersion(const std::string &version1, const std::string &version2);
     static std::vector<std::string> SplitString(const std::string &str, const std::string &delimiter);
+
+    static std::string BuildEventDevId(const UpdateContext &ctx);
+    static std::string BuildEventVersionInfo(const VersionInfo &ver);
+
+    static std::string EncryptInfo(const std::string &src);
+    static uint64_t GetTimestamp();
 
     static bool JudgeLevel(const UpdateLogLevel& level);
 

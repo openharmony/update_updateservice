@@ -19,8 +19,10 @@
 #include "securec.h"
 #include "update_helper.h"
 #include "update_service_stub.h"
+#include "update_system_event.h"
 
 using namespace std;
+using namespace OHOS::update_engine::upgrade_sys_event;
 
 namespace OHOS {
 namespace update_engine {
@@ -152,6 +154,10 @@ static int32_t RebootAndInstallStub(UpdateServiceStub::UpdateServiceStubPtr serv
 int32_t UpdateServiceStub::OnRemoteRequest(uint32_t code,
     MessageParcel& data, MessageParcel& reply, MessageOption &option)
 {
+    UpdateContext tmpContext {};
+    if (code == IUpdateService::REGISTER_CALLBACK) {
+        UpdateHelper::ReadUpdateContext(data, tmpContext);
+    }
     if (data.ReadInterfaceToken() != GetDescriptor()) {
         ENGINE_LOGI("UpdateServiceStub ReadInterfaceToken fail");
         return -1;
@@ -186,6 +192,7 @@ int32_t UpdateServiceStub::OnRemoteRequest(uint32_t code,
 
     int result = Security::AccessToken::AccessTokenKit::VerifyAccessToken(callerToken, permission);
     if (result != Security::AccessToken::PERMISSION_GRANTED) {
+        SYS_EVENT_VERIFY_FAILED(0, UpdateHelper::BuildEventDevId(tmpContext), EVENT_PERMISSION_VERIFY_FAILED)
         ENGINE_LOGE("permissionCheck %{public}s false", permission.c_str());
         return -1;
     }

@@ -70,6 +70,9 @@
         "//base/update/updateservice/test/fuzztest/updateserviceregisterupdatecallback_fuzzer:UpdateServiceRegisterUpdateCallbackFuzzTest",
         "//base/update/updateservice/test/fuzztest/updateservicesetupdatepolicy_fuzzer:UpdateServiceSetUpdatePolicyFuzzTest",
         "//base/update/updateservice/test/fuzztest/updateserviceunregisterupdatecallback_fuzzer:UpdateServiceUnregisterUpdateCallbackFuzzTest"
+      ],
+      "hisysevent_config": [
+        "//base/update/updateservice/hisysevent.yaml"
       ]
     }
   }

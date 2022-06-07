@@ -77,6 +77,7 @@ ohos_shared_library("updateservice") {
 
   external_deps = [
     "access_token:libaccesstoken_sdk",
+    "hisysevent_native:libhisysevent",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "ipc:ipc_single",
