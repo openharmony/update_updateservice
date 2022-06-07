@@ -43,8 +43,11 @@
 #include "securec.h"
 #include "system_ability_definition.h"
 #include "update_helper.h"
+#include "update_system_event.h"
 #include "updaterkits/updaterkits.h"
 #include "utils.h"
+
+using namespace OHOS::update_engine::upgrade_sys_event;
 
 namespace OHOS {
 namespace update_engine {
@@ -53,6 +56,7 @@ REGISTER_SYSTEM_ABILITY_BY_ID(UpdateService, UPDATE_DISTRIBUTED_SERVICE_ID, true
 constexpr int32_t PORT_NUMBER = 5022;
 constexpr int32_t JSON_MAX_SIZE = 4096;
 const mode_t MKDIR_MODE = 0777;
+const uint32_t SUCCESS_PERCENT = 100;
 
 const std::string UPDATER_PKG_NAME = "/data/ota_package/updater.zip";
 const std::string MISC_FILE = "/dev/block/by-name/misc";
@@ -127,6 +131,7 @@ int32_t UpdateService::GetUpdatePolicy(UpdatePolicy &policy)
 
 int32_t UpdateService::CheckNewVersion()
 {
+    checkInterval_.timeStart = UpdateHelper::GetTimestamp();
     upgradeStatus_ = UPDATE_STATE_CHECK_VERSION_ON;
     int32_t engineSocket = socket(AF_INET, SOCK_STREAM, 0);
     ENGINE_CHECK(engineSocket >= 0, SearchCallback("socket error !", SERVER_BUSY); return 1, "socket error !");
@@ -159,6 +164,7 @@ int32_t UpdateService::CheckNewVersion()
 
 int32_t UpdateService::DownloadVersion()
 {
+    downloadInterval_.timeStart = UpdateHelper::GetTimestamp();
     if (access(BASE_PATH.c_str(), 0) == -1) {
         mkdir(BASE_PATH.c_str(), MKDIR_MODE);
     }
@@ -202,6 +208,7 @@ int32_t UpdateService::DownloadVersion()
 
 int32_t UpdateService::DoUpdate()
 {
+    upgradeInterval_.timeStart = UpdateHelper::GetTimestamp();
     Progress progress;
     progress.percent = 1;
     progress.status = UPDATE_STATE_INSTALL_ON;
@@ -237,6 +244,12 @@ void UpdateService::SearchCallback(const std::string &msg, SearchStatus status)
         upgradeStatus_ = UPDATE_STATE_CHECK_VERSION_FAIL;
     }
     if (updateCallback_ != nullptr) {
+        if (status == HAS_NEW_VERSION) {
+            checkInterval_.timeEnd = UpdateHelper::GetTimestamp();
+            SYS_EVENT_UPDATE_INTERVAL(0, UpdateHelper::BuildEventVersionInfo(versionInfo_), EVENT_CHECK_INTERVAL,
+                checkInterval_.timeEnd > checkInterval_.timeStart
+                ? (checkInterval_.timeEnd - checkInterval_.timeStart) : 0);
+        }
         updateCallback_->OnCheckVersionDone(versionInfo_);
     }
 }
@@ -271,6 +284,12 @@ void UpdateService::DownloadCallback(const std::string &fileName, const Progress
     }
 
     if (updateCallback_ != nullptr) {
+        if (downloadProgress.percent == SUCCESS_PERCENT) {
+            downloadInterval_.timeEnd = UpdateHelper::GetTimestamp();
+            SYS_EVENT_UPDATE_INTERVAL(0, UpdateHelper::BuildEventVersionInfo(versionInfo_), EVENT_DOWNLOAD_INTERVAL,
+                downloadInterval_.timeEnd > downloadInterval_.timeStart
+                ? (downloadInterval_.timeEnd - downloadInterval_.timeStart) : 0);
+        }
         updateCallback_->OnDownloadProgress(downloadProgress);
     }
 }
@@ -280,6 +299,12 @@ void UpdateService::UpgradeCallback(const Progress &progress)
     upgradeStatus_ = progress.status;
     ENGINE_LOGE("UpgradeCallback status %d  %d", progress.status, progress.percent);
     if (updateCallback_ != nullptr) {
+        if (progress.percent == SUCCESS_PERCENT) {
+            upgradeInterval_.timeEnd = UpdateHelper::GetTimestamp();
+            SYS_EVENT_UPDATE_INTERVAL(0, UpdateHelper::BuildEventVersionInfo(versionInfo_), EVENT_UPGRADE_INTERVAL,
+                upgradeInterval_.timeEnd > upgradeInterval_.timeStart
+                ? (upgradeInterval_.timeEnd - upgradeInterval_.timeStart) : 0);
+        }
         updateCallback_->OnUpgradeProgress(progress);
     }
 }
@@ -428,6 +453,7 @@ bool UpdateService::VerifyDownloadPkg(const std::string &pkgName, Progress &prog
     ret = VerifyPackage(pkgName.c_str(),
         SIGNING_CERT_NAME.c_str(), versionInfo_.result[0].versionCode.c_str(), digest.data(), digest.size());
     if (ret != 0) {
+        SYS_EVENT_VERIFY_FAILED(0, UpdateHelper::BuildEventDevId(updateContext_), EVENT_PKG_VERIFY_FAILED);
         progress.endReason = "Upgrade package verify Failed";
         ENGINE_LOGE("Package %s verification Failed", pkgName.c_str());
         return false;
@@ -453,7 +479,10 @@ int32_t UpdateService::Cancel(int32_t service)
 int32_t UpdateService::RebootAndClean(const std::string &miscFile, const std::string &cmd)
 {
 #ifndef UPDATER_UT
-    return RebootAndCleanUserData(miscFile, cmd) ? 0 : -1;
+    SYS_EVENT_SYSTEM_RESET(0, EMPTY);
+    int ret = RebootAndCleanUserData(miscFile, cmd) ? 0 : -1;
+    SYS_EVENT_SYSTEM_RESET(0, ret == 0 ? EVENT_SUCCESS_RESULT : EVENT_FAILED_RESULT);
+    return ret;
 #else
     return 0;
 #endif
@@ -462,10 +491,51 @@ int32_t UpdateService::RebootAndClean(const std::string &miscFile, const std::st
 int32_t UpdateService::RebootAndInstall(const std::string &miscFile, const std::string &packageName)
 {
 #ifndef UPDATER_UT
-    return RebootAndInstallUpgradePackage(miscFile, packageName) ? 0 : -1;
+    SYS_EVENT_SYSTEM_UPGRADE(0, EMPTY);
+    int ret = RebootAndInstallUpgradePackage(miscFile, packageName) ? 0 : -1;
+    SYS_EVENT_SYSTEM_UPGRADE(0, ret == 0 ? EVENT_SUCCESS_RESULT : EVENT_FAILED_RESULT);
+    return ret;
 #else
     return 0;
 #endif
+}
+
+void BuildContextInfoDump(const int fd, UpdateContext &ctx)
+{
+    dprintf(fd, "------------------------update context info-------------------------\n");
+    dprintf(fd, "UpgradeDevId: %s\n", UpdateHelper::EncryptInfo(ctx.upgradeDevId).c_str());
+    dprintf(fd, "ControlDevId: %s\n", UpdateHelper::EncryptInfo(ctx.controlDevId).c_str());
+    dprintf(fd, "UpgradeApp: %s\n", ctx.upgradeApp.c_str());
+    dprintf(fd, "Type: %s\n", ctx.type.c_str());
+}
+
+void BuildVersionInfoDump(const int fd, VersionInfo &ver)
+{
+    dprintf(fd, "------------------------update version info-------------------------\n");
+    dprintf(fd, "SearchStatus: %d\n", ver.status);
+    dprintf(fd, "ErrorMsg: %s\n", ver.errMsg.c_str());
+    dprintf(fd, "PackageSize: %d\n", ver.result[0].size);
+    dprintf(fd, "PackageType: %d\n", ver.result[0].packageType);
+    dprintf(fd, "VersionName: %s\n", ver.result[0].versionName.c_str());
+    dprintf(fd, "VersionCode: %s\n", ver.result[0].versionCode.c_str());
+    dprintf(fd, "DescriptPackageId: %s\n", ver.result[0].descriptPackageId.c_str());
+    dprintf(fd, "Content: %s\n", ver.descriptInfo[0].content.c_str());
+}
+
+int UpdateService::Dump(int fd, const std::vector<std::u16string> &args)
+{
+    if (fd < 0) {
+        ENGINE_LOGE("HiDumper handle invalid");
+        return -1;
+    }
+
+    if (args.size() == 0) {
+        BuildContextInfoDump(fd, updateContext_);
+        BuildVersionInfoDump(fd, versionInfo_);
+    } else {
+        dprintf(fd, "input error, no parameters required");
+    }
+    return 0;
 }
 
 void UpdateService::InitVersionInfo(VersionInfo &versionInfo) const

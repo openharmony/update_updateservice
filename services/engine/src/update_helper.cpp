@@ -15,6 +15,7 @@
 
 #include "update_helper.h"
 
+#include <chrono>
 #include <cstring>
 #include <fstream>
 #include <iostream>
@@ -269,6 +270,35 @@ std::vector<uint8_t> UpdateHelper::HexToDegist(const std::string &str)
         result.push_back(chr);
     }
     return result;
+}
+
+std::string UpdateHelper::EncryptInfo(const std::string &src)
+{
+    int len = src.length();
+    if (len <= 0) {
+        return std::string("");
+    }
+    return std::string("***") + src.substr(len / 2); // 2:string length divided by 2
+}
+
+std::string UpdateHelper::BuildEventVersionInfo(const VersionInfo &ver)
+{
+    return std::string("{ ") + std::string("pkgSize: ") + std::to_string(ver.result[0].size)
+        + std::string(", packageType: ") + std::to_string(ver.result[0].packageType)
+        + std::string(", versionCode: ") + ver.result[0].versionCode + std::string(" }");
+}
+
+std::string UpdateHelper::BuildEventDevId(const UpdateContext &ctx)
+{
+    return std::string("{ ") + std::string("upgradeDevId: ") + EncryptInfo(ctx.upgradeDevId)
+        + std::string(", controlDevId: ") + EncryptInfo(ctx.controlDevId) + std::string(" }");
+}
+
+uint64_t UpdateHelper::GetTimestamp()
+{
+    auto now = std::chrono::system_clock::now();
+    auto millisecs = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch());
+    return millisecs.count();
 }
 }
 } // namespace OHOS
