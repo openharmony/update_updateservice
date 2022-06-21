@@ -803,9 +803,9 @@ int32_t UpdateClient::GetUpdatePolicyFromArg(napi_env env,
     napi_valuetype type = napi_undefined;
     napi_status status = napi_typeof(env, arg, &type);
     CLIENT_CHECK(status == napi_ok, return static_cast<int32_t>(ClientStatus::CLIENT_INVALID_TYPE),
-        "Invlid argc %d", static_cast<int32_t>(status));
+        "Invalid argc %d", static_cast<int32_t>(status));
     CLIENT_CHECK(type == napi_object, return static_cast<int32_t>(ClientStatus::CLIENT_INVALID_TYPE),
-        "Invlid argc %d", static_cast<int32_t>(type));
+        "Invalid argc %d", static_cast<int32_t>(type));
 
     // updatePolicy
     int32_t tmpValue = 0;
