@@ -23,7 +23,7 @@
 #include "system_ability_definition.h"
 
 namespace OHOS {
-namespace update_engine {
+namespace UpdateEngine {
 UpdateServiceKits& UpdateServiceKits::GetInstance()
 {
     return DelayedRefSingleton<UpdateServiceKitsImpl>::GetInstance();
@@ -70,7 +70,13 @@ sptr<IUpdateService> UpdateServiceKitsImpl::GetService()
     ENGINE_LOGI("get remote object ok");
     updateService_ = iface_cast<IUpdateService>(object);
     if (updateService_ == nullptr) {
-        ENGINE_LOGE("account iface_cast failed");
+        ENGINE_LOGE("update service iface_cast failed");
+        return updateService_;
+    }
+
+    ENGINE_LOGI("RegisterUpdateCallback size %{public}zu", remoteUpdateCallbackMap_.size());
+    for (auto &iter : remoteUpdateCallbackMap_) {
+        updateService_->RegisterUpdateCallback(iter.first, iter.second);
     }
     return updateService_;
 }
@@ -83,134 +89,176 @@ void UpdateServiceKitsImpl::DeathRecipient::OnRemoteDied(const wptr<IRemoteObjec
 UpdateServiceKitsImpl::RemoteUpdateCallback::RemoteUpdateCallback(const UpdateCallbackInfo &cb)
     : UpdateCallback()
 {
-    updateCallback_.checkNewVersionDone = cb.checkNewVersionDone;
-    updateCallback_.downloadProgress = cb.downloadProgress;
-    updateCallback_.upgradeProgress = cb.upgradeProgress;
+    updateCallback_ = cb;
 }
 
 UpdateServiceKitsImpl::RemoteUpdateCallback::~RemoteUpdateCallback()
 {
     updateCallback_.checkNewVersionDone = nullptr;
-    updateCallback_.downloadProgress = nullptr;
-    updateCallback_.upgradeProgress = nullptr;
+    updateCallback_.onEvent = nullptr;
 }
 
-void UpdateServiceKitsImpl::RemoteUpdateCallback::OnCheckVersionDone(const VersionInfo &info)
+void UpdateServiceKitsImpl::RemoteUpdateCallback::OnCheckVersionDone(
+    const BusinessError &businessError, const CheckResultEx &checkResultEx)
 {
-    ENGINE_LOGE("OnCheckVersionDone VersionInfo status %d", info.status);
-    ENGINE_LOGE("OnCheckVersionDone VersionInfo errMsg %s", info.errMsg.c_str());
-    ENGINE_LOGE("OnCheckVersionDone VersionInfo versionName : %s", info.result[0].versionName.c_str());
-    ENGINE_LOGE("OnCheckVersionDone VersionInfo versionCode : %s", info.result[0].versionCode.c_str());
-    ENGINE_LOGE("OnCheckVersionDone VersionInfo verifyInfo : %s", info.result[0].verifyInfo.c_str());
-    ENGINE_LOGE("OnCheckVersionDone VersionInfo size : %zu", info.result[0].size);
+    ENGINE_LOGI("OnCheckVersionDone status %{public}d", checkResultEx.isExistNewVersion);
     if (updateCallback_.checkNewVersionDone != nullptr) {
-        updateCallback_.checkNewVersionDone(info);
+        updateCallback_.checkNewVersionDone(businessError, checkResultEx);
     }
 }
 
-void UpdateServiceKitsImpl::RemoteUpdateCallback::OnDownloadProgress(const Progress &progress)
+void UpdateServiceKitsImpl::RemoteUpdateCallback::OnEvent(const EventInfo &eventInfo)
 {
-    ENGINE_LOGE("OnDownloadProgress progress %u %d", progress.percent, progress.status);
-    if (updateCallback_.downloadProgress != nullptr) {
-        updateCallback_.downloadProgress(progress);
+    ENGINE_LOGI("OnEvent progress %{public}d", eventInfo.eventId);
+    if (updateCallback_.onEvent != nullptr) {
+        updateCallback_.onEvent(eventInfo);
     }
 }
 
-void UpdateServiceKitsImpl::RemoteUpdateCallback::OnUpgradeProgress(const Progress &progress)
+int32_t UpdateServiceKitsImpl::RegisterUpdateCallback(const UpgradeInfo &info, const UpdateCallbackInfo &cb)
 {
-    ENGINE_LOGE("OnUpgradeProgress progress %u %d", progress.percent, progress.status);
-    if (updateCallback_.upgradeProgress != nullptr) {
-        updateCallback_.upgradeProgress(progress);
+    auto updateService = GetService();
+    ENGINE_CHECK(updateService != nullptr, return -1, "Get updateService failed");
+
+    std::lock_guard<std::mutex> lock(updateServiceLock_);
+    auto remoteUpdateCallback = new RemoteUpdateCallback(cb);
+    ENGINE_CHECK(remoteUpdateCallback != nullptr, return -1, "Failed to create remote callback");
+    int32_t ret = updateService->RegisterUpdateCallback(info, remoteUpdateCallback);
+    if (ret == 0) {
+        remoteUpdateCallbackMap_[info] = remoteUpdateCallback;
     }
+    return ret;
 }
 
-int32_t UpdateServiceKitsImpl::RegisterUpdateCallback(const UpdateContext &ctx, const UpdateCallbackInfo &cb)
+int32_t UpdateServiceKitsImpl::UnregisterUpdateCallback(const UpgradeInfo &info)
 {
-    updateContext_.upgradeDevId = ctx.upgradeDevId;
-    updateContext_.controlDevId = ctx.controlDevId;
-    updateContext_.upgradeApp = ctx.upgradeApp;
-    updateContext_.type = ctx.type;
-    updateContext_.upgradeFile = ctx.upgradeFile;
-    if (remoteUpdateCallback_ == nullptr) {
-        remoteUpdateCallback_ = new RemoteUpdateCallback(cb);
-        ENGINE_CHECK(remoteUpdateCallback_ != nullptr, return -1, "Failed to create remote callback");
-        auto updateService = GetService();
-        ENGINE_CHECK(updateService != nullptr, return -1, "Get updateService failed");
-        updateService->RegisterUpdateCallback(ctx, remoteUpdateCallback_);
-    }
+    ENGINE_LOGI("UnregisterUpdateCallback");
+    std::lock_guard<std::mutex> lock(updateServiceLock_);
+    remoteUpdateCallbackMap_.erase(info);
     return 0;
 }
 
-int32_t UpdateServiceKitsImpl::UnregisterUpdateCallback()
-{
-    delete remoteUpdateCallback_;
-    remoteUpdateCallback_ = nullptr;
-    return 0;
-}
-
-int32_t UpdateServiceKitsImpl::CheckNewVersion()
+int32_t UpdateServiceKitsImpl::CheckNewVersion(const UpgradeInfo &info)
 {
     ENGINE_LOGI("UpdateServiceKitsImpl::CheckNewVersion");
 
     auto updateService = GetService();
     ENGINE_CHECK(updateService != nullptr, return -1, "Get updateService failed");
-    return updateService->CheckNewVersion();
+    return updateService->CheckNewVersion(info);
 }
 
-int32_t UpdateServiceKitsImpl::DownloadVersion()
+int32_t UpdateServiceKitsImpl::DownloadVersion(const UpgradeInfo &info, const VersionDigestInfo &versionDigestInfo,
+    const DownloadOptions &downloadOptions, BusinessError &businessError)
 {
     ENGINE_LOGI("UpdateServiceKitsImpl::DownloadVersion");
     auto updateService = GetService();
     ENGINE_CHECK(updateService != nullptr, return -1, "Get updateService failed");
-    return updateService->DownloadVersion();
+    return updateService->DownloadVersion(info, versionDigestInfo, downloadOptions, businessError);
 }
 
-int32_t UpdateServiceKitsImpl::DoUpdate()
+int32_t UpdateServiceKitsImpl::PauseDownload(const UpgradeInfo &info, const VersionDigestInfo &versionDigestInfo,
+    const PauseDownloadOptions &pauseDownloadOptions, BusinessError &businessError)
+{
+    ENGINE_LOGI("UpdateServiceKitsImpl::PauseDownload");
+    auto updateService = GetService();
+    ENGINE_CHECK(updateService != nullptr, return -1, "Get updateService failed");
+    return updateService->PauseDownload(info, versionDigestInfo, pauseDownloadOptions, businessError);
+}
+
+int32_t UpdateServiceKitsImpl::ResumeDownload(const UpgradeInfo &info, const VersionDigestInfo &versionDigestInfo,
+    const ResumeDownloadOptions &resumeDownloadOptions, BusinessError &businessError)
+{
+    ENGINE_LOGI("UpdateServiceKitsImpl::ResumeDownload");
+    auto updateService = GetService();
+    ENGINE_CHECK(updateService != nullptr, return -1, "Get updateService failed");
+    return updateService->ResumeDownload(info, versionDigestInfo, resumeDownloadOptions, businessError);
+}
+
+int32_t UpdateServiceKitsImpl::DoUpdate(const UpgradeInfo &info, const VersionDigestInfo &versionDigest,
+    const UpgradeOptions &upgradeOptions, BusinessError &businessError)
 {
     ENGINE_LOGI("UpdateServiceKitsImpl::DoUpdate");
     auto updateService = GetService();
     ENGINE_CHECK(updateService != nullptr, return -1, "Get updateService failed");
-    return updateService->DoUpdate();
+    return updateService->DoUpdate(info, versionDigest, upgradeOptions, businessError);
 }
 
-int32_t UpdateServiceKitsImpl::GetNewVersion(VersionInfo &versionInfo)
+int32_t UpdateServiceKitsImpl::ClearError(const UpgradeInfo &info, const VersionDigestInfo &versionDigest,
+    const ClearOptions &clearOptions, BusinessError &businessError)
+{
+    ENGINE_LOGI("UpdateServiceKitsImpl::ClearError");
+    auto updateService = GetService();
+    ENGINE_CHECK(updateService != nullptr, return -1, "Get updateService failed");
+    return updateService->ClearError(info, versionDigest, clearOptions, businessError);
+}
+
+int32_t UpdateServiceKitsImpl::TerminateUpgrade(const UpgradeInfo &info, BusinessError &businessError)
+{
+    ENGINE_LOGI("UpdateServiceKitsImpl::TerminateUpgrade");
+    auto updateService = GetService();
+    ENGINE_CHECK(updateService != nullptr, return -1, "Get updateService failed");
+    return updateService->TerminateUpgrade(info, businessError);
+}
+
+int32_t UpdateServiceKitsImpl::GetNewVersion(const UpgradeInfo &info, NewVersionInfo &newVersionInfo,
+    BusinessError &businessError)
 {
     ENGINE_LOGI("UpdateServiceKitsImpl::GetNewversion");
     auto updateService = GetService();
     ENGINE_CHECK(updateService != nullptr, return -1, "Get updateService failed");
-    return updateService->GetNewVersion(versionInfo);
+    return updateService->GetNewVersion(info, newVersionInfo, businessError);
 }
 
-int32_t UpdateServiceKitsImpl::GetUpgradeStatus(UpgradeInfo &info)
+int32_t UpdateServiceKitsImpl::GetCurrentVersionInfo(const UpgradeInfo &info, CurrentVersionInfo &currentVersionInfo,
+    BusinessError &businessError)
 {
-    ENGINE_LOGI("UpdateServiceKitsImpl::GetUpgradeStatus");
+    ENGINE_LOGI("UpdateServiceKitsImpl::GetCurrentVersionInfo");
     auto updateService = GetService();
     ENGINE_CHECK(updateService != nullptr, return -1, "Get updateService failed");
-    return updateService->GetUpgradeStatus(info);
+    return updateService->GetCurrentVersionInfo(info, currentVersionInfo, businessError);
 }
 
-int32_t UpdateServiceKitsImpl::SetUpdatePolicy(const UpdatePolicy &policy)
+int32_t UpdateServiceKitsImpl::GetTaskInfo(const UpgradeInfo &info, TaskInfo &taskInfo, BusinessError &businessError)
+{
+    ENGINE_LOGI("UpdateServiceKitsImpl::GetTaskInfo");
+    auto updateService = GetService();
+    ENGINE_CHECK(updateService != nullptr, return -1, "Get updateService failed");
+    return updateService->GetTaskInfo(info, taskInfo, businessError);
+}
+
+int32_t UpdateServiceKitsImpl::GetOtaStatus(const UpgradeInfo &info, OtaStatus &otaStatus,
+    BusinessError &businessError)
+{
+    ENGINE_LOGI("UpdateServiceKitsImpl::GetOtaStatus");
+    auto updateService = GetService();
+    ENGINE_CHECK(updateService != nullptr, return -1, "Get updateService failed");
+    return updateService->GetOtaStatus(info, otaStatus, businessError);
+}
+
+int32_t UpdateServiceKitsImpl::SetUpdatePolicy(const UpgradeInfo &info, const UpdatePolicy &policy,
+    BusinessError &businessError)
 {
     ENGINE_LOGI("UpdateServiceKitsImpl::SetUpdatePolicy");
     auto updateService = GetService();
     ENGINE_CHECK(updateService != nullptr, return -1, "Get updateService failed");
-    return updateService->SetUpdatePolicy(policy);
+    return updateService->SetUpdatePolicy(info, policy, businessError);
 }
 
-int32_t UpdateServiceKitsImpl::GetUpdatePolicy(UpdatePolicy &policy)
+int32_t UpdateServiceKitsImpl::GetUpdatePolicy(const UpgradeInfo &info, UpdatePolicy &policy,
+    BusinessError &businessError)
 {
     ENGINE_LOGI("UpdateServiceKitsImpl::GetUpdatePolicy");
     auto updateService = GetService();
     ENGINE_CHECK(updateService != nullptr, return -1, "Get updateService failed");
-    return updateService->GetUpdatePolicy(policy);
+    return updateService->GetUpdatePolicy(info, policy, businessError);
 }
 
-int32_t UpdateServiceKitsImpl::Cancel(int32_t service)
+int32_t UpdateServiceKitsImpl::Cancel(const UpgradeInfo &info, int32_t service, BusinessError &businessError)
 {
     ENGINE_LOGI("UpdateServiceKitsImpl::Cancel %d", service);
     auto updateService = GetService();
     ENGINE_CHECK(updateService != nullptr, return -1, "Get updateService failed");
-    return updateService->Cancel(service);
+    return updateService->Cancel(info, service, businessError);
 }
 
 int32_t UpdateServiceKitsImpl::RebootAndClean(const std::string &miscFile, const std::string &cmd)
@@ -231,5 +279,5 @@ int32_t UpdateServiceKitsImpl::RebootAndInstall(const std::string &miscFile, con
     ENGINE_CHECK(updateService != nullptr, return -1, "Get updateService failed");
     return updateService->RebootAndInstall(miscFile, packageName);
 }
-}
+} // namespace UpdateEngine
 } // namespace OHOS

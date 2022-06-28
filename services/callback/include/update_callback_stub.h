@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef UPDATE_CALLBACK_STUB_H_
-#define UPDATE_CALLBACK_STUB_H_
+#ifndef UPDATE_CALLBACK_STUB_H
+#define UPDATE_CALLBACK_STUB_H
 
 #include "iremote_stub.h"
 #include "iupdate_callback.h"
@@ -22,12 +22,12 @@
 #include "parcel.h"
 
 namespace OHOS {
-namespace update_engine {
+namespace UpdateEngine {
 class UpdateCallbackStub : public IRemoteStub<IUpdateCallback> {
 public:
     int32_t OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply,
         MessageOption &option) override;
 };
-} // update_engine
-} // OHOS
-#endif // UPDATE_CALLBACK_STUB_H_
+} // namespace UpdateEngine
+} // namespace OHOS
+#endif // UPDATE_CALLBACK_STUB_H
