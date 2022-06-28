@@ -18,8 +18,8 @@
 #include "update_helper.h"
 
 namespace OHOS {
-namespace update_engine {
-void UpdateCallbackProxy::OnCheckVersionDone(const VersionInfo &info)
+namespace UpdateEngine {
+void UpdateCallbackProxy::OnCheckVersionDone(const BusinessError &businessError, const CheckResultEx &checkResultEx)
 {
     ENGINE_LOGI("UpdateCallbackProxy::OnCheckVersionDone");
     MessageParcel data;
@@ -27,14 +27,16 @@ void UpdateCallbackProxy::OnCheckVersionDone(const VersionInfo &info)
     MessageOption option { MessageOption::TF_SYNC };
 
     if (!data.WriteInterfaceToken(GetDescriptor())) {
-        ENGINE_LOGI("UpdateCallbackProxy WriteInterfaceToken fail");
+        ENGINE_LOGE("UpdateCallbackProxy WriteInterfaceToken fail");
         return;
     }
 
     auto remote = Remote();
     ENGINE_CHECK(remote != nullptr, return, "Can not get remote");
 
-    int32_t result = UpdateHelper::WriteVersionInfo(data, info);
+    int32_t result = UpdateHelper::WriteBusinessError(data, businessError);
+    result = UpdateHelper::WriteCheckResult(data, checkResultEx);
+
     ENGINE_CHECK(result == 0, return, "Can not WriteVersionInfo");
 
     result = remote->SendRequest(CHECK_VERSION, data, reply, option);
@@ -42,50 +44,27 @@ void UpdateCallbackProxy::OnCheckVersionDone(const VersionInfo &info)
     return;
 }
 
-void UpdateCallbackProxy::OnDownloadProgress(const Progress &progress)
+void UpdateCallbackProxy::OnEvent(const EventInfo &eventInfo)
 {
-    ENGINE_LOGI("UpdateCallbackProxy::OnDownloadProgress");
+    ENGINE_LOGI("UpdateCallbackProxy::OnEvent");
     MessageParcel data;
     MessageParcel reply;
     MessageOption option { MessageOption::TF_SYNC };
 
     if (!data.WriteInterfaceToken(GetDescriptor())) {
-        ENGINE_LOGI("UpdateCallbackProxy WriteInterfaceToken fail");
+        ENGINE_LOGE("UpdateCallbackProxy WriteInterfaceToken fail");
         return;
     }
 
     auto remote = Remote();
     ENGINE_CHECK(remote != nullptr, return, "Can not get remote");
 
-    int32_t result = UpdateHelper::WriteUpdateProgress(data, progress);
-    ENGINE_CHECK(result == 0, return, "Can not WriteUpdateProgress");
+    int32_t result = UpdateHelper::WriteEventInfo(data, eventInfo);
+    ENGINE_CHECK(result == 0, return, "Can not WriteEventInfo");
 
-    result = remote->SendRequest(DOWNLOAD, data, reply, option);
-    ENGINE_CHECK(result == ERR_OK, return, "Can not SendRequest %d", result);
-    return;
-}
-
-void UpdateCallbackProxy::OnUpgradeProgress(const Progress &progress)
-{
-    ENGINE_LOGI("UpdateCallbackProxy::OnUpgradeProgress");
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option { MessageOption::TF_SYNC };
-
-    if (!data.WriteInterfaceToken(GetDescriptor())) {
-        ENGINE_LOGI("UpdateCallbackProxy WriteInterfaceToken fail");
-        return;
-    }
-
-    auto remote = Remote();
-    ENGINE_CHECK(remote != nullptr, return, "Can not get remote");
-
-    int32_t result = UpdateHelper::WriteUpdateProgress(data, progress);
-    ENGINE_CHECK(result == 0, return, "Can not WriteUpdateProgress");
-
-    result = remote->SendRequest(UPGRADE, data, reply, option);
+    result = remote->SendRequest(ON_EVENT, data, reply, option);
     ENGINE_CHECK(result == ERR_OK, return, "Can not SendRequest");
     return;
 }
-}
+} // namespace UpdateEngine
 } // namespace OHOS

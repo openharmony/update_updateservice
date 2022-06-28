@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,27 +13,28 @@
  * limitations under the License.
  */
 
-#ifndef UPDATE_CALLBACK_PROXY_H
-#define UPDATE_CALLBACK_PROXY_H
+#ifndef IUPDATE_SESSION_H
+#define IUPDATE_SESSION_H
 
-#include "iremote_proxy.h"
-#include "iupdate_service.h"
+#include <functional>
+#include "node_api.h"
 
 namespace OHOS {
 namespace UpdateEngine {
-class UpdateCallbackProxy : public IRemoteProxy<IUpdateCallback> {
+class IUpdateSession {
 public:
-    explicit UpdateCallbackProxy(const sptr<IRemoteObject>& impl) : IRemoteProxy<IUpdateCallback>(impl) {}
+    using DoWorkFunction = std::function<int(SessionType type, void *context)>;
 
-    virtual ~UpdateCallbackProxy() = default;
+    virtual SessionType GetType() const = 0;
 
-    void OnCheckVersionDone(const BusinessError &businessError, const CheckResultEx &checkResultEx) override;
+    virtual uint32_t GetSessionId() const = 0;
 
-    void OnEvent(const EventInfo &eventInfo) override;
+    virtual napi_value StartWork(napi_env env, const napi_value *args, DoWorkFunction worker, void *context) = 0;
 
-private:
-    static inline BrokerDelegator<UpdateCallbackProxy> delegator_;
+    virtual void NotifyJS(napi_env env, napi_value thisVar, const UpdateResult &result) = 0;
+
+    virtual bool IsAsyncCompleteWork() = 0;
 };
 } // namespace UpdateEngine
 } // namespace OHOS
-#endif // UPDATE_CALLBACK_PROXY_H
+#endif // IUPDATE_SESSION_H

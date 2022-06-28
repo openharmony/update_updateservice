@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,426 +18,852 @@ import { AsyncCallback, BussinessError } from "./basic";
 /**
  * A static class to do update for device.
  *
- * @since 6
+ * @since 9
  * @syscap SystemCapability.Update.UpdateService
+ * @systemapi hide for inner use.
  */
 declare namespace update {
     /**
-     * Enumerates new version package types.
+     * Get online update handler for the calling device.
      *
-     * @since 6
+     * @param upgradeInfo indicates client app and business type
+     * @return online update handler to perform online update
+     * @since 9
      */
-    export enum PackageTypes {
-        PACKAGE_TYPE_NORMAL = 1,
-        PACKAGE_TYPE_BASE = 2,
-        PACKAGE_TYPE_CUST = 3,
-        PACKAGE_TYPE_PRELOAD = 4,
-        PACKAGE_TYPE_COTA = 5,
-        PACKAGE_TYPE_VERSION = 6,
-        PACKAGE_TYPE_PATCH = 7
-    }
+    function getOnlineUpdater(upgradeInfo: UpgradeInfo): Updater;
 
     /**
-     * Represents new version results after update version check.
+     * Get restore handler.
      *
-     * @since 6
+     * @return restore handler to perform factory reset
+     * @since 9
      */
-    export interface CheckResult {
-        /**
-         * New version name
-         *
-         * @since 6
-         */
-        versionName: number;
-
-        /**
-         * New version code
-         *
-         * @since 6
-         */
-        versionCode: string;
-
-        /**
-         * New version package size
-         *
-         * @since 6
-         */
-        size: number;
-
-        /**
-         * New version verify information
-         *
-         * @since 6
-         */
-        verifyInfo: string;
-
-        /**
-         * New version package type
-         *
-         * @since 6
-         */
-        packageType: PackageTypes;
-
-        /**
-         * New version description ID
-         *
-         * @since 6
-         */
-        descriptionId: string;
-    }
+    function getRestorer(): Restorer;
 
     /**
-     * Represents new version description information.
+     * Get local update handler.
      *
-     * @since 6
+     * @return local update handler to perform local update
+     * @since 9
      */
-    export interface DescriptionInfo {
-        /**
-         * description ID
-         *
-         * @since 6
-         */
-        descriptionId: string;
-
-        /**
-         * description content
-         *
-         * @since 6
-         */
-        content: string;
-    }
+    function getLocalUpdater(): LocalUpdater;
 
     /**
-     * Enumerates new version status.
+     * A static class to do online update.
      *
-     * @since 6
-     */
-    export enum NewVersionStatus {
-        /**
-         * New version check with system error
-         *
-         * @since 6
-         */
-        VERSION_STATUS_ERR = -1,
-
-        /**
-         * New version detected
-         *
-         * @since 6
-         */
-        VERSION_STATUS_NEW = 0,
-
-        /**
-         * No New version
-         *
-         * @since 6
-         */
-        VERSION_STATUS_NONE = 1,
-
-        /**
-         * Server busy
-         *
-         * @since 6
-         */
-        VERSION_STATUS_BUSY = 2
-    }
-
-    /**
-     * Represents new version information.
-     *
-     * @since 6
-     */
-    export interface NewVersionInfo {
-        /**
-         * Update Check Status
-         *
-         * @since 6
-         */
-        status: NewVersionStatus;
-
-        /**
-         * New version check error message
-         *
-         * @since 6
-         */
-        errMsg: string;
-
-        /**
-         * New version check results
-         *
-         * @since 6
-         */
-        checkResults: Array<CheckResult>;
-
-        /**
-         * New version check description
-         *
-         * @since 6
-         */
-        descriptionInfo: Array<DescriptionInfo>;
-    }
-
-    /**
-     * Enumerates update status.
-     *
-     * @since 6
-     */
-    export enum UpdateState {
-        UPDATE_STATE_INIT = 0,
-        UPDATE_STATE_CHECK_VERSION_ON = 10,
-        UPDATE_STATE_CHECK_VERSION_FAIL,
-        UPDATE_STATE_CHECK_VERSION_SUCCESS,
-        UPDATE_STATE_DOWNLOAD_ON = 20,
-        UPDATE_STATE_DOWNLOAD_PAUSE,
-        UPDATE_STATE_DOWNLOAD_CANCEL,
-        UPDATE_STATE_DOWNLOAD_FAIL,
-        UPDATE_STATE_DOWNLOAD_SUCCESS,
-        UPDATE_STATE_VERIFY_ON = 30,
-        UPDATE_STATE_VERIFY_FAIL,
-        UPDATE_STATE_VERIFY_SUCCESS,
-        UPDATE_STATE_PACKAGE_TRANS_ON = 70,
-        UPDATE_STATE_PACKAGE_TRANS_FAIL,
-        UPDATE_STATE_PACKAGE_TRANS_SUCCESS,
-        UPDATE_STATE_INSTALL_ON = 80,
-        UPDATE_STATE_INSTALL_FAIL,
-        UPDATE_STATE_INSTALL_SUCCESS,
-        UPDATE_STATE_UPDATE_ON = 90,
-        UPDATE_STATE_UPDATE_FAIL,
-        UPDATE_STATE_UPDATE_SUCCESS
-    }
-
-    /**
-     * Represents update progress information.
-     *
-     * @since 6
-     */
-    export interface Progress {
-        /**
-         * update progress percent
-         *
-         * @since 6
-         */
-        percent: number;
-
-        /**
-         * update status
-         *
-         * @since 6
-         */
-        status: UpdateState;
-
-        /**
-         * update end reason
-         *
-         * @since 6
-         */
-        endReason: string;
-    }
-
-    /**
-     * Enumerates install mode for new version packages.
-     *
-     * @since 6
-     */
-    export enum InstallMode {
-        /**
-         * Normal update.
-         *
-         * @since 6
-         */
-        INSTALL_MODE_NORMAL,
-
-        /**
-         * Update at night
-         *
-         * @since 6
-         */
-        INSTALL_MODE_NIGHT,
-
-        /**
-         * Auto update
-         *
-         * @since 6
-         */
-        INSTALL_MODE_AUTO
-    }
-
-    /**
-     * Represents update policy.
-     *
-     * @since 6
-     */
-    export interface UpdatePolicy {
-        /**
-         * Enable auto download new packages or not
-         *
-         * @since 6
-         */
-        autoDownload: boolean;
-
-        /**
-         * New packages auto installation mode
-         *
-         * @since 6
-         */
-        installMode: INSTALL_MODE;
-
-        /**
-         * Auto installation time interval
-         *
-         * @since 6
-         */
-        autoUpgradeInterval: Array<number>;
-    }
-
-    /**
-     * Called when the signal status changes. You need to implement this method in a child class.
-     * Unlike {@code onSignalStatus(status: number)}, a signal source is specified in this method.
-     *
-     * @param status Indicates the signal status.
-     *               The value {@code 0} indicates that the signal is stable,
-     *               {@code 1} indicates that no signal is available,
-     *               {@code 2} indicates that the signal is not supported,
-     *               and {@code 3} indicates that the signal is unstable.
-     * @param source Indicates the signal source. For details about available values,
-     *               see {@link @system.tv.SourceIndices}.
-     * @since 6
-     */
-    export interface UpdateProgressCallback {
-        (progress: Progress): void;
-    }
-
-    /**
-     * A static class to do update for the specified device.
-     *
-     * @since 6
+     * @since 9
+     * @syscap SystemCapability.Update.UpdateService
+     * @systemapi hide for inner use.
      */
     export interface Updater {
         /**
-        * Check new version.
-        *
-        * @since 6
-        */
-        checkNewVersion(callback: AsyncCallback<NewVersionInfo>): void;
-        checkNewVersion(): Promise<NewVersionInfo>;
-
-        /**
-         * Trigger download new version packages.
-         * apps should listen to downloadProgress event
+         * Check new version.
          *
-         * @since 6
+         * @since 9
          */
-        download(): void;
+        checkNewVersion(callback: AsyncCallback<CheckResult>): void;
+        checkNewVersion(): Promise<CheckResult>;
 
         /**
-         * Install packages for the device.
-         * apps should listen to upgradeProgress event
+         * Get new version.
          *
-         * @since 6
-         */
-        upgrade(): void;
-
-        /**
-         * Get new version information for the newly installed package.
-         *
-         * @since 6
+         * @since 9
          */
         getNewVersionInfo(callback: AsyncCallback<NewVersionInfo>): void;
         getNewVersionInfo(): Promise<NewVersionInfo>;
 
         /**
-         * Get current update policy.
+         * Get current version.
          *
-         * @since 6
+         * @since 9
          */
-        getUpdatePolicy(callback: AsyncCallback<UpdatePolicy>): void;
-        getUpdatePolicy(): Promise<UpdatePolicy>;
+        getCurrentVersionInfo(callback: AsyncCallback<CurrentVersionInfo>): void;
+        getCurrentVersionInfo(): Promise<CurrentVersionInfo>;
 
         /**
-         * Set update policy.
+         * Get task info.
          *
-         * @since 6
+         * @since 9
          */
-        setUpdatePolicy(policy: UpdatePolicy, callback: AsyncCallback<number>): void;
-        setUpdatePolicy(policy: UpdatePolicy): Promise<number>;
+        getTaskInfo(callback: AsyncCallback<TaskInfo>): void;
+        getTaskInfo(): Promise<TaskInfo>;
 
         /**
-         * Reboot to apply upgrade package.
+         * Trigger download new version packages.
+         * apps should listen to task update event
          *
-         * @since 6
+         * @since 9
          */
-        applyNewVersion(callback: AsyncCallback<number>): void;
-        applyNewVersion(): Promise<number>;
+        download(versionDigestInfo: VersionDigestInfo, downloadOptions: DownloadOptions, callback: AsyncCallback<void>): void;
+        download(versionDigestInfo: VersionDigestInfo, downloadOptions: DownloadOptions): Promise<void>;
 
         /**
-         * Reboot to clean userdata.
+         * resume download new version packages.
+         * apps should listen to task update event
          *
-         * @since 6
+         * @since 9
          */
-        rebootAndCleanUserData(callback: AsyncCallback<number>): void;
-        rebootAndCleanUserData(): Promise<number>;
+        resumeDownload(versionDigestInfo: VersionDigestInfo, resumeDownloadOptions: ResumeDownloadOptions, callback: AsyncCallback<void>): void;
+        resumeDownload(versionDigestInfo: VersionDigestInfo, resumeDownloadOptions: ResumeDownloadOptions): Promise<void>;
 
         /**
-         * verify update package.
-         * apps should listen to verifyProgress event
+         * pause download new version packages.
+         * apps should listen to task update event
          *
-         * @since 6
+         * @since 9
          */
-        verifyUpdatePackage(upgradeFile: string, certsFile: string): void;
+        pauseDownload(versionDigestInfo: VersionDigestInfo, pauseDownloadOptions: PauseDownloadOptions, callback: AsyncCallback<void>): void;
+        pauseDownload(versionDigestInfo: VersionDigestInfo, pauseDownloadOptions: PauseDownloadOptions): Promise<void>;
 
         /**
-         * Subscribe to download/upgrade/verify progress events
+         * Install packages for the device.
+         * apps should listen to task update event
          *
-         * @since 6
+         * @since 9
          */
-        on(eventType: 'downloadProgress', callback: UpdateProgressCallback): void;
-        on(eventType: 'upgradeProgress', callback: UpdateProgressCallback): void;
-        on(eventType: 'verifyProgress', callback: UpdateProgressCallback): void;
+        upgrade(versionDigestInfo: VersionDigestInfo, upgradeOptions: UpgradeOptions, callback: AsyncCallback<void>): void;
+        upgrade(versionDigestInfo: VersionDigestInfo, upgradeOptions: UpgradeOptions): Promise<void>;
 
         /**
-         * Unsubscribe to download/upgrade/verify progress events
+         * clear error during upgrade.
          *
-         * @since 6
+         * @since 9
          */
-        off(eventType: 'downloadProgress', callback?: UpdateProgressCallback): void;
-        off(eventType: 'upgradeProgress', callback?: UpdateProgressCallback): void;
-        off(eventType: 'verifyProgress', callback?: UpdateProgressCallback): void;
+        clearError(versionDigestInfo: VersionDigestInfo, clearOptions: ClearOptions, callback: AsyncCallback<void>): void;
+        clearError(versionDigestInfo: VersionDigestInfo, clearOptions: ClearOptions): Promise<void>;
 
         /**
-         * cancel download packages for the device.
+         * Get current upgrade policy.
          *
-         * @since 6
+         * @since 9
          */
-        cancel(): void;
+        getUpgradePolicy(callback: AsyncCallback<UpgradePolicy>): void;
+        getUpgradePolicy(): Promise<UpgradePolicy>;
+
+        /**
+         * Set upgrade policy.
+         *
+         * @since 9
+         */
+        setUpgradePolicy(policy: UpgradePolicy, callback: AsyncCallback<number>): void;
+        setUpgradePolicy(policy: UpgradePolicy): Promise<number>;
+
+        /**
+         * terminate upgrade task.
+         *
+         * @since 9
+         */
+        terminateUpgrade(callback: AsyncCallback<void>): void;
+        terminateUpgrade(): Promise<void>;
+
+        /**
+         * Subscribe task update events
+         *
+         * @since 9
+         */
+        on(eventClassifyInfo: EventClassifyInfo, taskCallback: UpgradeTaskCallback): void;
+
+        /**
+         * Unsubscribe task update events
+         *
+         * @since 9
+         */
+        off(eventClassifyInfo: EventClassifyInfo, taskCallback?: UpgradeTaskCallback): void;
     }
 
-    export type UpdateTypes =
-        'OTA' |
-        'patch';
+    /**
+     * A static class to do restore.
+     *
+     * @since 9
+     * @syscap SystemCapability.Update.UpdateService
+     * @systemapi hide for inner use.
+     */
+    export interface Restorer {
+        /**
+         * Reboot and clean user data.
+         *
+         * @since 9
+         */
+        factoryReset(callback: AsyncCallback<void>): void;
+        factoryReset(): Promise<void>;
+    }
 
     /**
-     * Get Updater handler for the calling device.
+     * A static class to do local update.
      *
-     * @return Updater handler to perform actual update
-     * @since 6
+     * @since 9
+     * @syscap SystemCapability.Update.UpdateService
+     * @systemapi hide for inner use.
      */
-    function getUpdater(upgradeFile: string, updateType?: UpdateTypes): Updater;
+    export interface LocalUpdater {
+        /**
+         * Verify local update package.
+         *
+         * @since 9
+         */
+        verifyUpgradePackage(upgradeFile: UpgradeFile, certsFile: string, callback: AsyncCallback<number>): void;
+        verifyUpgradePackage(upgradeFile: UpgradeFile, certsFile: string): Promise<number>;
+
+        /**
+         * Apply local update package.
+         * apps should listen to task update event
+         *
+         * @since 9
+         */
+        applyNewVersion(upgradeFiles: Array<UpgradeFile>, callback: AsyncCallback<void>): void;
+        applyNewVersion(upgradeFiles: Array<UpgradeFile>): Promise<void>;
+
+        /**
+         * Subscribe task update events
+         *
+         * @since 9
+         */
+        on(eventClassifyInfo: EventClassifyInfo, taskCallback: UpgradeTaskCallback): void;
+
+        /**
+         * Unsubscribe task update events
+         *
+         * @since 9
+         */
+        off(eventClassifyInfo: EventClassifyInfo, taskCallback?: UpgradeTaskCallback): void;
+    }
 
     /**
-     * Get Updater handler for the specified device.
+     * Represents upgrade info.
      *
-     * @return Updater handler to perform actual update
-     * @since 6
+     * @since 9
      */
-    function getUpdaterForOther(upgradeFile: string, device: string, updateType?: UpdateTypes): Updater;
+    export interface UpgradeInfo {
+        /**
+         * Upgrade client package name
+         *
+         * @since 9
+         */
+        upgradeApp: string;
+
+        /**
+         * BusinessType of upgrade
+         *
+         * @since 9
+         */
+        businessType: BusinessType;
+    }
 
     /**
-     * Get Updater handler from other device to trigger update for the calling device.
+     * Represents business type.
      *
-     * @return Updater handler to perform actual update
-     * @since 6
+     * @since 9
      */
-    function getUpdaterFromOther(upgradeFile: string, device: string, updateType?: UpdateTypes): Updater;
+    export interface BusinessType {
+        /**
+         * Vendor of business type
+         *
+         * @since 9
+         */
+        vendor: BusinessVendor;
+
+        /**
+         * Type
+         *
+         * @since 9
+         */
+        subType: BusinessSubType;
+    }
+
+    /**
+     * Represents new version check result.
+     *
+     * @since 9
+     */
+    export interface CheckResult {
+        /**
+         * New version exist or not
+         *
+         * @since 9
+         */
+        isExistNewVersion: boolean;
+
+        /**
+         * New version info
+         *
+         * @since 9
+         */
+        newVersionInfo: NewVersionInfo;
+    }
+
+    /**
+     * Represents new version info.
+     *
+     * @since 9
+     */
+    export interface NewVersionInfo {
+        /**
+         * Digest info of new version
+         *
+         * @since 9
+         */
+        versionDigestInfo: VersionDigestInfo;
+
+        /**
+         * New version component array
+         *
+         * @since 9
+         */
+        versionComponents: Array<VersionComponent>;
+    }
+
+    /**
+     * Represents version digest info.
+     *
+     * @since 9
+     */
+    export interface VersionDigestInfo {
+        /**
+         * Version digest value
+         *
+         * @since 9
+         */
+        versionDigest: string;
+    }
+
+    /**
+     * Represents version component info.
+     *
+     * @since 9
+     */
+    export interface VersionComponent {
+        /**
+         * Component type
+         *
+         * @since 9
+         */
+        componentType: ComponentType;
+
+        /**
+         * Upgrade action
+         *
+         * @since 9
+         */
+        upgradeAction: UpgradeAction;
+
+        /**
+         * Display version
+         *
+         * @since 9
+         */
+        displayVersion: string;
+
+        /**
+         * Inner version
+         *
+         * @since 9
+         */
+        innerVersion: string;
+
+        /**
+         * Component size
+         *
+         * @since 9
+         */
+        size: number;
+
+        /**
+         * Effective mode
+         *
+         * @since 9
+         */
+        effectiveMode: EffectiveMode;
+
+        /**
+         * Description info
+         *
+         * @since 9
+         */
+        descriptionInfo: DescriptionInfo;
+    }
+
+    /**
+     * Represents new version description information.
+     *
+     * @since 9
+     */
+    export interface DescriptionInfo {
+        /**
+         * Description content type
+         *
+         * @since 9
+         */
+        descriptionType: DescriptionType;
+
+        /**
+         * Description content
+         *
+         * @since 9
+         */
+        content: string;
+    }
+
+    /**
+     * Represents current version info.
+     *
+     * @since 9
+     */
+    export interface CurrentVersionInfo {
+        /**
+         * OS version
+         *
+         * @since 9
+         */
+        osVersion: string;
+
+        /**
+         * Device name
+         *
+         * @since 9
+         */
+        deviceName: string;
+
+        /**
+         * Current version component array
+         *
+         * @since 9
+         */
+        versionComponents: Array<VersionComponent>;
+    }
+
+    /**
+     * Represents download options.
+     *
+     * @since 9
+     */
+    export interface DownloadOptions {
+        /**
+         * Allow download with the network type
+         *
+         * @since 9
+         */
+        allowNetwork: NetType;
+
+        /**
+         * Upgrade order
+         *
+         * @since 9
+         */
+        order: Order;
+    }
+
+    /**
+     * Represents resume download options.
+     *
+     * @since 9
+     */
+    export interface ResumeDownloadOptions {
+        /**
+         * Allow download with the network type
+         *
+         * @since 9
+         */
+        allowNetwork: NetType;
+    }
+
+    /**
+     * Represents pause download options.
+     *
+     * @since 9
+     */
+    export interface PauseDownloadOptions {
+        /**
+         * Whether allow auto resume when net available
+         *
+         * @since 9
+         */
+        isAllowAutoResume: boolean;
+    }
+
+    /**
+     * Represents upgrade options.
+     *
+     * @since 9
+     */
+    export interface UpgradeOptions {
+        /**
+         * Upgrade order
+         *
+         * @since 9
+         */
+        order: Order;
+    }
+
+    /**
+     * Represents clear error options.
+     *
+     * @since 9
+     */
+    export interface ClearOptions {
+        /**
+         * Clear status error
+         *
+         * @since 9
+         */
+        status: UpgradeStatus;
+    }
+
+    /**
+     * Represents upgrade policy.
+     *
+     * @since 9
+     */
+    export interface UpgradePolicy {
+        /**
+         * Download strategy: open or close
+         *
+         * @since 9
+         */
+        downloadStrategy: boolean;
+
+        /**
+         * Auto upgrade strategy: open or close
+         *
+         * @since 9
+         */
+        autoUpgradeStrategy: boolean;
+
+        /**
+         * Auto upgrade period
+         *
+         * @since 9
+         */
+        autoUpgradePeriods: Array<UpgradePeriod>;
+    }
+
+    /**
+     * Represents upgrade period.
+     *
+     * @since 9
+     */
+    export interface UpgradePeriod {
+        /**
+         * Start time of upgrade period
+         *
+         * @since 9
+         */
+        start: number;
+
+        /**
+         * End time of upgrade period
+         *
+         * @since 9
+         */
+        end: number;
+    }
+
+    /**
+     * Represents task info.
+     *
+     * @since 9
+     */
+    export interface TaskInfo {
+        /**
+         * Whether upgrade task exist
+         *
+         * @since 9
+         */
+        existTask: boolean;
+
+        /**
+         * Task body info
+         *
+         * @since 9
+         */
+        taskBody: TaskBody;
+    }
+
+    /**
+     * Represents event info.
+     *
+     * @since 9
+     */
+    export interface EventInfo {
+        /**
+         * event id
+         *
+         * @since 9
+         */
+        eventId: EventId;
+
+        /**
+         * task body info
+         *
+         * @since 9
+         */
+        taskBody: TaskBody;
+    }
+
+    /**
+     * Represents task body info.
+     *
+     * @since 9
+     */
+    export interface TaskBody {
+        /**
+         * Digest info of new version
+         *
+         * @since 9
+         */
+        versionDigestInfo: VersionDigestInfo;
+
+        /**
+         * Upgrade status
+         *
+         * @since 9
+         */
+        status: UpgradeStatus;
+
+        /**
+         * Upgrade sub status
+         *
+         * @since 9
+         */
+        subStatus: number;
+
+        /**
+         * Upgrade progress
+         *
+         * @since 9
+         */
+        progress: number;
+
+        /**
+         * Install mode
+         *
+         * @since 9
+         */
+        installMode: number;
+
+        /**
+         * Error messages
+         *
+         * @since 9
+         */
+        errorMessages: Array<ErrorMessage>;
+
+        /**
+         * Version component array
+         *
+         * @since 9
+         */
+        versionComponents: Array<VersionComponent>;
+    }
+
+    /**
+     * Represents error message.
+     *
+     * @since 9
+     */
+    export interface ErrorMessage {
+        /**
+         * Error code
+         *
+         * @since 9
+         */
+        errorCode: number;
+
+        /**
+         * Error message
+         *
+         * @since 9
+         */
+        errorMessage: string;
+    }
+
+    /**
+     * Represents event classify info.
+     *
+     * @since 9
+     */
+    export interface EventClassifyInfo {
+        /**
+         * Event classify
+         *
+         * @since 9
+         */
+        eventClassify: EventClassify;
+
+        /**
+         * Extra info
+         *
+         * @since 9
+         */
+        extraInfo: string;
+    }
+
+    /**
+     * Represents upgrade file info.
+     *
+     * @since 9
+     */
+    export interface UpgradeFile {
+        /**
+         * File type
+         *
+         * @since 9
+         */
+        fileType: ComponentType;
+
+        /**
+         * File path
+         *
+         * @since 9
+         */
+        filePath: string;
+    }
+
+    /**
+     * Called when upgrade task info changes.
+     * You need to implement this method in a child class.
+     *
+     * @param eventInfo EventInfo: include eventId and taskBody info.
+     * @since 9
+     */
+    export interface UpgradeTaskCallback {
+        (eventInfo: EventInfo): void;
+    }
+
+    /**
+     * Enumerates business vendor type.
+     *
+     * @since 9
+     */
+    export enum BusinessVendor {
+        PUBLIC = "public"
+    }
+
+    /**
+     * Enumerates business sub type.
+     *
+     * @since 9
+     */
+    export enum BusinessSubType {
+        FIRMWARE = 1,
+        PARAM = 2
+    }
+
+    /**
+     * Enumerates component type.
+     *
+     * @since 9
+     */
+    export enum ComponentType {
+        OTA = 1,
+        PATCH = 2,
+        COTA = 4,
+        PARAM = 8
+    }
+
+    /**
+     * Enumerates upgrade action type.
+     *
+     * @since 9
+     */
+    export enum UpgradeAction {
+        UPGRADE = "upgrade",
+        RECOVERY = "recovery"
+    }
+
+    /**
+     * Enumerates effective mode.
+     *
+     * @since 9
+     */
+    export enum EffectiveMode {
+        COLD = 1,
+        LIVE = 2,
+        LIVE_AND_COLD = 3
+    }
+
+    /**
+     * Enumerates description type.
+     *
+     * @since 9
+     */
+    export enum DescriptionType {
+        CONTENT = 0,
+        URI = 1
+    }
+
+    /**
+     * Enumerates network type.
+     *
+     * @since 9
+     */
+    export enum NetType {
+        CELLULAR = 1,
+        METERED_WIFI = 2,
+        NOT_METERED_WIFI = 4
+    }
+
+    /**
+     * Enumerates upgrade order.
+     *
+     * @since 9
+     */
+    export enum Order {
+        DOWNLOAD = 1,
+        INSTALL = 2,
+        APPLY = 4
+    }
+
+    /**
+     * Enumerates upgrade status.
+     *
+     * @since 9
+     */
+    export enum UpgradeStatus {
+        WAITING_DOWNLOAD = 20,
+        DOWNLOADING = 21,
+        DOWNLOAD_PAUSED = 22,
+        DOWNLOAD_FAIL = 23,
+        WAITING_INSTALL = 30,
+        UPDATING = 31,
+        WAITING_APPLY = 40,
+        APPLYING = 41,
+        UPGRADE_SUCCESS = 50,
+        UPGRADE_FAIL = 51
+    }
+
+    /**
+     * Enumerates event classify.
+     *
+     * @since 9
+     */
+    export enum EventClassify {
+        TASK = 0x01000000
+    }
+
+    /**
+     * Enumerates event id.
+     *
+     * @since 9
+     */
+    export enum EventId {
+        EVENT_TASK_BASE = EventClassify.TASK,
+        EVENT_TASK_RECEIVE,
+        EVENT_TASK_CANCEL,
+        EVENT_DOWNLOAD_WAIT,
+        EVENT_DOWNLOAD_START,
+        EVENT_DOWNLOAD_UPDATE,
+        EVENT_DOWNLOAD_PAUSE,
+        EVENT_DOWNLOAD_RESUME,
+        EVENT_DOWNLOAD_SUCCESS,
+        EVENT_DOWNLOAD_FAIL,
+        EVENT_UPGRADE_WAIT,
+        EVENT_UPGRADE_START,
+        EVENT_UPGRADE_UPDATE,
+        EVENT_APPLY_WAIT,
+        EVENT_APPLY_START,
+        EVENT_UPGRADE_SUCCESS,
+        EVENT_UPGRADE_FAIL
+    }
 }
 
 export default update;

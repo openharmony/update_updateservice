@@ -13,37 +13,57 @@
  * limitations under the License.
  */
 
-#ifndef UPDATER_PROXY_H
-#define UPDATER_PROXY_H
+#ifndef UPDATE_SERVICE_PROXY_H
+#define UPDATE_SERVICE_PROXY_H
 
 #include "iremote_proxy.h"
 #include "iupdate_service.h"
 
 namespace OHOS {
-namespace update_engine {
+namespace UpdateEngine {
 class UpdateServiceProxy : public IRemoteProxy<IUpdateService> {
 public:
     explicit UpdateServiceProxy(const sptr<IRemoteObject>& impl) : IRemoteProxy<IUpdateService>(impl) {}
 
-    int32_t RegisterUpdateCallback(const UpdateContext &ctx, const sptr<IUpdateCallback>& updateCallback) override;
+    int32_t RegisterUpdateCallback(const UpgradeInfo &info, const sptr<IUpdateCallback>& updateCallback) override;
 
-    int32_t UnregisterUpdateCallback() override;
+    int32_t UnregisterUpdateCallback(const UpgradeInfo &info) override;
 
-    int32_t CheckNewVersion() override;
+    int32_t CheckNewVersion(const UpgradeInfo &info) override;
 
-    int32_t DownloadVersion() override;
+    int32_t DownloadVersion(const UpgradeInfo &info, const VersionDigestInfo &versionDigestInfo,
+        const DownloadOptions &downloadOptions, BusinessError &businessError) override;
 
-    int32_t DoUpdate() override;
+    int32_t PauseDownload(const UpgradeInfo &info, const VersionDigestInfo &versionDigestInfo,
+        const PauseDownloadOptions &pauseDownloadOptions, BusinessError &businessError) override;
 
-    int32_t GetNewVersion(VersionInfo &versionInfo) override;
+    int32_t ResumeDownload(const UpgradeInfo &info, const VersionDigestInfo &versionDigestInfo,
+        const ResumeDownloadOptions &resumeDownloadOptions, BusinessError &businessError) override;
 
-    int32_t GetUpgradeStatus(UpgradeInfo &info) override;
+    int32_t DoUpdate(const UpgradeInfo &info, const VersionDigestInfo &versionDigest,
+        const UpgradeOptions &upgradeOptions, BusinessError &businessError) override;
 
-    int32_t SetUpdatePolicy(const UpdatePolicy &policy) override;
+    int32_t ClearError(const UpgradeInfo &info, const VersionDigestInfo &versionDigest,
+        const ClearOptions &clearOptions, BusinessError &businessError) override;
 
-    int32_t GetUpdatePolicy(UpdatePolicy &policy) override;
+    int32_t TerminateUpgrade(const UpgradeInfo &info, BusinessError &businessError) override;
 
-    int32_t Cancel(int32_t service) override;
+    int32_t GetNewVersion(const UpgradeInfo &info, NewVersionInfo &newVersionInfo,
+        BusinessError &businessError) override;
+
+    int32_t GetCurrentVersionInfo(const UpgradeInfo &info, CurrentVersionInfo &currentVersionInfo,
+        BusinessError &businessError) override;
+
+    int32_t GetTaskInfo(const UpgradeInfo &info, TaskInfo &taskInfo, BusinessError &businessError) override;
+
+    int32_t GetOtaStatus(const UpgradeInfo &info, OtaStatus &otaStatus, BusinessError &businessError) override;
+
+    int32_t SetUpdatePolicy(const UpgradeInfo &info, const UpdatePolicy &policy,
+        BusinessError &businessError) override;
+
+    int32_t GetUpdatePolicy(const UpgradeInfo &info, UpdatePolicy &policy, BusinessError &businessError) override;
+
+    int32_t Cancel(const UpgradeInfo &info, int32_t service, BusinessError &businessError) override;
 
     int32_t RebootAndClean(const std::string &miscFile, const std::string &cmd) override;
 
@@ -51,6 +71,6 @@ public:
 private:
     static inline BrokerDelegator<UpdateServiceProxy> delegator_;
 };
-} // namespace update_engine
+} // namespace UpdateEngine
 } // namespace OHOS
-#endif // UPDATER_PROXY_H
+#endif // UPDATE_SERVICE_PROXY_H
