@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef IUPDATER_SERVICE_H
-#define IUPDATER_SERVICE_H
+#ifndef IUPDATE_SERVICE_H
+#define IUPDATE_SERVICE_H
 
 #include <iostream>
 #include "update_helper.h"
@@ -23,17 +23,23 @@
 #include "iupdate_callback.h"
 
 namespace OHOS {
-namespace update_engine {
+namespace UpdateEngine {
 class IUpdateService : public OHOS::IRemoteBroker {
 public:
     enum {
         CHECK_VERSION = 1,
         DOWNLOAD,
+        PAUSE_DOWNLOAD,
+        RESUME_DOWNLOAD,
         UPGRADE,
+        CLEAR_ERROR,
+        TERMINATE_UPGRADE,
         SET_POLICY,
         GET_POLICY,
         GET_NEW_VERSION,
-        GET_STATUS,
+        GET_CURRENT_VERSION,
+        GET_TASK_INFO,
+        GET_OTA_STATUS,
         REGISTER_CALLBACK,
         UNREGISTER_CALLBACK,
         CANCEL,
@@ -43,32 +49,51 @@ public:
     };
 
     DECLARE_INTERFACE_DESCRIPTOR(u"OHOS.Updater.IUpdateService");
-
 public:
-    virtual int32_t RegisterUpdateCallback(const UpdateContext &ctx, const sptr<IUpdateCallback>& updateCallback) = 0;
+    virtual int32_t RegisterUpdateCallback(const UpgradeInfo &info, const sptr<IUpdateCallback>& updateCallback) = 0;
 
-    virtual int32_t UnregisterUpdateCallback() = 0;
+    virtual int32_t UnregisterUpdateCallback(const UpgradeInfo &info) = 0;
 
-    virtual int32_t CheckNewVersion() = 0;
+    virtual int32_t CheckNewVersion(const UpgradeInfo &info) = 0;
 
-    virtual int32_t DownloadVersion() = 0;
+    virtual int32_t DownloadVersion(const UpgradeInfo &info, const VersionDigestInfo &versionDigestInfo,
+        const DownloadOptions &downloadOptions, BusinessError &businessError) = 0;
 
-    virtual int32_t DoUpdate() = 0;
+    virtual int32_t PauseDownload(const UpgradeInfo &info, const VersionDigestInfo &versionDigestInfo,
+        const PauseDownloadOptions &pauseDownloadOptions, BusinessError &businessError) = 0;
 
-    virtual int32_t GetNewVersion(VersionInfo &versionInfo) = 0;
+    virtual int32_t ResumeDownload(const UpgradeInfo &info, const VersionDigestInfo &versionDigestInfo,
+        const ResumeDownloadOptions &resumeDownloadOptions, BusinessError &businessError) = 0;
 
-    virtual int32_t GetUpgradeStatus(UpgradeInfo &info) = 0;
+    virtual int32_t DoUpdate(const UpgradeInfo &info, const VersionDigestInfo &versionDigest,
+        const UpgradeOptions &upgradeOptions, BusinessError &businessError) = 0;
 
-    virtual int32_t SetUpdatePolicy(const UpdatePolicy &policy) = 0;
+    virtual int32_t ClearError(const UpgradeInfo &info, const VersionDigestInfo &versionDigest,
+        const ClearOptions &clearOptions, BusinessError &businessError) = 0;
 
-    virtual int32_t GetUpdatePolicy(UpdatePolicy &policy) = 0;
+    virtual int32_t TerminateUpgrade(const UpgradeInfo &info, BusinessError &businessError) = 0;
 
-    virtual int32_t Cancel(int32_t service) = 0;
+    virtual int32_t GetNewVersion(const UpgradeInfo &info, NewVersionInfo &newVersionInfo,
+        BusinessError &businessError) = 0;
+
+    virtual int32_t GetCurrentVersionInfo(const UpgradeInfo &info, CurrentVersionInfo &currentVersionInfo,
+        BusinessError &businessError) = 0;
+
+    virtual int32_t GetTaskInfo(const UpgradeInfo &info, TaskInfo &taskInfo, BusinessError &businessError) = 0;
+
+    virtual int32_t GetOtaStatus(const UpgradeInfo &info, OtaStatus &otaStatus, BusinessError &businessError) = 0;
+
+    virtual int32_t SetUpdatePolicy(const UpgradeInfo &info, const UpdatePolicy &policy,
+        BusinessError &businessError) = 0;
+
+    virtual int32_t GetUpdatePolicy(const UpgradeInfo &info, UpdatePolicy &policy, BusinessError &businessError) = 0;
+
+    virtual int32_t Cancel(const UpgradeInfo &info, int32_t service, BusinessError &businessError) = 0;
 
     virtual int32_t RebootAndClean(const std::string &miscFile, const std::string &cmd) = 0;
 
     virtual int32_t RebootAndInstall(const std::string &miscFile, const std::string &packageName) = 0;
 };
-} // namespace update_engine
+} // namespace UpdateEngine
 } // namespace OHOS
-#endif // IUPDATER_SERVICE_H
+#endif // IUPDATE_SERVICE_H
