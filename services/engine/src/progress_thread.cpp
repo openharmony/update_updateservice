@@ -104,7 +104,7 @@ bool DownloadThread::ProcessThreadExecute()
 
     downloadFile_ = fopen(downloadFileName_.c_str(), "ab+");
     ENGINE_CHECK(downloadFile_ != nullptr,
-        DownloadCallback(0, UPDATE_STATE_DOWNLOAD_FAIL, "Failed ot open file");
+        DownloadCallback(0, UPDATE_STATE_DOWNLOAD_FAIL, "Failed to open file");
         return true, "Failed to open file %s", downloadFileName_.c_str());
 
     downloadHandle_ = curl_easy_init();
