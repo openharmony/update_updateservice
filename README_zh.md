@@ -12,7 +12,7 @@
 
 升级服务组件是一个SA\(System Ability\),  由OHOS 的init 进程负责启动。
 
-升级服务组件主要功能包括：
+升级服务器引擎主要功能包括：
 
 1、查找可用的升级包
 
@@ -26,18 +26,26 @@
 
 ```
 base/update/updateservice  # 升级服务代码仓目录
-├── client                 # 升级客户端napi 接口目录
-├── engine                 # 升级客户端引擎服务目录
-│   ├── etc                # 升级客户端引擎rc配置文件目录
-│   ├── include            # 升级客户端引擎头文件目录
-│   ├── sa_profile         # SA 配置文件目录
-│   └── src                # 升级客户端引擎源码目录
 ├── interfaces             # 升级客户端接口目录
-│   └── innerkits          # SA 接口定义和封装目录
-├── kits                   # 对外接口封装目录
-│   └── js                 # 提供给升级客户端应用的JS 接口目录
-└── tests                  # 测试代码目录
-    └── unittest           # 升级客户端UT代码目录
+│   ├── kits               # 对外接口封装目录
+│   │   └── js             # 提供给升级客户端应用的JS 接口目录
+│   └── inner_api          # SA 接口定义和封装目录
+├── frameworks             # 部件无独立进程的实现
+│   └── js                 # JS API的实现
+│       └── napi           # napi代码实现
+│           └── client     # 升级客户端napi 接口目录
+├── services               # 独立进程的实现
+│   ├── callback           # 提供给升级客户端应用的callback接口目录
+│   └── engine             # 升级客户端引擎服务目录
+│       ├── etc            # 升级客户端引擎rc配置文件目录
+│       ├── include        # 升级客户端引擎头文件目录
+│       ├── sa_profile     # SA 配置文件目录
+│       └── src            # 升级客户端引擎源码目录
+├── test                   # 测试代码目录
+│   ├── unittest           # 升级客户端UT代码目录
+│   └── fuzztest           # 升级客户端FT代码目录
+├── BUILD.gn               # 编译入口
+└── bundle.json            # 部件描述文件
 ```
 
 ## 说明<a name="section208mcpsimp"></a>

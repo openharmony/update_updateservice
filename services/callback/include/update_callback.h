@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef UPDATER_CALLBACK_H
-#define UPDATER_CALLBACK_H
+#ifndef UPDATE_CALLBACK_H
+#define UPDATE_CALLBACK_H
 
 #include "if_system_ability_manager.h"
 #include "ipc_skeleton.h"
@@ -25,19 +25,17 @@
 #include "system_ability.h"
 
 namespace OHOS {
-namespace update_engine {
+namespace UpdateEngine {
 class UpdateCallback : public UpdateCallbackStub {
 public:
     explicit UpdateCallback() = default;
 
     ~UpdateCallback() = default;
 
-    void OnCheckVersionDone(const VersionInfo &info) override;
+    void OnCheckVersionDone(const BusinessError &businessError, const CheckResultEx &checkResultEx) override;
 
-    void OnDownloadProgress(const Progress &progress) override;
-
-    void OnUpgradeProgress(const Progress &progress) override;
+    void OnEvent(const EventInfo &eventInfo) override;
 };
-} // update_engine
+} // namespace UpdateEngine
 } // namespace OHOS
-#endif // UPDATER_CALLBACK_H
+#endif // UPDATE_CALLBACK_H
