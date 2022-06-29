@@ -211,6 +211,9 @@ int32_t ClientHelper::BuildUpdatePolicy(napi_env env, napi_value &obj, const Upd
         return static_cast<int32_t>(ClientStatus::CLIENT_INVALID_TYPE), "invalid type %d", result.type);
     napi_status status = napi_create_object(env, &obj);
     PARAM_CHECK(status == napi_ok, return status, "Failed to create napi_create_object %d", status);
+    if (result.result.updatePolicy == nullptr) {
+        return static_cast<int32_t>(ClientStatus::CLIENT_FAIL);
+    }
     UpdatePolicy &updatePolicy = *result.result.updatePolicy;
 
     // Add the result.
