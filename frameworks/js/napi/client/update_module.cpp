@@ -12,198 +12,370 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+#include "local_updater.h"
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
+#include "restorer.h"
 #include "update_client.h"
 
-namespace updateClient {
-const std::string CLASS_NAME  = "UpdateClient";
-constexpr int32_t REF_COUNT = 20;
-napi_ref thread_local g_reference = nullptr;
+namespace OHOS {
+namespace UpdateEngine {
+struct NativeClass {
+    std::string className;
+    napi_callback constructor;
+    napi_ref* constructorRef;
+    napi_property_descriptor *desc;
+    int descSize;
+};
 
-napi_value UpdateClientJSConstructor(napi_env env, napi_callback_info info)
+// class name
+const std::string CLASS_NAME_UPDATE_CLIENT = "UpdateClient";
+const std::string CLASS_NAME_RESTORER = "Restorer";
+const std::string CLASS_NAME_LOCAL_UPDATER = "LocalUpdater";
+
+// constructor reference
+static thread_local napi_ref g_updateClientConstructorRef = nullptr;
+static thread_local napi_ref g_restorerConstructorRef = nullptr;
+static thread_local napi_ref g_localUpdaterConstructorRef = nullptr;
+
+std::shared_ptr<Restorer> g_restorer = nullptr;
+std::shared_ptr<LocalUpdater> g_localUpdater = nullptr;
+
+template<typename T, typename Initializer, typename Finalizer>
+napi_value JsConstructor(napi_env env, napi_callback_info info, Initializer initializer, Finalizer finalizer)
 {
-    // Count of argument is 1
     size_t argc = 1;
-    // Set second argument
     napi_value args[1] = {0};
     napi_value thisVar = nullptr;
     void* data = nullptr;
     napi_get_cb_info(env, info, &argc, args, &thisVar, &data);
-    UpdateClient* client = new UpdateClient(env, thisVar);
-    napi_wrap(env, thisVar, client,
-        [](napi_env env, void* data, void* hint) {
-            CLIENT_LOGI("UpdateClient Destructor");
-            UpdateClient* clientDel = reinterpret_cast<UpdateClient*>(data);
-            delete clientDel;
-            clientDel = nullptr;
-        },
-        nullptr, nullptr);
+
+    T* object = initializer(env, thisVar);
+    if (object == nullptr) {
+        return thisVar;
+    }
+    napi_wrap(env, thisVar, object, finalizer, nullptr, nullptr);
     return thisVar;
 }
 
-UpdateClient *GetAndCreateJsUpdateClient(napi_env env, napi_callback_info info, napi_value &obj)
+template<typename T>
+napi_value JsConstructor(napi_env env, napi_callback_info info)
+{
+    auto initializer = [](napi_env env, napi_value value) {
+        T* object = new (std::nothrow) T(env, value);
+        return object;
+    };
+
+    auto finalizer = [](napi_env env, void* data, void* hint) {
+        CLIENT_LOGI("delete js object");
+        T* object = static_cast<T*>(data);
+        delete object;
+    };
+
+    return JsConstructor<T>(env, info, initializer, finalizer);
+}
+
+napi_value JsConstructorRestorer(napi_env env, napi_callback_info info)
+{
+    auto initializer = [](napi_env env, napi_value value) {
+        if (g_restorer == nullptr) {
+            CLIENT_LOGI("JsConstructorRestorer, create native object");
+            g_restorer = std::make_shared<Restorer>(env, value);
+        }
+        return g_restorer.get();
+    };
+    auto finalizer = [](napi_env env, void* data, void* hint) {};
+    return JsConstructor<Restorer>(env, info, initializer, finalizer);
+}
+
+napi_value JsConstructorLocalUpdater(napi_env env, napi_callback_info info)
+{
+    auto initializer = [](napi_env env, napi_value value) {
+        if (g_localUpdater == nullptr) {
+            CLIENT_LOGI("JsConstructorLocalUpdater, create native object");
+            g_localUpdater = std::make_shared<LocalUpdater>(env, value);
+        }
+        return g_localUpdater.get();
+    };
+    auto finalizer = [](napi_env env, void* data, void* hint) {};
+    return JsConstructor<LocalUpdater>(env, info, initializer, finalizer);
+}
+
+template<typename T>
+T* CreateJsObject(napi_env env, napi_callback_info info, napi_ref constructorRef, napi_value& jsObject)
 {
     napi_value constructor = nullptr;
-    UpdateClient *client = nullptr;
-    napi_status status = napi_get_reference_value(env, g_reference, &constructor);
-    CLIENT_CHECK_NAPI_CALL(env, status == napi_ok, return nullptr, "Error get client");
-    status = napi_new_instance(env, constructor, 0, nullptr, &obj);
-    CLIENT_CHECK_NAPI_CALL(env, status == napi_ok, return nullptr, "Error get client");
+    napi_status status = napi_get_reference_value(env, constructorRef, &constructor);
+    PARAM_CHECK_NAPI_CALL(env, status == napi_ok, return nullptr,
+        "CreateJsObject error, napi_get_reference_value fail");
 
-    napi_unwrap(env, obj, reinterpret_cast<void**>(&client));
-    return client;
-}
+    status = napi_new_instance(env, constructor, 0, nullptr, &jsObject);
+    PARAM_CHECK_NAPI_CALL(env, status == napi_ok, return nullptr, "CreateJsObject error, napi_new_instance fail");
 
-UpdateClient *GetUpdateClient(napi_env env, napi_callback_info info)
-{
-    size_t argc = 1;
-    napi_value argv[1] = {0};
-    napi_value thisVar = nullptr;
-    void* data = nullptr;
-    napi_get_cb_info(env, info, &argc, argv, &thisVar, &data);
-
-    UpdateClient *client = nullptr;
-    napi_unwrap(env, thisVar, reinterpret_cast<void**>(&client));
-    return client;
-}
-
-napi_value GetUpdater(napi_env env, napi_callback_info info)
-{
-    UpdateClient* client = GetUpdateClient(env, info);
-    if (client != nullptr) {
-        return client->GetUpdater(env, info, 1);
+    T *nativeObject = nullptr;
+    status = napi_unwrap(env, jsObject, (void**)&nativeObject);
+    if (status != napi_ok) {
+        CLIENT_LOGE("CreateJsObject error, napi_unwrap fail");
+        napi_remove_wrap(env, jsObject, (void**)&nativeObject);
+        jsObject = nullptr;
+        return nullptr;
     }
-    napi_value obj = nullptr;
-    client = GetAndCreateJsUpdateClient(env, info, obj);
+    return nativeObject;
+}
+
+napi_value GetOnlineUpdater(napi_env env, napi_callback_info info)
+{
+    napi_value jsObject = nullptr;
+    UpdateClient* client = CreateJsObject<UpdateClient>(env, info, g_updateClientConstructorRef, jsObject);
     if (client != nullptr) {
-        napi_value result = client->GetUpdater(env, info, 1);
+        napi_value result = client->GetOnlineUpdater(env, info);
         if (result != nullptr) {
-            return obj;
+            return jsObject;
         }
     }
-    napi_remove_wrap(env, obj, reinterpret_cast<void**>(&client));
     return nullptr;
 }
 
-napi_value GetUpdaterForOther(napi_env env, napi_callback_info info)
+napi_value GetRestorer(napi_env env, napi_callback_info info)
 {
-    UpdateClient* client = GetUpdateClient(env, info);
-    if (client != nullptr) {
-        return client->GetUpdaterForOther(env, info);
+    napi_value jsObject = nullptr;
+    Restorer* restorer = CreateJsObject<Restorer>(env, info, g_restorerConstructorRef, jsObject);
+    if (restorer == nullptr) {
+        return nullptr;
     }
-    napi_value obj = nullptr;
-    client = GetAndCreateJsUpdateClient(env, info, obj);
-    if (client != nullptr) {
-        (void)client->GetUpdaterForOther(env, info);
-    }
-    return obj;
+    return jsObject;
 }
 
-napi_value GetUpdaterFromOther(napi_env env, napi_callback_info info)
+napi_value GetLocalUpdater(napi_env env, napi_callback_info info)
 {
-    UpdateClient* client = GetUpdateClient(env, info);
-    if (client != nullptr) {
-        return client->GetUpdaterFromOther(env, info);
+    napi_value jsObject = nullptr;
+    LocalUpdater* localUpdater = CreateJsObject<LocalUpdater>(env, info, g_localUpdaterConstructorRef, jsObject);
+    if (localUpdater == nullptr) {
+        return nullptr;
     }
-    napi_value obj = nullptr;
-    client = GetAndCreateJsUpdateClient(env, info, obj);
-    if (client != nullptr) {
-        (void)client->GetUpdaterFromOther(env, info);
-    }
-    return obj;
+    localUpdater->Init();
+    return jsObject;
 }
 
 napi_value CheckNewVersion(napi_env env, napi_callback_info info)
 {
-    UpdateClient* client = GetUpdateClient(env, info);
-    CLIENT_CHECK_NAPI_CALL(env, client != nullptr, return nullptr, "Error get client");
+    UpdateClient* client = UnwrapJsObject<UpdateClient>(env, info);
+    PARAM_CHECK_NAPI_CALL(env, client != nullptr, return nullptr, "Error get client");
     return client->CheckNewVersion(env, info);
 }
 
 napi_value SetUpdatePolicy(napi_env env, napi_callback_info info)
 {
-    UpdateClient* client = GetUpdateClient(env, info);
-    CLIENT_CHECK_NAPI_CALL(env, client != nullptr, return nullptr, "Error get client");
+    UpdateClient* client = UnwrapJsObject<UpdateClient>(env, info);
+    PARAM_CHECK_NAPI_CALL(env, client != nullptr, return nullptr, "Error get client");
     return client->SetUpdatePolicy(env, info);
 }
 
 napi_value GetUpdatePolicy(napi_env env, napi_callback_info info)
 {
-    UpdateClient* client = GetUpdateClient(env, info);
-    CLIENT_CHECK_NAPI_CALL(env, client != nullptr, return nullptr, "Error get client");
+    UpdateClient* client = UnwrapJsObject<UpdateClient>(env, info);
+    PARAM_CHECK_NAPI_CALL(env, client != nullptr, return nullptr, "Error get client");
     return client->GetUpdatePolicy(env, info);
 }
 
 napi_value DownloadVersion(napi_env env, napi_callback_info info)
 {
-    UpdateClient* client = GetUpdateClient(env, info);
-    CLIENT_CHECK_NAPI_CALL(env, client != nullptr, return nullptr, "Error get client");
+    UpdateClient* client = UnwrapJsObject<UpdateClient>(env, info);
+    PARAM_CHECK_NAPI_CALL(env, client != nullptr, return nullptr, "Error get client");
     return client->DownloadVersion(env, info);
+}
+
+napi_value PauseDownload(napi_env env, napi_callback_info info)
+{
+    CLIENT_LOGI("PauseDownload");
+    UpdateClient* client = UnwrapJsObject<UpdateClient>(env, info);
+    PARAM_CHECK_NAPI_CALL(env, client != nullptr, return nullptr, "Error get client");
+    return client->PauseDownload(env, info);
+}
+
+napi_value ResumeDownload(napi_env env, napi_callback_info info)
+{
+    CLIENT_LOGI("ResumeDownload");
+    UpdateClient* client = UnwrapJsObject<UpdateClient>(env, info);
+    PARAM_CHECK_NAPI_CALL(env, client != nullptr, return nullptr, "Error get client");
+    return client->ResumeDownload(env, info);
 }
 
 napi_value CancelUpgrade(napi_env env, napi_callback_info info)
 {
-    UpdateClient* client = GetUpdateClient(env, info);
-    CLIENT_CHECK_NAPI_CALL(env, client != nullptr, return nullptr, "Error get client");
+    UpdateClient* client = UnwrapJsObject<UpdateClient>(env, info);
+    PARAM_CHECK_NAPI_CALL(env, client != nullptr, return nullptr, "Error get client");
     return client->CancelUpgrade(env, info);
 }
 
-napi_value UpgradeVersion(napi_env env, napi_callback_info info)
+napi_value Upgrade(napi_env env, napi_callback_info info)
 {
-    UpdateClient* client = GetUpdateClient(env, info);
-    CLIENT_CHECK_NAPI_CALL(env, client != nullptr, return nullptr, "Error get client");
-    return client->UpgradeVersion(env, info);
+    CLIENT_LOGI("Upgrade");
+    UpdateClient* client = UnwrapJsObject<UpdateClient>(env, info);
+    PARAM_CHECK_NAPI_CALL(env, client != nullptr, return nullptr, "Error get client");
+    return client->Upgrade(env, info);
+}
+
+napi_value ClearError(napi_env env, napi_callback_info info)
+{
+    CLIENT_LOGI("ClearError");
+    UpdateClient* client = UnwrapJsObject<UpdateClient>(env, info);
+    PARAM_CHECK_NAPI_CALL(env, client != nullptr, return nullptr, "Error get client");
+    return client->ClearError(env, info);
+}
+
+napi_value TerminateUpgrade(napi_env env, napi_callback_info info)
+{
+    CLIENT_LOGI("TerminateUpgrade");
+    UpdateClient* client = UnwrapJsObject<UpdateClient>(env, info);
+    PARAM_CHECK_NAPI_CALL(env, client != nullptr, return nullptr, "Error get client");
+    return client->TerminateUpgrade(env, info);
 }
 
 napi_value GetNewVersionInfo(napi_env env, napi_callback_info info)
 {
-    UpdateClient* client = GetUpdateClient(env, info);
-    CLIENT_CHECK_NAPI_CALL(env, client != nullptr, return nullptr, "Error get client");
+    UpdateClient* client = UnwrapJsObject<UpdateClient>(env, info);
+    PARAM_CHECK_NAPI_CALL(env, client != nullptr, return nullptr, "Error get client");
     return client->GetNewVersionInfo(env, info);
 }
 
-napi_value GetUpgradeStatus(napi_env env, napi_callback_info info)
+napi_value GetCurrentVersionInfo(napi_env env, napi_callback_info info)
 {
-    UpdateClient* client = GetUpdateClient(env, info);
-    CLIENT_CHECK_NAPI_CALL(env, client != nullptr, return nullptr, "Error get client");
-    return client->GetUpgradeStatus(env, info);
+    CLIENT_LOGI("GetCurrentVersionInfo");
+    UpdateClient* client = UnwrapJsObject<UpdateClient>(env, info);
+    PARAM_CHECK_NAPI_CALL(env, client != nullptr, return nullptr, "Error get client");
+    return client->GetCurrentVersionInfo(env, info);
 }
 
-napi_value UnsubscribeEvent(napi_env env, napi_callback_info info)
+napi_value GetTaskInfo(napi_env env, napi_callback_info info)
 {
-    UpdateClient* client = GetUpdateClient(env, info);
-    CLIENT_CHECK_NAPI_CALL(env, client != nullptr, return nullptr, "Error get client");
-    return client->UnsubscribeEvent(env, info);
+    CLIENT_LOGI("GetTaskInfo");
+    UpdateClient* client = UnwrapJsObject<UpdateClient>(env, info);
+    PARAM_CHECK_NAPI_CALL(env, client != nullptr, return nullptr, "Error get client");
+    return client->GetTaskInfo(env, info);
 }
 
-napi_value SubscribeEvent(napi_env env, napi_callback_info info)
+napi_value GetOtaStatus(napi_env env, napi_callback_info info)
 {
-    UpdateClient* client = GetUpdateClient(env, info);
-    CLIENT_CHECK_NAPI_CALL(env, client != nullptr, return nullptr, "Error get client");
-    return client->SubscribeEvent(env, info);
+    UpdateClient* client = UnwrapJsObject<UpdateClient>(env, info);
+    PARAM_CHECK_NAPI_CALL(env, client != nullptr, return nullptr, "Error get client");
+    return client->GetOtaStatus(env, info);
 }
 
 napi_value ApplyNewVersion(napi_env env, napi_callback_info info)
 {
-    UpdateClient* client = GetUpdateClient(env, info);
-    CLIENT_CHECK_NAPI_CALL(env, client != nullptr, return nullptr, "Error get client");
+    UpdateClient* client = UnwrapJsObject<UpdateClient>(env, info);
+    PARAM_CHECK_NAPI_CALL(env, client != nullptr, return nullptr, "Error get client");
     return client->ApplyNewVersion(env, info);
 }
 
 napi_value RebootAndClean(napi_env env, napi_callback_info info)
 {
-    UpdateClient* client = GetUpdateClient(env, info);
-    CLIENT_CHECK_NAPI_CALL(env, client != nullptr, return nullptr, "Error get client");
+    UpdateClient* client = UnwrapJsObject<UpdateClient>(env, info);
+    PARAM_CHECK_NAPI_CALL(env, client != nullptr, return nullptr, "Error get client");
     return client->RebootAndClean(env, info);
 }
 
 napi_value VerifyUpdatePackage(napi_env env, napi_callback_info info)
 {
-    UpdateClient* client = GetUpdateClient(env, info);
-    CLIENT_CHECK_NAPI_CALL(env, client != nullptr, return nullptr, "Error get client");
+    UpdateClient* client = UnwrapJsObject<UpdateClient>(env, info);
+    PARAM_CHECK_NAPI_CALL(env, client != nullptr, return nullptr, "Error get client");
     return client->VerifyUpdatePackage(env, info);
+}
+
+napi_value FactoryReset(napi_env env, napi_callback_info info)
+{
+    CLIENT_LOGI("FactoryReset");
+    Restorer* restorer = UnwrapJsObject<Restorer>(env, info);
+    PARAM_CHECK_NAPI_CALL(env, restorer != nullptr, return nullptr, "Error get restorer");
+    return restorer->FactoryReset(env, info);
+}
+
+static bool DefineClass(napi_env env, napi_value exports, NativeClass& nativeClass)
+{
+    const std::string& className = nativeClass.className;
+    napi_value result = nullptr;
+    napi_status status = napi_define_class(env, className.c_str(), className.size(),
+        nativeClass.constructor, nullptr, nativeClass.descSize, nativeClass.desc, &result);
+    PARAM_CHECK_NAPI_CALL(env, status == napi_ok, return false, "DefineClass error, napi_define_class fail");
+
+    status = napi_set_named_property(env, exports, className.c_str(), result);
+    PARAM_CHECK_NAPI_CALL(env, status == napi_ok, return false, "DefineClass error, napi_set_named_property fail");
+
+    constexpr int32_t refCount = 1;
+    status = napi_create_reference(env, result, refCount, nativeClass.constructorRef);
+    PARAM_CHECK_NAPI_CALL(env, status == napi_ok, return false, "DefineClass error, napi_create_reference fail");
+    return true;
+}
+
+static bool DefineRestorer(napi_env env, napi_value exports)
+{
+    napi_property_descriptor desc[] = {
+        DECLARE_NAPI_FUNCTION("factoryReset", FactoryReset)
+    };
+
+    NativeClass nativeClass = {
+        .className = CLASS_NAME_RESTORER,
+        .constructor = JsConstructorRestorer,
+        .constructorRef = &g_restorerConstructorRef,
+        .desc = desc,
+        .descSize = COUNT_OF(desc)
+    };
+    return DefineClass(env, exports, nativeClass);
+}
+
+static bool DefineLocalUpdater(napi_env env, napi_value exports)
+{
+    napi_property_descriptor desc[] = {
+        DECLARE_NAPI_FUNCTION(LocalUpdater::Napi::FUNCTION_VERIFY_UPGRADE_PACKAGE,
+            LocalUpdater::Napi::NapiVerifyUpgradePackage),
+        DECLARE_NAPI_FUNCTION(LocalUpdater::Napi::FUNCTION_APPLY_NEW_VERSION, LocalUpdater::Napi::NapiApplyNewVersion),
+        DECLARE_NAPI_FUNCTION(LocalUpdater::Napi::FUNCTION_ON, LocalUpdater::Napi::NapiOn),
+        DECLARE_NAPI_FUNCTION(LocalUpdater::Napi::FUNCTION_OFF, LocalUpdater::Napi::NapiOff)
+    };
+
+    NativeClass nativeClass = {
+        .className = CLASS_NAME_LOCAL_UPDATER,
+        .constructor = JsConstructorLocalUpdater,
+        .constructorRef = &g_localUpdaterConstructorRef,
+        .desc = desc,
+        .descSize = COUNT_OF(desc)
+    };
+    return DefineClass(env, exports, nativeClass);
+}
+
+static bool DefineUpdateClient(napi_env env, napi_value exports)
+{
+    napi_property_descriptor desc[] = {
+        DECLARE_NAPI_FUNCTION("checkNewVersion", CheckNewVersion),
+        DECLARE_NAPI_FUNCTION("getNewVersionInfo", GetNewVersionInfo),
+        DECLARE_NAPI_FUNCTION("getCurrentVersionInfo", GetCurrentVersionInfo),
+        DECLARE_NAPI_FUNCTION("getTaskInfo", GetTaskInfo),
+        DECLARE_NAPI_FUNCTION("setUpgradePolicy", SetUpdatePolicy),
+        DECLARE_NAPI_FUNCTION("getUpgradePolicy", GetUpdatePolicy),
+        DECLARE_NAPI_FUNCTION("getOtaStatus", GetOtaStatus),
+        DECLARE_NAPI_FUNCTION("cancel", CancelUpgrade),
+        DECLARE_NAPI_FUNCTION("download", DownloadVersion),
+        DECLARE_NAPI_FUNCTION("pauseDownload", PauseDownload),
+        DECLARE_NAPI_FUNCTION("resumeDownload", ResumeDownload),
+        DECLARE_NAPI_FUNCTION("upgrade", Upgrade),
+        DECLARE_NAPI_FUNCTION("clearError", ClearError),
+        DECLARE_NAPI_FUNCTION("terminateUpgrade", TerminateUpgrade),
+        DECLARE_NAPI_FUNCTION("applyNewVersion", ApplyNewVersion),
+        DECLARE_NAPI_FUNCTION("rebootAndCleanUserData", RebootAndClean),
+        DECLARE_NAPI_FUNCTION("verifyUpdatePackage", VerifyUpdatePackage),
+        DECLARE_NAPI_FUNCTION(UpdateClient::Napi::FUNCTION_ON, UpdateClient::Napi::NapiOn),
+        DECLARE_NAPI_FUNCTION(UpdateClient::Napi::FUNCTION_OFF, UpdateClient::Napi::NapiOff)
+    };
+
+    NativeClass nativeClass = {
+        .className = CLASS_NAME_UPDATE_CLIENT,
+        .constructor = JsConstructor<UpdateClient>,
+        .constructorRef = &g_updateClientConstructorRef,
+        .desc = desc,
+        .descSize = COUNT_OF(desc)
+    };
+    return DefineClass(env, exports, nativeClass);
 }
 
 #ifdef UPDATER_UT
@@ -215,44 +387,25 @@ static napi_value UpdateClientInit(napi_env env, napi_value exports)
     CLIENT_LOGI("UpdateClientInit");
     // Registration function
     napi_property_descriptor desc[] = {
-        DECLARE_NAPI_FUNCTION("getUpdater", GetUpdater),
-        DECLARE_NAPI_FUNCTION("getUpdaterForOther", GetUpdaterForOther),
-        DECLARE_NAPI_FUNCTION("getUpdaterFromOther", GetUpdaterFromOther),
+        DECLARE_NAPI_FUNCTION("getUpdater", GetOnlineUpdater),
+        DECLARE_NAPI_FUNCTION("getOnlineUpdater", GetOnlineUpdater),
+        DECLARE_NAPI_FUNCTION("getRestorer", GetRestorer),
+        DECLARE_NAPI_FUNCTION("getLocalUpdater", GetLocalUpdater)
     };
     napi_define_properties(env, exports, sizeof(desc) / sizeof(desc[0]), desc);
 
-    // Registration object
-    napi_property_descriptor descriptors[] = {
-        DECLARE_NAPI_FUNCTION("getUpdater", GetUpdater),
-        DECLARE_NAPI_FUNCTION("getUpdaterForOther", GetUpdaterForOther),
-        DECLARE_NAPI_FUNCTION("getUpdaterFromOther", GetUpdaterFromOther),
+    bool ret = DefineUpdateClient(env, exports);
+    PARAM_CHECK_NAPI_CALL(env, ret, return nullptr, "DefineUpdateClient fail");
+    CLIENT_LOGI("DefineUpdateClient success");
 
-        DECLARE_NAPI_FUNCTION("checkNewVersion", CheckNewVersion),
-        DECLARE_NAPI_FUNCTION("getNewVersionInfo", GetNewVersionInfo),
+    ret = DefineRestorer(env, exports);
+    PARAM_CHECK_NAPI_CALL(env, ret, return nullptr, "DefineRestorer fail");
+    CLIENT_LOGI("DefineRestorer success");
 
-        DECLARE_NAPI_FUNCTION("setUpdatePolicy", SetUpdatePolicy),
-        DECLARE_NAPI_FUNCTION("getUpdatePolicy", GetUpdatePolicy),
-        DECLARE_NAPI_FUNCTION("getUpgradeStatus", GetUpgradeStatus),
+    ret = DefineLocalUpdater(env, exports);
+    PARAM_CHECK_NAPI_CALL(env, ret, return nullptr, "DefineLocalUpdater fail");
+    CLIENT_LOGI("DefineLocalUpdater success");
 
-        DECLARE_NAPI_FUNCTION("cancel", CancelUpgrade),
-        DECLARE_NAPI_FUNCTION("download", DownloadVersion),
-        DECLARE_NAPI_FUNCTION("upgrade", UpgradeVersion),
-
-        DECLARE_NAPI_FUNCTION("applyNewVersion", ApplyNewVersion),
-        DECLARE_NAPI_FUNCTION("rebootAndCleanUserData", RebootAndClean),
-        DECLARE_NAPI_FUNCTION("verifyUpdatePackage", VerifyUpdatePackage),
-
-        DECLARE_NAPI_FUNCTION("on", SubscribeEvent),
-        DECLARE_NAPI_FUNCTION("off", UnsubscribeEvent)
-    };
-
-    napi_value result = nullptr;
-    napi_define_class(env, CLASS_NAME.c_str(), CLASS_NAME.size(), UpdateClientJSConstructor,
-        nullptr, sizeof(descriptors) / sizeof(*descriptors), descriptors, &result);
-    napi_set_named_property(env, exports, CLASS_NAME.c_str(), result);
-    napi_status status = napi_create_reference(env, result, REF_COUNT, &g_reference);
-    CLIENT_CHECK_NAPI_CALL(env, status == napi_ok, return nullptr, "Failed to create_reference");
-    CLIENT_LOGI("UpdateClient g_reference create success");
     return exports;
 }
 
@@ -276,4 +429,5 @@ extern "C" __attribute__((constructor)) void RegisterModule(void)
 {
     napi_module_register(&g_module);
 }
-}
+} // namespace UpdateEngine
+} // namespace OHOS

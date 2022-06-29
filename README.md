@@ -26,18 +26,26 @@ The update service provides the following functions:
 
 ```
 base/update/updateservice  # Update service code
-├── client                 # NAPI-based update client
-├── engine                 # Update client engine
-│   ├── etc                # rc configuration files for the update client engine
-│   ├── include            # Header files for the update client engine
-│   ├── sa_profile         # SA profiles
-│   └── src                # Source code of the update client engine
 ├── interfaces             # Update client APIs
-│   └── innerkits          # SA APIs 
-├── kits                   # External APIs
-│   └── js                 # JS APIs for the update app
-└── tests                  # Test code
-    └── unittest           # Unit test code for the update client
+│   ├── kits               # External APIs
+│   │   └── js             # JS APIs for the update app
+│   └── inner_api          # SA APIs
+├── frameworks             # module which is not independent's implement
+│   └── js                 # JS APIs
+│       └── napi           # napi
+│           └── client     # NAPI-based update client
+├── services               # module which is independent's implement
+│   ├── callback           # callback API
+│   └── engine             # Update client engine
+│       ├── etc            # rc configuration files for the update client engine
+│       ├── include        # Header files for the update client engine
+│       ├── sa_profile     # SA profiles
+│       └── src            # Source code of the update client engine
+├── test                   # Test code
+│   ├── unittest           # Unit test code for the update client
+│   └── fuzztest           # Fuzz test code for the update client
+├── BUILD.gn               # compile entrance
+└── bundle.json            # module description file
 ```
 
 ## Description<a name="section208mcpsimp"></a>

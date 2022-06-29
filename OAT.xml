@@ -15,11 +15,11 @@
 -->
 <!--
     Notes:
-    This is project config file for OpenHarmony OSS Audit Tool, if you have any questions or concerns, please email chenyaxun. 	 
+    This is project config file for OpenHarmony OSS Audit Tool, if you have any questions or concerns, please email chenyaxun.
 -->
 <!-- OAT(OSS Audit Tool) configuration guide:
 basedir: Root dir, the basedir + project path is the real source file location.
-licensefile: 
+licensefile:
 1.If the project don't have "LICENSE" in root dir, please define all the license files in this project in , OAT will check license files according to this rule.
 
 tasklist(only for batch mode):
@@ -34,15 +34,15 @@ policyList:
 1. policy: All policyitems will be merged to default OAT.xml rules, the name of policy doesn't affect OAT check process.
 2. policyitem: The fields type, name, path, desc is required, and the fields rule, group, filefilter is optional,the default value is:
 <policyitem type="" name="" path="" desc="" rule="may" group="defaultGroup" filefilter="defaultPolicyFilter"/>
-3. policyitem type:	
-    "compatibility" is used to check license compatibility in the specified path; 
+3. policyitem type:
+    "compatibility" is used to check license compatibility in the specified path;
     "license" is used to check source license header in the specified path;
     "copyright" is used to check source copyright header in the specified path;
     "import" is used to check source dependency in the specified path, such as import ... ,include ...
     "filetype" is used to check file type in the specified path, supported file types: archive, binary
     "filename" is used to check whether the specified file exists in the specified path(support projectroot in default OAT.xml), supported file names: LICENSE, README, README.OpenSource
 
-4. policyitem name: This field is used for define the license, copyright, "*" means match all, the "!" prefix means could not match this value. For example, "!GPL" means can not use GPL license. 
+4. policyitem name: This field is used for define the license, copyright, "*" means match all, the "!" prefix means could not match this value. For example, "!GPL" means can not use GPL license.
 5. policyitem path: This field is used for define the source file scope to apply this policyitem, the "!" prefix means exclude the files. For example, "!.*/lib/.*" means files in lib dir will be exclude while process this policyitem.
 6. policyitem rule and group: These two fields are used together to merge policy results. "may" policyitems in the same group means any one in this group passed, the result will be passed.
 7. policyitem filefilter: Used to bind filefilter which define filter rules.
@@ -56,22 +56,20 @@ Note:If the text contains special characters, please escape them according to th
 > == &gt;
 -->
 <configuration>
-    <oatconfig> 
-		<licensefile></licensefile>  
+    <oatconfig>
+        <licensefile></licensefile>
         <policylist>
             <policy name="projectPolicy" desc="">
-                <!--policyitem type="compatibility" name="curl" path=".*" rule="may" group="defaultGroup" filefilter="defaultPolicyFilter" desc=""/-->			
-                <!--policyitem type="compatibility" name="GPL-2.0+" path=".*" desc="不使用或者使用但是是独立进程，被X进程调用，自研进程不受GPL影响"/>			
-	            <policyitem type="license" name="LGPL" path=".*" desc="未使用，或者使用了，被X进程以动态链接方式调用"/>
-				<policyitem type="copyright" name="xxx" path=".*" rule="may" group="defaultGroup" filefilter="copyrightPolicyFilter" desc="xxxx开发代码"/-->		        
+                <!--policyitem type="compatibility" name="curl" path=".*" rule="may" group="defaultGroup" filefilter="defaultPolicyFilter" desc=""/-->
+                <!--policyitem type="compatibility" name="GPL-2.0+" path=".*" desc="不使用或者使用但是是独立进程，被X进程调用，自研进程不受GPL影响"/>
+                <policyitem type="license" name="LGPL" path=".*" desc="未使用，或者使用了，被X进程以动态链接方式调用"/>
+                <policyitem type="copyright" name="xxx" path=".*" rule="may" group="defaultGroup" filefilter="copyrightPolicyFilter" desc="xxxx开发代码"/-->
             </policy>
         </policylist>
-		<filefilterlist>			
-			<filefilter name="binaryFileTypePolicyFilter" desc="Filters for binary file policies" >		
-				<filteritem type="filepath" name="engine/etc/updater_sa.cfg" desc="升级服务应用的资源文件"/>
-			</filefilter>				
-	
-		</filefilterlist>
-	
+        <filefilterlist>
+            <filefilter name="binaryFileTypePolicyFilter" desc="Filters for binary file policies" >
+                <filteritem type="filepath" name="engine/etc/updater_sa.cfg" desc="升级服务应用的资源文件"/>
+            </filefilter>
+        </filefilterlist>
     </oatconfig>
 </configuration>

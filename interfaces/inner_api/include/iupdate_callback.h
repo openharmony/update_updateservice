@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef IUPDATER_CALLBACK_H
-#define IUPDATER_CALLBACK_H
+#ifndef IUPDATE_CALLBACK_H
+#define IUPDATE_CALLBACK_H
 
 #include <iostream>
 #include "update_helper.h"
@@ -22,7 +22,7 @@
 #include "iremote_proxy.h"
 
 namespace OHOS {
-namespace update_engine {
+namespace UpdateEngine {
 class IUpdateCallback : public OHOS::IRemoteBroker {
 public:
     virtual ~IUpdateCallback() = default;
@@ -30,16 +30,15 @@ public:
         CHECK_VERSION = 1,
         DOWNLOAD,
         UPGRADE,
+        ON_EVENT
     };
 
     DECLARE_INTERFACE_DESCRIPTOR(u"OHOS.Update.IUpdateCallback");
 public:
-    virtual void OnCheckVersionDone(const VersionInfo &info) = 0;
+    virtual void OnCheckVersionDone(const BusinessError &businessError, const CheckResultEx &checkResultEx) = 0;
 
-    virtual void OnDownloadProgress(const Progress &progress) = 0;
-
-    virtual void OnUpgradeProgress(const Progress &progress) = 0;
+    virtual void OnEvent(const EventInfo &eventInfo) = 0;
 };
-} // namespace update_engine
+} // namespace UpdateEngine
 } // namespace OHOS
-#endif // IUPDATER_CALLBACK_H
+#endif // IUPDATE_CALLBACK_H
