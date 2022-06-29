@@ -98,7 +98,7 @@ private:
 #ifndef UPDATER_API_TEST
     std::mutex sessionMutex_;
 #endif
-    bool isInit = false;
+    bool isInit_ = false;
     int32_t result_ = 0;
     std::string upgradeFile_;
     std::string certsFile_;
