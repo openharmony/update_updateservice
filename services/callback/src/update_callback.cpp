@@ -14,32 +14,17 @@
  */
 
 #include "update_callback.h"
-#include "iservice_registry.h"
-#include "parameters.h"
-#include "securec.h"
-#include "system_ability_definition.h"
-#include "update_helper.h"
 
 namespace OHOS {
-namespace update_engine {
-void UpdateCallback::OnCheckVersionDone(const VersionInfo &info)
+namespace UpdateEngine {
+void UpdateCallback::OnCheckVersionDone(const BusinessError &businessError, const CheckResultEx &checkResultEx)
 {
-    ENGINE_LOGI("OnCheckVersionDone VersionInfo status %d", info.status);
-    ENGINE_LOGI("OnCheckVersionDone VersionInfo errMsg %s", info.errMsg.c_str());
-    ENGINE_LOGI("OnCheckVersionDone VersionInfo versionName : %s", info.result[0].versionName.c_str());
-    ENGINE_LOGI("OnCheckVersionDone VersionInfo versionCode : %s", info.result[0].versionCode.c_str());
-    ENGINE_LOGI("OnCheckVersionDone VersionInfo verifyInfo : %s", info.result[0].verifyInfo.c_str());
-    ENGINE_LOGI("OnCheckVersionDone VersionInfo size : %zu", info.result[0].size);
+    ENGINE_LOGI("OnCheckVersionDone isExistNewVersion %{public}d", checkResultEx.isExistNewVersion);
 }
 
-void UpdateCallback::OnDownloadProgress(const Progress &progress)
+void UpdateCallback::OnEvent(const EventInfo &eventInfo)
 {
-    ENGINE_LOGI("OnDownloadProgress progress %u %d", progress.percent, progress.status);
+    ENGINE_LOGI("OnEvent eventId %d", eventInfo.eventId);
 }
-
-void UpdateCallback::OnUpgradeProgress(const Progress &progress)
-{
-    ENGINE_LOGI("OnUpgradeProgress progress %u %d", progress.percent, progress.status);
-}
-}
+} // namespace UpdateEngine
 } // namespace OHOS

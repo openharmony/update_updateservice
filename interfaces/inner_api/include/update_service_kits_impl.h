@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef UPDATER_SERVICE_KITS_IMPL_H
-#define UPDATER_SERVICE_KITS_IMPL_H
+#ifndef UPDATE_SERVICE_KITS_IMPL_H
+#define UPDATE_SERVICE_KITS_IMPL_H
 
 #include "update_service_kits.h"
 #include "update_helper.h"
@@ -23,32 +23,50 @@
 #include "update_callback.h"
 
 namespace OHOS {
-namespace update_engine {
+namespace UpdateEngine {
 class UpdateServiceKitsImpl final : public UpdateServiceKits,
     public DelayedRefSingleton<UpdateServiceKitsImpl> {
     DECLARE_DELAYED_REF_SINGLETON(UpdateServiceKitsImpl);
 public:
     DISALLOW_COPY_AND_MOVE(UpdateServiceKitsImpl);
 
-    int32_t RegisterUpdateCallback(const UpdateContext &ctx, const UpdateCallbackInfo &cb) final;
+    int32_t RegisterUpdateCallback(const UpgradeInfo &info, const UpdateCallbackInfo &cb) final;
 
-    int32_t UnregisterUpdateCallback() final;
+    int32_t UnregisterUpdateCallback(const UpgradeInfo &info) final;
 
-    int32_t CheckNewVersion() final;
+    int32_t CheckNewVersion(const UpgradeInfo &info) final;
 
-    int32_t DownloadVersion() final;
+    int32_t DownloadVersion(const UpgradeInfo &info, const VersionDigestInfo &versionDigestInfo,
+        const DownloadOptions &downloadOptions, BusinessError &businessError) final;
 
-    int32_t DoUpdate() final;
+    int32_t PauseDownload(const UpgradeInfo &info, const VersionDigestInfo &versionDigestInfo,
+        const PauseDownloadOptions &pauseDownloadOptions, BusinessError &businessError) final;
 
-    int32_t GetNewVersion(VersionInfo &versionInfo) final;
+    int32_t ResumeDownload(const UpgradeInfo &info, const VersionDigestInfo &versionDigestInfo,
+        const ResumeDownloadOptions &resumeDownloadOptions, BusinessError &businessError) final;
 
-    int32_t GetUpgradeStatus(UpgradeInfo &info) final;
+    int32_t DoUpdate(const UpgradeInfo &info, const VersionDigestInfo &versionDigest,
+        const UpgradeOptions &upgradeOptions, BusinessError &businessError) final;
 
-    int32_t SetUpdatePolicy(const UpdatePolicy &policy) final;
+    int32_t ClearError(const UpgradeInfo &info, const VersionDigestInfo &versionDigest,
+        const ClearOptions &clearOptions, BusinessError &businessError) final;
 
-    int32_t GetUpdatePolicy(UpdatePolicy &policy) final;
+    int32_t TerminateUpgrade(const UpgradeInfo &info, BusinessError &businessError) final;
 
-    int32_t Cancel(int32_t service);
+    int32_t GetNewVersion(const UpgradeInfo &info, NewVersionInfo &newVersionInfo, BusinessError &businessError) final;
+
+    int32_t GetCurrentVersionInfo(const UpgradeInfo &info, CurrentVersionInfo &currentVersionInfo,
+        BusinessError &businessError) final;
+
+    int32_t GetTaskInfo(const UpgradeInfo &info, TaskInfo &taskInfo, BusinessError &businessError) final;
+
+    int32_t GetOtaStatus(const UpgradeInfo &info, OtaStatus &otaStatus, BusinessError &businessError) final;
+
+    int32_t SetUpdatePolicy(const UpgradeInfo &info, const UpdatePolicy &policy, BusinessError &businessError) final;
+
+    int32_t GetUpdatePolicy(const UpgradeInfo &info, UpdatePolicy &policy, BusinessError &businessError) final;
+
+    int32_t Cancel(const UpgradeInfo &info, int32_t service, BusinessError &businessError) final;
 
     int32_t RebootAndClean(const std::string &miscFile, const std::string &cmd) final;
 
@@ -64,11 +82,9 @@ private:
 
         DISALLOW_COPY_AND_MOVE(RemoteUpdateCallback);
 
-        void OnCheckVersionDone(const VersionInfo &info) final;
+        void OnCheckVersionDone(const BusinessError &businessError, const CheckResultEx &checkResultEx) final;
 
-        void OnDownloadProgress(const Progress &progress) final;
-
-        void OnUpgradeProgress(const Progress &progress) final;
+        void OnEvent(const EventInfo &eventInfo) final;
     private:
         UpdateCallbackInfo updateCallback_ {};
     };
@@ -86,9 +102,9 @@ private:
     std::mutex updateServiceLock_;
     sptr<IUpdateService> updateService_ {};
     sptr<IRemoteObject::DeathRecipient> deathRecipient_ {};
-    sptr<IUpdateCallback> remoteUpdateCallback_ {};
-    UpdateContext updateContext_ {};
+    std::map<UpgradeInfo, sptr<IUpdateCallback>> remoteUpdateCallbackMap_;
+    UpgradeInfo upgradeInfo_ {};
 };
-} // namespace update_engine
+} // namespace UpdateEngine
 } // namespace OHOS
-#endif // UPDATER_SERVICE_KITS_IMPL_H
+#endif // UPDATE_SERVICE_KITS_IMPL_H

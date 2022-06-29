@@ -14,127 +14,167 @@
  */
 
 #include "update_session.h"
-#include <iostream>
-#include <memory>
-#include <mutex>
-#include <string>
-#include <thread>
-#include <vector>
 
+#include "client_helper.h"
+#include "napi_util.h"
 #include "node_api.h"
-#include "update_client.h"
-#include "update_helper.h"
 #include "package/package.h"
 #include "securec.h"
+#include "update_helper.h"
 
 using namespace std;
-using namespace OHOS::update_engine;
 
-namespace updateClient {
+namespace OHOS {
+namespace UpdateEngine {
 const int32_t RESULT_ARGC = 2;
 
 uint32_t g_sessionId = 0;
-UpdateSession::UpdateSession(UpdateClient *client, int32_t type, size_t argc, size_t callbackNumber)
-    : sessionId(++g_sessionId), client_(client), type_(type), totalArgc_(argc), callbackNumber_(callbackNumber) {}
-
-int32_t UpdateSession::CreateReference(napi_env env, napi_value arg, uint32_t refcount,
-    napi_ref &reference) const
-{
-    napi_valuetype valuetype;
-    napi_status status = napi_typeof(env, arg, &valuetype);
-    CLIENT_CHECK(status == napi_ok, return status, "Failed to napi_typeof");
-    CLIENT_CHECK(valuetype == napi_function, return -1, "Invalid callback type");
-
-    status = napi_create_reference(env, arg, refcount, &reference);
-    CLIENT_CHECK(status == napi_ok, return status, "Failed to create reference");
-    return status;
-}
+UpdateSession::UpdateSession(IUpdater *client, SessionParams &sessionParams, size_t argc, size_t callbackNumber)
+    : sessionId(++g_sessionId), client_(client), sessionParams_(sessionParams), totalArgc_(argc),
+    callbackNumber_(callbackNumber) {}
 
 napi_value UpdateSession::CreateWorkerName(napi_env env) const
 {
     napi_value workName;
     std::string name = "Async Work" + std::to_string(sessionId);
     napi_status status = napi_create_string_utf8(env, name.c_str(), NAPI_AUTO_LENGTH, &workName);
-    CLIENT_CHECK_NAPI_CALL(env, status == napi_ok, return nullptr, "Failed to worker name");
+    PARAM_CHECK_NAPI_CALL(env, status == napi_ok, return nullptr, "Failed to worker name");
     return workName;
 }
 
-napi_value UpdateSession::StartWork(napi_env env,
-    size_t startIndex, const napi_value *args, UpdateClient::DoWorkFunction worker, void *context)
+napi_value UpdateSession::StartWork(napi_env env, const napi_value *args, DoWorkFunction worker, void *context)
 {
     static std::string sessName[static_cast<int32_t>(SessionType::SESSION_MAX)] = {
-        "check version", "download", "upgrade", "set policy", "get policy",
-        "get new version", "get upgrade status", "subscribe", "unsubscribe", "get update",
-        "apply new version", "reboot and clean", "verify package", "Cancel Upgrade"
+        "check version",
+        "download",
+        "pause download",
+        "resume download",
+        "upgrade",
+        "set policy",
+        "get policy",
+        "clear error",
+        "terminate upgrade",
+        "get new version",
+        "subscribe",
+        "unsubscribe",
+        "get updater",
+        "apply new version",
+        "reboot and clean",
+        "verify package",
+        "cancel Upgrade",
+        "get ota status",
+        "get current version",
+        "get task info"
     };
 
-    CLIENT_LOGI("StartWork type: %s", sessName[type_].c_str());
+    CLIENT_LOGI("StartWork type: %{public}s", sessName[static_cast<int32_t>(sessionParams_.type)].c_str());
     doWorker_ = worker;
     context_ = context;
-    return StartWork(env, startIndex, args);
+    return StartWork(env, sessionParams_.callbackStartIndex, args);
 }
 
 void UpdateSession::ExecuteWork(napi_env env)
 {
     if (doWorker_ != nullptr) {
 #ifndef UPDATER_UT
-        int32_t ret = doWorker_(type_, context_);
-        CLIENT_CHECK_NAPI_CALL(env, ret == 0, return, "execute work");
+        int32_t ret;
+        if (sessionParams_.isNeedBusinessError) {
+            ret = doWorker_(sessionParams_.type, &businessError_);
+        } else {
+            ret = doWorker_(sessionParams_.type, context_);
+        }
+        PARAM_CHECK(ret == 0, return, "execute work return fail ret:%{public}d", ret);
 #else
-        doWorker_(type_, context_);
+        doWorker_(sessionParams_.type, context_);
 #endif
     }
     return;
 }
 
+// JS thread, which is used to notify the JS page upon completion of the operation.
+void UpdateSession::CompleteWork(napi_env env, napi_status status, void *data)
+{
+    auto sess = reinterpret_cast<UpdateSession*>(data);
+    PARAM_CHECK(sess != nullptr && sess->GetUpdateClient() != nullptr, return, "Session is null pointer");
+    sess->CompleteWork(env, status);
+    // If the share ptr is used, you can directly remove the share ptr.
+    IUpdater *client = sess->GetUpdateClient();
+    if (client != nullptr && !sess->IsAsyncCompleteWork()) {
+        client->RemoveSession(sess->GetSessionId());
+    }
+}
+
+// The C++ thread executes the synchronization operation. After the synchronization is complete,
+// the CompleteWork is called to notify the JS page of the completion of the operation.
+void UpdateSession::ExecuteWork(napi_env env, void *data)
+{
+    auto sess = reinterpret_cast<UpdateSession*>(data);
+    PARAM_CHECK(sess != nullptr, return, "sess is null");
+    sess->ExecuteWork(env);
+}
+
 napi_value UpdateAsyncession::StartWork(napi_env env, size_t startIndex, const napi_value *args)
 {
-    CLIENT_LOGI("UpdateAsyncession::StartWork startIndex: %zu", startIndex);
-    CLIENT_LOGI("UpdateAsyncession::totalArgc_ %zu callbackNumber_: %zu", totalArgc_, callbackNumber_);
-    CLIENT_CHECK_NAPI_CALL(env, args != nullptr && totalArgc_ >= startIndex, return nullptr, "Invalid para");
+    CLIENT_LOGI("UpdateAsyncession::StartWork startIndex: %{public}zu", startIndex);
+    CLIENT_LOGI("UpdateAsyncession::totalArgc_ %{public}zu callbackNumber_: %{public}zu", totalArgc_, callbackNumber_);
+    PARAM_CHECK_NAPI_CALL(env, args != nullptr && totalArgc_ >= startIndex, return nullptr, "Invalid para");
     napi_value workName = CreateWorkerName(env);
-    CLIENT_CHECK_NAPI_CALL(env, workName != nullptr, return nullptr, "Failed to worker name");
+    PARAM_CHECK_NAPI_CALL(env, workName != nullptr, return nullptr, "Failed to worker name");
 
     // Check whether a callback exists. Only one callback is allowed.
     for (size_t i = 0; (i < (totalArgc_ - startIndex)) && (i < callbackNumber_); i++) {
         CLIENT_LOGI("CreateReference index:%u", static_cast<unsigned int>(i + startIndex));
-        int32_t ret = CreateReference(env, args[i + startIndex], 1, callbackRef_[i]);
-        CLIENT_CHECK_NAPI_CALL(env, ret == napi_ok, return nullptr, "Failed to create reference");
+        ClientStatus ret = NapiUtil::IsTypeOf(env, args[i + startIndex], napi_function);
+        PARAM_CHECK_NAPI_CALL(env, ret == ClientStatus::CLIENT_SUCCESS, return nullptr, "invalid type");
+
+        ret = NapiUtil::CreateReference(env, args[i + startIndex], 1, callbackRef_[i]);
+        PARAM_CHECK_NAPI_CALL(env, ret == ClientStatus::CLIENT_SUCCESS, return nullptr, "Failed to create reference");
     }
 
+    napi_status status = napi_ok;
     // Create an asynchronous call.
-    napi_status status = napi_create_async_work(env, nullptr, workName, UpdateSession::ExecuteWork,
-        UpdateSession::CompleteWork, this, &(worker_));
-    CLIENT_CHECK_NAPI_CALL(env, status == napi_ok, return nullptr, "Failed to create worker");
+    if (!IsAsyncCompleteWork()) {
+        status = napi_create_async_work(
+            env, nullptr, workName, UpdateSession::ExecuteWork, UpdateSession::CompleteWork, this, &(worker_));
+    } else {
+        status = napi_create_async_work(
+            env,
+            nullptr,
+            workName,
+            UpdateSession::ExecuteWork,
+            [](napi_env env, napi_status status, void *data) {},
+            this,
+            &(worker_));
+    }
+
+    PARAM_CHECK_NAPI_CALL(env, status == napi_ok, return nullptr, "Failed to create worker");
 
     // Put the thread in the task execution queue.
     status = napi_queue_async_work(env, worker_);
-    CLIENT_CHECK_NAPI_CALL(env, status == napi_ok, return nullptr, "Failed to queue worker");
+    PARAM_CHECK_NAPI_CALL(env, status == napi_ok, return nullptr, "Failed to queue worker");
     napi_value result;
     napi_create_int32(env, 0, &result);
     return result;
 }
 
-void UpdateAsyncession::CompleteWork(napi_env env, napi_status status)
+void UpdateAsyncession::NotifyJS(napi_env env, napi_value thisVar, const UpdateResult &result)
 {
-    CLIENT_LOGI("UpdateAsyncession::CompleteWork callbackNumber_: %d", static_cast<int32_t>(callbackNumber_));
+    CLIENT_LOGI("UpdateAsyncession::NotifyJS callbackNumber_: %{public}d", static_cast<int32_t>(callbackNumber_));
+
     napi_value callback;
     napi_value undefined;
     napi_value callResult;
     napi_get_undefined(env, &undefined);
     napi_value retArgs[RESULT_ARGC] = { 0 };
 
-    UpdateResult result;
-    int32_t fail = 0;
-    client_->GetUpdateResult(type_, result, fail);
-    uint32_t ret = (uint32_t)UpdateClient::BuildErrorResult(env, retArgs[0], fail);
+    uint32_t ret = (uint32_t)ClientHelper::BuildBusinessError(env, retArgs[0], result.businessError);
     ret |= (uint32_t)result.buildJSObject(env, retArgs[1], result);
-    CLIENT_CHECK_NAPI_CALL(env, ret == napi_ok, return, "Failed to build json");
+    PARAM_CHECK_NAPI_CALL(env, ret == napi_ok, return, "Failed to build json");
 
-    status = napi_get_reference_value(env, callbackRef_[0], &callback);
-    CLIENT_CHECK_NAPI_CALL(env, status == napi_ok, return, "Failed to get reference");
+    napi_status retStatus = napi_get_reference_value(env, callbackRef_[0], &callback);
+    PARAM_CHECK_NAPI_CALL(env, retStatus == napi_ok, return, "Failed to get reference");
     const int callBackNumber = 2;
-    status = napi_call_function(env, undefined, callback, callBackNumber, retArgs, &callResult);
+    retStatus = napi_call_function(env, undefined, callback, callBackNumber, retArgs, &callResult);
     // Release resources.
     for (size_t i = 0; i < callbackNumber_; i++) {
         napi_delete_reference(env, callbackRef_[i]);
@@ -142,6 +182,19 @@ void UpdateAsyncession::CompleteWork(napi_env env, napi_status status)
     }
     napi_delete_async_work(env, worker_);
     worker_ = nullptr;
+}
+
+void UpdateAsyncession::CompleteWork(napi_env env, napi_status status)
+{
+    CLIENT_LOGI("UpdateAsyncession::CompleteWork callbackNumber_: %{public}d, %{public}d",
+        static_cast<int32_t>(callbackNumber_),
+        sessionParams_.type);
+    if (IsAsyncCompleteWork()) {
+        return;
+    }
+    UpdateResult result;
+    GetUpdateResult(result);
+    NotifyJS(env, NULL, result);
 }
 
 void UpdateAsyncessionNoCallback::CompleteWork(napi_env env, napi_status status)
@@ -153,92 +206,149 @@ void UpdateAsyncessionNoCallback::CompleteWork(napi_env env, napi_status status)
 napi_value UpdatePromiseSession::StartWork(napi_env env, size_t startIndex, const napi_value *args)
 {
     CLIENT_LOGI("UpdatePromiseSession::StartWork");
-    CLIENT_CHECK_NAPI_CALL(env, args != nullptr, return nullptr, "Invalid para");
+    PARAM_CHECK_NAPI_CALL(env, args != nullptr, return nullptr, "Invalid para");
     napi_value workName = CreateWorkerName(env);
-    CLIENT_CHECK_NAPI_CALL(env, workName != nullptr, return nullptr, "Failed to worker name");
+    PARAM_CHECK_NAPI_CALL(env, workName != nullptr, return nullptr, "Failed to worker name");
 
     napi_value promise;
     napi_status status = napi_create_promise(env, &deferred_, &promise);
-    CLIENT_CHECK_NAPI_CALL(env, status == napi_ok, return nullptr, "Failed to napi_create_promise");
+    PARAM_CHECK_NAPI_CALL(env, status == napi_ok, return nullptr, "Failed to napi_create_promise");
 
     // Create an asynchronous call.
     status = napi_create_async_work(env, nullptr, workName, UpdateSession::ExecuteWork,
         UpdateSession::CompleteWork, this, &(worker_));
-    CLIENT_CHECK_NAPI_CALL(env, status == napi_ok, return nullptr, "Failed to napi_create_async_work");
+    PARAM_CHECK_NAPI_CALL(env, status == napi_ok, return nullptr, "Failed to napi_create_async_work");
     // Put the thread in the task execution queue.
     status = napi_queue_async_work(env, worker_);
-    CLIENT_CHECK_NAPI_CALL(env, status == napi_ok, return nullptr, "Failed to napi_queue_async_work");
+    PARAM_CHECK_NAPI_CALL(env, status == napi_ok, return nullptr, "Failed to napi_queue_async_work");
     return promise;
 }
 
-void UpdatePromiseSession::CompleteWork(napi_env env, napi_status status)
+void UpdatePromiseSession::NotifyJS(napi_env env, napi_value thisVar, const UpdateResult &result)
 {
-    CLIENT_LOGI("UpdatePromiseSession::CompleteWork status: %d", static_cast<int32_t>(status));
+    int32_t errorNum = static_cast<int32_t>(result.businessError.errorNum);
+    CLIENT_LOGI("UpdatePromiseSession NotifyJS errorNum:%{public}d", errorNum);
+
     // Get the return result.
     napi_value processResult;
-    UpdateResult result;
-    int32_t fail = 0;
-    client_->GetUpdateResult(type_, result, fail);
-    if (fail == 0) {
+    const BusinessError &businessError = result.businessError;
+    if (!UpdateHelper::IsErrorExist(businessError)) {
         result.buildJSObject(env, processResult, result);
         napi_resolve_deferred(env, deferred_, processResult);
     } else {
-        UpdateClient::BuildErrorResult(env, processResult, fail);
+        ClientHelper::BuildBusinessError(env, processResult, businessError);
         napi_reject_deferred(env, deferred_, processResult);
     }
     napi_delete_async_work(env, worker_);
     worker_ = nullptr;
 }
 
+void UpdatePromiseSession::CompleteWork(napi_env env, napi_status status)
+{
+    CLIENT_LOGI("UpdatePromiseSession::CompleteWork status: %d", static_cast<int32_t>(status));
+    if (IsAsyncCompleteWork()) {
+        return;
+    }
+    UpdateResult result;
+    GetUpdateResult(result);
+    NotifyJS(env, NULL, result);
+}
+
 napi_value UpdateListener::StartWork(napi_env env, size_t startIndex, const napi_value *args)
 {
     CLIENT_LOGI("UpdateListener::StartWork");
-    CLIENT_CHECK_NAPI_CALL(env, args != nullptr && totalArgc_ > startIndex, return nullptr, "Invalid para");
-    int ret = UpdateClient::GetStringValue(env, args[0], eventType_);
-    CLIENT_CHECK_NAPI_CALL(env, ret == napi_ok, return nullptr, "Failed to get event type");
+    PARAM_CHECK_NAPI_CALL(env, args != nullptr && totalArgc_ > startIndex, return nullptr, "Invalid para");
 
-    // reference count is 1
-    ret = CreateReference(env, args[startIndex], 1, handlerRef_);
-    CLIENT_CHECK_NAPI_CALL(env, ret == napi_ok, return nullptr, "Failed to create reference");
+    if (NapiUtil::IsTypeOf(env, args[0], napi_string) == ClientStatus::CLIENT_SUCCESS) {
+        int ret = NapiUtil::GetString(env, args[0], eventType_);
+        PARAM_CHECK_NAPI_CALL(env, ret == napi_ok, return nullptr, "Failed to get string event type");
+    } else {
+        ClientStatus ret = ClientHelper::GetEventClassifyInfoFromArg(env, args[0], eventClassifyInfo_);
+        PARAM_CHECK_NAPI_CALL(env, ret == ClientStatus::CLIENT_SUCCESS, return nullptr, "Failed to get obj event type");
+    }
+
+    PARAM_CHECK_NAPI_CALL(env, NapiUtil::IsTypeOf(env, args[startIndex], napi_function) == ClientStatus::CLIENT_SUCCESS,
+        return nullptr, "Invalid callback type");
+    ClientStatus ret = NapiUtil::CreateReference(env, args[startIndex], 1, handlerRef_);
+    PARAM_CHECK_NAPI_CALL(env, ret == ClientStatus::CLIENT_SUCCESS, return nullptr, "Failed to create reference");
+
     napi_value result;
     napi_create_int32(env, 0, &result);
     return result;
 }
 
-void UpdateListener::NotifyJS(napi_env env, napi_value thisVar, int32_t retcode, const UpdateResult &result)
+void UpdateListener::NotifyJS(napi_env env, napi_value thisVar, const UpdateResult &result)
 {
-    CLIENT_LOGI("NotifyJS retcode:%d", retcode);
+    CLIENT_LOGI("NotifyJS");
     napi_value jsEvent;
     napi_value handler = nullptr;
     napi_value callResult;
     int32_t ret = result.buildJSObject(env, jsEvent, result);
-    CLIENT_CHECK_NAPI_CALL(env, ret == napi_ok, return, "Failed to build json");
+    PARAM_CHECK_NAPI_CALL(env, ret == napi_ok, return, "Failed to build json");
     {
-        std::unique_lock<std::mutex> lock(mutex_);
-        CLIENT_CHECK_NAPI_CALL(env, handlerRef_ != nullptr, return, "handlerRef_ has beed freed");
+        std::lock_guard<std::mutex> lock(mutex_);
+        PARAM_CHECK_NAPI_CALL(env, handlerRef_ != nullptr, return, "handlerRef_ has beed freed");
         napi_status status = napi_get_reference_value(env, handlerRef_, &handler);
-        CLIENT_CHECK_NAPI_CALL(env, status == napi_ok && handler != nullptr, return, "Failed to get reference");
+        PARAM_CHECK_NAPI_CALL(env, status == napi_ok && handler != nullptr, return, "Failed to get reference");
     }
-    CLIENT_CHECK_NAPI_CALL(env, handler != nullptr, return, "handlerRef_ has beed freed");
+    PARAM_CHECK_NAPI_CALL(env, handler != nullptr, return, "handlerRef_ has beed freed");
     napi_call_function(env, thisVar, handler, 1, &jsEvent, &callResult);
+}
+
+void UpdateListener::NotifyJS(napi_env env, napi_value thisVar, const EventInfo &eventInfo)
+{
+    CLIENT_LOGI("NotifyJS, eventId:%{public}d", eventInfo.eventId);
+    napi_value jsEvent = nullptr;
+    ClientStatus ret = ClientHelper::BuildEventInfo(env, jsEvent, eventInfo);
+    PARAM_CHECK_NAPI_CALL(env, ret == ClientStatus::CLIENT_SUCCESS, return, "Failed to build event info");
+
+    std::lock_guard<std::mutex> lock(mutex_);
+    PARAM_CHECK_NAPI_CALL(env, handlerRef_ != nullptr, return, "handlerRef_ has beed freed");
+    napi_value handler = nullptr;
+    napi_status status = napi_get_reference_value(env, handlerRef_, &handler);
+    PARAM_CHECK_NAPI_CALL(env, status == napi_ok && handler != nullptr, return, "Failed to get reference");
+
+    napi_value callResult = nullptr;
+    status = napi_call_function(env, thisVar, handler, 1, &jsEvent, &callResult);
+    if (status != napi_ok) {
+        CLIENT_LOGE("NotifyJS error, napi_call_function fail");
+    }
 }
 
 bool UpdateListener::CheckEqual(napi_env env, napi_value handler, const std::string &type)
 {
-    std::unique_lock<std::mutex> lock(mutex_);
+    std::lock_guard<std::mutex> lock(mutex_);
     bool isEquals = false;
     napi_value handlerTemp = nullptr;
     napi_status status = napi_get_reference_value(env, handlerRef_, &handlerTemp);
-    CLIENT_CHECK_NAPI_CALL(env, status == napi_ok, return false, "Failed to get reference");
+    PARAM_CHECK_NAPI_CALL(env, status == napi_ok, return false, "Failed to get reference");
     napi_strict_equals(env, handler, handlerTemp, &isEquals);
     return isEquals && (type.compare(eventType_) == 0);
 }
 
+bool UpdateListener::IsSameListener(napi_env env, const EventClassifyInfo &eventClassifyInfo, napi_value handler)
+{
+    if (eventClassifyInfo_.eventClassify != eventClassifyInfo.eventClassify) {
+        CLIENT_LOGI("not same listener, different event classify, 0x%{public}x, 0x%{public}x",
+            eventClassifyInfo_.eventClassify, eventClassifyInfo.eventClassify);
+        return false;
+    }
+
+    napi_value currentHandler = nullptr;
+    napi_status status = napi_get_reference_value(env, handlerRef_, &currentHandler);
+    PARAM_CHECK_NAPI_CALL(env, status == napi_ok, return false, "Failed to get current handle");
+
+    bool isEquals = false;
+    status = napi_strict_equals(env, handler, currentHandler, &isEquals);
+    return status == napi_ok && isEquals;
+}
+
 void UpdateListener::RemoveHandlerRef(napi_env env)
 {
-    std::unique_lock<std::mutex> lock(mutex_);
+    std::lock_guard<std::mutex> lock(mutex_);
     CLIENT_LOGI("RemoveHandlerRef handlerRef_:%{public}p %{public}u", handlerRef_, GetSessionId());
     napi_delete_reference(env, handlerRef_);
     handlerRef_ = nullptr;
 }
-} // namespace updateClient
+} // namespace UpdateEngine
+} // namespace OHOS
