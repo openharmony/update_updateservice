@@ -442,7 +442,8 @@ ClientStatus ParseUpgradeFile(napi_env env, const napi_value arg, UpgradeFile &u
 
     int32_t fileType = 0;
     NapiUtil::GetInt32(env, arg, "fileType", fileType);
-    static const std::list enumList = { ComponentType::OTA, ComponentType::PATCH, ComponentType::COTA, ComponentType::PARAM };
+    static const std::list enumList = { ComponentType::OTA, ComponentType::PATCH, ComponentType::COTA,
+        ComponentType::PARAM };
     PARAM_CHECK(IsValidEnum(enumList, fileType), return ClientStatus::CLIENT_INVALID_PARAM,
         "ParseUpgradeFile error, invalid fileType:%{public}d", fileType);
     upgradeFile.fileType = static_cast<ComponentType>(fileType);
