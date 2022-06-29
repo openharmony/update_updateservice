@@ -15,6 +15,12 @@ import("//build/ohos.gni")
 
 ohos_shared_library("update") {
   sources = [
+    "//base/update/updateservice/frameworks/js/napi/base/src/client_helper.cpp",
+    "//base/update/updateservice/frameworks/js/napi/base/src/iupdater.cpp",
+    "//base/update/updateservice/frameworks/js/napi/base/src/napi_util.cpp",
+    "//base/update/updateservice/frameworks/js/napi/base/src/session_manager.cpp",
+    "//base/update/updateservice/frameworks/js/napi/client/local_updater.cpp",
+    "//base/update/updateservice/frameworks/js/napi/client/restorer.cpp",
     "//base/update/updateservice/frameworks/js/napi/client/update_client.cpp",
     "//base/update/updateservice/frameworks/js/napi/client/update_module.cpp",
     "//base/update/updateservice/frameworks/js/napi/client/update_session.cpp",
@@ -30,11 +36,11 @@ ohos_shared_library("update") {
     "//utils/system/safwk/native/include",
     "//base/update/updateservice/interfaces/inner_api/include",
     "//base/update/updateservice/frameworks/js/napi/client",
+    "//base/update/updateservice/frameworks/js/napi/base/include",
     "//base/startup/syspara_lite/adapter/native/syspara/include",
     "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy/include",
     "//foundation/distributedschedule/safwk/services/safwk/include",
     "//foundation/distributedschedule/safwk/interfaces/innerkits/safwk",
-    "//foundation/distributedschedule/samgr/adapter/interfaces/innerkits/include",
     "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy/include",
   ]
 
@@ -52,7 +58,6 @@ ohos_shared_library("update") {
   ]
 
   external_deps = [
-    "hisysevent_native:libhisysevent",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",

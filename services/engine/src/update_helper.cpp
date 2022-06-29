@@ -27,7 +27,7 @@
 #include "securec.h"
 
 namespace OHOS {
-namespace update_engine {
+namespace UpdateEngine {
 #ifdef UPDATE_SERVICE
 const std::string LOG_LABEL = "update_engine";
 const std::string LOG_NAME = "/data/ota_package/update_service_log.txt";
@@ -37,162 +37,342 @@ const std::string LOG_NAME = "/data/ota_package/update_client.log.txt";
 #endif
 constexpr int HEX_DIGEST_NUM = 2;
 constexpr int HEX_DIGEST_BASE = 16;
+constexpr int DATA_ANONYMIZATION_LEN = 4;
 
 UpdateLogLevel UpdateHelper::level_ = UpdateLogLevel::UPDATE_INFO;
 
-int32_t UpdateHelper::WriteUpdateContext(MessageParcel &data, const UpdateContext &info)
+std::string UpgradeInfo::ToString() const
 {
-    data.WriteString16(Str8ToStr16(info.upgradeDevId));
-    data.WriteString16(Str8ToStr16(info.controlDevId));
-    data.WriteString16(Str8ToStr16(info.upgradeApp));
-    data.WriteString16(Str8ToStr16(info.upgradeFile));
-    data.WriteString16(Str8ToStr16(info.type));
-    return 0;
+    std::string output = "upgradeApp:" + upgradeApp;
+    output += ",businessType(vender:" + businessType.vendor;
+    output += ",subType:" + std::to_string(CAST_INT(businessType.subType));
+    output += "),upgradeDevId:" + UpdateHelper::Anonymization(upgradeDevId);
+    output += ",controlDevId:" + UpdateHelper::Anonymization(controlDevId);
+    return output;
 }
 
-int32_t UpdateHelper::ReadUpdateContext(MessageParcel &reply, UpdateContext &info)
+void ReadErrorMessages(MessageParcel &reply, ErrorMessage errorMessages[], size_t arraySize)
 {
+    int32_t size = reply.ReadInt32();
+    for (size_t i = 0; (i < static_cast<size_t>(size)) && (i < arraySize); i++) {
+        errorMessages[i].errorCode = reply.ReadInt32();
+        errorMessages[i].errorMessage = Str16ToStr8(reply.ReadString16());
+    }
+}
+
+void WriteErrorMessages(MessageParcel &data, const ErrorMessage errorMessages[], size_t arraySize)
+{
+    data.WriteInt32(static_cast<int32_t>(arraySize));
+    for (size_t i = 0; i < arraySize; i++) {
+        data.WriteInt32(errorMessages[i].errorCode);
+        data.WriteString16(Str8ToStr16(errorMessages[i].errorMessage));
+    }
+}
+
+int32_t UpdateHelper::ReadUpgradeInfo(MessageParcel &reply, UpgradeInfo &info)
+{
+    info.upgradeApp = Str16ToStr8(reply.ReadString16());
+    info.businessType.vendor = Str16ToStr8(reply.ReadString16());
+    info.businessType.subType = static_cast<BusinessSubType>(reply.ReadInt32());
     info.upgradeDevId = Str16ToStr8(reply.ReadString16());
     info.controlDevId = Str16ToStr8(reply.ReadString16());
-    info.upgradeApp = Str16ToStr8(reply.ReadString16());
-    info.upgradeFile = Str16ToStr8(reply.ReadString16());
-    info.type = Str16ToStr8(reply.ReadString16());
     return 0;
 }
 
-int32_t UpdateHelper::WriteVersionInfo(MessageParcel &data, const VersionInfo &info)
+int32_t UpdateHelper::WriteUpgradeInfo(MessageParcel &data, const UpgradeInfo &info)
 {
-    data.WriteInt32(static_cast<int32_t>(info.status));
-    data.WriteString16(Str8ToStr16(info.errMsg));
-    size_t i;
-    data.WriteInt32(static_cast<int32_t>(sizeof(info.result) / sizeof(info.result[0])));
-    for (i = 0; i < sizeof(info.result) / sizeof(info.result[0]); i++) {
-        data.WriteUint64(static_cast<uint64_t>(info.result[i].size));
-        data.WriteInt32(static_cast<int32_t>(info.result[i].packageType));
+    data.WriteString16(Str8ToStr16(info.upgradeApp));
+    data.WriteString16(Str8ToStr16(info.businessType.vendor));
+    data.WriteInt32(static_cast<int32_t>(info.businessType.subType));
+    data.WriteString16(Str8ToStr16(info.upgradeDevId));
+    data.WriteString16(Str8ToStr16(info.controlDevId));
+    return 0;
+}
 
-        data.WriteString16(Str8ToStr16(info.result[i].versionName));
-        data.WriteString16(Str8ToStr16(info.result[i].versionCode));
-        data.WriteString16(Str8ToStr16(info.result[i].verifyInfo));
-        data.WriteString16(Str8ToStr16(info.result[i].descriptPackageId));
+int32_t UpdateHelper::ReadBusinessError(MessageParcel &reply, BusinessError &businessError)
+{
+    businessError.message = Str16ToStr8(reply.ReadString16());
+    businessError.errorNum = static_cast<CallResult>(reply.ReadInt32());
+    ReadErrorMessages(reply, businessError.data, COUNT_OF(businessError.data));
+    return 0;
+}
+
+int32_t UpdateHelper::WriteBusinessError(MessageParcel &data, const BusinessError &businessError)
+{
+    data.WriteString16(Str8ToStr16(businessError.message));
+    data.WriteInt32(static_cast<int32_t>(businessError.errorNum));
+    WriteErrorMessages(data, businessError.data, COUNT_OF(businessError.data));
+    return 0;
+}
+
+void ReadVersionComponents(MessageParcel &reply, VersionComponent versionComponents[], size_t arraySize)
+{
+    int32_t size = reply.ReadInt32();
+    for (size_t i = 0; (i < static_cast<size_t>(size)) && (i < arraySize); i++) {
+        VersionComponent *versionComponent = &versionComponents[i];
+        versionComponent->componentType = reply.ReadUint32();
+        versionComponent->upgradeAction = Str16ToStr8(reply.ReadString16());
+        versionComponent->displayVersion = Str16ToStr8(reply.ReadString16());
+        versionComponent->innerVersion = Str16ToStr8(reply.ReadString16());
+        versionComponent->size = static_cast<size_t>(reply.ReadUint32());
+        versionComponent->effectiveMode = static_cast<size_t>(reply.ReadUint32());
+
+        versionComponent->descriptionInfo.descriptionType = static_cast<DescriptionType>(reply.ReadUint32());
+        versionComponent->descriptionInfo.content = Str16ToStr8(reply.ReadString16());
     }
-    data.WriteInt32(static_cast<int32_t>(sizeof(info.descriptInfo) / sizeof(info.descriptInfo[0])));
-    for (i = 0; i < sizeof(info.descriptInfo) / sizeof(info.descriptInfo[0]); i++) {
-        data.WriteString16(Str8ToStr16(info.descriptInfo[i].descriptPackageId));
-        data.WriteString16(Str8ToStr16(info.descriptInfo[i].content));
+}
+
+void WriteVersionComponents(MessageParcel &data, const VersionComponent versionComponents[], size_t arraySize)
+{
+    data.WriteInt32(static_cast<int32_t>(arraySize));
+    for (size_t i = 0; i < arraySize; i++) {
+        const VersionComponent *versionComponent = &versionComponents[i];
+        data.WriteUint32(versionComponent->componentType);
+        data.WriteString16(Str8ToStr16(versionComponent->upgradeAction));
+        data.WriteString16(Str8ToStr16(versionComponent->displayVersion));
+        data.WriteString16(Str8ToStr16(versionComponent->innerVersion));
+        data.WriteUint32(static_cast<uint32_t>(versionComponent->size));
+        data.WriteUint32(static_cast<uint32_t>(versionComponent->effectiveMode));
+
+        data.WriteUint32(static_cast<uint32_t>(versionComponent->descriptionInfo.descriptionType));
+        data.WriteString16(Str8ToStr16(versionComponent->descriptionInfo.content));
+    }
+}
+
+void ReadNewVersionInfoEx(MessageParcel &reply, NewVersionInfo &newVersionInfo)
+{
+    newVersionInfo.versionDigestInfo.versionDigest = Str16ToStr8(reply.ReadString16());
+    ReadVersionComponents(reply, newVersionInfo.versionComponents, COUNT_OF(newVersionInfo.versionComponents));
+}
+
+void WriteNewVersionInfoEx(MessageParcel &data, const NewVersionInfo &newVersionInfo)
+{
+    data.WriteString16(Str8ToStr16(newVersionInfo.versionDigestInfo.versionDigest));
+    WriteVersionComponents(data, newVersionInfo.versionComponents, COUNT_OF(newVersionInfo.versionComponents));
+}
+
+int32_t UpdateHelper::ReadCheckResult(MessageParcel &reply, CheckResultEx &checkResultEx)
+{
+    checkResultEx.isExistNewVersion = reply.ReadBool();
+    ReadNewVersionInfoEx(reply, checkResultEx.newVersionInfo);
+    return 0;
+}
+
+int32_t UpdateHelper::WriteCheckResult(MessageParcel &data, const CheckResultEx &checkResultEx)
+{
+    data.WriteBool(checkResultEx.isExistNewVersion);
+    WriteNewVersionInfoEx(data, checkResultEx.newVersionInfo);
+    return 0;
+}
+
+int32_t UpdateHelper::ReadNewVersionInfo(MessageParcel &reply, NewVersionInfo &newVersionInfo)
+{
+    ReadNewVersionInfoEx(reply, newVersionInfo);
+    return 0;
+}
+
+int32_t UpdateHelper::WriteNewVersionInfo(MessageParcel &data, const NewVersionInfo &newVersionInfo)
+{
+    WriteNewVersionInfoEx(data, newVersionInfo);
+    return 0;
+}
+
+int32_t UpdateHelper::ReadCurrentVersionInfo(MessageParcel &reply, CurrentVersionInfo &info)
+{
+    ENGINE_LOGI("ReadCurrentVersionInfo");
+    info.osVersion = Str16ToStr8(reply.ReadString16());
+    info.deviceName = Str16ToStr8(reply.ReadString16());
+    ReadVersionComponents(reply, info.versionComponents, COUNT_OF(info.versionComponents));
+    return 0;
+}
+
+int32_t UpdateHelper::WriteCurrentVersionInfo(MessageParcel &data, const CurrentVersionInfo &info)
+{
+    ENGINE_LOGI("WriteCurrentVersionInfo");
+    data.WriteString16(Str8ToStr16(info.osVersion));
+    data.WriteString16(Str8ToStr16(info.deviceName));
+    WriteVersionComponents(data, info.versionComponents, COUNT_OF(info.versionComponents));
+    return 0;
+}
+
+void ReadTaskBody(MessageParcel &reply, TaskBody &taskBody)
+{
+    taskBody.versionDigestInfo.versionDigest = Str16ToStr8(reply.ReadString16());
+    taskBody.status = static_cast<UpgradeStatus>(reply.ReadInt32());
+    taskBody.subStatus = reply.ReadInt32();
+    taskBody.progress = reply.ReadUint32();
+    taskBody.installMode = reply.ReadInt32();
+    ReadErrorMessages(reply, taskBody.errorMessages, COUNT_OF(taskBody.errorMessages));
+    ReadVersionComponents(reply, taskBody.versionComponents, COUNT_OF(taskBody.versionComponents));
+}
+
+void WriteTaskBody(MessageParcel &data, const TaskBody &taskBody)
+{
+    data.WriteString16(Str8ToStr16(taskBody.versionDigestInfo.versionDigest));
+    data.WriteInt32(static_cast<int32_t>(taskBody.status));
+    data.WriteInt32(taskBody.subStatus);
+    data.WriteUint32(taskBody.progress);
+    data.WriteInt32(taskBody.installMode);
+    WriteErrorMessages(data, taskBody.errorMessages, COUNT_OF(taskBody.errorMessages));
+    WriteVersionComponents(data, taskBody.versionComponents, COUNT_OF(taskBody.versionComponents));
+}
+
+int32_t UpdateHelper::ReadTaskInfo(MessageParcel &reply, TaskInfo &info)
+{
+    ENGINE_LOGI("ReadTaskInfo");
+    info.existTask = reply.ReadBool();
+    ReadTaskBody(reply, info.taskBody);
+    return 0;
+}
+
+int32_t UpdateHelper::WriteTaskInfo(MessageParcel &data, const TaskInfo &info)
+{
+    ENGINE_LOGI("WriteTaskInfo");
+    data.WriteBool(info.existTask);
+    WriteTaskBody(data, info.taskBody);
+    return 0;
+}
+
+int32_t UpdateHelper::ReadOtaStatus(MessageParcel &reply, OtaStatus &otaStatus)
+{
+    otaStatus.progress = reply.ReadUint32();
+    otaStatus.status = static_cast<UpgradeStatus>(reply.ReadInt32());
+    otaStatus.subStatus = reply.ReadInt32();
+    size_t size = static_cast<size_t>(reply.ReadInt32());
+    size_t arraySize = COUNT_OF(otaStatus.errMsg);
+    for (size_t i = 0; (i < size) && (i < arraySize); i++) {
+        otaStatus.errMsg[i].errorCode = reply.ReadInt32();
+        otaStatus.errMsg[i].errorMsg = Str16ToStr8(reply.ReadString16());
     }
     return 0;
 }
 
-int32_t UpdateHelper::ReadVersionInfo(MessageParcel &reply, VersionInfo &info)
+int32_t UpdateHelper::WriteOtaStatus(MessageParcel &data, const OtaStatus &otaStatus)
 {
-    info.status = static_cast<SearchStatus>(reply.ReadInt32());
-    info.errMsg = Str16ToStr8(reply.ReadString16());
-
-    int32_t count = reply.ReadInt32();
-    size_t i;
-    for (i = 0; (i < static_cast<size_t>(count)) && (i < sizeof(info.result) / sizeof(info.result[0])); i++) {
-        uint64_t uint64 = reply.ReadUint64();
-        info.result[i].size = static_cast<size_t>(uint64);
-        info.result[i].packageType = static_cast<PackageType>(reply.ReadInt32());
-
-        info.result[i].versionName = Str16ToStr8(reply.ReadString16());
-        info.result[i].versionCode = Str16ToStr8(reply.ReadString16());
-        info.result[i].verifyInfo = Str16ToStr8(reply.ReadString16());
-        info.result[i].descriptPackageId = Str16ToStr8(reply.ReadString16());
+    data.WriteUint32(otaStatus.progress);
+    data.WriteInt32(static_cast<int32_t>(otaStatus.status));
+    data.WriteInt32(static_cast<int32_t>(otaStatus.subStatus));
+    int32_t size = static_cast<int32_t>(COUNT_OF(otaStatus.errMsg));
+    data.WriteInt32(size);
+    for (int32_t i = 0; i < size; i++) {
+        data.WriteInt32(static_cast<int32_t>(otaStatus.errMsg[i].errorCode));
+        data.WriteString16(Str8ToStr16(otaStatus.errMsg[i].errorMsg));
     }
-    count = reply.ReadInt32();
-    for (i = 0; (i < static_cast<size_t>(count))
-        && (i < sizeof(info.descriptInfo) / sizeof(info.descriptInfo[0])); i++) {
-        info.descriptInfo[i].descriptPackageId = Str16ToStr8(reply.ReadString16());
-        info.descriptInfo[i].content = Str16ToStr8(reply.ReadString16());
+    return 0;
+}
+
+int32_t UpdateHelper::ReadUpdatePolicy(MessageParcel &reply, UpdatePolicy &policy)
+{
+    policy.downloadStrategy = static_cast<bool>(reply.ReadBool());
+    policy.autoUpgradeStrategy = static_cast<bool>(reply.ReadBool());
+    size_t size = static_cast<size_t>(reply.ReadInt32());
+    size_t arraySize = COUNT_OF(policy.autoUpgradePeriods);
+    for (size_t i = 0; (i < size) && (i < arraySize); i++) {
+        policy.autoUpgradePeriods[i].start = reply.ReadUint32();
+        policy.autoUpgradePeriods[i].end = reply.ReadUint32();
     }
     return 0;
 }
 
 int32_t UpdateHelper::WriteUpdatePolicy(MessageParcel &data, const UpdatePolicy &policy)
 {
-    data.WriteBool(policy.autoDownload);
-    data.WriteBool(policy.autoDownloadNet);
-    data.WriteInt32(static_cast<int32_t>(policy.mode));
-    data.WriteInt32(static_cast<int32_t>(policy.autoUpgradeCondition));
-    data.WriteInt32(static_cast<int32_t>(sizeof(policy.autoUpgradeInterval) / sizeof(policy.autoUpgradeInterval[0])));
-    for (size_t i = 0; i < sizeof(policy.autoUpgradeInterval) / sizeof(policy.autoUpgradeInterval[0]); i++) {
-        data.WriteUint32(policy.autoUpgradeInterval[i]);
+    data.WriteBool(policy.downloadStrategy);
+    data.WriteBool(policy.autoUpgradeStrategy);
+    int32_t size = static_cast<int32_t>(COUNT_OF(policy.autoUpgradePeriods));
+    data.WriteInt32(size);
+    for (int32_t i = 0; i < size; i++) {
+        data.WriteUint32(policy.autoUpgradePeriods[i].start);
+        data.WriteUint32(policy.autoUpgradePeriods[i].end);
     }
     return 0;
 }
 
-int32_t UpdateHelper::ReadUpdatePolicy(MessageParcel &data, UpdatePolicy &policy)
+int32_t UpdateHelper::ReadEventInfo(MessageParcel &reply, EventInfo &eventInfo)
 {
-    policy.autoDownload = static_cast<bool>(data.ReadBool());
-    policy.autoDownloadNet = static_cast<bool>(data.ReadBool());
-    policy.mode = static_cast<InstallMode>(data.ReadInt32());
-    policy.autoUpgradeCondition = static_cast<AutoUpgradeCondition>(data.ReadInt32());
-    int32_t count = data.ReadInt32();
-    for (size_t i = 0; (i < static_cast<size_t>(count)) && (i <
-        sizeof(policy.autoUpgradeInterval) / sizeof(policy.autoUpgradeInterval[0])); i++) {
-        policy.autoUpgradeInterval[i] = data.ReadUint32();
-    }
+    eventInfo.eventId = static_cast<EventId>(reply.ReadUint32());
+    ReadTaskBody(reply, eventInfo.taskBody);
     return 0;
 }
 
-int32_t UpdateHelper::ReadUpgradeInfo(MessageParcel &reply, UpgradeInfo &info)
+int32_t UpdateHelper::WriteEventInfo(MessageParcel &data, const EventInfo &eventInfo)
 {
-    info.status = static_cast<UpgradeStatus>(reply.ReadInt32());
+    data.WriteUint32(static_cast<uint32_t>(eventInfo.eventId));
+    WriteTaskBody(data, eventInfo.taskBody);
     return 0;
 }
 
-int32_t UpdateHelper::WriteUpgradeInfo(MessageParcel &data, const UpgradeInfo &info)
+int32_t UpdateHelper::ReadVersionDigestInfo(MessageParcel &reply, VersionDigestInfo &versionDigestInfo)
 {
-    data.WriteInt32(info.status);
+    versionDigestInfo.versionDigest = Str16ToStr8(reply.ReadString16());
     return 0;
 }
 
-int32_t UpdateHelper::ReadUpdateProgress(MessageParcel &reply, Progress &info)
+int32_t UpdateHelper::WriteVersionDigestInfo(MessageParcel &data, const VersionDigestInfo &versionDigestInfo)
 {
-    info.percent = static_cast<uint32_t>(reply.ReadUint32());
-    info.status = static_cast<UpgradeStatus>(reply.ReadInt32());
-    info.endReason = Str16ToStr8(reply.ReadString16());
+    data.WriteString16(Str8ToStr16(versionDigestInfo.versionDigest));
     return 0;
 }
 
-int32_t UpdateHelper::WriteUpdateProgress(MessageParcel &data, const Progress &info)
+int32_t UpdateHelper::ReadDownloadOptions(MessageParcel &reply, DownloadOptions &downloadOptions)
 {
-    data.WriteUint32(info.percent);
-    data.WriteInt32(static_cast<int32_t>(info.status));
-    data.WriteString16(Str8ToStr16(info.endReason));
+    downloadOptions.allowNetwork = static_cast<NetType>(reply.ReadUint32());
+    downloadOptions.order = static_cast<Order>(reply.ReadUint32());
     return 0;
 }
 
-int32_t UpdateHelper::CopyVersionInfo(const VersionInfo &srcInfo, VersionInfo &dstInfo)
+int32_t UpdateHelper::WriteDownloadOptions(MessageParcel &data, const DownloadOptions &downloadOptions)
 {
-    dstInfo.status = srcInfo.status;
-    dstInfo.errMsg = srcInfo.errMsg;
-    size_t i;
-    for (i = 0; i < sizeof(dstInfo.result) / sizeof(dstInfo.result[0]); i++) {
-        dstInfo.result[i].size = srcInfo.result[i].size;
-        dstInfo.result[i].packageType = srcInfo.result[i].packageType;
-        dstInfo.result[i].versionName = srcInfo.result[i].versionName;
-        dstInfo.result[i].versionCode = srcInfo.result[i].versionCode;
-        dstInfo.result[i].verifyInfo = srcInfo.result[i].verifyInfo;
-        dstInfo.result[i].descriptPackageId = srcInfo.result[i].descriptPackageId;
-    }
-    for (i = 0; i < sizeof(dstInfo.descriptInfo) / sizeof(dstInfo.descriptInfo[0]); i++) {
-        dstInfo.descriptInfo[i].content = srcInfo.descriptInfo[i].content;
-        dstInfo.descriptInfo[i].descriptPackageId = srcInfo.descriptInfo[i].descriptPackageId;
-    }
+    data.WriteUint32(static_cast<uint32_t>(downloadOptions.allowNetwork));
+    data.WriteUint32(static_cast<uint32_t>(downloadOptions.order));
     return 0;
 }
 
-int32_t UpdateHelper::CopyUpdatePolicy(const UpdatePolicy &srcInfo, UpdatePolicy &dstInfo)
+int32_t UpdateHelper::ReadPauseDownloadOptions(MessageParcel &reply, PauseDownloadOptions &pauseDownloadOptions)
 {
-    dstInfo.autoDownload = srcInfo.autoDownload;
-    dstInfo.autoDownloadNet = srcInfo.autoDownloadNet;
-    dstInfo.mode = srcInfo.mode;
-    dstInfo.autoUpgradeCondition = srcInfo.autoUpgradeCondition;
-    for (size_t i = 0; i < sizeof(dstInfo.autoUpgradeInterval) / sizeof(dstInfo.autoUpgradeInterval[0]); i++) {
-        dstInfo.autoUpgradeInterval[i] = srcInfo.autoUpgradeInterval[i];
-    }
+    pauseDownloadOptions.isAllowAutoResume = reply.ReadBool();
+    return 0;
+}
+
+int32_t UpdateHelper::WritePauseDownloadOptions(MessageParcel &data, const PauseDownloadOptions &pauseDownloadOptions)
+{
+    data.WriteBool(pauseDownloadOptions.isAllowAutoResume);
+    return 0;
+}
+
+int32_t UpdateHelper::ReadResumeDownloadOptions(MessageParcel &reply, ResumeDownloadOptions &resumeDownloadOptions)
+{
+    resumeDownloadOptions.allowNetwork = static_cast<NetType>(reply.ReadUint32());
+    return 0;
+}
+
+int32_t UpdateHelper::WriteResumeDownloadOptions(MessageParcel &data,
+    const ResumeDownloadOptions &resumeDownloadOptions)
+{
+    data.WriteUint32(static_cast<uint32_t>(resumeDownloadOptions.allowNetwork));
+    return 0;
+}
+
+int32_t UpdateHelper::ReadUpgradeOptions(MessageParcel &reply, UpgradeOptions &upgradeOptions)
+{
+    upgradeOptions.order = static_cast<Order>(reply.ReadUint32());
+    return 0;
+}
+
+int32_t UpdateHelper::WriteUpgradeOptions(MessageParcel &data, const UpgradeOptions &upgradeOptions)
+{
+    data.WriteUint32(static_cast<uint32_t>(upgradeOptions.order));
+    return 0;
+}
+
+int32_t UpdateHelper::ReadClearOptions(MessageParcel &reply, ClearOptions &clearOptions)
+{
+    clearOptions.status = static_cast<UpgradeStatus>(reply.ReadUint32());
+    return 0;
+}
+
+int32_t UpdateHelper::WriteClearOptions(MessageParcel &data, const ClearOptions &clearOptions)
+{
+    data.WriteUint32(static_cast<uint32_t>(clearOptions.status));
     return 0;
 }
 
@@ -238,6 +418,11 @@ std::vector<std::string> UpdateHelper::SplitString(const std::string &str, const
     return result;
 }
 
+bool UpdateHelper::IsErrorExist(const BusinessError &businessError)
+{
+    return businessError.errorNum != CallResult::SUCCESS;
+}
+
 int32_t UpdateHelper::CompareVersion(const std::string &version1, const std::string &version2)
 {
     std::vector<std::string> result1 = SplitString(version1, ".");
@@ -272,33 +457,26 @@ std::vector<uint8_t> UpdateHelper::HexToDegist(const std::string &str)
     return result;
 }
 
-std::string UpdateHelper::EncryptInfo(const std::string &src)
+std::string UpdateHelper::Anonymization(const std::string &src)
 {
-    int len = src.length();
-    if (len <= 0) {
+    int len = static_cast<int>(src.length());
+    if (len <= DATA_ANONYMIZATION_LEN) {
         return std::string("");
     }
-    return std::string("***") + src.substr(len / 2); // 2:string length divided by 2
+    return std::string("*****") + src.substr(0, DATA_ANONYMIZATION_LEN);
 }
 
 std::string UpdateHelper::BuildEventVersionInfo(const VersionInfo &ver)
 {
-    return std::string("{ ") + std::string("pkgSize: ") + std::to_string(ver.result[0].size)
+    return std::string("{") + std::string("pkgSize: ") + std::to_string(ver.result[0].size)
         + std::string(", packageType: ") + std::to_string(ver.result[0].packageType)
         + std::string(", versionCode: ") + ver.result[0].versionCode + std::string(" }");
 }
 
-std::string UpdateHelper::BuildEventDevId(const UpdateContext &ctx)
+std::string UpdateHelper::BuildEventDevId(const UpgradeInfo &info)
 {
-    return std::string("{ ") + std::string("upgradeDevId: ") + EncryptInfo(ctx.upgradeDevId)
-        + std::string(", controlDevId: ") + EncryptInfo(ctx.controlDevId) + std::string(" }");
+    return std::string("{") + std::string("upgradeDevId: ") + info.upgradeDevId
+        + std::string(", controlDevId: ") + info.controlDevId + std::string(" }");
 }
-
-uint64_t UpdateHelper::GetTimestamp()
-{
-    auto now = std::chrono::system_clock::now();
-    auto millisecs = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch());
-    return millisecs.count();
-}
-}
+} // namespace UpdateEngine
 } // namespace OHOS

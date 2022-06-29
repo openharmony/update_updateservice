@@ -18,8 +18,8 @@
 #include "securec.h"
 
 namespace OHOS {
-namespace update_engine {
-int32_t UpdateServiceProxy::RegisterUpdateCallback(const UpdateContext &ctx,
+namespace UpdateEngine {
+int32_t UpdateServiceProxy::RegisterUpdateCallback(const UpgradeInfo &info,
     const sptr<IUpdateCallback>& updateCallback)
 {
     ENGINE_CHECK(updateCallback != nullptr, return ERR_INVALID_VALUE, "Invalid param");
@@ -35,7 +35,7 @@ int32_t UpdateServiceProxy::RegisterUpdateCallback(const UpdateContext &ctx,
         return -1;
     }
 
-    UpdateHelper::WriteUpdateContext(data, ctx);
+    UpdateHelper::WriteUpgradeInfo(data, info);
     bool ret = data.WriteRemoteObject(updateCallback->AsObject());
     ENGINE_CHECK(ret, return ERR_FLATTEN_OBJECT, "Can not get remote");
     MessageParcel reply;
@@ -45,7 +45,7 @@ int32_t UpdateServiceProxy::RegisterUpdateCallback(const UpdateContext &ctx,
     return reply.ReadInt32();
 }
 
-int32_t UpdateServiceProxy::UnregisterUpdateCallback()
+int32_t UpdateServiceProxy::UnregisterUpdateCallback(const UpgradeInfo &info)
 {
     auto remote = Remote();
     ENGINE_CHECK(remote != nullptr, return ERR_FLATTEN_OBJECT, "Can not get remote");
@@ -56,6 +56,8 @@ int32_t UpdateServiceProxy::UnregisterUpdateCallback()
         ENGINE_LOGI("UpdateServiceProxy WriteInterfaceToken fail");
         return -1;
     }
+
+    UpdateHelper::WriteUpgradeInfo(data, info);
     MessageParcel reply;
     MessageOption option { MessageOption::TF_SYNC };
     int32_t res = remote->SendRequest(UNREGISTER_CALLBACK, data, reply, option);
@@ -63,7 +65,7 @@ int32_t UpdateServiceProxy::UnregisterUpdateCallback()
     return reply.ReadInt32();
 }
 
-int32_t UpdateServiceProxy::CheckNewVersion()
+int32_t UpdateServiceProxy::CheckNewVersion(const UpgradeInfo &info)
 {
     ENGINE_LOGI("UpdateServiceProxy::CheckNewVersion");
     auto remote = Remote();
@@ -75,6 +77,8 @@ int32_t UpdateServiceProxy::CheckNewVersion()
         ENGINE_LOGI("UpdateServiceProxy WriteInterfaceToken fail");
         return -1;
     }
+
+    UpdateHelper::WriteUpgradeInfo(data, info);
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
     int32_t res = remote->SendRequest(CHECK_VERSION, data, reply, option);
@@ -82,7 +86,8 @@ int32_t UpdateServiceProxy::CheckNewVersion()
     return reply.ReadInt32();
 }
 
-int32_t UpdateServiceProxy::DownloadVersion()
+int32_t UpdateServiceProxy::DownloadVersion(const UpgradeInfo &info, const VersionDigestInfo &versionDigestInfo,
+    const DownloadOptions &downloadOptions, BusinessError &businessError)
 {
     ENGINE_LOGI("UpdateServiceProxy::DownloadVersion");
     auto remote = Remote();
@@ -95,16 +100,21 @@ int32_t UpdateServiceProxy::DownloadVersion()
         ENGINE_LOGI("UpdateServiceProxy WriteInterfaceToken fail");
         return -1;
     }
+
+    UpdateHelper::WriteUpgradeInfo(data, info);
+    UpdateHelper::WriteVersionDigestInfo(data, versionDigestInfo);
+    UpdateHelper::WriteDownloadOptions(data, downloadOptions);
     MessageParcel reply;
-    MessageOption option(MessageOption::TF_ASYNC);
+    MessageOption option;
     int32_t ret = remote->SendRequest(DOWNLOAD, data, reply, option);
     ENGINE_CHECK(ret == ERR_OK, return ERR_FLATTEN_OBJECT, "Transact error");
-    return reply.ReadInt32();
+    return UpdateHelper::ReadBusinessError(reply, businessError);
 }
 
-int32_t UpdateServiceProxy::DoUpdate()
+int32_t UpdateServiceProxy::PauseDownload(const UpgradeInfo &info, const VersionDigestInfo &versionDigestInfo,
+    const PauseDownloadOptions &pauseDownloadOptions, BusinessError &businessError)
 {
-    ENGINE_LOGI("UpdateServiceProxy::DoUpdate");
+    ENGINE_LOGI("UpdateServiceProxy::PauseDownload");
     auto remote = Remote();
     ENGINE_CHECK(remote != nullptr, return ERR_FLATTEN_OBJECT, "Can not get remote");
 
@@ -115,14 +125,118 @@ int32_t UpdateServiceProxy::DoUpdate()
         ENGINE_LOGI("UpdateServiceProxy WriteInterfaceToken fail");
         return -1;
     }
+
+    UpdateHelper::WriteUpgradeInfo(data, info);
+    UpdateHelper::WriteVersionDigestInfo(data, versionDigestInfo);
+    UpdateHelper::WritePauseDownloadOptions(data, pauseDownloadOptions);
     MessageParcel reply;
-    MessageOption option(MessageOption::TF_ASYNC);
-    int32_t ret = remote->SendRequest(UPGRADE, data, reply, option);
+    MessageOption option;
+    int32_t ret = remote->SendRequest(PAUSE_DOWNLOAD, data, reply, option);
     ENGINE_CHECK(ret == ERR_OK, return ERR_FLATTEN_OBJECT, "Transact error");
-    return reply.ReadInt32();
+    return UpdateHelper::ReadBusinessError(reply, businessError);
 }
 
-int32_t UpdateServiceProxy::GetNewVersion(VersionInfo &versionInfo)
+int32_t UpdateServiceProxy::ResumeDownload(const UpgradeInfo &info, const VersionDigestInfo &versionDigestInfo,
+    const ResumeDownloadOptions &resumeDownloadOptions, BusinessError &businessError)
+{
+    ENGINE_LOGI("UpdateServiceProxy::ResumeDownload");
+    auto remote = Remote();
+    ENGINE_CHECK(remote != nullptr, return ERR_FLATTEN_OBJECT, "Can not get remote");
+
+    // Construct a data sending message to the stub.
+    MessageParcel data;
+
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        ENGINE_LOGI("UpdateServiceProxy WriteInterfaceToken fail");
+        return -1;
+    }
+
+    UpdateHelper::WriteUpgradeInfo(data, info);
+    UpdateHelper::WriteVersionDigestInfo(data, versionDigestInfo);
+    UpdateHelper::WriteResumeDownloadOptions(data, resumeDownloadOptions);
+    MessageParcel reply;
+    MessageOption option;
+    int32_t ret = remote->SendRequest(RESUME_DOWNLOAD, data, reply, option);
+    ENGINE_CHECK(ret == ERR_OK, return ERR_FLATTEN_OBJECT, "Transact error");
+    return UpdateHelper::ReadBusinessError(reply, businessError);
+}
+
+int32_t UpdateServiceProxy::DoUpdate(const UpgradeInfo &info, const VersionDigestInfo &versionDigest,
+    const UpgradeOptions &upgradeOptions, BusinessError &businessError)
+{
+    ENGINE_LOGI("UpdateServiceProxy::DoUpdate, versionDigest %{public}s upgradeOptions %{public}d",
+        versionDigest.versionDigest.c_str(),
+        upgradeOptions.order);
+    auto remote = Remote();
+    ENGINE_CHECK(remote != nullptr, return ERR_FLATTEN_OBJECT, "Can not get remote");
+
+    // Construct a data sending message to the stub.
+    MessageParcel data;
+
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        ENGINE_LOGI("UpdateServiceProxy WriteInterfaceToken fail");
+        return -1;
+    }
+
+    UpdateHelper::WriteUpgradeInfo(data, info);
+    UpdateHelper::WriteVersionDigestInfo(data, versionDigest);
+    UpdateHelper::WriteUpgradeOptions(data, upgradeOptions);
+    MessageParcel reply;
+    MessageOption option;
+    int32_t ret = remote->SendRequest(UPGRADE, data, reply, option);
+    ENGINE_CHECK(ret == ERR_OK, return ERR_FLATTEN_OBJECT, "Transact error");
+    return UpdateHelper::ReadBusinessError(reply, businessError);
+}
+
+int32_t UpdateServiceProxy::ClearError(const UpgradeInfo &info, const VersionDigestInfo &versionDigest,
+    const ClearOptions &clearOptions, BusinessError &businessError)
+{
+    auto remote = Remote();
+    ENGINE_CHECK(remote != nullptr, return ERR_FLATTEN_OBJECT, "Can not get remote");
+
+    // Construct a data sending message to the stub.
+    MessageParcel data;
+
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        ENGINE_LOGI("UpdateServiceProxy WriteInterfaceToken fail");
+        return -1;
+    }
+
+    UpdateHelper::WriteUpgradeInfo(data, info);
+    UpdateHelper::WriteVersionDigestInfo(data, versionDigest);
+    UpdateHelper::WriteClearOptions(data, clearOptions);
+    MessageParcel reply;
+    MessageOption option;
+    int32_t ret = remote->SendRequest(CLEAR_ERROR, data, reply, option);
+    ENGINE_CHECK(ret == ERR_OK, return ERR_FLATTEN_OBJECT, "Transact error");
+    return UpdateHelper::ReadBusinessError(reply, businessError);
+}
+
+int32_t UpdateServiceProxy::TerminateUpgrade(const UpgradeInfo &info, BusinessError &businessError)
+{
+    auto remote = Remote();
+    ENGINE_CHECK(remote != nullptr, return ERR_FLATTEN_OBJECT, "Can not get remote");
+
+    // Construct a data sending message to the stub.
+    MessageParcel data;
+
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        ENGINE_LOGI("UpdateServiceProxy WriteInterfaceToken fail");
+        return -1;
+    }
+
+    UpdateHelper::WriteUpgradeInfo(data, info);
+    MessageParcel reply;
+    MessageOption option;
+    int32_t ret = remote->SendRequest(TERMINATE_UPGRADE, data, reply, option);
+    ENGINE_CHECK(ret == ERR_OK, return ERR_FLATTEN_OBJECT, "Transact error");
+
+    ENGINE_LOGI("UpdateServiceProxy TerminateUpgrade finish %{public}d", ret);
+    return UpdateHelper::ReadBusinessError(reply, businessError);
+}
+
+int32_t UpdateServiceProxy::GetNewVersion(const UpgradeInfo &info, NewVersionInfo &newVersionInfo,
+    BusinessError &businessError)
 {
     ENGINE_LOGI("UpdateServiceProxy::GetNewVersion");
     auto remote = Remote();
@@ -134,34 +248,86 @@ int32_t UpdateServiceProxy::GetNewVersion(VersionInfo &versionInfo)
         ENGINE_LOGI("UpdateServiceProxy WriteInterfaceToken fail");
         return -1;
     }
+
+    UpdateHelper::WriteUpgradeInfo(data, info);
     MessageParcel reply;
     MessageOption option;
     int32_t ret = remote->SendRequest(GET_NEW_VERSION, data, reply, option);
     ENGINE_CHECK(ret == ERR_OK, return ERR_FLATTEN_OBJECT, "Transact error");
 
-    return UpdateHelper::ReadVersionInfo(reply, versionInfo);
+    UpdateHelper::ReadBusinessError(reply, businessError);
+    return UpdateHelper::ReadNewVersionInfo(reply, newVersionInfo);
 }
 
-int32_t UpdateServiceProxy::GetUpgradeStatus(UpgradeInfo &info)
+int32_t UpdateServiceProxy::GetCurrentVersionInfo(const UpgradeInfo &info, CurrentVersionInfo &currentVersionInfo,
+    BusinessError &businessError)
 {
-    ENGINE_LOGI("UpdateServiceProxy::GetUpgradeStatus");
+    ENGINE_LOGI("UpdateServiceProxy::GetCurrentVersionInfo");
     auto remote = Remote();
     ENGINE_CHECK(remote != nullptr, return ERR_FLATTEN_OBJECT, "Can not get remote");
 
     MessageParcel data;
-
     if (!data.WriteInterfaceToken(GetDescriptor())) {
+        ENGINE_LOGI("UpdateServiceProxy WriteInterfaceToken fail");
         return -1;
     }
+
+    UpdateHelper::WriteUpgradeInfo(data, info);
     MessageParcel reply;
     MessageOption option;
-    int32_t ret = remote->SendRequest(GET_STATUS, data, reply, option);
+    int32_t ret = remote->SendRequest(GET_CURRENT_VERSION, data, reply, option);
     ENGINE_CHECK(ret == ERR_OK, return ERR_FLATTEN_OBJECT, "Transact error");
 
-    return UpdateHelper::ReadUpgradeInfo(reply, info);
+    UpdateHelper::ReadBusinessError(reply, businessError);
+    return UpdateHelper::ReadCurrentVersionInfo(reply, currentVersionInfo);
 }
 
-int32_t UpdateServiceProxy::SetUpdatePolicy(const UpdatePolicy &policy)
+int32_t UpdateServiceProxy::GetTaskInfo(const UpgradeInfo &info, TaskInfo &taskInfo, BusinessError &businessError)
+{
+    ENGINE_LOGI("UpdateServiceProxy::GetTaskInfo");
+    auto remote = Remote();
+    ENGINE_CHECK(remote != nullptr, return ERR_FLATTEN_OBJECT, "Can not get remote");
+
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        ENGINE_LOGI("UpdateServiceProxy WriteInterfaceToken fail");
+        return -1;
+    }
+
+    UpdateHelper::WriteUpgradeInfo(data, info);
+    MessageParcel reply;
+    MessageOption option;
+    int32_t ret = remote->SendRequest(GET_TASK_INFO, data, reply, option);
+    ENGINE_CHECK(ret == ERR_OK, return ERR_FLATTEN_OBJECT, "Transact error");
+
+    UpdateHelper::ReadBusinessError(reply, businessError);
+    return UpdateHelper::ReadTaskInfo(reply, taskInfo);
+}
+
+int32_t UpdateServiceProxy::GetOtaStatus(const UpgradeInfo &info, OtaStatus &otaStatus, BusinessError &businessError)
+{
+    ENGINE_LOGI("UpdateServiceProxy::GetOtaStatus");
+    auto remote = Remote();
+    ENGINE_CHECK(remote != nullptr, return ERR_FLATTEN_OBJECT, "Can not get remote");
+
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        ENGINE_LOGI("UpdateServiceProxy WriteInterfaceToken fail");
+        return -1;
+    }
+
+    UpdateHelper::WriteUpgradeInfo(data, info);
+    MessageParcel reply;
+    MessageOption option;
+    int32_t ret = remote->SendRequest(GET_OTA_STATUS, data, reply, option);
+    ENGINE_CHECK(ret == ERR_OK, return ERR_FLATTEN_OBJECT, "Transact error");
+
+    UpdateHelper::ReadBusinessError(reply, businessError);
+    return UpdateHelper::ReadOtaStatus(reply, otaStatus);
+}
+
+int32_t UpdateServiceProxy::SetUpdatePolicy(const UpgradeInfo &info, const UpdatePolicy &policy,
+    BusinessError &businessError)
 {
     ENGINE_LOGI("UpdateServiceProxy::SetUpdatePolicy");
     auto remote = Remote();
@@ -173,19 +339,19 @@ int32_t UpdateServiceProxy::SetUpdatePolicy(const UpdatePolicy &policy)
         ENGINE_LOGI("UpdateServiceProxy WriteInterfaceToken fail");
         return -1;
     }
+
+    UpdateHelper::WriteUpgradeInfo(data, info);
     UpdateHelper::WriteUpdatePolicy(data, policy);
     MessageParcel reply;
     MessageOption option;
     int32_t res = remote->SendRequest(SET_POLICY, data, reply, option);
     ENGINE_CHECK(res == ERR_OK, return ERR_FLATTEN_OBJECT, "Transact error");
 
-    int32_t result = 0;
-    bool ret = reply.ReadInt32(result);
-    ENGINE_CHECK(ret, return ERR_FLATTEN_OBJECT, "Failed to read length");
-    return result;
+    return UpdateHelper::ReadBusinessError(reply, businessError);
 }
 
-int32_t UpdateServiceProxy::GetUpdatePolicy(UpdatePolicy &policy)
+int32_t UpdateServiceProxy::GetUpdatePolicy(const UpgradeInfo &info, UpdatePolicy &policy,
+    BusinessError &businessError)
 {
     ENGINE_LOGI("UpdateServiceProxy::GetUpdatePolicy");
     auto remote = Remote();
@@ -197,14 +363,18 @@ int32_t UpdateServiceProxy::GetUpdatePolicy(UpdatePolicy &policy)
         ENGINE_LOGI("UpdateServiceProxy WriteInterfaceToken fail");
         return -1;
     }
+
+    UpdateHelper::WriteUpgradeInfo(data, info);
     MessageParcel reply;
     MessageOption option;
     int32_t ret = remote->SendRequest(GET_POLICY, data, reply, option);
     ENGINE_CHECK(ret == ERR_OK, return ERR_FLATTEN_OBJECT, "Transact error");
+
+    UpdateHelper::ReadBusinessError(reply, businessError);
     return UpdateHelper::ReadUpdatePolicy(reply, policy);
 }
 
-int32_t UpdateServiceProxy::Cancel(int32_t service)
+int32_t UpdateServiceProxy::Cancel(const UpgradeInfo &info, int32_t service, BusinessError &businessError)
 {
     ENGINE_LOGI("UpdateServiceProxy::Cancel");
     auto remote = Remote();
@@ -216,16 +386,15 @@ int32_t UpdateServiceProxy::Cancel(int32_t service)
         ENGINE_LOGI("UpdateServiceProxy WriteInterfaceToken fail");
         return -1;
     }
+
+    UpdateHelper::WriteUpgradeInfo(data, info);
     data.WriteInt32(static_cast<int32_t>(service));
     MessageParcel reply;
     MessageOption option;
     int32_t res = remote->SendRequest(CANCEL, data, reply, option);
     ENGINE_CHECK(res == ERR_OK, return ERR_FLATTEN_OBJECT, "Transact error res %d", res);
 
-    int32_t result = -1;
-    bool ret = reply.ReadInt32(result);
-    ENGINE_CHECK(ret, return ERR_FLATTEN_OBJECT, "Failed to read result");
-    return result;
+    return UpdateHelper::ReadBusinessError(reply, businessError);
 }
 
 int32_t UpdateServiceProxy::RebootAndClean(const std::string &miscFile, const std::string &cmd)
@@ -275,5 +444,5 @@ int32_t UpdateServiceProxy::RebootAndInstall(const std::string &miscFile, const 
     ENGINE_CHECK(ret == ERR_OK, return ERR_FLATTEN_OBJECT, "Transact error");
     return reply.ReadInt32();
 }
-}
+} // namespace UpdateEngine
 } // namespace OHOS

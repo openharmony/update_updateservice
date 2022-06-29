@@ -18,14 +18,13 @@
 
 #include <functional>
 #include <iostream>
-#include <map>
 #include "iremote_stub.h"
 #include "iupdate_service.h"
 #include "message_parcel.h"
 #include "parcel.h"
 
 namespace OHOS {
-namespace update_engine {
+namespace UpdateEngine {
 class UpdateServiceStub : public IRemoteStub<IUpdateService> {
 public:
     int32_t OnRemoteRequest(uint32_t code, MessageParcel& data, MessageParcel& reply,
@@ -35,6 +34,6 @@ public:
     using RequestFuncType = std::function<int(UpdateServiceStubPtr service,
         MessageParcel &data, MessageParcel &reply, MessageOption &option)>;
 };
-} // namespace update_engine
+} // namespace UpdateEngine
 } // namespace OHOS
 #endif // UPDATE_SERVICE_STUB_H

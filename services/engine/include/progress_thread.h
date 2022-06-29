@@ -12,6 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #ifndef UPDATER_THREAD_H
 #define UPDATER_THREAD_H
 
@@ -31,13 +32,13 @@
 #include "system_ability.h"
 #include "update_service_stub.h"
 
+namespace OHOS {
+namespace UpdateEngine {
 #define ENGINE_CHECK_NO_LOG(retCode, exper) \
     if (!(retCode)) {                     \
         exper;                            \
     }
 
-namespace OHOS {
-namespace update_engine {
 constexpr uint32_t DOWNLOAD_FINISH_PERCENT = 100;
 constexpr uint32_t DOWNLOAD_PERIOD_PERCENT = 5;
 constexpr int32_t TIMEOUT_FOR_DOWNLOAD = 600;
@@ -105,6 +106,6 @@ private:
     size_t packageSize_ { 1 };
     std::string downloadFileName_;
 };
-} // namespace update_engine
+} // namespace UpdateEngine
 } // namespace OHOS
 #endif // UPDATER_THREAD_H
