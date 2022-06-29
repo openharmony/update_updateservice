@@ -21,7 +21,7 @@
 #include "update_helper.h"
 
 namespace OHOS {
-namespace update_engine {
+namespace UpdateEngine {
 ProgressThread::~ProgressThread() {}
 
 void ProgressThread::ExitThread()
@@ -101,10 +101,14 @@ bool DownloadThread::ProcessThreadExecute()
 {
     packageSize_ = GetLocalFileLength(downloadFileName_);
     ENGINE_LOGI("download  packageSize_: %zu ", packageSize_);
-
+    bool findDot = (downloadFileName_.find("/.") != std::string::npos)
+        || (downloadFileName_.find("./") != std::string::npos);
+    ENGINE_CHECK(!findDot,
+        DownloadCallback(0, UPDATE_STATE_DOWNLOAD_FAIL, "Failed to check file");
+        return true, "Failed to check file %s", downloadFileName_.c_str());
     downloadFile_ = fopen(downloadFileName_.c_str(), "ab+");
     ENGINE_CHECK(downloadFile_ != nullptr,
-        DownloadCallback(0, UPDATE_STATE_DOWNLOAD_FAIL, "Failed to open file");
+        DownloadCallback(0, UPDATE_STATE_DOWNLOAD_FAIL, "Failed ot open file");
         return true, "Failed to open file %s", downloadFileName_.c_str());
 
     downloadHandle_ = curl_easy_init();
@@ -203,6 +207,9 @@ size_t DownloadThread::WriteFunc(void *ptr, size_t size, size_t nmemb, const voi
 
 size_t DownloadThread::GetLocalFileLength(const std::string &fileName)
 {
+    bool findDot = (fileName.find("/.") != std::string::npos) || (fileName.find("./") != std::string::npos);
+    ENGINE_CHECK_NO_LOG(!findDot, return 0);
+
     FILE* fp = fopen(fileName.c_str(), "r");
     ENGINE_CHECK_NO_LOG(fp != nullptr, return 0);
     int ret = fseek(fp, 0, SEEK_END);
@@ -212,5 +219,5 @@ size_t DownloadThread::GetLocalFileLength(const std::string &fileName)
     ENGINE_CHECK_NO_LOG(ret == 0, return 0);
     return length;
 }
-}
+} // namespace UpdateEngine
 } // namespace OHOS

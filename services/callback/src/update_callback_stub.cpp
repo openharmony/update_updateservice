@@ -20,7 +20,7 @@
 using namespace std;
 
 namespace OHOS {
-namespace update_engine {
+namespace UpdateEngine {
 int32_t UpdateCallbackStub::OnRemoteRequest(uint32_t code,
     MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
@@ -28,23 +28,21 @@ int32_t UpdateCallbackStub::OnRemoteRequest(uint32_t code,
         ENGINE_LOGI("UpdateCallbackStub ReadInterfaceToken fail");
         return -1;
     }
+
+    ENGINE_LOGI("UpdateCallbackStub OnRemoteRequest code is %{public}d", code);
+    BusinessError businessError;
     switch (code) {
         case CHECK_VERSION: {
-            VersionInfo checkVersionInfo;
-            UpdateHelper::ReadVersionInfo(data, checkVersionInfo);
-            OnCheckVersionDone(checkVersionInfo);
+            CheckResultEx checkResultEx;
+            UpdateHelper::ReadBusinessError(data, businessError);
+            UpdateHelper::ReadCheckResult(data, checkResultEx);
+            OnCheckVersionDone(businessError, checkResultEx);
             break;
         }
-        case DOWNLOAD: {
-            Progress downloadInfo;
-            UpdateHelper::ReadUpdateProgress(data, downloadInfo);
-            OnDownloadProgress(downloadInfo);
-            break;
-        }
-        case UPGRADE: {
-            Progress upgradeInfo;
-            UpdateHelper::ReadUpdateProgress(data, upgradeInfo);
-            OnUpgradeProgress(upgradeInfo);
+        case ON_EVENT: {
+            EventInfo eventInfo;
+            UpdateHelper::ReadEventInfo(data, eventInfo);
+            OnEvent(eventInfo);
             break;
         }
         default: {
@@ -53,5 +51,5 @@ int32_t UpdateCallbackStub::OnRemoteRequest(uint32_t code,
     }
     return 0;
 }
-}
-}
+} // namespace UpdateEngine
+} // namespace OHOS

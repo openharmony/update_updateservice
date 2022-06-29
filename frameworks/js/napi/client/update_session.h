@@ -16,45 +16,36 @@
 #ifndef UPDATE_SESSION_H
 #define UPDATE_SESSION_H
 
-#include <functional>
-#include <iostream>
 #include <memory>
 #include <mutex>
 #include <string>
-#include <thread>
 #include <vector>
 
+#include "iupdater.h"
 #include "iupdate_service.h"
-#include "napi/native_api.h"
-#include "napi/native_node_api.h"
-#include "node_api.h"
-#include "node_api_types.h"
-#include "update_client.h"
-#include "update_helper.h"
+#include "iupdate_session.h"
 
-namespace updateClient {
-class UpdateSession {
+namespace OHOS {
+namespace UpdateEngine {
+class UpdateSession : public IUpdateSession {
 public:
-    UpdateSession() = default;
-
-    UpdateSession(UpdateClient *client, int32_t type, size_t argc, size_t callbackNumber);
+    UpdateSession(IUpdater *client, SessionParams &sessionParams, size_t argc, size_t callbackNumber);
 
     virtual ~UpdateSession() {}
 
-    napi_value StartWork(napi_env env, size_t startIndex,
-        const napi_value *args, UpdateClient::DoWorkFunction worker, void *context);
+    napi_value StartWork(napi_env env, const napi_value *args, DoWorkFunction worker, void *context) override;
 
-    UpdateClient* GetUpdateClient() const
+    IUpdater* GetUpdateClient() const
     {
         return client_;
     }
 
-    int32_t GetType() const
+    SessionType GetType() const override
     {
-        return type_;
+        return sessionParams_.type;
     }
 
-    uint32_t GetSessionId() const
+    uint32_t GetSessionId() const override
     {
         return sessionId;
     }
@@ -62,51 +53,40 @@ public:
     virtual void CompleteWork(napi_env env, napi_status status) {}
     virtual void ExecuteWork(napi_env env);
     virtual napi_value StartWork(napi_env env, size_t startIndex, const napi_value *args) = 0;
-    virtual void NotifyJS(napi_env env, napi_value thisVar, int32_t retcode, const UpdateResult &result)
+
+    static void CompleteWork(napi_env env, napi_status status, void *data);
+
+    static void ExecuteWork(napi_env env, void *data);
+
+    bool IsAsyncCompleteWork() override
     {
-        return;
+        return sessionParams_.type == SessionType::SESSION_VERIFY_PACKAGE;
     }
 
-    // JS thread, which is used to notify the JS page upon completion of the operation.
-    static void CompleteWork(napi_env env, napi_status status, void *data)
+    void GetUpdateResult(UpdateResult &result)
     {
-        auto sess = reinterpret_cast<UpdateSession*>(data);
-        CLIENT_CHECK(sess != nullptr && sess->GetUpdateClient() != nullptr, return, "Session is null pointer");
-        sess->CompleteWork(env, status);
-        // If the share ptr is used, you can directly remove the share ptr.
-        UpdateClient *client = sess->GetUpdateClient();
-        if (client != nullptr) {
-            (void)client->RemoveSession(sess->GetSessionId());
-        }
-    }
-
-    // The C++ thread executes the synchronization operation. After the synchronization is complete,
-    // the CompleteWork is called to notify the JS page of the completion of the operation.
-    static void ExecuteWork(napi_env env, void* data)
-    {
-        auto sess = reinterpret_cast<UpdateSession*>(data);
-        CLIENT_CHECK(sess != nullptr, return, "sess is null");
-        sess->ExecuteWork(env);
+        result.businessError = businessError_;
+        client_->GetUpdateResult(sessionParams_.type, result);
     }
 
 protected:
     napi_value CreateWorkerName(napi_env env) const;
-    int32_t CreateReference(napi_env env, napi_value arg, uint32_t refcount, napi_ref &reference) const;
 
 protected:
     uint32_t sessionId {0};
-    UpdateClient *client_ = nullptr;
-    int32_t type_ {};
+    IUpdater *client_ = nullptr;
+    BusinessError businessError_ {};
+    SessionParams sessionParams_ {};
     size_t totalArgc_ = 0;
     size_t callbackNumber_ = 0;
     void* context_ {};
-    UpdateClient::DoWorkFunction doWorker_ {};
+    DoWorkFunction doWorker_ {};
 };
 
 class UpdateAsyncession : public UpdateSession {
 public:
-    UpdateAsyncession(UpdateClient *client, int32_t type, size_t argc, size_t callbackNumber)
-        : UpdateSession(client, type, argc, callbackNumber)
+    UpdateAsyncession(IUpdater *client, SessionParams &sessionParams, size_t argc, size_t callbackNumber = 1)
+        : UpdateSession(client, sessionParams, argc, callbackNumber)
     {
         callbackRef_.resize(callbackNumber);
     }
@@ -118,6 +98,8 @@ public:
 
     void CompleteWork(napi_env env, napi_status status) override;
     napi_value StartWork(napi_env env, size_t startIndex, const napi_value *args) override;
+    void NotifyJS(napi_env env, napi_value thisVar, const UpdateResult &result) override;
+
 private:
     napi_async_work worker_ = nullptr;
     std::vector<napi_ref> callbackRef_ = {0};
@@ -125,23 +107,26 @@ private:
 
 class UpdateAsyncessionNoCallback : public UpdateAsyncession {
 public:
-    UpdateAsyncessionNoCallback(UpdateClient *client, int32_t type, size_t argc, size_t callbackNumber)
-        : UpdateAsyncession(client, type, argc, callbackNumber) {}
+    UpdateAsyncessionNoCallback(
+        IUpdater *client, SessionParams &sessionParams, size_t argc, size_t callbackNumber = 0)
+        : UpdateAsyncession(client, sessionParams, argc, callbackNumber) {}
 
-    ~UpdateAsyncessionNoCallback() override {   }
+    ~UpdateAsyncessionNoCallback() override {}
 
     void CompleteWork(napi_env env, napi_status status) override;
 };
 
 class UpdatePromiseSession : public UpdateSession {
 public:
-    UpdatePromiseSession(UpdateClient *client, int32_t type, size_t argc, size_t callbackNumber)
-        : UpdateSession(client, type, argc, callbackNumber) {}
+    UpdatePromiseSession(IUpdater *client, SessionParams &sessionParams, size_t argc, size_t callbackNumber = 0)
+        : UpdateSession(client, sessionParams, argc, callbackNumber) {}
 
     ~UpdatePromiseSession() override {}
 
     void CompleteWork(napi_env env, napi_status status) override;
     napi_value StartWork(napi_env env, size_t startIndex, const napi_value *args) override;
+    void NotifyJS(napi_env env, napi_value thisVar, const UpdateResult &result) override;
+
 private:
     napi_async_work worker_ = nullptr;
     napi_deferred deferred_ = nullptr;
@@ -149,14 +134,17 @@ private:
 
 class UpdateListener : public UpdateSession {
 public:
-    UpdateListener(UpdateClient *client, int32_t type, size_t argc, size_t callbackNumber, bool isOnce)
-        : UpdateSession(client, type, argc, callbackNumber), isOnce_(isOnce) {}
+    UpdateListener(
+        IUpdater *client, SessionParams &sessionParams, size_t argc, bool isOnce, size_t callbackNumber = 1)
+        : UpdateSession(client, sessionParams, argc, callbackNumber), isOnce_(isOnce) {}
 
     ~UpdateListener() override {}
 
     napi_value StartWork(napi_env env, size_t startIndex, const napi_value *args) override;
 
-    void NotifyJS(napi_env env, napi_value thisVar, int32_t retcode, const UpdateResult &result) override;
+    void NotifyJS(napi_env env, napi_value thisVar, const UpdateResult &result) override;
+
+    void NotifyJS(napi_env env, napi_value thisVar, const EventInfo &eventInfo);
 
     bool IsOnce() const
     {
@@ -170,13 +158,21 @@ public:
 
     bool CheckEqual(napi_env env, napi_value handler, const std::string &type);
 
-    void RemoveHandlerRef(napi_env env);
+    bool IsSubscribeEvent(const EventClassifyInfo &eventClassifyInfo)
+    {
+        return eventClassifyInfo_.eventClassify == eventClassifyInfo.eventClassify;
+    }
 
+    bool IsSameListener(napi_env env, const EventClassifyInfo &eventClassifyInfo, napi_value handler);
+
+    void RemoveHandlerRef(napi_env env);
 private:
     bool isOnce_ = false;
     std::string eventType_;
     napi_ref handlerRef_ = nullptr;
     std::mutex mutex_;
+    EventClassifyInfo eventClassifyInfo_;
 };
-} // namespace updateClient
+} // namespace UpdateEngine
+} // namespace OHOS
 #endif // UPDATE_SESSION_H
