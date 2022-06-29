@@ -90,7 +90,7 @@ napi_value UpdateClient::GetOnlineUpdater(napi_env env, napi_callback_info info)
     napi_status status = napi_get_cb_info(env, info, &argc, args, nullptr, nullptr);
     PARAM_CHECK_NAPI_CALL(env, status == napi_ok, return nullptr, "Error get cb info");
     PARAM_CHECK_NAPI_CALL(env, argc >= 1, return nullptr, "Invalid param");
-    PARAM_CHECK_NAPI_CALL(env, !isInit, return result, "Has been init");
+    PARAM_CHECK_NAPI_CALL(env, !isInit_, return result, "Has been init");
 
     ClientStatus ret = ClientHelper::GetUpgradeInfoFromArg(env, args[0], upgradeInfo_);
     PARAM_CHECK(ret == ClientStatus::CLIENT_SUCCESS, return nullptr, "Failed to get upgradeInfo param");
@@ -104,7 +104,7 @@ napi_value UpdateClient::GetOnlineUpdater(napi_env env, napi_callback_info info)
         }
     };
     UpdateServiceKits::GetInstance().RegisterUpdateCallback(upgradeInfo_, callback);
-    isInit = true;
+    isInit_ = true;
     return result;
 }
 
