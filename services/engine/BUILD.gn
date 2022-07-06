@@ -77,11 +77,11 @@ ohos_shared_library("updateservice") {
     "access_token:libaccesstoken_sdk",
     "hisysevent_native:libhisysevent",
     "hiviewdfx_hilog_native:libhilog",
+    "init:libbegetutil",
     "ipc:ipc_core",
     "ipc:ipc_single",
     "safwk:system_ability_fwk",
     "samgr_standard:samgr_proxy",
-    "startup_l2:syspara",
   ]
 
   part_name = "update_service"
