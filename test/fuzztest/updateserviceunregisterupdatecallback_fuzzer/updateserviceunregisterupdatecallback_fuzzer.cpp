@@ -15,7 +15,7 @@
 
 #include "updateserviceunregisterupdatecallback_fuzzer.h"
 
-using namespace OHOS::update_engine;
+using namespace OHOS::UpdateEngine;
 
 namespace OHOS {
 bool FuzzUpdateServiceUnregisterUpdateCallback(const uint8_t* data, size_t size)
@@ -23,7 +23,8 @@ bool FuzzUpdateServiceUnregisterUpdateCallback(const uint8_t* data, size_t size)
     if (size < FuzztestHelper::FUZZ_DATA_LEN) {
         return false;
     }
-    return UpdateServiceKits::GetInstance().UnregisterUpdateCallback() == 0;
+    FuzztestHelper fuzztestHelper(data, size);
+    return UpdateServiceKits::GetInstance().UnregisterUpdateCallback(fuzztestHelper.BuildUpgradeInfo()) == 0;
 }
 }
 

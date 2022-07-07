@@ -16,7 +16,7 @@
 #include "fuzztest_helper.h"
 
 namespace OHOS {
-namespace update_engine {
+namespace UpdateEngine {
 constexpr uint32_t CHAR_TO_INT_INDEX0 = 0;
 constexpr uint32_t CHAR_TO_INT_INDEX1 = 1;
 constexpr uint32_t CHAR_TO_INT_INDEX2 = 2;
@@ -28,21 +28,16 @@ constexpr uint32_t CHAR_TO_INT_MOVE_LEFT2 = 16;
 constexpr uint32_t CHAR_TO_INT_MOVE_LEFT3 = 24;
 
 constexpr uint32_t COUNT_BOOL_TYPE = 2;
-constexpr uint32_t COUNT_INSTALL_MODE_TYPE = 3;
 
 constexpr uint32_t FUZZ_HEAD_DATA = 0;
 constexpr uint32_t FUZZ_INT_LEN_DATA = 4;
 constexpr uint32_t FUZZ_CHAR_ARRAY_LEN_DATA = 64;
 
-static void FtCheckProcess(const VersionInfo &info)
+static void FtCheckNewVersionDone(const BusinessError &businessError, const CheckResultEx &checkResultEx)
 {
 }
 
-static void FtDownloadProgress(const Progress &progress)
-{
-}
-
-static void FtUpgradeProgress(const Progress &progress)
+static void FtOnEvent(const EventInfo &eventInfo)
 {
 }
 
@@ -59,59 +54,55 @@ FuzztestHelper::FuzztestHelper(const uint8_t* data, size_t size)
 UpdateCallbackInfo FuzztestHelper::BuildUpdateCallbackInfo()
 {
     UpdateCallbackInfo cb {};
-    cb.checkNewVersionDone = FtCheckProcess;
-    cb.downloadProgress = FtDownloadProgress;
-    cb.upgradeProgress = FtUpgradeProgress;
+    cb.checkNewVersionDone = FtCheckNewVersionDone;
+    cb.onEvent = FtOnEvent;
     return cb;
-}
-
-UpdateContext FuzztestHelper::BuildUpdateContext()
-{
-    UpdateContext ctx {};
-    char controlDevId[FUZZ_CHAR_ARRAY_LEN_DATA];
-    GetCharArray(controlDevId, FUZZ_CHAR_ARRAY_LEN_DATA);
-    ctx.controlDevId = controlDevId;
-
-    char type[FUZZ_CHAR_ARRAY_LEN_DATA];
-    GetCharArray(type, FUZZ_CHAR_ARRAY_LEN_DATA);
-    ctx.type = type;
-
-    char upgradeApp[FUZZ_CHAR_ARRAY_LEN_DATA];
-    GetCharArray(upgradeApp, FUZZ_CHAR_ARRAY_LEN_DATA);
-    ctx.upgradeApp = upgradeApp;
-
-    char upgradeDevId[FUZZ_CHAR_ARRAY_LEN_DATA];
-    GetCharArray(upgradeDevId, FUZZ_CHAR_ARRAY_LEN_DATA);
-    ctx.upgradeDevId = upgradeDevId;
-
-    char upgradeFile[FUZZ_CHAR_ARRAY_LEN_DATA];
-    GetCharArray(upgradeFile, FUZZ_CHAR_ARRAY_LEN_DATA);
-    ctx.upgradeFile = upgradeFile;
-    return ctx;
 }
 
 UpdatePolicy FuzztestHelper::BuildUpdatePolicy()
 {
-    UpdatePolicy updatePolicy {};
-    updatePolicy.autoDownload = static_cast<bool>(GetUInt() % COUNT_BOOL_TYPE);
-    updatePolicy.autoDownloadNet = static_cast<bool>(GetUInt() % COUNT_BOOL_TYPE);
-    updatePolicy.autoUpgradeCondition = static_cast<AutoUpgradeCondition>(0);
-    updatePolicy.autoUpgradeInterval[0] = GetUInt();
-    updatePolicy.autoUpgradeInterval[1] = GetUInt();
-    updatePolicy.mode = static_cast<InstallMode>(GetUInt() % COUNT_INSTALL_MODE_TYPE);
+    UpdatePolicy updatePolicy;
+    updatePolicy.downloadStrategy = static_cast<bool>(GetUInt() % COUNT_BOOL_TYPE);
+    updatePolicy.autoUpgradeStrategy = static_cast<bool>(GetUInt() % COUNT_BOOL_TYPE);
+    updatePolicy.autoUpgradePeriods[0].start = GetUInt();
+    updatePolicy.autoUpgradePeriods[0].end = GetUInt();
+    updatePolicy.autoUpgradePeriods[1].start = GetUInt();
+    updatePolicy.autoUpgradePeriods[1].end = GetUInt();
     return updatePolicy;
+}
+
+BusinessType FuzztestHelper::BuildBusinessType()
+{
+    BusinessType businessType;
+    businessType.vendor = BusinessVendor::PUBLIC;
+    businessType.subType = BusinessSubType::FIRMWARE;
+    return businessType;
 }
 
 UpgradeInfo FuzztestHelper::BuildUpgradeInfo()
 {
-    UpgradeInfo upgradeInfo {};
+    UpgradeInfo upgradeInfo;
+    char upgradeApp[FUZZ_CHAR_ARRAY_LEN_DATA];
+    GetCharArray(upgradeApp, FUZZ_CHAR_ARRAY_LEN_DATA);
+    upgradeInfo.upgradeApp = upgradeApp;
+
+    upgradeInfo.businessType = BuildBusinessType();
+
+    char upgradeDevId[FUZZ_CHAR_ARRAY_LEN_DATA];
+    GetCharArray(upgradeDevId, FUZZ_CHAR_ARRAY_LEN_DATA);
+    upgradeInfo.upgradeDevId = upgradeDevId;
+
+    char controlDevId[FUZZ_CHAR_ARRAY_LEN_DATA];
+    GetCharArray(controlDevId, FUZZ_CHAR_ARRAY_LEN_DATA);
+    upgradeInfo.controlDevId = controlDevId;
     return upgradeInfo;
 }
 
-VersionInfo FuzztestHelper::BuildVersionInfo()
+VersionDigestInfo FuzztestHelper::BuildVersionDigestInfo()
 {
-    VersionInfo versionInfo {};
-    return versionInfo;
+    VersionDigestInfo versionDigestInfo;
+    versionDigestInfo.versionDigest = "versionDigest";
+    return versionDigestInfo;
 }
 
 void FuzztestHelper::GetCharArray(char *charArray, uint32_t arraySize)
@@ -127,7 +118,7 @@ void FuzztestHelper::GetCharArray(char *charArray, uint32_t arraySize)
 
 int32_t FuzztestHelper::GetInt()
 {
-    int32_t number {};
+    int32_t number;
     if (index_ + FUZZ_INT_LEN_DATA > FUZZ_DATA_LEN) {
         index_ = FUZZ_HEAD_DATA;
     }
@@ -146,7 +137,7 @@ int32_t FuzztestHelper::GetInt()
 
 uint32_t FuzztestHelper::GetUInt()
 {
-    uint32_t number {};
+    uint32_t number;
     if (index_ + FUZZ_INT_LEN_DATA > FUZZ_DATA_LEN) {
         index_ = FUZZ_HEAD_DATA;
     }
@@ -161,5 +152,5 @@ uint32_t FuzztestHelper::GetUInt()
     index_ += FUZZ_INT_LEN_DATA;
     return number;
 }
-} // namespace update_engine
+} // namespace UpdateEngine
 } // namespace OHOS

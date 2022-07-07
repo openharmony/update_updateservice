@@ -15,7 +15,7 @@
 
 #include "updateservicecancel_fuzzer.h"
 
-using namespace OHOS::update_engine;
+using namespace OHOS::UpdateEngine;
 
 namespace OHOS {
 bool FuzzUpdateServiceCancel(const uint8_t* data, size_t size)
@@ -24,7 +24,9 @@ bool FuzzUpdateServiceCancel(const uint8_t* data, size_t size)
         return false;
     }
     FuzztestHelper fuzztestHelper(data, size);
-    return UpdateServiceKits::GetInstance().Cancel(fuzztestHelper.GetInt()) == 0;
+    BusinessError businessError;
+    return UpdateServiceKits::GetInstance().Cancel(fuzztestHelper.BuildUpgradeInfo(), fuzztestHelper.GetInt(),
+        businessError) == 0;
 }
 }
 

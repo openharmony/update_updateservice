@@ -15,7 +15,7 @@
 
 #include "updateservicesetupdatepolicy_fuzzer.h"
 
-using namespace OHOS::update_engine;
+using namespace OHOS::UpdateEngine;
 
 namespace OHOS {
 bool FuzzUpdateServiceSetUpdatePolicy(const uint8_t* data, size_t size)
@@ -24,8 +24,9 @@ bool FuzzUpdateServiceSetUpdatePolicy(const uint8_t* data, size_t size)
         return false;
     }
     FuzztestHelper fuzztestHelper(data, size);
-    return UpdateServiceKits::GetInstance().SetUpdatePolicy(
-        fuzztestHelper.BuildUpdatePolicy()) == 0;
+    BusinessError businessError;
+    return UpdateServiceKits::GetInstance().SetUpdatePolicy(fuzztestHelper.BuildUpgradeInfo(),
+        fuzztestHelper.BuildUpdatePolicy(), businessError) == 0;
 }
 }
 
