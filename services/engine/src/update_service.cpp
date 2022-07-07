@@ -367,6 +367,7 @@ int32_t UpdateService::DoUpdate(const UpgradeInfo &info, const VersionDigestInfo
     Progress progress;
     progress.percent = 1;
     progress.status = UPDATE_STATE_INSTALL_ON;
+    SYS_EVENT_SYSTEM_UPGRADE(upgradeStatus_ < UPDATE_STATE_DOWNLOAD_SUCCESS, UpdateSystemEvent::EVENT_FAILED_RESULT);
     ENGINE_CHECK(upgradeStatus_ >= UPDATE_STATE_DOWNLOAD_SUCCESS,
         progress.endReason = "Invalid status";
         progress.status = UPDATE_STATE_INSTALL_FAIL;
@@ -375,6 +376,7 @@ int32_t UpdateService::DoUpdate(const UpgradeInfo &info, const VersionDigestInfo
 
     progress.status = UPDATE_STATE_INSTALL_SUCCESS;
     bool ret = RebootAndInstallUpgradePackage(MISC_FILE, UPDATER_PKG_NAME);
+    SYS_EVENT_SYSTEM_UPGRADE(0, ret ? UpdateSystemEvent::EVENT_SUCCESS_RESULT : UpdateSystemEvent::EVENT_FAILED_RESULT);
     ENGINE_CHECK(ret, return -1, "UpdateService::DoUpdate SetParameter failed");
     progress.percent = DOWNLOAD_FINISH_PERCENT;
     UpgradeCallback(progress);
@@ -775,8 +777,6 @@ void UpdateService::GetUpgradeContext(std::string &devIdInfo)
 void BuildUpgradeInfoDump(const int fd, UpgradeInfo &info)
 {
     dprintf(fd, "---------------------upgrade info--------------------\n");
-    dprintf(fd, "UpgradeDevId: %s\n", UpdateHelper::Anonymization(info.upgradeDevId).c_str());
-    dprintf(fd, "ControlDevId: %s\n", UpdateHelper::Anonymization(info.controlDevId).c_str());
     dprintf(fd, "UpgradeApp: %s\n", info.upgradeApp.c_str());
     dprintf(fd, "vendor: %s\n", info.businessType.vendor.c_str());
     dprintf(fd, "subType: %d\n", static_cast<int>(info.businessType.subType));
