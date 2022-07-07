@@ -23,7 +23,7 @@
 #include <securec.h>
 
 namespace OHOS {
-namespace update_engine {
+namespace UpdateEngine {
 class FuzztestHelper {
 public:
     FuzztestHelper(const uint8_t* data, size_t size);
@@ -32,13 +32,13 @@ public:
 
     UpdateCallbackInfo BuildUpdateCallbackInfo();
 
-    UpdateContext BuildUpdateContext();
-
     UpdatePolicy BuildUpdatePolicy();
+
+    BusinessType BuildBusinessType();
 
     UpgradeInfo BuildUpgradeInfo();
 
-    VersionInfo BuildVersionInfo();
+    VersionDigestInfo BuildVersionDigestInfo();
 
     int32_t GetInt();
 
@@ -52,7 +52,7 @@ private:
     uint32_t index_ = 0;
     uint8_t data_[FUZZ_DATA_LEN] {};
 };
-} // namespace update_engine
+} // namespace UpdateEngine
 } // namespace OHOS
 
 #endif // UPDATE_SERVICE_COMMON_FUZZER_H
