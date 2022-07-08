@@ -470,7 +470,7 @@ void UpdateService::DownloadCallback(const Progress &progress)
     upgradeStatus_ = UPDATE_STATE_DOWNLOAD_SUCCESS;
 #endif
     std::string fileName = BASE_PATH + "/" + versionInfo_.result[0].verifyInfo;
-    ENGINE_LOGI("DownloadCallback status %{public}d  %{public}d", progress.status, progress.percent);
+    ENGINE_LOGI("DownloadCallback status %{public}d %{public}d", progress.status, progress.percent);
     if (upgradeStatus_ == UPDATE_STATE_DOWNLOAD_SUCCESS) {
         ENGINE_LOGI("DownloadCallback fileName %{public}s %{public}s", fileName.c_str(), UPDATER_PKG_NAME.c_str());
         if (rename(fileName.c_str(), UPDATER_PKG_NAME.c_str())) {
