@@ -15,7 +15,7 @@
 
 #include "updateservicedownloadversion_fuzzer.h"
 
-using namespace OHOS::update_engine;
+using namespace OHOS::UpdateEngine;
 
 namespace OHOS {
 bool FuzzUpdateServiceDownloadVersion(const uint8_t* data, size_t size)
@@ -23,7 +23,11 @@ bool FuzzUpdateServiceDownloadVersion(const uint8_t* data, size_t size)
     if (size < FuzztestHelper::FUZZ_DATA_LEN) {
         return false;
     }
-    return UpdateServiceKits::GetInstance().DownloadVersion() == 0;
+    FuzztestHelper fuzztestHelper(data, size);
+    DownloadOptions downloadOptions;
+    BusinessError businessError;
+    return UpdateServiceKits::GetInstance().DownloadVersion(fuzztestHelper.BuildUpgradeInfo(),
+        fuzztestHelper.BuildVersionDigestInfo(), downloadOptions, businessError) == 0;
 }
 }
 

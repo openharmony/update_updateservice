@@ -15,7 +15,7 @@
 
 #include "updateservicegetnewversion_fuzzer.h"
 
-using namespace OHOS::update_engine;
+using namespace OHOS::UpdateEngine;
 
 namespace OHOS {
 bool FuzzUpdateServiceGetNewVersion(const uint8_t* data, size_t size)
@@ -24,8 +24,10 @@ bool FuzzUpdateServiceGetNewVersion(const uint8_t* data, size_t size)
         return false;
     }
     FuzztestHelper fuzztestHelper(data, size);
-    VersionInfo versionInfo = fuzztestHelper.BuildVersionInfo();
-    return UpdateServiceKits::GetInstance().GetNewVersion(versionInfo) == 0;
+    NewVersionInfo newVersionInfo;
+    BusinessError businessError;
+    return UpdateServiceKits::GetInstance().GetNewVersion(fuzztestHelper.BuildUpgradeInfo(), newVersionInfo,
+        businessError) == 0;
 }
 }
 

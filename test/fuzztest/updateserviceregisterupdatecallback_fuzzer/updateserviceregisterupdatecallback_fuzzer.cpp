@@ -15,7 +15,7 @@
 
 #include "updateserviceregisterupdatecallback_fuzzer.h"
 
-using namespace OHOS::update_engine;
+using namespace OHOS::UpdateEngine;
 
 namespace OHOS {
 bool FuzzUpdateServiceRegisterUpdateCallback(const uint8_t* data, size_t size)
@@ -25,8 +25,7 @@ bool FuzzUpdateServiceRegisterUpdateCallback(const uint8_t* data, size_t size)
     }
     FuzztestHelper fuzztestHelper(data, size);
     return UpdateServiceKits::GetInstance().RegisterUpdateCallback(
-        fuzztestHelper.BuildUpdateContext(),
-        fuzztestHelper.BuildUpdateCallbackInfo()) == 0;
+        fuzztestHelper.BuildUpgradeInfo(), fuzztestHelper.BuildUpdateCallbackInfo()) == 0;
 }
 }
 
