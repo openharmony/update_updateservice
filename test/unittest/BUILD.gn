@@ -84,7 +84,6 @@ ohos_unittest("updateservice_unittest") {
   ]
 
   deps = [
-    "//base/startup/syspara_lite/interfaces/innerkits/native/syspara:syspara",
     "//base/update/updater/interfaces/kits/misc_info:libmiscinfo",
     "//base/update/updater/interfaces/kits/packages:libpackageExt",
     "//base/update/updater/interfaces/kits/updaterkits:libupdaterkits",
