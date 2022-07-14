@@ -40,7 +40,7 @@ namespace UpdateEngine {
     }
 
 constexpr uint32_t DOWNLOAD_FINISH_PERCENT = 100;
-constexpr uint32_t DOWNLOAD_PERIOD_PERCENT = 5;
+constexpr uint32_t DOWNLOAD_PERIOD_PERCENT = 1;
 constexpr int32_t TIMEOUT_FOR_DOWNLOAD = 600;
 #ifndef UPDATER_UT
 constexpr int32_t TIMEOUT_FOR_CONNECT = 10;
