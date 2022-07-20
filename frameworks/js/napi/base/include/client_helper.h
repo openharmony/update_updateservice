@@ -48,7 +48,7 @@ enum class SessionType {
     SESSION_UNSUBSCRIBE,
     SESSION_GET_UPDATER,
     SESSION_APPLY_NEW_VERSION,
-    SESSION_REBOOT_AND_CLEAN,
+    SESSION_FACTORY_RESET,
     SESSION_VERIFY_PACKAGE,
     SESSION_CANCEL_UPGRADE,
     SESSION_GET_OTA_STATUS,
@@ -74,7 +74,7 @@ struct UpdateResult {
     SessionType type;
     BusinessError businessError;
     union {
-        UpdatePolicy *updatePolicy;
+        UpgradePolicy *upgradePolicy;
         Progress *progress;
         OtaStatus *otaStatus;
         NewVersionInfo *newVersionInfo;
@@ -102,8 +102,8 @@ struct UpdateResult {
             delete result.currentVersionInfo;
             result.currentVersionInfo = nullptr;
         } else if (type == SessionType::SESSION_GET_POLICY) {
-            delete result.updatePolicy;
-            result.updatePolicy = nullptr;
+            delete result.upgradePolicy;
+            result.upgradePolicy = nullptr;
         } else {
             CLIENT_LOGI("UpdateResult Release, unknow type");
         }
@@ -150,11 +150,11 @@ struct UpdateResult {
                 *(result.currentVersionInfo) = *(updateResult.result.currentVersionInfo);
             }
         } else if (type == SessionType::SESSION_GET_POLICY) {
-            if (result.updatePolicy == nullptr) {
-                result.updatePolicy = new (std::nothrow) UpdatePolicy();
+            if (result.upgradePolicy == nullptr) {
+                result.upgradePolicy = new (std::nothrow) UpgradePolicy();
             }
-            if ((result.updatePolicy != nullptr) && (updateResult.result.updatePolicy != nullptr)) {
-                *(result.updatePolicy) = *(updateResult.result.updatePolicy);
+            if ((result.upgradePolicy != nullptr) && (updateResult.result.upgradePolicy != nullptr)) {
+                *(result.upgradePolicy) = *(updateResult.result.upgradePolicy);
             }
         } else if (type == SessionType::SESSION_VERIFY_PACKAGE) {
             result.status = updateResult.result.status;
@@ -168,20 +168,19 @@ struct UpdateResult {
 class ClientHelper {
 public:
     static bool CheckUpgradeFile(const std::string &upgradeFile);
-    static bool CheckUpgradeType(const std::string &type);
 
     static int32_t BuildCheckResultEx(napi_env env, napi_value &obj, const UpdateResult &result);
     static int32_t BuildNewVersionInfo(napi_env env, napi_value &obj, const UpdateResult &result);
     static int32_t BuildProgress(napi_env env, napi_value &obj, const UpdateResult &result);
-    static int32_t BuildUpdatePolicy(napi_env env, napi_value &obj, const UpdateResult &result);
+    static int32_t BuildUpgradePolicy(napi_env env, napi_value &obj, const UpdateResult &result);
     static int32_t BuildCurrentVersionInfo(napi_env env, napi_value &obj, const UpdateResult &result);
     static int32_t BuildTaskInfo(napi_env env, napi_value &obj, const UpdateResult &result);
     static int32_t BuildInt32Status(napi_env env, napi_value &obj, const UpdateResult &result);
-    static int32_t BuildVoidStatus(napi_env env, napi_value &obj, const UpdateResult &result);
+    static int32_t BuildUndefinedStatus(napi_env env, napi_value &obj, const UpdateResult &result);
     static int32_t BuildOtaStatus(napi_env env, napi_value &obj, const UpdateResult &result);
 
     static ClientStatus GetUpgradeInfoFromArg(napi_env env, const napi_value arg, UpgradeInfo &upgradeInfo);
-    static ClientStatus GetUpdatePolicyFromArg(napi_env env, const napi_value arg, UpdatePolicy &updatePolicy);
+    static ClientStatus GetUpgradePolicyFromArg(napi_env env, const napi_value arg, UpgradePolicy &upgradePolicy);
     static ClientStatus GetUpgradeFileFromArg(napi_env env, const napi_value arg, UpgradeFile &upgradeFile);
     static ClientStatus GetUpgradeFilesFromArg(napi_env env, const napi_value arg,
         std::vector<UpgradeFile> &upgradeFiles);

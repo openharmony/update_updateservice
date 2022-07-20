@@ -78,12 +78,12 @@ base/update/updateservice  # 升级服务代码仓目录
 <td class="cellrowborder" valign="top" width="48%"><p id="p242mcpsimp"><a name="p242mcpsimp"></a><a name="p242mcpsimp"></a>升级完成后，获取升级后的版本信息</p>
 </td>
 </tr>
-<tr id="row243mcpsimp"><td class="cellrowborder" valign="top" width="52%"><p id="p568117524271"><a name="p568117524271"></a><a name="p568117524271"></a>setUpdatePolicy</p>
+<tr id="row243mcpsimp"><td class="cellrowborder" valign="top" width="52%"><p id="p568117524271"><a name="p568117524271"></a><a name="p568117524271"></a>setUpgradePolicy</p>
 </td>
 <td class="cellrowborder" valign="top" width="48%"><p id="p247mcpsimp"><a name="p247mcpsimp"></a><a name="p247mcpsimp"></a>设置升级策略</p>
 </td>
 </tr>
-<tr id="row248mcpsimp"><td class="cellrowborder" valign="top" width="52%"><p id="p19534844192712"><a name="p19534844192712"></a><a name="p19534844192712"></a>getUpdatePolicy</p>
+<tr id="row248mcpsimp"><td class="cellrowborder" valign="top" width="52%"><p id="p19534844192712"><a name="p19534844192712"></a><a name="p19534844192712"></a>getUpgradePolicy</p>
 </td>
 <td class="cellrowborder" valign="top" width="48%"><p id="p252mcpsimp"><a name="p252mcpsimp"></a><a name="p252mcpsimp"></a>获取升级策略</p>
 </td>
@@ -142,7 +142,7 @@ updater.on("upgradeProgress", progress => {
 7，设置升级策略
 
 ```
-updater.setUpdatePolicy(result => {
+updater.setUpgradePolicy(result => {
 	result "设置升级策略结果"
 });
 ```
@@ -150,7 +150,7 @@ updater.setUpdatePolicy(result => {
 8，查看升级策略
 
 ```
-updater.getUpdatePolicy(policy => {
+updater.getUpgradePolicy(policy => {
 	policy "升级策略"
 });
 ```

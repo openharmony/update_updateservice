@@ -59,16 +59,16 @@ UpdateCallbackInfo FuzztestHelper::BuildUpdateCallbackInfo()
     return cb;
 }
 
-UpdatePolicy FuzztestHelper::BuildUpdatePolicy()
+UpgradePolicy FuzztestHelper::BuildUpgradePolicy()
 {
-    UpdatePolicy updatePolicy;
-    updatePolicy.downloadStrategy = static_cast<bool>(GetUInt() % COUNT_BOOL_TYPE);
-    updatePolicy.autoUpgradeStrategy = static_cast<bool>(GetUInt() % COUNT_BOOL_TYPE);
-    updatePolicy.autoUpgradePeriods[0].start = GetUInt();
-    updatePolicy.autoUpgradePeriods[0].end = GetUInt();
-    updatePolicy.autoUpgradePeriods[1].start = GetUInt();
-    updatePolicy.autoUpgradePeriods[1].end = GetUInt();
-    return updatePolicy;
+    UpgradePolicy upgradePolicy;
+    upgradePolicy.downloadStrategy = static_cast<bool>(GetUInt() % COUNT_BOOL_TYPE);
+    upgradePolicy.autoUpgradeStrategy = static_cast<bool>(GetUInt() % COUNT_BOOL_TYPE);
+    upgradePolicy.autoUpgradePeriods[0].start = GetUInt();
+    upgradePolicy.autoUpgradePeriods[0].end = GetUInt();
+    upgradePolicy.autoUpgradePeriods[1].start = GetUInt();
+    upgradePolicy.autoUpgradePeriods[1].end = GetUInt();
+    return upgradePolicy;
 }
 
 BusinessType FuzztestHelper::BuildBusinessType()
