@@ -37,11 +37,11 @@ namespace UpdateEngine {
         result = INT_CALL_IPC_ERR;                  \
     }
 
-#define RETURN_FAIL_WHEN_REMOTE_ERR(methodName, res)                            \
-    do {                                                                        \
-        ENGINE_LOGI("%{public}s is %{public}d", methodName, res);               \
-        IPC_RESULT_TO_CALL_RESULT(res);                                         \
-        ENGINE_CHECK((res) == INT_CALL_SUCCESS, return (res), "Transact error") \
+#define RETURN_FAIL_WHEN_REMOTE_ERR(methodName, res)                             \
+    do {                                                                         \
+        ENGINE_LOGI("%{public}s is %{public}d", methodName, res);                \
+        IPC_RESULT_TO_CALL_RESULT(res);                                          \
+        ENGINE_CHECK((res) == INT_CALL_SUCCESS, return (res), "Transact error"); \
     } while (0)
 
 int32_t UpdateServiceProxy::RegisterUpdateCallback(const UpgradeInfo &info,
