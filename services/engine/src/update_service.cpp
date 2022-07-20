@@ -373,12 +373,14 @@ int32_t UpdateService::DownloadVersion(const UpgradeInfo &info, const VersionDig
     ENGINE_CHECK(upgradeStatus_ >= UPDATE_STATE_CHECK_VERSION_SUCCESS,
         progress0.status = UPDATE_STATE_DOWNLOAD_FAIL;
         progress0.endReason = "Invalid status";
-        DownloadCallback(progress0); return INT_CALL_SUCCESS, "Invalid status %d", upgradeStatus_);
+        DownloadCallback(progress0);
+        return INT_CALL_SUCCESS, "Invalid status %d", upgradeStatus_);
 
     ENGINE_CHECK(!versionInfo_.result[0].verifyInfo.empty(),
         progress0.status = UPDATE_STATE_DOWNLOAD_FAIL;
         progress0.endReason = "Invalid verify info";
-        DownloadCallback(progress0); return INT_CALL_SUCCESS, "Invalid verify info");
+        DownloadCallback(progress0);
+        return INT_CALL_SUCCESS, "Invalid verify info");
     std::string downloadFileName = BASE_PATH + "/" + versionInfo_.result[0].verifyInfo;
     size_t localFileLength = DownloadThread::GetLocalFileLength(downloadFileName);
     ENGINE_LOGI("Download %zu %s", localFileLength, downloadFileName.c_str());
@@ -398,7 +400,8 @@ int32_t UpdateService::DownloadVersion(const UpgradeInfo &info, const VersionDig
         ENGINE_CHECK(downloadThread_ != nullptr,
             progress0.status = UPDATE_STATE_DOWNLOAD_FAIL;
             progress0.endReason = "Failed to start thread";
-            DownloadCallback(progress0); return INT_CALL_SUCCESS, "Failed to start thread");
+            DownloadCallback(progress0);
+            return INT_CALL_SUCCESS, "Failed to start thread");
     }
     int32_t ret = downloadThread_->StartDownload(downloadFileName, GetDownloadServerUrl());
     if (ret != 0) {
