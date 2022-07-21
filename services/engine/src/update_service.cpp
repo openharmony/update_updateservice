@@ -173,7 +173,7 @@ int32_t UpdateService::RegisterUpdateCallback(const UpgradeInfo &info, const spt
         std::lock_guard<std::mutex> lock(clientProxyMapLock_);
         ClientProxy clientProxy(info, updateCallback);
         clientProxy.AddDeathRecipient();
-        clientProxyMap_.insert({info, clientProxy});
+        clientProxyMap_.insert( {info, clientProxy});
     }
     if (!info.IsLocal()) {
         upgradeInfo_ = info;
