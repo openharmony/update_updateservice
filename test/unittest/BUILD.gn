@@ -100,7 +100,6 @@ ohos_unittest("updateservice_unittest") {
     "//third_party/lz4:liblz4_static",
     "//third_party/openssl:libcrypto_static",
     "//third_party/openssl:ssl_source",
-    "//utils/native/base:utils",
   ]
 
   defines = [
@@ -109,6 +108,7 @@ ohos_unittest("updateservice_unittest") {
   ]
 
   external_deps = [
+    "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
     "init:libbegetutil",
     "ipc:ipc_core",
