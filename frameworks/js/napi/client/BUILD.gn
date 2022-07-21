@@ -32,7 +32,7 @@ ohos_shared_library("update") {
     "//base/update/updater/utils/include",
     "//third_party/node/src",
     "//foundation/arkui/napi/interfaces/kits",
-    "//utils/native/base/include",
+    "//commonlibrary/c_utils/base/include",
     "//utils/system/safwk/native/include",
     "//base/update/updateservice/interfaces/inner_api/include",
     "//base/update/updateservice/frameworks/js/napi/client",
@@ -54,10 +54,10 @@ ohos_shared_library("update") {
     "//third_party/bounds_checking_function:libsec_static",
     "//third_party/openssl:libcrypto_static",
     "//third_party/openssl:ssl_source",
-    "//utils/native/base:utils",
   ]
 
   external_deps = [
+    "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
     "init:libbegetutil",
     "ipc:ipc_core",

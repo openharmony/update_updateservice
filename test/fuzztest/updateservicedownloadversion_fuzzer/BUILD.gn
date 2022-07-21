@@ -26,7 +26,7 @@ ohos_fuzztest("UpdateServiceDownloadVersionFuzzTest") {
     "//base/update/updater/utils/include",
     "//base/update/updater/interfaces/kits/include",
     "//base/update/updateservice/test/fuzztest/common",
-    "//utils/native/base/include",
+    "//commonlibrary/c_utils/base/include",
     "//utils/system/safwk/native/include",
     "//base/update/updateservice/interfaces/inner_api/include",
     "//base/update/updateservice/services/engine/include",
