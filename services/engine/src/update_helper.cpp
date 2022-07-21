@@ -261,7 +261,7 @@ int32_t UpdateHelper::WriteOtaStatus(MessageParcel &data, const OtaStatus &otaSt
     return 0;
 }
 
-int32_t UpdateHelper::ReadUpdatePolicy(MessageParcel &reply, UpdatePolicy &policy)
+int32_t UpdateHelper::ReadUpgradePolicy(MessageParcel &reply, UpgradePolicy &policy)
 {
     policy.downloadStrategy = static_cast<bool>(reply.ReadBool());
     policy.autoUpgradeStrategy = static_cast<bool>(reply.ReadBool());
@@ -274,7 +274,7 @@ int32_t UpdateHelper::ReadUpdatePolicy(MessageParcel &reply, UpdatePolicy &polic
     return 0;
 }
 
-int32_t UpdateHelper::WriteUpdatePolicy(MessageParcel &data, const UpdatePolicy &policy)
+int32_t UpdateHelper::WriteUpgradePolicy(MessageParcel &data, const UpgradePolicy &policy)
 {
     data.WriteBool(policy.downloadStrategy);
     data.WriteBool(policy.autoUpgradeStrategy);

@@ -32,7 +32,7 @@ public:
 
     UpdateCallbackInfo BuildUpdateCallbackInfo();
 
-    UpdatePolicy BuildUpdatePolicy();
+    UpgradePolicy BuildUpgradePolicy();
 
     BusinessType BuildBusinessType();
 

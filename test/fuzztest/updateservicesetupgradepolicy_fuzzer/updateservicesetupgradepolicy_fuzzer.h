@@ -13,11 +13,11 @@
  * limitations under the License.
  */
 
-#ifndef UPDATE_SERVICE_SET_UPDATE_POLICY_FUZZER_H
-#define UPDATE_SERVICE_SET_UPDATE_POLICY_FUZZER_H
+#ifndef UPDATE_SERVICE_SET_UPGRADE_POLICY_FUZZER_H
+#define UPDATE_SERVICE_SET_UPGRADE_POLICY_FUZZER_H
 
 #include "fuzztest_helper.h"
 
-#define FUZZ_PROJECT_NAME "updateservicesetupdatepolicy_fuzzer"
+#define FUZZ_PROJECT_NAME "updateservicesetupgradepolicy_fuzzer"
 
-#endif // UPDATE_SERVICE_SET_UPDATE_POLICY_FUZZER_H
+#endif // UPDATE_SERVICE_SET_UPGRADE_POLICY_FUZZER_H

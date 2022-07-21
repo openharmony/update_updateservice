@@ -78,14 +78,14 @@ base/update/updateservice  # Update service code
 <td class="cellrowborder" valign="top" width="48%"><p id="p242mcpsimp"><a name="p242mcpsimp"></a><a name="p242mcpsimp"></a>Obtains the version information after a version update.</p>
 </td>
 </tr>
-<tr id="row243mcpsimp"><td class="cellrowborder" valign="top" width="52%"><p id="p568117524271"><a name="p568117524271"></a><a name="p568117524271"></a>setUpdatePolicy</p>
+<tr id="row243mcpsimp"><td class="cellrowborder" valign="top" width="52%"><p id="p568117524271"><a name="p568117524271"></a><a name="p568117524271"></a>setUpgradePolicy</p>
 </td>
-<td class="cellrowborder" valign="top" width="48%"><p id="p247mcpsimp"><a name="p247mcpsimp"></a><a name="p247mcpsimp"></a>Sets the update policy.</p>
+<td class="cellrowborder" valign="top" width="48%"><p id="p247mcpsimp"><a name="p247mcpsimp"></a><a name="p247mcpsimp"></a>Sets the upgrade policy.</p>
 </td>
 </tr>
-<tr id="row248mcpsimp"><td class="cellrowborder" valign="top" width="52%"><p id="p19534844192712"><a name="p19534844192712"></a><a name="p19534844192712"></a>getUpdatePolicy</p>
+<tr id="row248mcpsimp"><td class="cellrowborder" valign="top" width="52%"><p id="p19534844192712"><a name="p19534844192712"></a><a name="p19534844192712"></a>getUpgradePolicy</p>
 </td>
-<td class="cellrowborder" valign="top" width="48%"><p id="p252mcpsimp"><a name="p252mcpsimp"></a><a name="p252mcpsimp"></a>Obtains the update policy.</p>
+<td class="cellrowborder" valign="top" width="48%"><p id="p252mcpsimp"><a name="p252mcpsimp"></a><a name="p252mcpsimp"></a>Obtains the upgrade policy.</p>
 </td>
 </tr>
 </tbody>
@@ -142,7 +142,7 @@ updater.on("upgradeProgress", progress => {
 7. Set the update policy.
 
 ```
-updater.setUpdatePolicy(result => {
+updater.setUpgradePolicy(result => {
 	result "Update policy setting result"
 });
 ```
@@ -150,7 +150,7 @@ updater.setUpdatePolicy(result => {
 8. Check the update policy.
 
 ```
-updater.getUpdatePolicy(policy => {
+updater.getUpgradePolicy(policy => {
 	policy "Update policy"
 });
 ```

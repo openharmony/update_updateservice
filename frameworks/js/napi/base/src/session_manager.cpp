@@ -337,7 +337,7 @@ void SessionManager::Emit(const std::string &type, const UpdateResult &result)
 
 void SessionManager::Emit(const EventClassifyInfo &eventClassifyInfo, const EventInfo &eventInfo)
 {
-    CLIENT_LOGI("SessionManager::Emit %{public}d", CAST_INT(eventClassifyInfo.eventClassify));
+    CLIENT_LOGI("SessionManager::Emit 0x%{public}x", CAST_INT(eventClassifyInfo.eventClassify));
     uv_loop_s *loop = nullptr;
     napi_get_uv_event_loop(env_, &loop);
     PARAM_CHECK(loop != nullptr, return, "get event loop failed.");
