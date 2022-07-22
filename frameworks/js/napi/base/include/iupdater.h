@@ -46,6 +46,8 @@ protected:
     napi_value StartSession(napi_env env, napi_callback_info info, SessionParams &sessionParams,
         IUpdateSession::DoWorkFunction function);
 
+    napi_value StartParamErrorSession(napi_env env, napi_callback_info info, CALLBACK_POSITION callbackPosition);
+
     void NotifyEventInfo(const EventInfo &eventInfo);
 
     std::shared_ptr<SessionManager> sessionsMgr_;

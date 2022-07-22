@@ -51,9 +51,9 @@ enum class SessionType {
     SESSION_FACTORY_RESET,
     SESSION_VERIFY_PACKAGE,
     SESSION_CANCEL_UPGRADE,
-    SESSION_GET_OTA_STATUS,
     SESSION_GET_CUR_VERSION,
     SESSION_GET_TASK_INFO,
+    SESSION_REPLY_PARAM_ERROR,
     SESSION_MAX
 };
 
@@ -76,7 +76,6 @@ struct UpdateResult {
     union {
         UpgradePolicy *upgradePolicy;
         Progress *progress;
-        OtaStatus *otaStatus;
         NewVersionInfo *newVersionInfo;
         CheckResultEx *checkResultEx;
         CurrentVersionInfo *currentVersionInfo;
@@ -167,7 +166,8 @@ struct UpdateResult {
 
 class ClientHelper {
 public:
-    static bool CheckUpgradeFile(const std::string &upgradeFile);
+    static void TrimString(std::string &str);
+    static bool IsValidUpgradeFile(const std::string &upgradeFile);
 
     static int32_t BuildCheckResultEx(napi_env env, napi_value &obj, const UpdateResult &result);
     static int32_t BuildNewVersionInfo(napi_env env, napi_value &obj, const UpdateResult &result);
@@ -177,7 +177,6 @@ public:
     static int32_t BuildTaskInfo(napi_env env, napi_value &obj, const UpdateResult &result);
     static int32_t BuildInt32Status(napi_env env, napi_value &obj, const UpdateResult &result);
     static int32_t BuildUndefinedStatus(napi_env env, napi_value &obj, const UpdateResult &result);
-    static int32_t BuildOtaStatus(napi_env env, napi_value &obj, const UpdateResult &result);
 
     static ClientStatus GetUpgradeInfoFromArg(napi_env env, const napi_value arg, UpgradeInfo &upgradeInfo);
     static ClientStatus GetUpgradePolicyFromArg(napi_env env, const napi_value arg, UpgradePolicy &upgradePolicy);

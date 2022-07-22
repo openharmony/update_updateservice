@@ -43,30 +43,7 @@ napi_value UpdateSession::CreateWorkerName(napi_env env) const
 
 napi_value UpdateSession::StartWork(napi_env env, const napi_value *args, DoWorkFunction worker, void *context)
 {
-    static std::string sessName[static_cast<int32_t>(SessionType::SESSION_MAX)] = {
-        "check version",
-        "download",
-        "pause download",
-        "resume download",
-        "upgrade",
-        "set policy",
-        "get policy",
-        "clear error",
-        "terminate upgrade",
-        "get new version",
-        "subscribe",
-        "unsubscribe",
-        "get updater",
-        "apply new version",
-        "reboot and clean",
-        "verify package",
-        "cancel Upgrade",
-        "get ota status",
-        "get current version",
-        "get task info"
-    };
-
-    CLIENT_LOGI("StartWork type: %{public}s", sessName[static_cast<int32_t>(sessionParams_.type)].c_str());
+    CLIENT_LOGI("StartWork type: %{public}d", CAST_INT(sessionParams_.type));
     doWorker_ = worker;
     context_ = context;
     return StartWork(env, sessionParams_.callbackStartIndex, args);

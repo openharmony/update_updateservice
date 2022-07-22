@@ -75,21 +75,6 @@ static int32_t GetTaskInfoStub(UpdateServiceStub::UpdateServiceStubPtr service,
     return INT_CALL_SUCCESS;
 }
 
-static int32_t GetOtaStatusStub(UpdateServiceStub::UpdateServiceStubPtr service,
-    MessageParcel& data, MessageParcel& reply, MessageOption &option)
-{
-    RETURN_FAIL_WHEN_SERVICE_NULL(service);
-    UpgradeInfo upgradeInfo {};
-    UpdateHelper::ReadUpgradeInfo(data, upgradeInfo);
-    OtaStatus otaStatus = {};
-    BusinessError businessError = {};
-    int32_t ret = service->GetOtaStatus(upgradeInfo, otaStatus, businessError);
-    ENGINE_CHECK(ret == INT_CALL_SUCCESS, return ret, "Failed to GetOtaStatus");
-    UpdateHelper::WriteBusinessError(reply, businessError);
-    UpdateHelper::WriteOtaStatus(reply, otaStatus);
-    return INT_CALL_SUCCESS;
-}
-
 static int32_t CheckNewVersionStub(UpdateServiceStub::UpdateServiceStubPtr service,
     MessageParcel& data, MessageParcel& reply, MessageOption &option)
 {
@@ -341,7 +326,6 @@ int32_t UpdateServiceStub::OnRemoteRequest(uint32_t code,
         {IUpdateService::GET_NEW_VERSION, GetNewVersionStub},
         {IUpdateService::GET_CURRENT_VERSION, GetCurrentVersionStub},
         {IUpdateService::GET_TASK_INFO, GetTaskInfoStub},
-        {IUpdateService::GET_OTA_STATUS, GetOtaStatusStub},
         {IUpdateService::REGISTER_CALLBACK, RegisterUpdateCallbackStub},
         {IUpdateService::UNREGISTER_CALLBACK, UnregisterUpdateCallbackStub},
         {IUpdateService::CANCEL, CancelStub},

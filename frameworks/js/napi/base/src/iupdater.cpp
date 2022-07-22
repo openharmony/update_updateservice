@@ -75,9 +75,8 @@ void IUpdater::GetUpdateResult(SessionType type, UpdateResult &result)
 napi_value IUpdater::StartSession(napi_env env, napi_callback_info info, SessionParams &sessionParams,
     IUpdateSession::DoWorkFunction function)
 {
-    const int32_t maxArgc = 3;
-    size_t argc = 3;
-    napi_value args[maxArgc] = {0};
+    size_t argc = MAX_ARGC;
+    napi_value args[MAX_ARGC] = {0};
     napi_status status = napi_get_cb_info(env, info, &argc, args, nullptr, nullptr);
     PARAM_CHECK_NAPI_CALL(env, status == napi_ok, return nullptr, "Error get cb info");
 
@@ -95,6 +94,14 @@ napi_value IUpdater::StartSession(napi_env env, napi_callback_info info, Session
     PARAM_CHECK(retValue != nullptr, sessionsMgr_->RemoveSession(sess->GetSessionId()); return nullptr,
         "Failed to start worker.");
     return retValue;
+}
+
+napi_value IUpdater::StartParamErrorSession(napi_env env, napi_callback_info info, CALLBACK_POSITION callbackPosition)
+{
+    SessionParams sessionParams(SessionType::SESSION_REPLY_PARAM_ERROR, callbackPosition, true);
+    return StartSession(env, info, sessionParams, [](SessionType type, void *context) -> int {
+            return INT_PARAM_ERR;
+        });
 }
 
 void IUpdater::NotifyEventInfo(const EventInfo &eventInfo)
