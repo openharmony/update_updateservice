@@ -21,7 +21,6 @@
 namespace OHOS {
 namespace UpdateEngine {
 const std::string MISC_FILE = "/dev/block/by-name/misc";
-constexpr uint32_t PERCENT_ONE_HUNDRED = 100;
 napi_value LocalUpdater::Napi::NapiVerifyUpgradePackage(napi_env env, napi_callback_info info)
 {
     CLIENT_LOGI("LocalUpdater::Napi::NapiVerifyUpgradePackage");
@@ -140,6 +139,7 @@ int32_t LocalUpdater::GetUpdateResult(SessionType type, UpdateResult &result)
 
 void LocalUpdater::NotifyVerifyPackageResult(int32_t retCode, uint32_t percent)
 {
+    uint32_t percentOneHundred = 100;
     // verify fail
     if (retCode != UPDATE_STATE_VERIFY_SUCCESS) {
         CLIENT_LOGE("NotifyVerifyPackageResult error, ret = %{public}d, percent = %{public}d", retCode, percent);
@@ -153,7 +153,7 @@ void LocalUpdater::NotifyVerifyPackageResult(int32_t retCode, uint32_t percent)
     }
 
     // verify not complete
-    if (percent != PERCENT_ONE_HUNDRED) {
+    if (percent != percentOneHundred) {
         CLIENT_LOGI("NotifyVerifyPackageResult, ret = %{public}d, percent = %{public}d", retCode, percent);
         return;
     }
