@@ -13,21 +13,21 @@
  * limitations under the License.
  */
 
-#include "updateservicedownloadversion_fuzzer.h"
+#include "updateservicegetupgradepolicy_fuzzer.h"
 
 using namespace OHOS::UpdateEngine;
 
 namespace OHOS {
-bool FuzzUpdateServiceDownloadVersion(const uint8_t* data, size_t size)
+bool FuzzUpdateServiceGetUpgradePolicy(const uint8_t* data, size_t size)
 {
     if (size < FuzztestHelper::FUZZ_DATA_LEN) {
         return false;
     }
     FuzztestHelper fuzztestHelper(data, size);
-    DownloadOptions downloadOptions;
+    UpgradePolicy upgradePolicy;
     BusinessError businessError;
-    return UpdateServiceKits::GetInstance().DownloadVersion(fuzztestHelper.BuildUpgradeInfo(),
-        fuzztestHelper.BuildVersionDigestInfo(), downloadOptions, businessError) == 0;
+    return UpdateServiceKits::GetInstance().GetUpgradePolicy(fuzztestHelper.BuildUpgradeInfo(), upgradePolicy,
+        businessError) == 0;
 }
 }
 
@@ -35,6 +35,6 @@ bool FuzzUpdateServiceDownloadVersion(const uint8_t* data, size_t size)
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 {
     /* Run your code on data */
-    OHOS::FuzzUpdateServiceDownloadVersion(data, size);
+    OHOS::FuzzUpdateServiceGetUpgradePolicy(data, size);
     return 0;
 }

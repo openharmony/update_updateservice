@@ -16,17 +16,7 @@
 #ifndef UPDATE_CLIENT_H
 #define UPDATE_CLIENT_H
 
-#include "client_helper.h"
 #include "iupdater.h"
-#include "napi/native_api.h"
-#include "napi/native_node_api.h"
-#include "napi_util.h"
-#include "node_api.h"
-#include "node_api_types.h"
-#include "session_manager.h"
-#include "update_helper.h"
-#include "update_service_kits.h"
-#include "update_session.h"
 
 namespace OHOS {
 namespace UpdateEngine {
@@ -49,34 +39,30 @@ public:
 
     // Asynchronous API
     napi_value CheckNewVersion(napi_env env, napi_callback_info info);
-    napi_value SetUpdatePolicy(napi_env env, napi_callback_info info);
-    napi_value GetUpdatePolicy(napi_env env, napi_callback_info info);
+    napi_value SetUpgradePolicy(napi_env env, napi_callback_info info);
+    napi_value GetUpgradePolicy(napi_env env, napi_callback_info info);
     napi_value GetNewVersionInfo(napi_env env, napi_callback_info info);
     napi_value GetCurrentVersionInfo(napi_env env, napi_callback_info info);
     napi_value GetTaskInfo(napi_env env, napi_callback_info info);
 
     napi_value GetOtaStatus(napi_env env, napi_callback_info info);
-    napi_value ApplyNewVersion(napi_env env, napi_callback_info info);
-    napi_value RebootAndClean(napi_env env, napi_callback_info info);
+    napi_value FactoryReset(napi_env env, napi_callback_info info);
 
     // Event mode, which is used to send the result to the JS.
     napi_value CancelUpgrade(napi_env env, napi_callback_info info);
-    napi_value DownloadVersion(napi_env env, napi_callback_info info);
+    napi_value Download(napi_env env, napi_callback_info info);
     napi_value ResumeDownload(napi_env env, napi_callback_info info);
     napi_value PauseDownload(napi_env env, napi_callback_info info);
     napi_value Upgrade(napi_env env, napi_callback_info info);
     napi_value ClearError(napi_env env, napi_callback_info info);
     napi_value TerminateUpgrade(napi_env env, napi_callback_info info);
 
-    napi_value VerifyUpdatePackage(napi_env env, napi_callback_info info);
-
-    int32_t GetUpdateResult(SessionType type, UpdateResult &result) override;
+    void GetUpdateResult(SessionType type, UpdateResult &result) override;
 
     // Notify the session.
     void NotifyCheckVersionDone(const BusinessError &businessError, const CheckResultEx &checkResultEx);
     void NotifyDownloadProgress(const BusinessError &businessError, const Progress &progress);
     void NotifyUpgradeProgresss(const BusinessError &businessError, const Progress &progress);
-    void NotifyVerifyProgresss(int32_t retCode, uint32_t percent);
 
     #ifdef UPDATER_UT
     UpdateSession *GetUpdateSession(uint32_t sessId)
@@ -99,11 +85,10 @@ private:
     std::mutex sessionMutex_;
 #endif
     bool isInit_ = false;
-    int32_t result_ = 0;
     std::string upgradeFile_;
     std::string certsFile_;
     UpgradeInfo upgradeInfo_ {};
-    UpdatePolicy updatePolicy_ {};
+    UpgradePolicy upgradePolicy_ {};
     Progress progress_ {};
     Progress verifyProgress_ {};
     VersionInfo versionInfo_ {};

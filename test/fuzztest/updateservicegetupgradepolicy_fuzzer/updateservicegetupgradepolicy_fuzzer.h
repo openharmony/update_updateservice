@@ -13,11 +13,11 @@
  * limitations under the License.
  */
 
-#ifndef UPDATE_SERVICE_DOWNLOAD_VERSION_FUZZER_H
-#define UPDATE_SERVICE_DOWNLOAD_VERSION_FUZZER_H
+#ifndef UPDATE_SERVICE_GET_UPGRADE_POLICY_FUZZER_H
+#define UPDATE_SERVICE_GET_UPGRADE_POLICY_FUZZER_H
 
 #include "fuzztest_helper.h"
 
-#define FUZZ_PROJECT_NAME "updateservicedownloadversion_fuzzer"
+#define FUZZ_PROJECT_NAME "updateservicegetupgradepolicy_fuzzer"
 
-#endif // UPDATE_SERVICE_DOWNLOAD_VERSION_FUZZER_H
+#endif // UPDATE_SERVICE_GET_UPGRADE_POLICY_FUZZER_H

@@ -56,12 +56,12 @@ ohos_part_test("update_service_test") {
   test_packages = [
     "//base/update/updateservice/test/fuzztest/updateservicecancel_fuzzer:UpdateServiceCancelFuzzTest",
     "//base/update/updateservice/test/fuzztest/updateservicechecknewversion_fuzzer:UpdateServiceCheckNewVersionFuzzTest",
-    "//base/update/updateservice/test/fuzztest/updateservicedownloadversion_fuzzer:UpdateServiceDownloadVersionFuzzTest",
+    "//base/update/updateservice/test/fuzztest/updateservicedownload_fuzzer:UpdateServiceDownloadFuzzTest",
     "//base/update/updateservice/test/fuzztest/updateservicegetnewversion_fuzzer:UpdateServiceGetNewVersionFuzzTest",
-    "//base/update/updateservice/test/fuzztest/updateservicegetupdatepolicy_fuzzer:UpdateServiceGetUpdatePolicyFuzzTest",
+    "//base/update/updateservice/test/fuzztest/updateservicegetupgradepolicy_fuzzer:UpdateServiceGetUpgradePolicyFuzzTest",
     "//base/update/updateservice/test/fuzztest/updateservicegetupgradestatus_fuzzer:UpdateServiceGetUpgradeStatusFuzzTest",
     "//base/update/updateservice/test/fuzztest/updateserviceregisterupdatecallback_fuzzer:UpdateServiceRegisterUpdateCallbackFuzzTest",
-    "//base/update/updateservice/test/fuzztest/updateservicesetupdatepolicy_fuzzer:UpdateServiceSetUpdatePolicyFuzzTest",
+    "//base/update/updateservice/test/fuzztest/updateservicesetupgradepolicy_fuzzer:UpdateServiceSetUpgradePolicyFuzzTest",
     "//base/update/updateservice/test/fuzztest/updateserviceunregisterupdatecallback_fuzzer:UpdateServiceUnregisterUpdateCallbackFuzzTest",
   ]
   deps = [ ":update_service" ]
