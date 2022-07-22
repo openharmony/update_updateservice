@@ -66,8 +66,6 @@ public:
 
     virtual int32_t GetTaskInfo(const UpgradeInfo &info, TaskInfo &taskInfo, BusinessError &businessError) = 0;
 
-    virtual int32_t GetOtaStatus(const UpgradeInfo &info, OtaStatus &otaStatus, BusinessError &businessError) = 0;
-
     virtual int32_t SetUpgradePolicy(const UpgradeInfo &info, const UpgradePolicy &policy,
         BusinessError &businessError) = 0;
 

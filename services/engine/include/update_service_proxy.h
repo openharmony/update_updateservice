@@ -56,8 +56,6 @@ public:
 
     int32_t GetTaskInfo(const UpgradeInfo &info, TaskInfo &taskInfo, BusinessError &businessError) override;
 
-    int32_t GetOtaStatus(const UpgradeInfo &info, OtaStatus &otaStatus, BusinessError &businessError) override;
-
     int32_t SetUpgradePolicy(const UpgradeInfo &info, const UpgradePolicy &policy,
         BusinessError &businessError) override;
 

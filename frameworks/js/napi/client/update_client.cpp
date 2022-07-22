@@ -328,34 +328,6 @@ napi_value UpdateClient::GetTaskInfo(napi_env env, napi_callback_info info)
     return retValue;
 }
 
-napi_value UpdateClient::GetOtaStatus(napi_env env, napi_callback_info info)
-{
-    SessionParams sessionParams(SessionType::SESSION_GET_OTA_STATUS, CALLBACK_POSITION_ONE, true);
-    napi_value ret = StartSession(env, info, sessionParams,
-        [=](SessionType type, void *context) -> int {
-            BusinessError *businessError = reinterpret_cast<BusinessError*>(context);
-            return UpdateServiceKits::GetInstance().GetOtaStatus(upgradeInfo_, otaStatus_, *businessError);
-    });
-    PARAM_CHECK(ret != nullptr, return nullptr, "Failed to GetOtaStatus.");
-    return ret;
-}
-
-napi_value UpdateClient::FactoryReset(napi_env env, napi_callback_info info)
-{
-    SessionParams sessionParams(SessionType::SESSION_FACTORY_RESET, CALLBACK_POSITION_ONE, true);
-    napi_value retValue = StartSession(env, info, sessionParams,
-        [](SessionType type, void *context) -> int {
-#ifndef UPDATER_API_TEST
-            BusinessError *businessError = reinterpret_cast<BusinessError*>(context);
-            return UpdateServiceKits::GetInstance().FactoryReset(*businessError);
-#else
-            return INT_CALL_SUCCESS;
-#endif
-    });
-    PARAM_CHECK(retValue != nullptr, return nullptr, "Failed to FactoryReset.");
-    return retValue;
-}
-
 void UpdateClient::NotifyCheckVersionDone(const BusinessError &businessError, const CheckResultEx &checkResultEx)
 {
     CLIENT_LOGI("NotifyCheckVersionDone businessError %{public}d", static_cast<int32_t> (businessError.errorNum));
@@ -399,10 +371,6 @@ void UpdateClient::GetUpdateResult(SessionType type, UpdateResult &result)
         case SessionType::SESSION_GET_POLICY:
             result.result.upgradePolicy = &upgradePolicy_;
             result.buildJSObject = ClientHelper::BuildUpgradePolicy;
-            break;
-        case SessionType::SESSION_GET_OTA_STATUS:
-            result.result.otaStatus = &otaStatus_;
-            result.buildJSObject = ClientHelper::BuildOtaStatus;
             break;
         default:
             result.buildJSObject = ClientHelper::BuildUndefinedStatus;

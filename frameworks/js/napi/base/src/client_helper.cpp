@@ -53,23 +53,29 @@ std::map<EventId, uint32_t> g_taskBodyTemplateMap = {
     { EventId::EVENT_UPGRADE_FAIL,     VERSION_DIGEST_INFO | VERSION_COMPONENT }
 };
 
-bool ClientHelper::CheckUpgradeFile(const std::string &upgradeFile)
+void ClientHelper::TrimString(std::string &str)
+{
+    str.erase(0, str.find_first_not_of(" "));
+    str.erase(str.find_last_not_of(" ") + 1);
+}
+
+bool ClientHelper::IsValidUpgradeFile(const std::string &upgradeFile)
 {
     if (upgradeFile.empty()) {
         return false;
     }
-    std::string file = upgradeFile;
-    file.erase(0, file.find_first_not_of(" "));
-    file.erase(file.find_last_not_of(" ") + 1);
-    size_t pos = file.find_first_of('/');
+
+    std::string::size_type pos = upgradeFile.find_first_of('/');
     if (pos != 0) {
         return false;
     }
-    pos = file.find_last_of('.');
-    if (pos < 0) {
+
+    pos = upgradeFile.find_last_of('.');
+    if (pos == std::string::npos) {
         return false;
     }
-    std::string postfix = file.substr(pos + 1, -1);
+
+    std::string postfix = upgradeFile.substr(pos + 1);
     std::transform(postfix.begin(), postfix.end(), postfix.begin(), ::tolower);
     if (postfix.compare("bin") == 0) {
         return true;
@@ -318,31 +324,6 @@ int32_t ClientHelper::BuildUndefinedStatus(napi_env env, napi_value &obj, const 
     return napi_get_undefined(env, &obj);
 }
 
-int32_t ClientHelper::BuildOtaStatus(napi_env env, napi_value &obj, const UpdateResult &result)
-{
-    PARAM_CHECK(result.result.otaStatus != nullptr, return CAST_INT(ClientStatus::CLIENT_SUCCESS),
-        "ClientHelper::BuildOtaStatus null");
-    napi_status status = napi_create_object(env, &obj);
-    PARAM_CHECK(status == napi_ok, return CAST_INT(ClientStatus::CLIENT_INVALID_TYPE),
-        "Failed to create napi_create_object %d", static_cast<int32_t>(status));
-    OtaStatus *otaStatus = result.result.otaStatus;
-    NapiUtil::SetInt32(env, obj, "progress", otaStatus->progress);
-    NapiUtil::SetInt32(env, obj, "status", otaStatus->status);
-    NapiUtil::SetInt32(env, obj, "subStatus", otaStatus->subStatus);
-    napi_value errMsgs;
-    size_t arraySize = COUNT_OF(otaStatus->errMsg);
-    napi_create_array_with_length(env, arraySize, &errMsgs);
-    for (size_t i = 0; i < arraySize; i++) {
-        napi_value result;
-        status = napi_create_object(env, &result);
-        NapiUtil::SetInt32(env, result, "errorCode", otaStatus->errMsg[i].errorCode);
-        NapiUtil::SetString(env, result, "errorMsg", otaStatus->errMsg[i].errorMsg);
-        napi_set_element(env, errMsgs, i, result);
-    }
-    napi_set_named_property(env, obj, "errMsg", errMsgs);
-    return CAST_INT(ClientStatus::CLIENT_SUCCESS);
-}
-
 ClientStatus CheckNapiObjectType(napi_env env, const napi_value arg)
 {
     napi_valuetype type = napi_undefined;
@@ -372,6 +353,8 @@ void ParseBusinessType(napi_env env, const napi_value arg, UpgradeInfo &upgradeI
 
 ClientStatus ClientHelper::GetUpgradeInfoFromArg(napi_env env, const napi_value arg, UpgradeInfo &upgradeInfo)
 {
+    PARAM_CHECK(CheckNapiObjectType(env, arg) == ClientStatus::CLIENT_SUCCESS,
+        return ClientStatus::CLIENT_INVALID_TYPE, "GetUpgradeInfoFromArg type invalid");
     NapiUtil::GetString(env, arg, "upgradeApp", upgradeInfo.upgradeApp);
     ParseBusinessType(env, arg, upgradeInfo);
     NapiUtil::GetString(env, arg, "upgradeDevId", upgradeInfo.upgradeDevId);
@@ -521,6 +504,11 @@ ClientStatus ParseUpgradeFile(napi_env env, const napi_value arg, UpgradeFile &u
     upgradeFile.fileType = static_cast<ComponentType>(fileType);
 
     NapiUtil::GetString(env, arg, "filePath", upgradeFile.filePath);
+    ClientHelper::TrimString(upgradeFile.filePath);
+    if (!ClientHelper::IsValidUpgradeFile(upgradeFile.filePath)) {
+        CLIENT_LOGE("ParseUpgradeFile, invalid filePath:%s", upgradeFile.filePath.c_str());
+        return ClientStatus::CLIENT_INVALID_PARAM;
+    }
     CLIENT_LOGI("ParseUpgradeFile fileType:%{public}d, filePath:%s", fileType, upgradeFile.filePath.c_str());
     return ClientStatus::CLIENT_SUCCESS;
 }
@@ -540,14 +528,15 @@ ClientStatus ClientHelper::GetUpgradeFilesFromArg(napi_env env, const napi_value
 
     uint32_t count = 0;
     status = napi_get_array_length(env, arg, &count);
-    PARAM_CHECK(status == napi_ok, return ClientStatus::CLIENT_FAIL,
+    PARAM_CHECK((status == napi_ok) && (count > 0), return ClientStatus::CLIENT_FAIL,
         "GetUpgradeFilesFromArg error, napi_get_array_length failed");
     for (uint32_t idx = 0; idx < count; idx++) {
         napi_value element;
         napi_get_element(env, arg, idx, &element);
         UpgradeFile upgradeFile;
-        if (ParseUpgradeFile(env, element, upgradeFile) != ClientStatus::CLIENT_SUCCESS) {
-            return ClientStatus::CLIENT_FAIL;
+        ClientStatus ret = ParseUpgradeFile(env, element, upgradeFile);
+        if (ret != ClientStatus::CLIENT_SUCCESS) {
+            return ret;
         }
         upgradeFiles.emplace_back(upgradeFile);
     }

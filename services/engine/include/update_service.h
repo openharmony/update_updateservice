@@ -68,8 +68,6 @@ public:
 
     int32_t GetTaskInfo(const UpgradeInfo &info, TaskInfo &taskInfo, BusinessError &businessError) override;
 
-    int32_t GetOtaStatus(const UpgradeInfo &info, OtaStatus &otaStatus, BusinessError &businessError) override;
-
     int32_t SetUpgradePolicy(const UpgradeInfo &info, const UpgradePolicy &policy,
         BusinessError &businessError) override;
 
@@ -157,7 +155,6 @@ private:
     UpgradeStatus upgradeStatus_ = UPDATE_STATE_INIT;
     VersionInfo versionInfo_ {};
     CheckResultEx checkResultEx_ {};
-    OtaStatus otaStatus_ {};
     UpgradeInterval upgradeInterval_ {};
     uint64_t checkInterval_ = 0;
     uint64_t downloadInterval_ = 0;

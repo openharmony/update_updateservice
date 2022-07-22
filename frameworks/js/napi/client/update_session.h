@@ -90,6 +90,9 @@ protected:
             case INT_UN_SUPPORT:
                 msg = "api unsupport";
                 break;
+            case INT_PARAM_ERR:
+                msg = "param error";
+                break;
             default:
                 break;
         }
