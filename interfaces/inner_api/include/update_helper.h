@@ -432,6 +432,24 @@ struct ErrMsg {
     }
 };
 
+struct OtaStatus {
+    uint32_t progress;
+    UpgradeStatus status;
+    int32_t subStatus;
+    ErrMsg errMsg[1];
+
+    OtaStatus &operator=(const OtaStatus &source)
+    {
+        if (&source != this) {
+            progress = source.progress;
+            status = source.status;
+            subStatus = source.subStatus;
+            errMsg[0] = source.errMsg[0];
+        }
+        return *this;
+    }
+};
+
 struct UpgradeInterval {
     uint64_t timeStart;
     uint64_t timeEnd;
