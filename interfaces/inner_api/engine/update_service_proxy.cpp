@@ -284,26 +284,6 @@ int32_t UpdateServiceProxy::GetTaskInfo(const UpgradeInfo &info, TaskInfo &taskI
     return INT_CALL_SUCCESS;
 }
 
-int32_t UpdateServiceProxy::GetOtaStatus(const UpgradeInfo &info, OtaStatus &otaStatus, BusinessError &businessError)
-{
-    ENGINE_LOGI("UpdateServiceProxy::GetOtaStatus");
-    auto remote = Remote();
-    RETURN_WHEN_REMOTE_NULL(remote);
-
-    MessageParcel data;
-    RETURN_WHEN_TOKEN_WRITE_FAIL(data);
-    UpdateHelper::WriteUpgradeInfo(data, info);
-
-    MessageParcel reply;
-    MessageOption option;
-    int32_t ret = remote->SendRequest(GET_OTA_STATUS, data, reply, option);
-    RETURN_FAIL_WHEN_REMOTE_ERR("UpdateServiceProxy::GetOtaStatus", ret);
-
-    UpdateHelper::ReadBusinessError(reply, businessError);
-    UpdateHelper::ReadOtaStatus(reply, otaStatus);
-    return INT_CALL_SUCCESS;
-}
-
 int32_t UpdateServiceProxy::SetUpgradePolicy(const UpgradeInfo &info, const UpgradePolicy &policy,
     BusinessError &businessError)
 {

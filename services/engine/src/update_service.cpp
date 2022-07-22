@@ -150,10 +150,6 @@ UpdateService::~UpdateService()
         delete downloadThread_;
         downloadThread_ = nullptr;
     }
-    if (updateService_ != nullptr) {
-        delete updateService_;
-        updateService_ = nullptr;
-    }
 
     for (auto &iter : clientProxyMap_) {
         iter.second.RemoveDeathRecipient();
@@ -281,24 +277,11 @@ int32_t UpdateService::GetTaskInfo(const UpgradeInfo &info, TaskInfo &taskInfo, 
     }
 
     taskInfo.taskBody.versionDigestInfo.versionDigest = checkResult.newVersionInfo.versionDigestInfo.versionDigest;
-    OtaStatus otaStatus;
-    BusinessError statusBusinessError;
-    GetOtaStatus(info, otaStatus, statusBusinessError);
-    taskInfo.taskBody.status = otaStatus.status;
-    taskInfo.taskBody.subStatus = otaStatus.subStatus;
-    taskInfo.taskBody.progress = otaStatus.progress;
-    taskInfo.taskBody.errorMessages[0].errorCode = otaStatus.errMsg[0].errorCode;
-    taskInfo.taskBody.errorMessages[0].errorMessage = otaStatus.errMsg[0].errorMsg;
-    return INT_CALL_SUCCESS;
-}
-
-int32_t UpdateService::GetOtaStatus(const UpgradeInfo &info, OtaStatus &otaStatus, BusinessError &businessError)
-{
-    businessError.errorNum = CallResult::SUCCESS;
-    otaStatus = otaStatus_;
-    ENGINE_LOGI("GetOtaStatus finish %{public}d", otaStatus.status);
-    ENGINE_LOGI("progress %{public}d", otaStatus.progress);
-    ENGINE_LOGI("errCode %{public}d", otaStatus.errMsg[0].errorCode);
+    taskInfo.taskBody.status = otaStatus_.status;
+    taskInfo.taskBody.subStatus = otaStatus_.subStatus;
+    taskInfo.taskBody.progress = otaStatus_.progress;
+    taskInfo.taskBody.errorMessages[0].errorCode = otaStatus_.errMsg[0].errorCode;
+    taskInfo.taskBody.errorMessages[0].errorMessage = otaStatus_.errMsg[0].errorMsg;
     return INT_CALL_SUCCESS;
 }
 
