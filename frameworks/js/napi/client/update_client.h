@@ -45,9 +45,6 @@ public:
     napi_value GetCurrentVersionInfo(napi_env env, napi_callback_info info);
     napi_value GetTaskInfo(napi_env env, napi_callback_info info);
 
-    napi_value GetOtaStatus(napi_env env, napi_callback_info info);
-    napi_value FactoryReset(napi_env env, napi_callback_info info);
-
     // Event mode, which is used to send the result to the JS.
     napi_value CancelUpgrade(napi_env env, napi_callback_info info);
     napi_value Download(napi_env env, napi_callback_info info);
@@ -96,7 +93,6 @@ private:
     NewVersionInfo newVersionInfo_ {};
     CurrentVersionInfo currentVersionInfo_ {};
     TaskInfo taskInfo_ {};
-    OtaStatus otaStatus_ {};
     VersionDigestInfo versionDigestInfo_ {};
     UpgradeOptions upgradeOptions_;
     ClearOptions clearOptions_ {};

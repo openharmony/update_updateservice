@@ -68,8 +68,6 @@ public:
 
     int32_t GetTaskInfo(const UpgradeInfo &info, TaskInfo &taskInfo, BusinessError &businessError) override;
 
-    int32_t GetOtaStatus(const UpgradeInfo &info, OtaStatus &otaStatus, BusinessError &businessError) override;
-
     int32_t SetUpgradePolicy(const UpgradeInfo &info, const UpgradePolicy &policy,
         BusinessError &businessError) override;
 
@@ -128,27 +126,27 @@ public:
     bool VerifyDownloadPkg(const std::string &pkgName, Progress &progress);
     void ReadDataFromSSL(int32_t engineSocket);
 
-class ClientDeathRecipient final : public IRemoteObject::DeathRecipient {
-public:
-    ClientDeathRecipient(const UpgradeInfo &upgradeInfo) : upgradeInfo_(upgradeInfo) {}
-    ~ClientDeathRecipient() final {}
-    DISALLOW_COPY_AND_MOVE(ClientDeathRecipient);
-    void OnRemoteDied(const wptr<IRemoteObject> &remote) final;
-private:
-    UpgradeInfo upgradeInfo_;
-};
+    class ClientDeathRecipient final : public IRemoteObject::DeathRecipient {
+    public:
+        ClientDeathRecipient(const UpgradeInfo &upgradeInfo) : upgradeInfo_(upgradeInfo) {}
+        ~ClientDeathRecipient() final {}
+        DISALLOW_COPY_AND_MOVE(ClientDeathRecipient);
+        void OnRemoteDied(const wptr<IRemoteObject> &remote) final;
+    private:
+        UpgradeInfo upgradeInfo_;
+    };
 
-class ClientProxy {
-public:
-    ClientProxy(const UpgradeInfo &info, const sptr<IUpdateCallback> &callback);
-    ClientProxy &operator=(const ClientProxy &source);
-    void AddDeathRecipient();
-    void RemoveDeathRecipient();
-    sptr<IUpdateCallback> Get();
-private:
-    sptr<IUpdateCallback> proxy_;
-    sptr<IRemoteObject::DeathRecipient> deathRecipient_;
-};
+    class ClientProxy {
+    public:
+        ClientProxy(const UpgradeInfo &info, const sptr<IUpdateCallback> &callback);
+        ClientProxy &operator=(const ClientProxy &source);
+        void AddDeathRecipient();
+        void RemoveDeathRecipient();
+        sptr<IUpdateCallback> Get();
+    private:
+        sptr<IUpdateCallback> proxy_;
+        sptr<IRemoteObject::DeathRecipient> deathRecipient_;
+    };
 
 private:
     UpgradePolicy policy_ = {

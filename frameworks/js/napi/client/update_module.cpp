@@ -255,20 +255,6 @@ napi_value GetTaskInfo(napi_env env, napi_callback_info info)
     return client->GetTaskInfo(env, info);
 }
 
-napi_value GetOtaStatus(napi_env env, napi_callback_info info)
-{
-    UpdateClient* client = UnwrapJsObject<UpdateClient>(env, info);
-    PARAM_CHECK_NAPI_CALL(env, client != nullptr, return nullptr, "Error get client");
-    return client->GetOtaStatus(env, info);
-}
-
-napi_value FactoryReset(napi_env env, napi_callback_info info)
-{
-    UpdateClient* client = UnwrapJsObject<UpdateClient>(env, info);
-    PARAM_CHECK_NAPI_CALL(env, client != nullptr, return nullptr, "Error get client");
-    return client->FactoryReset(env, info);
-}
-
 static bool DefineClass(napi_env env, napi_value exports, const NativeClass& nativeClass)
 {
     const std::string& className = nativeClass.className;
@@ -331,7 +317,6 @@ static bool DefineUpdateClient(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("getTaskInfo", GetTaskInfo),
         DECLARE_NAPI_FUNCTION("setUpgradePolicy", SetUpgradePolicy),
         DECLARE_NAPI_FUNCTION("getUpgradePolicy", GetUpgradePolicy),
-        DECLARE_NAPI_FUNCTION("getOtaStatus", GetOtaStatus),
         DECLARE_NAPI_FUNCTION("cancel", CancelUpgrade),
         DECLARE_NAPI_FUNCTION("download", Download),
         DECLARE_NAPI_FUNCTION("pauseDownload", PauseDownload),
@@ -339,7 +324,6 @@ static bool DefineUpdateClient(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("upgrade", Upgrade),
         DECLARE_NAPI_FUNCTION("clearError", ClearError),
         DECLARE_NAPI_FUNCTION("terminateUpgrade", TerminateUpgrade),
-        DECLARE_NAPI_FUNCTION("rebootAndCleanUserData", FactoryReset),
         DECLARE_NAPI_FUNCTION(UpdateClient::Napi::FUNCTION_ON, UpdateClient::Napi::NapiOn),
         DECLARE_NAPI_FUNCTION(UpdateClient::Napi::FUNCTION_OFF, UpdateClient::Napi::NapiOff)
     };
@@ -363,7 +347,6 @@ static napi_value UpdateClientInit(napi_env env, napi_value exports)
     CLIENT_LOGI("UpdateClientInit");
     // Registration function
     napi_property_descriptor desc[] = {
-        DECLARE_NAPI_FUNCTION("getUpdater", GetOnlineUpdater),
         DECLARE_NAPI_FUNCTION("getOnlineUpdater", GetOnlineUpdater),
         DECLARE_NAPI_FUNCTION("getRestorer", GetRestorer),
         DECLARE_NAPI_FUNCTION("getLocalUpdater", GetLocalUpdater)

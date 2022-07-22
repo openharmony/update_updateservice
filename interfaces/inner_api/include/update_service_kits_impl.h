@@ -61,8 +61,6 @@ public:
 
     int32_t GetTaskInfo(const UpgradeInfo &info, TaskInfo &taskInfo, BusinessError &businessError) final;
 
-    int32_t GetOtaStatus(const UpgradeInfo &info, OtaStatus &otaStatus, BusinessError &businessError) final;
-
     int32_t SetUpgradePolicy(const UpgradeInfo &info, const UpgradePolicy &policy, BusinessError &businessError) final;
 
     int32_t GetUpgradePolicy(const UpgradeInfo &info, UpgradePolicy &policy, BusinessError &businessError) final;

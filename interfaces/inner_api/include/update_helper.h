@@ -605,9 +605,6 @@ public:
     static int32_t ReadTaskInfo(MessageParcel &reply, TaskInfo &info);
     static int32_t WriteTaskInfo(MessageParcel &data, const TaskInfo &info);
 
-    static int32_t ReadOtaStatus(MessageParcel &reply, OtaStatus &otaStatus);
-    static int32_t WriteOtaStatus(MessageParcel &data, const OtaStatus &otaStatus);
-
     static int32_t ReadUpgradePolicy(MessageParcel &reply, UpgradePolicy &policy);
     static int32_t WriteUpgradePolicy(MessageParcel &data, const UpgradePolicy &policy);
 

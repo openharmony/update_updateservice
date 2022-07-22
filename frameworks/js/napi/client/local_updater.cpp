@@ -86,12 +86,17 @@ napi_value LocalUpdater::VerifyUpgradePackage(napi_env env, napi_callback_info i
 
     UpgradeFile upgradeFile;
     ClientStatus ret = ClientHelper::GetUpgradeFileFromArg(env, args[0], upgradeFile);
-    PARAM_CHECK_NAPI_CALL(env, ret == ClientStatus::CLIENT_SUCCESS, return nullptr, "Error get upgradeFile");
+    if (ret != ClientStatus::CLIENT_SUCCESS) {
+        CLIENT_LOGE("VerifyUpgradePackage error, get upgradeFile fail");
+        return StartParamErrorSession(env, info, CALLBACK_POSITION_THREE);
+    }
 
     std::string certsFile;
-    PARAM_CHECK_NAPI_CALL(env, NapiUtil::GetString(env, args[1], certsFile) == CAST_INT(ClientStatus::CLIENT_SUCCESS),
-        return nullptr, "Error get certsFile");
-    CLIENT_LOGI("VerifyUpgradePackage certsFile:%s", certsFile.c_str());
+    int32_t result = NapiUtil::GetString(env, args[1], certsFile);
+    if (result != CAST_INT(ClientStatus::CLIENT_SUCCESS)) {
+        CLIENT_LOGE("VerifyUpgradePackage error, get certsFile fail");
+        return StartParamErrorSession(env, info, CALLBACK_POSITION_THREE);
+    }
 
     SessionParams sessionParams(SessionType::SESSION_VERIFY_PACKAGE, CALLBACK_POSITION_THREE, true);
     napi_value retValue = StartSession(env, info, sessionParams,
@@ -114,8 +119,11 @@ napi_value LocalUpdater::ApplyNewVersion(napi_env env, napi_callback_info info)
 
     std::vector<UpgradeFile> upgradeFiles;
     ClientStatus ret = ClientHelper::GetUpgradeFilesFromArg(env, args[0], upgradeFiles);
-    PARAM_CHECK_NAPI_CALL(env, ret == ClientStatus::CLIENT_SUCCESS && upgradeFiles.size() != 0,
-        return nullptr, "Error get upgrade files");
+    if ((ret != ClientStatus::CLIENT_SUCCESS) || (upgradeFiles.size() == 0)) {
+        CLIENT_LOGE("ApplyNewVersion error, get GetUpgradeFilesFromArg fail");
+        return StartParamErrorSession(env, info, CALLBACK_POSITION_TWO);
+    }
+
     SessionParams sessionParams(SessionType::SESSION_APPLY_NEW_VERSION, CALLBACK_POSITION_TWO, true);
     napi_value retValue = StartSession(env, info, sessionParams,
         [upgradeFiles](SessionType type, void *context) -> int {

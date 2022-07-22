@@ -229,15 +229,6 @@ int32_t UpdateServiceKitsImpl::GetTaskInfo(const UpgradeInfo &info, TaskInfo &ta
     return updateService->GetTaskInfo(info, taskInfo, businessError);
 }
 
-int32_t UpdateServiceKitsImpl::GetOtaStatus(const UpgradeInfo &info, OtaStatus &otaStatus,
-    BusinessError &businessError)
-{
-    ENGINE_LOGI("UpdateServiceKitsImpl::GetOtaStatus");
-    auto updateService = GetService();
-    RETURN_FAIL_WHEN_SERVICE_NULL(updateService);
-    return updateService->GetOtaStatus(info, otaStatus, businessError);
-}
-
 int32_t UpdateServiceKitsImpl::SetUpgradePolicy(const UpgradeInfo &info, const UpgradePolicy &policy,
     BusinessError &businessError)
 {
