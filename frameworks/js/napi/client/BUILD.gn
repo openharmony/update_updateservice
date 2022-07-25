@@ -38,10 +38,10 @@ ohos_shared_library("update") {
     "//base/update/updateservice/frameworks/js/napi/client",
     "//base/update/updateservice/frameworks/js/napi/base/include",
     "//base/startup/syspara_lite/adapter/native/syspara/include",
-    "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy/include",
-    "//foundation/distributedschedule/safwk/services/safwk/include",
-    "//foundation/distributedschedule/safwk/interfaces/innerkits/safwk",
-    "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy/include",
+    "//foundation/systemabilitymgr/samgr/interfaces/innerkits/samgr_proxy/include",
+    "//foundation/systemabilitymgr/safwk/services/safwk/include",
+    "//foundation/systemabilitymgr/safwk/interfaces/innerkits/safwk",
+    "//foundation/systemabilitymgr/samgr/interfaces/innerkits/samgr_proxy/include",
   ]
 
   deps = [
@@ -62,7 +62,7 @@ ohos_shared_library("update") {
     "init:libbegetutil",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
-    "samgr_standard:samgr_proxy",
+    "samgr:samgr_proxy",
   ]
 
   install_enable = true

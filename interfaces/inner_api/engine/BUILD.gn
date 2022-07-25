@@ -38,10 +38,10 @@ ohos_static_library("updateservicekits") {
     "//base/update/updateservice/interfaces/inner_api/include",
     "//base/update/updateservice/services/engine/include",
     "//base/update/updateservice/services/callback/include",
-    "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy/include",
-    "//foundation/distributedschedule/safwk/services/safwk/include",
-    "//foundation/distributedschedule/safwk/interfaces/innerkits/safwk",
-    "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy/include",
+    "//foundation/systemabilitymgr/samgr/interfaces/innerkits/samgr_proxy/include",
+    "//foundation/systemabilitymgr/safwk/services/safwk/include",
+    "//foundation/systemabilitymgr/safwk/interfaces/innerkits/safwk",
+    "//foundation/systemabilitymgr/samgr/interfaces/innerkits/samgr_proxy/include",
     "//third_party/bounds_checking_function/include",
   ]
 
@@ -56,7 +56,7 @@ ohos_static_library("updateservicekits") {
     "init:libbegetutil",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
-    "samgr_standard:samgr_proxy",
+    "samgr:samgr_proxy",
   ]
 
   part_name = "update_service"

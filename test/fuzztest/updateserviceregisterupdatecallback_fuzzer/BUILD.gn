@@ -31,11 +31,11 @@ ohos_fuzztest("UpdateServiceRegisterUpdateCallbackFuzzTest") {
     "//base/update/updateservice/interfaces/inner_api/include",
     "//base/update/updateservice/services/engine/include",
     "//base/update/updateservice/services/callback/include",
-    "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy/include",
-    "//foundation/distributedschedule/safwk/services/safwk/include",
-    "//foundation/distributedschedule/safwk/interfaces/innerkits/safwk",
-    "//foundation/distributedschedule/samgr/adapter/interfaces/innerkits/include",
-    "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy/include",
+    "//foundation/systemabilitymgr/samgr/interfaces/innerkits/samgr_proxy/include",
+    "//foundation/systemabilitymgr/safwk/services/safwk/include",
+    "//foundation/systemabilitymgr/safwk/interfaces/innerkits/safwk",
+    "//foundation/systemabilitymgr/samgr/adapter/interfaces/innerkits/include",
+    "//foundation/systemabilitymgr/samgr/interfaces/innerkits/samgr_proxy/include",
     "//third_party/bounds_checking_function/include",
   ]
   cflags = [
@@ -55,7 +55,7 @@ ohos_fuzztest("UpdateServiceRegisterUpdateCallbackFuzzTest") {
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
-    "samgr_standard:samgr_proxy",
+    "samgr:samgr_proxy",
     "startup_l2:syspara",
   ]
 }
