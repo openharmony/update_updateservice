@@ -23,11 +23,11 @@ SYSTEM_UPGRADE_FAULT:
   __BASE: {type: FAULT, level: CRITICAL, desc: system upgrade fault event}
   DEVICE_ID: {type: STRING, desc: update devId and control devId}
   VERSION_INFO: {type: STRING, desc: version info}
-  FAILED_REASON: {type: STRING, desc: update failed reason}
+  FAILED_REASON: {type: STRING, desc: upgrade failed reason}
   LOCATION: {type: STRING, desc: code location}
 
 SYSTEM_UPGRADE:
-  __BASE: {type: BEHAVIOR, level: CRITICAL, desc: system update event}
+  __BASE: {type: BEHAVIOR, level: CRITICAL, desc: system upgrade event}
   UPDATE_RESULT: {type: STRING, desc: system update result}
 
 SYSTEM_RESET:

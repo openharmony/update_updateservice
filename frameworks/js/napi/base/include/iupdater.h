@@ -32,7 +32,7 @@ public:
 
     napi_value Off(napi_env env, napi_callback_info info);
 
-    virtual int32_t GetUpdateResult(SessionType type, UpdateResult &result) = 0;
+    virtual void GetUpdateResult(SessionType type, UpdateResult &result);
 
     void RemoveSession(uint32_t sessionId)
     {

@@ -70,16 +70,20 @@ public:
 
     int32_t GetOtaStatus(const UpgradeInfo &info, OtaStatus &otaStatus, BusinessError &businessError) override;
 
-    int32_t SetUpdatePolicy(const UpgradeInfo &info, const UpdatePolicy &policy,
+    int32_t SetUpgradePolicy(const UpgradeInfo &info, const UpgradePolicy &policy,
         BusinessError &businessError) override;
 
-    int32_t GetUpdatePolicy(const UpgradeInfo &info, UpdatePolicy &policy, BusinessError &businessError) override;
+    int32_t GetUpgradePolicy(const UpgradeInfo &info, UpgradePolicy &policy, BusinessError &businessError) override;
 
     int32_t Cancel(const UpgradeInfo &info, int32_t service, BusinessError &businessError) override;
 
-    int32_t RebootAndClean(const std::string &miscFile, const std::string &cmd) override;
+    int32_t FactoryReset(BusinessError &businessError) override;
 
-    int32_t RebootAndInstall(const std::string &miscFile, const std::string &packageName) override;
+    int32_t ApplyNewVersion(const UpgradeInfo &info, const std::string &miscFile, const std::string &packageName,
+        BusinessError &businessError) override;
+
+    int32_t VerifyUpgradePackage(const std::string &packagePath, const std::string &keyPath,
+        BusinessError &businessError) override;
 
     void DownloadCallback(const Progress &progress);
 
@@ -124,8 +128,30 @@ public:
     bool VerifyDownloadPkg(const std::string &pkgName, Progress &progress);
     void ReadDataFromSSL(int32_t engineSocket);
 
+class ClientDeathRecipient final : public IRemoteObject::DeathRecipient {
+public:
+    ClientDeathRecipient(const UpgradeInfo &upgradeInfo) : upgradeInfo_(upgradeInfo) {}
+    ~ClientDeathRecipient() final {}
+    DISALLOW_COPY_AND_MOVE(ClientDeathRecipient);
+    void OnRemoteDied(const wptr<IRemoteObject> &remote) final;
 private:
-    UpdatePolicy policy_ = {
+    UpgradeInfo upgradeInfo_;
+};
+
+class ClientProxy {
+public:
+    ClientProxy(const UpgradeInfo &info, const sptr<IUpdateCallback> &callback);
+    ClientProxy &operator=(const ClientProxy &source);
+    void AddDeathRecipient();
+    void RemoveDeathRecipient();
+    sptr<IUpdateCallback> Get();
+private:
+    sptr<IUpdateCallback> proxy_;
+    sptr<IRemoteObject::DeathRecipient> deathRecipient_;
+};
+
+private:
+    UpgradePolicy policy_ = {
         1, 1, {{10, 20}, {10, 20}}
     };
     UpgradeStatus upgradeStatus_ = UPDATE_STATE_INIT;
@@ -135,8 +161,8 @@ private:
     UpgradeInterval upgradeInterval_ {};
     uint64_t checkInterval_ = 0;
     uint64_t downloadInterval_ = 0;
-    std::mutex upgradeCallbackLock_;
-    std::map<UpgradeInfo, sptr<IUpdateCallback>> upgradeCallbackMap_;
+    std::mutex clientProxyMapLock_;
+    std::map<UpgradeInfo, ClientProxy> clientProxyMap_;
     DownloadThread *downloadThread_  { nullptr };
     UpgradeInfo upgradeInfo_ {};
     std::string downloadUrl_;
