@@ -18,9 +18,13 @@
 
 namespace OHOS {
 namespace UpdateEngine {
-const std::string MISC_PATH = "/misc";
-const std::string CMD_WIPE_DATA = "--user_wipe_data";
-const std::string MISC_FILE = "/dev/block/by-name/misc";
+napi_value Restorer::Napi::FactoryReset(napi_env env, napi_callback_info info)
+{
+    CLIENT_LOGI("Restorer::Napi::FactoryReset");
+    Restorer* restorer = UnwrapJsObject<Restorer>(env, info);
+    PARAM_CHECK_NAPI_CALL(env, restorer != nullptr, return nullptr, "Error get restorer");
+    return restorer->FactoryReset(env, info);
+}
 
 Restorer::Restorer(napi_env env, napi_value thisVar)
 {
@@ -32,24 +36,14 @@ Restorer::Restorer(napi_env env, napi_value thisVar)
 
 napi_value Restorer::FactoryReset(napi_env env, napi_callback_info info)
 {
-    SessionParams sessionParams(SessionType::SESSION_REBOOT_AND_CLEAN, CALLBACK_POSITION_ONE);
+    SessionParams sessionParams(SessionType::SESSION_FACTORY_RESET, CALLBACK_POSITION_ONE, true);
     napi_value retValue = StartSession(env, info, sessionParams,
-        [&](SessionType type, void *context) -> int {
-            CLIENT_LOGI("RebootAndClean::misc path : %{public}s", MISC_FILE.c_str());
-            result_ = UpdateServiceKits::GetInstance().RebootAndClean(MISC_FILE, CMD_WIPE_DATA);
-            return result_;
+        [](SessionType type, void *context) -> int {
+            BusinessError *businessError = reinterpret_cast<BusinessError *>(context);
+            return UpdateServiceKits::GetInstance().FactoryReset(*businessError);
         });
-    PARAM_CHECK(retValue != nullptr, return nullptr, "Failed to GetNewVersionInfo.");
+    PARAM_CHECK(retValue != nullptr, return nullptr, "Failed to FactoryReset.");
     return retValue;
-}
-
-int32_t Restorer::GetUpdateResult(SessionType type, UpdateResult &result)
-{
-    businessError_.errorNum = CallResult::SUCCESS;
-    result.businessError = businessError_;
-    result.result.status = result_;
-    result.buildJSObject = ClientHelper::BuildInt32Status;
-    return napi_ok;
 }
 } // namespace UpdateEngine
 } // namespace OHOS

@@ -59,6 +59,7 @@ declare namespace update {
         /**
          * Check new version.
          *
+         * @permission ohos.permission.UPDATE_SYSTEM
          * @since 9
          */
         checkNewVersion(callback: AsyncCallback<CheckResult>): void;
@@ -67,6 +68,7 @@ declare namespace update {
         /**
          * Get new version.
          *
+         * @permission ohos.permission.UPDATE_SYSTEM
          * @since 9
          */
         getNewVersionInfo(callback: AsyncCallback<NewVersionInfo>): void;
@@ -75,6 +77,7 @@ declare namespace update {
         /**
          * Get current version.
          *
+         * @permission ohos.permission.UPDATE_SYSTEM
          * @since 9
          */
         getCurrentVersionInfo(callback: AsyncCallback<CurrentVersionInfo>): void;
@@ -83,6 +86,7 @@ declare namespace update {
         /**
          * Get task info.
          *
+         * @permission ohos.permission.UPDATE_SYSTEM
          * @since 9
          */
         getTaskInfo(callback: AsyncCallback<TaskInfo>): void;
@@ -92,6 +96,7 @@ declare namespace update {
          * Trigger download new version packages.
          * apps should listen to task update event
          *
+         * @permission ohos.permission.UPDATE_SYSTEM
          * @since 9
          */
         download(versionDigestInfo: VersionDigestInfo, downloadOptions: DownloadOptions, callback: AsyncCallback<void>): void;
@@ -101,6 +106,7 @@ declare namespace update {
          * resume download new version packages.
          * apps should listen to task update event
          *
+         * @permission ohos.permission.UPDATE_SYSTEM
          * @since 9
          */
         resumeDownload(versionDigestInfo: VersionDigestInfo, resumeDownloadOptions: ResumeDownloadOptions, callback: AsyncCallback<void>): void;
@@ -110,6 +116,7 @@ declare namespace update {
          * pause download new version packages.
          * apps should listen to task update event
          *
+         * @permission ohos.permission.UPDATE_SYSTEM
          * @since 9
          */
         pauseDownload(versionDigestInfo: VersionDigestInfo, pauseDownloadOptions: PauseDownloadOptions, callback: AsyncCallback<void>): void;
@@ -119,6 +126,7 @@ declare namespace update {
          * Install packages for the device.
          * apps should listen to task update event
          *
+         * @permission ohos.permission.UPDATE_SYSTEM
          * @since 9
          */
         upgrade(versionDigestInfo: VersionDigestInfo, upgradeOptions: UpgradeOptions, callback: AsyncCallback<void>): void;
@@ -127,6 +135,7 @@ declare namespace update {
         /**
          * clear error during upgrade.
          *
+         * @permission ohos.permission.UPDATE_SYSTEM
          * @since 9
          */
         clearError(versionDigestInfo: VersionDigestInfo, clearOptions: ClearOptions, callback: AsyncCallback<void>): void;
@@ -135,6 +144,7 @@ declare namespace update {
         /**
          * Get current upgrade policy.
          *
+         * @permission ohos.permission.UPDATE_SYSTEM
          * @since 9
          */
         getUpgradePolicy(callback: AsyncCallback<UpgradePolicy>): void;
@@ -143,6 +153,7 @@ declare namespace update {
         /**
          * Set upgrade policy.
          *
+         * @permission ohos.permission.UPDATE_SYSTEM
          * @since 9
          */
         setUpgradePolicy(policy: UpgradePolicy, callback: AsyncCallback<number>): void;
@@ -151,6 +162,7 @@ declare namespace update {
         /**
          * terminate upgrade task.
          *
+         * @permission ohos.permission.UPDATE_SYSTEM
          * @since 9
          */
         terminateUpgrade(callback: AsyncCallback<void>): void;
@@ -182,6 +194,7 @@ declare namespace update {
         /**
          * Reboot and clean user data.
          *
+         * @permission ohos.permission.FACTORY_RESET
          * @since 9
          */
         factoryReset(callback: AsyncCallback<void>): void;
@@ -199,6 +212,7 @@ declare namespace update {
         /**
          * Verify local update package.
          *
+         * @permission ohos.permission.UPDATE_SYSTEM
          * @since 9
          */
         verifyUpgradePackage(upgradeFile: UpgradeFile, certsFile: string, callback: AsyncCallback<number>): void;
@@ -208,6 +222,7 @@ declare namespace update {
          * Apply local update package.
          * apps should listen to task update event
          *
+         * @permission ohos.permission.UPDATE_SYSTEM
          * @since 9
          */
         applyNewVersion(upgradeFiles: Array<UpgradeFile>, callback: AsyncCallback<void>): void;
@@ -730,6 +745,26 @@ declare namespace update {
     }
 
     /**
+     * Enumerates call result.
+     *
+     * @since 9
+     */
+    export enum CallResult {
+        SUCCESS = 0,
+        FAIL = 100,
+        UN_SUPPORT = 101,
+        DEV_UPG_INFO_ERR = 102,
+        FORBIDDEN = 103,
+        IPC_ERR = 104,
+        APP_NOT_GRANTED = 200,
+        PARAM_ERR = 401,
+        TIME_OUT = 402,
+        DB_ERROR = 501,
+        IO_ERROR = 502,
+        NET_ERROR = 503
+    }
+
+    /**
      * Enumerates business vendor type.
      *
      * @since 9
@@ -744,8 +779,7 @@ declare namespace update {
      * @since 9
      */
     export enum BusinessSubType {
-        FIRMWARE = 1,
-        PARAM = 2
+        FIRMWARE = 1
     }
 
     /**
