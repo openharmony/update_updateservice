@@ -234,6 +234,17 @@ int32_t UpdateService::GetNewVersion(const UpgradeInfo &info, NewVersionInfo &ne
     return INT_CALL_SUCCESS;
 }
 
+int32_t UpdateService::GetNewVersionDescription(const UpgradeInfo &info, const VersionDigestInfo &versionDigestInfo,
+    const DescriptionOptions &descriptionOptions, BusinessError &businessError)
+{
+    ENGINE_LOGE("GetNewVersionDescription versionDigestInfo %{public}s format %{public}d language %{public}s",
+        versionDigestInfo.versionDigest.c_str(),
+        CAST_INT(descriptionOptions.format),
+        descriptionOptions.language.c_str());
+    businessError.Build(CallResult::UN_SUPPORT, "GetNewVersionDescription unsupport");
+    return INT_CALL_SUCCESS;
+}
+
 int32_t UpdateService::GetCurrentVersionInfo(const UpgradeInfo &info, CurrentVersionInfo &currentVersionInfo,
     BusinessError &businessError)
 {
@@ -261,6 +272,16 @@ int32_t UpdateService::GetCurrentVersionInfo(const UpgradeInfo &info, CurrentVer
 
     versionComponent->descriptionInfo.descriptionType = DescriptionType::CONTENT;
     versionComponent->descriptionInfo.content = versionInfo_.descriptInfo[0].content;
+    return INT_CALL_SUCCESS;
+}
+
+int32_t UpdateService::GetCurrentVersionDescription(const UpgradeInfo &info,
+    const DescriptionOptions &descriptionOptions, BusinessError &businessError)
+{
+    ENGINE_LOGE("GetCurrentVersionDescription format %{public}d language %{public}s",
+        CAST_INT(descriptionOptions.format),
+        descriptionOptions.language.c_str());
+    businessError.Build(CallResult::UN_SUPPORT, "GetCurrentVersionDescription unsupport");
     return INT_CALL_SUCCESS;
 }
 

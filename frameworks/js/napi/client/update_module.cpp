@@ -239,12 +239,26 @@ napi_value GetNewVersionInfo(napi_env env, napi_callback_info info)
     return client->GetNewVersionInfo(env, info);
 }
 
+napi_value GetNewVersionDescription(napi_env env, napi_callback_info info)
+{
+    UpdateClient* client = UnwrapJsObject<UpdateClient>(env, info);
+    PARAM_CHECK_NAPI_CALL(env, client != nullptr, return nullptr, "Error get client");
+    return client->GetNewVersionDescription(env, info);
+}
+
 napi_value GetCurrentVersionInfo(napi_env env, napi_callback_info info)
 {
     CLIENT_LOGI("GetCurrentVersionInfo");
     UpdateClient* client = UnwrapJsObject<UpdateClient>(env, info);
     PARAM_CHECK_NAPI_CALL(env, client != nullptr, return nullptr, "Error get client");
     return client->GetCurrentVersionInfo(env, info);
+}
+
+napi_value GetCurrentVersionDescription(napi_env env, napi_callback_info info)
+{
+    UpdateClient* client = UnwrapJsObject<UpdateClient>(env, info);
+    PARAM_CHECK_NAPI_CALL(env, client != nullptr, return nullptr, "Error get client");
+    return client->GetCurrentVersionDescription(env, info);
 }
 
 napi_value GetTaskInfo(napi_env env, napi_callback_info info)
@@ -313,7 +327,9 @@ static bool DefineUpdateClient(napi_env env, napi_value exports)
     napi_property_descriptor desc[] = {
         DECLARE_NAPI_FUNCTION("checkNewVersion", CheckNewVersion),
         DECLARE_NAPI_FUNCTION("getNewVersionInfo", GetNewVersionInfo),
+        DECLARE_NAPI_FUNCTION("getNewVersionDescription", GetNewVersionDescription),
         DECLARE_NAPI_FUNCTION("getCurrentVersionInfo", GetCurrentVersionInfo),
+        DECLARE_NAPI_FUNCTION("getCurrentVersionDescription", GetCurrentVersionDescription),
         DECLARE_NAPI_FUNCTION("getTaskInfo", GetTaskInfo),
         DECLARE_NAPI_FUNCTION("setUpgradePolicy", SetUpgradePolicy),
         DECLARE_NAPI_FUNCTION("getUpgradePolicy", GetUpgradePolicy),

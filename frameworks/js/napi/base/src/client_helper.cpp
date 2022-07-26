@@ -134,6 +134,7 @@ void BuildVersionComponents(napi_env env, napi_value &obj, const VersionComponen
         if (IsValidData(versionComponents[i])) {
             napi_value napiVersionComponent;
             status = napi_create_object(env, &napiVersionComponent);
+            NapiUtil::SetInt32(env, napiVersionComponent, "componentId", versionComponents[i].componentId);
             NapiUtil::SetInt32(env, napiVersionComponent, "componentType", versionComponents[i].componentType);
             NapiUtil::SetString(env, napiVersionComponent, "upgradeAction",
                 versionComponents[i].upgradeAction.c_str());
@@ -403,6 +404,17 @@ ClientStatus ClientHelper::GetUpgradePolicyFromArg(napi_env env, const napi_valu
     return ClientStatus::CLIENT_SUCCESS;
 }
 
+ClientStatus ClientHelper::GetDescriptionFormat(napi_env env, const napi_value arg, DescriptionFormat &format)
+{
+    int tmpFormat = 0;
+    NapiUtil::GetInt32(env, arg, "format", tmpFormat);
+    static const std::list formatList = {DescriptionFormat::STANDARD, DescriptionFormat::SIMPLIFIED};
+    PARAM_CHECK(IsValidEnum(formatList, tmpFormat), return ClientStatus::CLIENT_INVALID_TYPE,
+        "GetDescriptionFormat error, invalid format:%{public}d", tmpFormat);
+    format = static_cast<DescriptionFormat>(tmpFormat);
+    return ClientStatus::CLIENT_SUCCESS;
+}
+
 ClientStatus ClientHelper::GetNetType(napi_env env, const napi_value arg, NetType &netType)
 {
     int allowNetwork = 0;
@@ -424,6 +436,15 @@ ClientStatus ClientHelper::GetOrder(napi_env env, const napi_value arg, Order &o
     PARAM_CHECK(IsValidEnum(orderList, tmpOrder), return ClientStatus::CLIENT_INVALID_TYPE,
         "GetOrder error, invalid order:%{public}d", tmpOrder);
     order = static_cast<Order>(tmpOrder);
+    return ClientStatus::CLIENT_SUCCESS;
+}
+
+ClientStatus ClientHelper::GetOptionsFromArg(napi_env env, const napi_value arg, DescriptionOptions &descriptionOptions)
+{
+    ClientStatus ret = GetDescriptionFormat(env, arg, descriptionOptions.format);
+    PARAM_CHECK(ret == ClientStatus::CLIENT_SUCCESS, return ClientStatus::CLIENT_INVALID_TYPE,
+        "GetDescriptionOptionsFromArg GetDescriptionFormat error");
+    NapiUtil::GetString(env, arg, "language", descriptionOptions.language);
     return ClientStatus::CLIENT_SUCCESS;
 }
 

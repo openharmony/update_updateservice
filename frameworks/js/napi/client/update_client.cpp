@@ -303,6 +303,27 @@ napi_value UpdateClient::GetNewVersionInfo(napi_env env, napi_callback_info info
     return retValue;
 }
 
+napi_value UpdateClient::GetNewVersionDescription(napi_env env, napi_callback_info info)
+{
+    size_t argc = MAX_ARGC;
+    napi_value args[MAX_ARGC] = {0};
+    napi_status status = napi_get_cb_info(env, info, &argc, args, nullptr, nullptr);
+    PARAM_CHECK_NAPI_CALL(env, status == napi_ok, return nullptr, "Error get cb info");
+    CLIENT_LOGI("GetNewVersionDescription");
+
+    ClientStatus ret = ParseUpgOptions(env, info, versionDigestInfo_, descriptionOptions_);
+    PARAM_CHECK(ret == ClientStatus::CLIENT_SUCCESS, return nullptr, "Failed to get GetNewVersionDescription param");
+
+    SessionParams sessionParams(SessionType::SESSION_GET_NEW_VERSION_DESCRIPTION, CALLBACK_POSITION_THREE, true);
+    napi_value retValue = StartSession(env, info, sessionParams, [=](SessionType type, void *context) -> int {
+        BusinessError *businessError = reinterpret_cast<BusinessError *>(context);
+        return UpdateServiceKits::GetInstance().GetNewVersionDescription(
+            upgradeInfo_, versionDigestInfo_, descriptionOptions_, *businessError);
+    });
+    PARAM_CHECK(retValue != nullptr, return nullptr, "Failed to start worker.");
+    return retValue;
+}
+
 napi_value UpdateClient::GetCurrentVersionInfo(napi_env env, napi_callback_info info)
 {
     SessionParams sessionParams(SessionType::SESSION_GET_CUR_VERSION, CALLBACK_POSITION_ONE, true);
@@ -313,6 +334,28 @@ napi_value UpdateClient::GetCurrentVersionInfo(napi_env env, napi_callback_info 
                 *businessError);
     });
     PARAM_CHECK(retValue != nullptr, return nullptr, "Failed to GetCurrentVersionInfo.");
+    return retValue;
+}
+
+napi_value UpdateClient::GetCurrentVersionDescription(napi_env env, napi_callback_info info)
+{
+    size_t argc = MAX_ARGC;
+    napi_value args[MAX_ARGC] = {0};
+    napi_status status = napi_get_cb_info(env, info, &argc, args, nullptr, nullptr);
+    PARAM_CHECK_NAPI_CALL(env, status == napi_ok, return nullptr, "Error get cb info");
+    CLIENT_LOGI("GetCurrentVersionDescription");
+
+    ClientStatus ret = ParseUpgOptions(env, info, versionDigestInfo_, descriptionOptions_);
+    PARAM_CHECK(ret == ClientStatus::CLIENT_SUCCESS, return nullptr,
+        "Failed to get GetCurrentVersionDescription param");
+
+    SessionParams sessionParams(SessionType::SESSION_GET_CUR_VERSION_DESCRIPTION, CALLBACK_POSITION_TWO, true);
+    napi_value retValue = StartSession(env, info, sessionParams, [=](SessionType type, void *context) -> int {
+        BusinessError *businessError = reinterpret_cast<BusinessError *>(context);
+        return UpdateServiceKits::GetInstance().GetCurrentVersionDescription(
+            upgradeInfo_, descriptionOptions_, *businessError);
+    });
+    PARAM_CHECK(retValue != nullptr, return nullptr, "Failed to start worker.");
     return retValue;
 }
 

@@ -75,6 +75,15 @@ declare namespace update {
         getNewVersionInfo(): Promise<NewVersionInfo>;
 
         /**
+         * Get new version description.
+         *
+         * @permission ohos.permission.UPDATE_SYSTEM
+         * @since 9
+         */
+        getNewVersionDescription(versionDigestInfo: VersionDigestInfo, descriptionOptions: DescriptionOptions, callback: AsyncCallback<Array<ComponentDescription>>): void;
+        getNewVersionDescription(versionDigestInfo: VersionDigestInfo, descriptionOptions: DescriptionOptions): Promise<Array<ComponentDescription>>;
+
+        /**
          * Get current version.
          *
          * @permission ohos.permission.UPDATE_SYSTEM
@@ -82,6 +91,15 @@ declare namespace update {
          */
         getCurrentVersionInfo(callback: AsyncCallback<CurrentVersionInfo>): void;
         getCurrentVersionInfo(): Promise<CurrentVersionInfo>;
+
+        /**
+         * Get current version description.
+         *
+         * @permission ohos.permission.UPDATE_SYSTEM
+         * @since 9
+         */
+        getCurrentVersionDescription(descriptionOptions: DescriptionOptions, callback: AsyncCallback<Array<ComponentDescription>>): void;
+        getCurrentVersionDescription(descriptionOptions: DescriptionOptions): Promise<Array<ComponentDescription>>;
 
         /**
          * Get task info.
@@ -348,6 +366,13 @@ declare namespace update {
      */
     export interface VersionComponent {
         /**
+         * Component id
+         *
+         * @since 9
+         */
+        componentId: number;
+
+        /**
          * Component type
          *
          * @since 9
@@ -388,6 +413,48 @@ declare namespace update {
          * @since 9
          */
         effectiveMode: EffectiveMode;
+
+        /**
+         * Description info
+         *
+         * @since 9
+         */
+        descriptionInfo: DescriptionInfo;
+    }
+
+    /**
+     * Represents description options.
+     *
+     * @since 9
+     */
+    export interface DescriptionOptions {
+        /**
+         * Description format
+         *
+         * @since 9
+         */
+        format: DescriptionFormat;
+
+        /**
+         * Description language
+         *
+         * @since 9
+         */
+        language: string;
+    }
+
+    /**
+     * Represents version component description.
+     *
+     * @since 9
+     */
+    export interface ComponentDescription {
+        /**
+         * Component id
+         *
+         * @since 9
+         */
+        componentId: number;
 
         /**
          * Description info
@@ -823,6 +890,16 @@ declare namespace update {
     export enum DescriptionType {
         CONTENT = 0,
         URI = 1
+    }
+
+    /**
+     * Enumerates description format.
+     *
+     * @since 9
+     */
+    export enum DescriptionFormat {
+        STANDARD = 0,
+        SIMPLIFIED = 1
     }
 
     /**
