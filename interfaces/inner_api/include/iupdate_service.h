@@ -37,7 +37,9 @@ public:
         SET_POLICY,
         GET_POLICY,
         GET_NEW_VERSION,
+        GET_NEW_VERSION_DESCRIPTION,
         GET_CURRENT_VERSION,
+        GET_CURRENT_VERSION_DESCRIPTION,
         GET_TASK_INFO,
         REGISTER_CALLBACK,
         UNREGISTER_CALLBACK,
@@ -75,7 +77,13 @@ public:
     virtual int32_t GetNewVersion(const UpgradeInfo &info, NewVersionInfo &newVersionInfo,
         BusinessError &businessError) = 0;
 
+    virtual int32_t GetNewVersionDescription(const UpgradeInfo &info, const VersionDigestInfo &versionDigestInfo,
+        const DescriptionOptions &descriptionOptions, BusinessError &businessError) = 0;
+
     virtual int32_t GetCurrentVersionInfo(const UpgradeInfo &info, CurrentVersionInfo &currentVersionInfo,
+        BusinessError &businessError) = 0;
+
+    virtual int32_t GetCurrentVersionDescription(const UpgradeInfo &info, const DescriptionOptions &descriptionOptions,
         BusinessError &businessError) = 0;
 
     virtual int32_t GetTaskInfo(const UpgradeInfo &info, TaskInfo &taskInfo, BusinessError &businessError) = 0;

@@ -110,6 +110,7 @@ void ReadVersionComponents(MessageParcel &reply, VersionComponent versionCompone
     int32_t size = reply.ReadInt32();
     for (size_t i = 0; (i < static_cast<size_t>(size)) && (i < arraySize); i++) {
         VersionComponent *versionComponent = &versionComponents[i];
+        versionComponent->componentId = reply.ReadUint32();
         versionComponent->componentType = reply.ReadUint32();
         versionComponent->upgradeAction = Str16ToStr8(reply.ReadString16());
         versionComponent->displayVersion = Str16ToStr8(reply.ReadString16());
@@ -127,6 +128,7 @@ void WriteVersionComponents(MessageParcel &data, const VersionComponent versionC
     data.WriteInt32(static_cast<int32_t>(arraySize));
     for (size_t i = 0; i < arraySize; i++) {
         const VersionComponent *versionComponent = &versionComponents[i];
+        data.WriteUint32(versionComponent->componentId);
         data.WriteUint32(versionComponent->componentType);
         data.WriteString16(Str8ToStr16(versionComponent->upgradeAction));
         data.WriteString16(Str8ToStr16(versionComponent->displayVersion));
@@ -282,6 +284,20 @@ int32_t UpdateHelper::ReadVersionDigestInfo(MessageParcel &reply, VersionDigestI
 int32_t UpdateHelper::WriteVersionDigestInfo(MessageParcel &data, const VersionDigestInfo &versionDigestInfo)
 {
     data.WriteString16(Str8ToStr16(versionDigestInfo.versionDigest));
+    return 0;
+}
+
+int32_t UpdateHelper::ReadDescriptionOptions(MessageParcel &reply, DescriptionOptions &descriptionOptions)
+{
+    descriptionOptions.format = static_cast<DescriptionFormat>(reply.ReadUint32());
+    descriptionOptions.language = Str16ToStr8(reply.ReadString16());
+    return 0;
+}
+
+int32_t UpdateHelper::WriteDescriptionOptions(MessageParcel &data, const DescriptionOptions &descriptionOptions)
+{
+    data.WriteUint32(static_cast<uint32_t>(descriptionOptions.format));
+    data.WriteString16(Str8ToStr16(descriptionOptions.language));
     return 0;
 }
 

@@ -44,6 +44,7 @@ enum class SessionType {
     SESSION_CLEAR_ERROR,
     SESSION_TERMINATE_UPGRADE,
     SESSION_GET_NEW_VERSION,
+    SESSION_GET_NEW_VERSION_DESCRIPTION,
     SESSION_SUBSCRIBE,
     SESSION_UNSUBSCRIBE,
     SESSION_GET_UPDATER,
@@ -52,6 +53,7 @@ enum class SessionType {
     SESSION_VERIFY_PACKAGE,
     SESSION_CANCEL_UPGRADE,
     SESSION_GET_CUR_VERSION,
+    SESSION_GET_CUR_VERSION_DESCRIPTION,
     SESSION_GET_TASK_INFO,
     SESSION_REPLY_PARAM_ERROR,
     SESSION_MAX
@@ -186,6 +188,7 @@ public:
     static ClientStatus GetVersionDigestInfoFromArg(napi_env env, const napi_value arg,
         VersionDigestInfo &versionDigestInfo);
 
+    static ClientStatus GetOptionsFromArg(napi_env env, const napi_value arg, DescriptionOptions &descriptionOptions);
     static ClientStatus GetOptionsFromArg(napi_env env, const napi_value arg, UpgradeOptions &upgradeOptions);
     static ClientStatus GetOptionsFromArg(napi_env env, const napi_value arg, ClearOptions &clearOptions);
     static ClientStatus GetOptionsFromArg(napi_env env, const napi_value arg, DownloadOptions &downloadOptions);
@@ -199,6 +202,7 @@ public:
     static ClientStatus BuildEventInfo(napi_env env, napi_value &obj, const EventInfo &eventInfo);
 
 private:
+    static ClientStatus GetDescriptionFormat(napi_env env, const napi_value arg, DescriptionFormat &format);
     static ClientStatus GetNetType(napi_env env, const napi_value arg, NetType &netType);
     static ClientStatus GetOrder(napi_env env, const napi_value arg, Order &order);
 };
