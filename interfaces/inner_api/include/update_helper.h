@@ -31,6 +31,8 @@
 
 namespace OHOS {
 namespace UpdateEngine {
+const int CALL_RESULT_OFFSET = 2000;
+
 #define COUNT_OF(array) (sizeof(array) / sizeof((array)[0]))
 
 #define CAST_INT(enumClass) (static_cast<int32_t>(enumClass))
@@ -41,7 +43,7 @@ enum class CallResult {
     UN_SUPPORT = 101,
     DEV_UPG_INFO_ERR = 102,
     FORBIDDEN = 103,
-    EXECUTE_FAIL = 104,
+    IPC_ERR = 104,
     APP_NOT_GRANTED = 200,
     PARAM_ERR = 401,
     TIME_OUT = 402,
@@ -50,13 +52,22 @@ enum class CallResult {
     NET_ERROR = 503
 };
 
+constexpr int32_t INT_CALL_SUCCESS = CAST_INT(CallResult::SUCCESS);
+constexpr int32_t INT_CALL_FAIL = CAST_INT(CallResult::FAIL);
+constexpr int32_t INT_UN_SUPPORT = CAST_INT(CallResult::UN_SUPPORT);
+constexpr int32_t INT_FORBIDDEN = CAST_INT(CallResult::FORBIDDEN);
+constexpr int32_t INT_CALL_IPC_ERR = CAST_INT(CallResult::IPC_ERR);
+constexpr int32_t INT_APP_NOT_GRANTED = CAST_INT(CallResult::APP_NOT_GRANTED);
+constexpr int32_t INT_PARAM_ERR = CAST_INT(CallResult::PARAM_ERR);
+
 // 搜索状态
 enum SearchStatus {
     NET_ERROR = -2,
-    SYSTEM_ERROR = -1,
+    SYSTEM_ERROR,
     HAS_NEW_VERSION,
     NO_NEW_VERSION,
     SERVER_BUSY,
+    CHECK_EXECUTE_ERR,
 };
 
 enum UpgradeStatus {
@@ -95,6 +106,7 @@ enum PackageType {
 };
 
 enum class ComponentType {
+    INVALID = 0,
     OTA = 1,
     PATCH = 2,
     COTA = 4,
@@ -291,7 +303,7 @@ struct VersionInfo {
 };
 
 struct VersionComponent {
-    uint32_t componentType;
+    uint32_t componentType = static_cast<uint32_t>(ComponentType::INVALID);
     std::string upgradeAction;
     std::string displayVersion;
     std::string innerVersion;
@@ -362,7 +374,7 @@ struct CheckResultEx {
 
 struct TaskBody {
     VersionDigestInfo versionDigestInfo;
-    UpgradeStatus status;
+    UpgradeStatus status = UPDATE_STATE_INIT;
     int32_t subStatus;
     uint32_t progress;
     int32_t installMode;
@@ -401,13 +413,13 @@ struct TaskInfo {
 };
 
 struct Progress {
-    uint32_t percent;
+    uint32_t percent = 0;
     UpgradeStatus status;
     std::string endReason;
 };
 
 struct ErrMsg {
-    int32_t errorCode;
+    int32_t errorCode = 0;
     std::string errorMsg;
 
     ErrMsg &operator=(const ErrMsg &source)
@@ -468,6 +480,13 @@ struct BusinessError {
         }
         return *this;
     }
+
+    BusinessError &Build(CallResult callResult, const std::string &msg)
+    {
+        errorNum = callResult;
+        message = msg;
+        return *this;
+    }
 };
 
 struct UpgradePeriod {
@@ -475,12 +494,12 @@ struct UpgradePeriod {
     uint32_t end;
 };
 
-struct UpdatePolicy {
+struct UpgradePolicy {
     bool downloadStrategy;
     bool autoUpgradeStrategy;
     UpgradePeriod autoUpgradePeriods[2];
 
-    UpdatePolicy &operator=(const UpdatePolicy &source)
+    UpgradePolicy &operator=(const UpgradePolicy &source)
     {
         if (&source != this) {
             downloadStrategy = source.downloadStrategy;
@@ -524,8 +543,6 @@ struct EventInfo {
 };
 
 using CheckNewVersionDone = std::function<void(const BusinessError &businessError, const CheckResultEx &checkResultEx)>;
-using DownloadProgress = std::function<void(const BusinessError &businessError, const Progress &progress)>;
-using UpgradeProgress = std::function<void(const BusinessError &businessError, const Progress &progress)>;
 using OnEvent = std::function<void(const EventInfo &eventInfo)>;
 
 // 回调函数
@@ -544,9 +561,9 @@ struct UpdateCallbackInfo {
 };
 
 #ifdef UPDATE_SERVICE
-static constexpr OHOS::HiviewDFX::HiLogLabel UPDATE_LABEL = {LOG_CORE, 0, "UPDATE_SA"};
+static constexpr OHOS::HiviewDFX::HiLogLabel UPDATE_LABEL = {LOG_CORE, 0xD000A01, "UPDATE_SA"};
 #else
-static constexpr OHOS::HiviewDFX::HiLogLabel UPDATE_LABEL = {LOG_CORE, 0, "UPDATE_KITS"};
+static constexpr OHOS::HiviewDFX::HiLogLabel UPDATE_LABEL = {LOG_CORE, 0xD000A01, "UPDATE_KITS"};
 #endif
 
 enum class UpdateLogLevel {
@@ -588,11 +605,8 @@ public:
     static int32_t ReadTaskInfo(MessageParcel &reply, TaskInfo &info);
     static int32_t WriteTaskInfo(MessageParcel &data, const TaskInfo &info);
 
-    static int32_t ReadOtaStatus(MessageParcel &reply, OtaStatus &otaStatus);
-    static int32_t WriteOtaStatus(MessageParcel &data, const OtaStatus &otaStatus);
-
-    static int32_t ReadUpdatePolicy(MessageParcel &reply, UpdatePolicy &policy);
-    static int32_t WriteUpdatePolicy(MessageParcel &data, const UpdatePolicy &policy);
+    static int32_t ReadUpgradePolicy(MessageParcel &reply, UpgradePolicy &policy);
+    static int32_t WriteUpgradePolicy(MessageParcel &data, const UpgradePolicy &policy);
 
     static int32_t ReadEventInfo(MessageParcel &reply, EventInfo &eventInfo);
     static int32_t WriteEventInfo(MessageParcel &data, const EventInfo &eventInfo);

@@ -233,35 +233,7 @@ int32_t UpdateHelper::WriteTaskInfo(MessageParcel &data, const TaskInfo &info)
     return 0;
 }
 
-int32_t UpdateHelper::ReadOtaStatus(MessageParcel &reply, OtaStatus &otaStatus)
-{
-    otaStatus.progress = reply.ReadUint32();
-    otaStatus.status = static_cast<UpgradeStatus>(reply.ReadInt32());
-    otaStatus.subStatus = reply.ReadInt32();
-    size_t size = static_cast<size_t>(reply.ReadInt32());
-    size_t arraySize = COUNT_OF(otaStatus.errMsg);
-    for (size_t i = 0; (i < size) && (i < arraySize); i++) {
-        otaStatus.errMsg[i].errorCode = reply.ReadInt32();
-        otaStatus.errMsg[i].errorMsg = Str16ToStr8(reply.ReadString16());
-    }
-    return 0;
-}
-
-int32_t UpdateHelper::WriteOtaStatus(MessageParcel &data, const OtaStatus &otaStatus)
-{
-    data.WriteUint32(otaStatus.progress);
-    data.WriteInt32(static_cast<int32_t>(otaStatus.status));
-    data.WriteInt32(static_cast<int32_t>(otaStatus.subStatus));
-    int32_t size = static_cast<int32_t>(COUNT_OF(otaStatus.errMsg));
-    data.WriteInt32(size);
-    for (int32_t i = 0; i < size; i++) {
-        data.WriteInt32(static_cast<int32_t>(otaStatus.errMsg[i].errorCode));
-        data.WriteString16(Str8ToStr16(otaStatus.errMsg[i].errorMsg));
-    }
-    return 0;
-}
-
-int32_t UpdateHelper::ReadUpdatePolicy(MessageParcel &reply, UpdatePolicy &policy)
+int32_t UpdateHelper::ReadUpgradePolicy(MessageParcel &reply, UpgradePolicy &policy)
 {
     policy.downloadStrategy = static_cast<bool>(reply.ReadBool());
     policy.autoUpgradeStrategy = static_cast<bool>(reply.ReadBool());
@@ -274,7 +246,7 @@ int32_t UpdateHelper::ReadUpdatePolicy(MessageParcel &reply, UpdatePolicy &polic
     return 0;
 }
 
-int32_t UpdateHelper::WriteUpdatePolicy(MessageParcel &data, const UpdatePolicy &policy)
+int32_t UpdateHelper::WriteUpgradePolicy(MessageParcel &data, const UpgradePolicy &policy)
 {
     data.WriteBool(policy.downloadStrategy);
     data.WriteBool(policy.autoUpgradeStrategy);

@@ -60,8 +60,11 @@ public:
 
     bool IsAsyncCompleteWork() override
     {
-        return sessionParams_.type == SessionType::SESSION_VERIFY_PACKAGE;
+        return false;
     }
+
+protected:
+    napi_value CreateWorkerName(napi_env env) const;
 
     void GetUpdateResult(UpdateResult &result)
     {
@@ -69,14 +72,52 @@ public:
         client_->GetUpdateResult(sessionParams_.type, result);
     }
 
-protected:
-    napi_value CreateWorkerName(napi_env env) const;
+    bool IsWorkExecuteSuccess() const
+    {
+        return workResult_ == INT_CALL_SUCCESS;
+    }
 
-protected:
+    void BuildWorkBusinessErr(BusinessError &businessError)
+    {
+        std::string msg = "execute error";
+        switch (workResult_) {
+            case INT_APP_NOT_GRANTED:
+                msg = "permission not granted";
+                break;
+            case INT_CALL_IPC_ERR:
+                msg = "ipc error";
+                break;
+            case INT_UN_SUPPORT:
+                msg = "api unsupport";
+                break;
+            case INT_PARAM_ERR:
+                msg = "param error";
+                break;
+            default:
+                break;
+        }
+        businessError.Build(static_cast<CallResult>(workResult_), msg);
+    }
+
+    void GetBusinessError(BusinessError &businessError, const UpdateResult &result)
+    {
+        if (IsWorkExecuteSuccess()) {
+            businessError = result.businessError;
+        } else {
+            BuildWorkBusinessErr(businessError);
+        }
+    }
+
+    bool IsNeedWaitAsyncCallback()
+    {
+        return IsAsyncCompleteWork() && IsWorkExecuteSuccess();
+    }
+
     uint32_t sessionId {0};
     IUpdater *client_ = nullptr;
     BusinessError businessError_ {};
     SessionParams sessionParams_ {};
+    int32_t workResult_ = INT_CALL_SUCCESS;
     size_t totalArgc_ = 0;
     size_t callbackNumber_ = 0;
     void* context_ {};

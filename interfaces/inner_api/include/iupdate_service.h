@@ -39,13 +39,12 @@ public:
         GET_NEW_VERSION,
         GET_CURRENT_VERSION,
         GET_TASK_INFO,
-        GET_OTA_STATUS,
         REGISTER_CALLBACK,
         UNREGISTER_CALLBACK,
         CANCEL,
-        REBOOT_CLEAN,
-        REBOOT_INSTALL,
-        VERIFY_PACKAGE
+        FACTORY_RESET,
+        APPLY_NEW_VERSION,
+        VERIFY_UPGRADE_PACKAGE
     };
 
     DECLARE_INTERFACE_DESCRIPTOR(u"OHOS.Updater.IUpdateService");
@@ -81,18 +80,20 @@ public:
 
     virtual int32_t GetTaskInfo(const UpgradeInfo &info, TaskInfo &taskInfo, BusinessError &businessError) = 0;
 
-    virtual int32_t GetOtaStatus(const UpgradeInfo &info, OtaStatus &otaStatus, BusinessError &businessError) = 0;
-
-    virtual int32_t SetUpdatePolicy(const UpgradeInfo &info, const UpdatePolicy &policy,
+    virtual int32_t SetUpgradePolicy(const UpgradeInfo &info, const UpgradePolicy &policy,
         BusinessError &businessError) = 0;
 
-    virtual int32_t GetUpdatePolicy(const UpgradeInfo &info, UpdatePolicy &policy, BusinessError &businessError) = 0;
+    virtual int32_t GetUpgradePolicy(const UpgradeInfo &info, UpgradePolicy &policy, BusinessError &businessError) = 0;
 
     virtual int32_t Cancel(const UpgradeInfo &info, int32_t service, BusinessError &businessError) = 0;
 
-    virtual int32_t RebootAndClean(const std::string &miscFile, const std::string &cmd) = 0;
+    virtual int32_t FactoryReset(BusinessError &businessError) = 0;
 
-    virtual int32_t RebootAndInstall(const std::string &miscFile, const std::string &packageName) = 0;
+    virtual int32_t ApplyNewVersion(const UpgradeInfo &info, const std::string &miscFile,
+        const std::string &packageName, BusinessError &businessError) = 0;
+
+    virtual int32_t VerifyUpgradePackage(const std::string &packagePath, const std::string &keyPath,
+        BusinessError &businessError) = 0;
 };
 } // namespace UpdateEngine
 } // namespace OHOS

@@ -44,14 +44,8 @@ public:
 
     napi_value ApplyNewVersion(napi_env env, napi_callback_info info);
 
-    int32_t GetUpdateResult(SessionType type, UpdateResult &result) override;
-
 private:
-    void NotifyVerifyPackageResult(int32_t retCode, uint32_t percent);
-
     bool isInit_ = false;
-    int32_t result_ = 0;
-    BusinessError businessError_;
 };
 } // namespace UpdateEngine
 } // namespace OHOS

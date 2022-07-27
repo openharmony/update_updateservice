@@ -164,25 +164,25 @@ napi_value CheckNewVersion(napi_env env, napi_callback_info info)
     return client->CheckNewVersion(env, info);
 }
 
-napi_value SetUpdatePolicy(napi_env env, napi_callback_info info)
+napi_value SetUpgradePolicy(napi_env env, napi_callback_info info)
 {
     UpdateClient* client = UnwrapJsObject<UpdateClient>(env, info);
     PARAM_CHECK_NAPI_CALL(env, client != nullptr, return nullptr, "Error get client");
-    return client->SetUpdatePolicy(env, info);
+    return client->SetUpgradePolicy(env, info);
 }
 
-napi_value GetUpdatePolicy(napi_env env, napi_callback_info info)
+napi_value GetUpgradePolicy(napi_env env, napi_callback_info info)
 {
     UpdateClient* client = UnwrapJsObject<UpdateClient>(env, info);
     PARAM_CHECK_NAPI_CALL(env, client != nullptr, return nullptr, "Error get client");
-    return client->GetUpdatePolicy(env, info);
+    return client->GetUpgradePolicy(env, info);
 }
 
-napi_value DownloadVersion(napi_env env, napi_callback_info info)
+napi_value Download(napi_env env, napi_callback_info info)
 {
     UpdateClient* client = UnwrapJsObject<UpdateClient>(env, info);
     PARAM_CHECK_NAPI_CALL(env, client != nullptr, return nullptr, "Error get client");
-    return client->DownloadVersion(env, info);
+    return client->Download(env, info);
 }
 
 napi_value PauseDownload(napi_env env, napi_callback_info info)
@@ -255,43 +255,7 @@ napi_value GetTaskInfo(napi_env env, napi_callback_info info)
     return client->GetTaskInfo(env, info);
 }
 
-napi_value GetOtaStatus(napi_env env, napi_callback_info info)
-{
-    UpdateClient* client = UnwrapJsObject<UpdateClient>(env, info);
-    PARAM_CHECK_NAPI_CALL(env, client != nullptr, return nullptr, "Error get client");
-    return client->GetOtaStatus(env, info);
-}
-
-napi_value ApplyNewVersion(napi_env env, napi_callback_info info)
-{
-    UpdateClient* client = UnwrapJsObject<UpdateClient>(env, info);
-    PARAM_CHECK_NAPI_CALL(env, client != nullptr, return nullptr, "Error get client");
-    return client->ApplyNewVersion(env, info);
-}
-
-napi_value RebootAndClean(napi_env env, napi_callback_info info)
-{
-    UpdateClient* client = UnwrapJsObject<UpdateClient>(env, info);
-    PARAM_CHECK_NAPI_CALL(env, client != nullptr, return nullptr, "Error get client");
-    return client->RebootAndClean(env, info);
-}
-
-napi_value VerifyUpdatePackage(napi_env env, napi_callback_info info)
-{
-    UpdateClient* client = UnwrapJsObject<UpdateClient>(env, info);
-    PARAM_CHECK_NAPI_CALL(env, client != nullptr, return nullptr, "Error get client");
-    return client->VerifyUpdatePackage(env, info);
-}
-
-napi_value FactoryReset(napi_env env, napi_callback_info info)
-{
-    CLIENT_LOGI("FactoryReset");
-    Restorer* restorer = UnwrapJsObject<Restorer>(env, info);
-    PARAM_CHECK_NAPI_CALL(env, restorer != nullptr, return nullptr, "Error get restorer");
-    return restorer->FactoryReset(env, info);
-}
-
-static bool DefineClass(napi_env env, napi_value exports, NativeClass& nativeClass)
+static bool DefineClass(napi_env env, napi_value exports, const NativeClass& nativeClass)
 {
     const std::string& className = nativeClass.className;
     napi_value result = nullptr;
@@ -311,7 +275,7 @@ static bool DefineClass(napi_env env, napi_value exports, NativeClass& nativeCla
 static bool DefineRestorer(napi_env env, napi_value exports)
 {
     napi_property_descriptor desc[] = {
-        DECLARE_NAPI_FUNCTION("factoryReset", FactoryReset)
+        DECLARE_NAPI_FUNCTION(Restorer::Napi::FUNCTION_FACTORY_RESET, Restorer::Napi::FactoryReset)
     };
 
     NativeClass nativeClass = {
@@ -351,19 +315,15 @@ static bool DefineUpdateClient(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("getNewVersionInfo", GetNewVersionInfo),
         DECLARE_NAPI_FUNCTION("getCurrentVersionInfo", GetCurrentVersionInfo),
         DECLARE_NAPI_FUNCTION("getTaskInfo", GetTaskInfo),
-        DECLARE_NAPI_FUNCTION("setUpgradePolicy", SetUpdatePolicy),
-        DECLARE_NAPI_FUNCTION("getUpgradePolicy", GetUpdatePolicy),
-        DECLARE_NAPI_FUNCTION("getOtaStatus", GetOtaStatus),
+        DECLARE_NAPI_FUNCTION("setUpgradePolicy", SetUpgradePolicy),
+        DECLARE_NAPI_FUNCTION("getUpgradePolicy", GetUpgradePolicy),
         DECLARE_NAPI_FUNCTION("cancel", CancelUpgrade),
-        DECLARE_NAPI_FUNCTION("download", DownloadVersion),
+        DECLARE_NAPI_FUNCTION("download", Download),
         DECLARE_NAPI_FUNCTION("pauseDownload", PauseDownload),
         DECLARE_NAPI_FUNCTION("resumeDownload", ResumeDownload),
         DECLARE_NAPI_FUNCTION("upgrade", Upgrade),
         DECLARE_NAPI_FUNCTION("clearError", ClearError),
         DECLARE_NAPI_FUNCTION("terminateUpgrade", TerminateUpgrade),
-        DECLARE_NAPI_FUNCTION("applyNewVersion", ApplyNewVersion),
-        DECLARE_NAPI_FUNCTION("rebootAndCleanUserData", RebootAndClean),
-        DECLARE_NAPI_FUNCTION("verifyUpdatePackage", VerifyUpdatePackage),
         DECLARE_NAPI_FUNCTION(UpdateClient::Napi::FUNCTION_ON, UpdateClient::Napi::NapiOn),
         DECLARE_NAPI_FUNCTION(UpdateClient::Napi::FUNCTION_OFF, UpdateClient::Napi::NapiOff)
     };
@@ -387,7 +347,6 @@ static napi_value UpdateClientInit(napi_env env, napi_value exports)
     CLIENT_LOGI("UpdateClientInit");
     // Registration function
     napi_property_descriptor desc[] = {
-        DECLARE_NAPI_FUNCTION("getUpdater", GetOnlineUpdater),
         DECLARE_NAPI_FUNCTION("getOnlineUpdater", GetOnlineUpdater),
         DECLARE_NAPI_FUNCTION("getRestorer", GetRestorer),
         DECLARE_NAPI_FUNCTION("getLocalUpdater", GetLocalUpdater)
