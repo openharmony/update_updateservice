@@ -18,7 +18,6 @@
 #include "client_helper.h"
 #include "napi_util.h"
 #include "node_api.h"
-#include "package/package.h"
 #include "securec.h"
 #include "update_helper.h"
 
@@ -44,30 +43,7 @@ napi_value UpdateSession::CreateWorkerName(napi_env env) const
 
 napi_value UpdateSession::StartWork(napi_env env, const napi_value *args, DoWorkFunction worker, void *context)
 {
-    static std::string sessName[static_cast<int32_t>(SessionType::SESSION_MAX)] = {
-        "check version",
-        "download",
-        "pause download",
-        "resume download",
-        "upgrade",
-        "set policy",
-        "get policy",
-        "clear error",
-        "terminate upgrade",
-        "get new version",
-        "subscribe",
-        "unsubscribe",
-        "get updater",
-        "apply new version",
-        "reboot and clean",
-        "verify package",
-        "cancel Upgrade",
-        "get ota status",
-        "get current version",
-        "get task info"
-    };
-
-    CLIENT_LOGI("StartWork type: %{public}s", sessName[static_cast<int32_t>(sessionParams_.type)].c_str());
+    CLIENT_LOGI("StartWork type: %{public}d", CAST_INT(sessionParams_.type));
     doWorker_ = worker;
     context_ = context;
     return StartWork(env, sessionParams_.callbackStartIndex, args);
@@ -77,18 +53,20 @@ void UpdateSession::ExecuteWork(napi_env env)
 {
     if (doWorker_ != nullptr) {
 #ifndef UPDATER_UT
-        int32_t ret;
         if (sessionParams_.isNeedBusinessError) {
-            ret = doWorker_(sessionParams_.type, &businessError_);
+            workResult_ = doWorker_(sessionParams_.type, &businessError_);
         } else {
-            ret = doWorker_(sessionParams_.type, context_);
+            workResult_ = doWorker_(sessionParams_.type, context_);
         }
-        PARAM_CHECK(ret == 0, return, "execute work return fail ret:%{public}d", ret);
+        CLIENT_LOGI("UpdateSession::ExecuteWork workResult : %{public}d", workResult_);
+        if (IsAsyncCompleteWork() && !IsWorkExecuteSuccess()) {
+            CLIENT_LOGE("UpdateSession::ExecuteWork CompleteWork when error");
+            CompleteWork(env, napi_ok, this);
+        }
 #else
         doWorker_(sessionParams_.type, context_);
 #endif
     }
-    return;
 }
 
 // JS thread, which is used to notify the JS page upon completion of the operation.
@@ -99,7 +77,7 @@ void UpdateSession::CompleteWork(napi_env env, napi_status status, void *data)
     sess->CompleteWork(env, status);
     // If the share ptr is used, you can directly remove the share ptr.
     IUpdater *client = sess->GetUpdateClient();
-    if (client != nullptr && !sess->IsAsyncCompleteWork()) {
+    if (client != nullptr && !sess->IsNeedWaitAsyncCallback()) {
         client->RemoveSession(sess->GetSessionId());
     }
 }
@@ -167,8 +145,15 @@ void UpdateAsyncession::NotifyJS(napi_env env, napi_value thisVar, const UpdateR
     napi_get_undefined(env, &undefined);
     napi_value retArgs[RESULT_ARGC] = { 0 };
 
-    uint32_t ret = (uint32_t)ClientHelper::BuildBusinessError(env, retArgs[0], result.businessError);
-    ret |= (uint32_t)result.buildJSObject(env, retArgs[1], result);
+    BusinessError businessError;
+    GetBusinessError(businessError, result);
+    uint32_t ret;
+    if (UpdateHelper::IsErrorExist(businessError)) {
+        CLIENT_LOGI("UpdateAsyncession::NotifyJS error exist");
+        ret = static_cast<uint32_t>(ClientHelper::BuildBusinessError(env, retArgs[0], businessError));
+    } else {
+        ret = static_cast<uint32_t>(result.buildJSObject(env, retArgs[1], result));
+    }
     PARAM_CHECK_NAPI_CALL(env, ret == napi_ok, return, "Failed to build json");
 
     napi_status retStatus = napi_get_reference_value(env, callbackRef_[0], &callback);
@@ -189,7 +174,7 @@ void UpdateAsyncession::CompleteWork(napi_env env, napi_status status)
     CLIENT_LOGI("UpdateAsyncession::CompleteWork callbackNumber_: %{public}d, %{public}d",
         static_cast<int32_t>(callbackNumber_),
         sessionParams_.type);
-    if (IsAsyncCompleteWork()) {
+    if (IsNeedWaitAsyncCallback()) {
         return;
     }
     UpdateResult result;
@@ -230,8 +215,9 @@ void UpdatePromiseSession::NotifyJS(napi_env env, napi_value thisVar, const Upda
     CLIENT_LOGI("UpdatePromiseSession NotifyJS errorNum:%{public}d", errorNum);
 
     // Get the return result.
-    napi_value processResult;
-    const BusinessError &businessError = result.businessError;
+    napi_value processResult = nullptr;
+    BusinessError businessError;
+    GetBusinessError(businessError, result);
     if (!UpdateHelper::IsErrorExist(businessError)) {
         result.buildJSObject(env, processResult, result);
         napi_resolve_deferred(env, deferred_, processResult);
@@ -246,7 +232,7 @@ void UpdatePromiseSession::NotifyJS(napi_env env, napi_value thisVar, const Upda
 void UpdatePromiseSession::CompleteWork(napi_env env, napi_status status)
 {
     CLIENT_LOGI("UpdatePromiseSession::CompleteWork status: %d", static_cast<int32_t>(status));
-    if (IsAsyncCompleteWork()) {
+    if (IsNeedWaitAsyncCallback()) {
         return;
     }
     UpdateResult result;

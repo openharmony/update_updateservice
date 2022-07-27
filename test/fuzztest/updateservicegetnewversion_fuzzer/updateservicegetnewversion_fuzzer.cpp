@@ -26,7 +26,7 @@ bool FuzzUpdateServiceGetNewVersion(const uint8_t* data, size_t size)
     FuzztestHelper fuzztestHelper(data, size);
     NewVersionInfo newVersionInfo;
     BusinessError businessError;
-    return UpdateServiceKits::GetInstance().GetNewVersion(fuzztestHelper.BuildUpgradeInfo(), newVersionInfo,
+    return UpdateServiceKits::GetInstance().GetNewVersionInfo(fuzztestHelper.BuildUpgradeInfo(), newVersionInfo,
         businessError) == 0;
 }
 }

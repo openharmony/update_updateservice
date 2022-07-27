@@ -18,9 +18,9 @@ import("//build/config/features.gni")
 import("//build/test.gni")
 
 ##############################fuzztest##########################################
-ohos_fuzztest("UpdateServiceDownloadVersionFuzzTest") {
+ohos_fuzztest("UpdateServiceSetUpgradePolicyFuzzTest") {
   module_out_path = module_output_path
-  fuzz_config_file = "//base/update/updateservice/test/fuzztest/updateservicedownloadversion_fuzzer"
+  fuzz_config_file = "//base/update/updateservice/test/fuzztest/updateservicesetupgradepolicy_fuzzer"
   include_dirs = [
     "//base/update/updater/services/include",
     "//base/update/updater/utils/include",
@@ -46,7 +46,7 @@ ohos_fuzztest("UpdateServiceDownloadVersionFuzzTest") {
   ]
   sources = [
     "//base/update/updateservice/test/fuzztest/common/fuzztest_helper.cpp",
-    "//base/update/updateservice/test/fuzztest/updateservicedownloadversion_fuzzer/updateservicedownloadversion_fuzzer.cpp",
+    "//base/update/updateservice/test/fuzztest/updateservicesetupgradepolicy_fuzzer/updateservicesetupgradepolicy_fuzzer.cpp",
   ]
   deps = [
     "//base/update/updateservice/interfaces/inner_api/engine:updateservicekits",
@@ -66,7 +66,7 @@ group("fuzztest") {
   deps = []
   deps += [
     # deps file
-    ":UpdateServiceDownloadVersionFuzzTest",
+    ":UpdateServiceSetUpgradePolicyFuzzTest",
   ]
 }
 ###############################################################################

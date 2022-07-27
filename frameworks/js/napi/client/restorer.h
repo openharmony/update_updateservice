@@ -22,16 +22,16 @@ namespace OHOS {
 namespace UpdateEngine {
 class Restorer : public IUpdater {
 public:
+    class Napi {
+    public:
+        static constexpr const char *FUNCTION_FACTORY_RESET = "factoryReset";
+
+        static napi_value FactoryReset(napi_env env, napi_callback_info info);
+    };
+
     Restorer(napi_env env, napi_value thisVar);
 
     napi_value FactoryReset(napi_env env, napi_callback_info info);
-
-    int32_t GetUpdateResult(SessionType type, UpdateResult &result) override;
-
-private:
-    int32_t result_ = 0;
-
-    BusinessError businessError_;
 };
 } // namespace UpdateEngine
 } // namespace OHOS

@@ -41,7 +41,7 @@ public:
 
     virtual int32_t CheckNewVersion(const UpgradeInfo &info) = 0;
 
-    virtual int32_t DownloadVersion(const UpgradeInfo &info, const VersionDigestInfo &versionDigestInfo,
+    virtual int32_t Download(const UpgradeInfo &info, const VersionDigestInfo &versionDigestInfo,
         const DownloadOptions &downloadOptions, BusinessError &businessError) = 0;
 
     virtual int32_t PauseDownload(const UpgradeInfo &info, const VersionDigestInfo &versionDigestInfo,
@@ -50,7 +50,7 @@ public:
     virtual int32_t ResumeDownload(const UpgradeInfo &info, const VersionDigestInfo &versionDigestInfo,
         const ResumeDownloadOptions &resumeDownloadOptions, BusinessError &businessError) = 0;
 
-    virtual int32_t DoUpdate(const UpgradeInfo &info, const VersionDigestInfo &versionDigest,
+    virtual int32_t Upgrade(const UpgradeInfo &info, const VersionDigestInfo &versionDigest,
         const UpgradeOptions &upgradeOptions, BusinessError &businessError) = 0;
 
     virtual int32_t ClearError(const UpgradeInfo &info, const VersionDigestInfo &versionDigest,
@@ -58,7 +58,7 @@ public:
 
     virtual int32_t TerminateUpgrade(const UpgradeInfo &info, BusinessError &businessError) = 0;
 
-    virtual int32_t GetNewVersion(const UpgradeInfo &info, NewVersionInfo &newVersionInfo,
+    virtual int32_t GetNewVersionInfo(const UpgradeInfo &info, NewVersionInfo &newVersionInfo,
         BusinessError &businessError) = 0;
 
     virtual int32_t GetCurrentVersionInfo(const UpgradeInfo &info, CurrentVersionInfo &currentVersionInfo,
@@ -66,18 +66,20 @@ public:
 
     virtual int32_t GetTaskInfo(const UpgradeInfo &info, TaskInfo &taskInfo, BusinessError &businessError) = 0;
 
-    virtual int32_t GetOtaStatus(const UpgradeInfo &info, OtaStatus &otaStatus, BusinessError &businessError) = 0;
-
-    virtual int32_t SetUpdatePolicy(const UpgradeInfo &info, const UpdatePolicy &policy,
+    virtual int32_t SetUpgradePolicy(const UpgradeInfo &info, const UpgradePolicy &policy,
         BusinessError &businessError) = 0;
 
-    virtual int32_t GetUpdatePolicy(const UpgradeInfo &info, UpdatePolicy &policy, BusinessError &businessError) = 0;
+    virtual int32_t GetUpgradePolicy(const UpgradeInfo &info, UpgradePolicy &policy, BusinessError &businessError) = 0;
 
     virtual int32_t Cancel(const UpgradeInfo &info, int32_t service, BusinessError &businessError) = 0;
 
-    virtual int32_t RebootAndClean(const std::string &miscFile, const std::string &cmd) = 0;
+    virtual int32_t FactoryReset(BusinessError &businessError) = 0;
 
-    virtual int32_t RebootAndInstall(const std::string &miscFile, const std::string &packageName) = 0;
+    virtual int32_t ApplyNewVersion(const UpgradeInfo &info, const std::string &miscFile,
+        const std::string &packageName, BusinessError &businessError) = 0;
+
+    virtual int32_t VerifyUpgradePackage(const std::string &packagePath, const std::string &keyPath,
+        BusinessError &businessError) = 0;
 };
 } // namespace UpdateEngine
 } // namespace OHOS

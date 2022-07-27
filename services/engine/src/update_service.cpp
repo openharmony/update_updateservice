@@ -44,7 +44,6 @@
 #include "progress_thread.h"
 #include "securec.h"
 #include "system_ability_definition.h"
-#include "update_helper.h"
 #include "update_system_event.h"
 #include "updaterkits/updaterkits.h"
 #include "utils.h"
@@ -64,6 +63,7 @@ constexpr uint32_t MAX_PERCENT = 100;
 const std::string UPDATER_PKG_NAME = "/data/ota_package/updater.zip";
 const std::string MISC_FILE = "/dev/block/by-name/misc";
 const std::string BASE_PATH = "/data/ota_package";
+const std::string CMD_WIPE_DATA = "--user_wipe_data";
 #ifndef UPDATER_UT
 const std::string SIGNING_CERT_NAME = "/data/ota_package/signing_cert.crt";
 #else
@@ -76,6 +76,65 @@ const std::string PARAM_NAME_FOR_DOWNLOAD = "update.serverip.download";
 const std::string DEFAULT_SERVER_IP = "127.0.0.1";
 
 OHOS::sptr<UpdateService> UpdateService::updateService_ { nullptr };
+
+void UpdateService::ClientDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
+{
+    ENGINE_LOGI("client DeathRecipient OnRemoteDied: %{public}s", upgradeInfo_.ToString().c_str());
+    sptr<UpdateService> service = UpdateService::GetInstance();
+    if (service != nullptr) {
+        service->UnregisterUpdateCallback(upgradeInfo_);
+    }
+}
+
+UpdateService::ClientProxy::ClientProxy(const UpgradeInfo &info, const sptr<IUpdateCallback> &callback)
+    : proxy_(callback)
+{
+    ENGINE_LOGI("UpdateService::ClientProxy constructor");
+    auto clientDeathRecipient = new (std::nothrow) ClientDeathRecipient(info);
+    if (clientDeathRecipient != nullptr) {
+        deathRecipient_ = sptr<ClientDeathRecipient>(clientDeathRecipient);
+    } else {
+        ENGINE_LOGE("UpdateService::ClientProxy, new fail");
+    }
+}
+
+UpdateService::ClientProxy &UpdateService::ClientProxy::operator=(const UpdateService::ClientProxy &source)
+{
+    if (&source != this) {
+        proxy_ = source.proxy_;
+        deathRecipient_ = source.deathRecipient_;
+    }
+    return *this;
+}
+
+void UpdateService::ClientProxy::AddDeathRecipient()
+{
+    ENGINE_LOGI("UpdateService::ClientProxy AddDeathRecipient in");
+    if (proxy_ != nullptr) {
+        auto remoteObject = proxy_->AsObject();
+        if ((remoteObject != nullptr) && (deathRecipient_ != nullptr)) {
+            remoteObject->AddDeathRecipient(deathRecipient_);
+            ENGINE_LOGI("UpdateService::ClientProxy AddDeathRecipient success");
+        }
+    }
+}
+
+void UpdateService::ClientProxy::RemoveDeathRecipient()
+{
+    ENGINE_LOGI("UpdateService::ClientProxy RemoveDeathRecipient in");
+    if (proxy_ != nullptr) {
+        auto remoteObject = proxy_->AsObject();
+        if ((remoteObject != nullptr) && (deathRecipient_ != nullptr)) {
+            remoteObject->RemoveDeathRecipient(deathRecipient_);
+            ENGINE_LOGI("UpdateService::ClientProxy RemoveDeathRecipient success");
+        }
+    }
+}
+
+sptr<IUpdateCallback> UpdateService::ClientProxy::Get()
+{
+    return proxy_;
+}
 
 UpdateService::UpdateService(int32_t systemAbilityId, bool runOnCreate)
     : SystemAbility(systemAbilityId, runOnCreate)
@@ -91,9 +150,9 @@ UpdateService::~UpdateService()
         delete downloadThread_;
         downloadThread_ = nullptr;
     }
-    if (updateService_ != nullptr) {
-        delete updateService_;
-        updateService_ = nullptr;
+
+    for (auto &iter : clientProxyMap_) {
+        iter.second.RemoveDeathRecipient();
     }
 }
 
@@ -105,32 +164,40 @@ sptr<UpdateService> UpdateService::GetInstance()
 int32_t UpdateService::RegisterUpdateCallback(const UpgradeInfo &info, const sptr<IUpdateCallback> &updateCallback)
 {
     ENGINE_LOGI("RegisterUpdateCallback");
+    UnregisterUpdateCallback(info);
     {
-        std::lock_guard<std::mutex> lock(upgradeCallbackLock_);
-        upgradeCallbackMap_[info] = updateCallback;
+        std::lock_guard<std::mutex> lock(clientProxyMapLock_);
+        ClientProxy clientProxy(info, updateCallback);
+        clientProxy.AddDeathRecipient();
+        clientProxyMap_.insert({info, clientProxy});
     }
     if (!info.IsLocal()) {
         upgradeInfo_ = info;
     }
-    return 0;
+    return INT_CALL_SUCCESS;
 }
 
 int32_t UpdateService::UnregisterUpdateCallback(const UpgradeInfo &info)
 {
     ENGINE_LOGI("UnregisterUpdateCallback");
-    std::lock_guard<std::mutex> lock(upgradeCallbackLock_);
-    upgradeCallbackMap_.erase(info);
-    return 0;
+    std::lock_guard<std::mutex> lock(clientProxyMapLock_);
+    auto iter = clientProxyMap_.find(info);
+    if (iter == clientProxyMap_.end()) {
+        return INT_CALL_SUCCESS;
+    }
+    iter->second.RemoveDeathRecipient();
+    clientProxyMap_.erase(info);
+    return INT_CALL_SUCCESS;
 }
 
 sptr<IUpdateCallback> UpdateService::GetUpgradeCallback(const UpgradeInfo &info)
 {
-    std::lock_guard<std::mutex> lock(upgradeCallbackLock_);
-    auto iter = upgradeCallbackMap_.find(info);
-    if (iter == upgradeCallbackMap_.end()) {
+    std::lock_guard<std::mutex> lock(clientProxyMapLock_);
+    auto iter = clientProxyMap_.find(info);
+    if (iter == clientProxyMap_.end()) {
         return nullptr;
     }
-    return iter->second;
+    return iter->second.Get();
 }
 
 void UpdateService::GetCheckResult(CheckResultEx &checkResult)
@@ -159,13 +226,12 @@ int32_t UpdateService::GetNewVersion(const UpgradeInfo &info, NewVersionInfo &ne
     businessError.errorNum = CallResult::SUCCESS;
     CheckResultEx checkResult;
     GetCheckResult(checkResult);
-
     newVersionInfo = checkResult.newVersionInfo;
 
     ENGINE_LOGI("GetNewVersion finish %{public}s", newVersionInfo.versionComponents[0].displayVersion.c_str());
     ENGINE_LOGI("GetNewVersion componentType %{public}d", newVersionInfo.versionComponents[0].componentType);
     ENGINE_LOGI("GetNewVersion innerVersion %{public}s", newVersionInfo.versionComponents[0].innerVersion.c_str());
-    return 0;
+    return INT_CALL_SUCCESS;
 }
 
 int32_t UpdateService::GetCurrentVersionInfo(const UpgradeInfo &info, CurrentVersionInfo &currentVersionInfo,
@@ -195,7 +261,7 @@ int32_t UpdateService::GetCurrentVersionInfo(const UpgradeInfo &info, CurrentVer
 
     versionComponent->descriptionInfo.descriptionType = DescriptionType::CONTENT;
     versionComponent->descriptionInfo.content = versionInfo_.descriptInfo[0].content;
-    return 0;
+    return INT_CALL_SUCCESS;
 }
 
 int32_t UpdateService::GetTaskInfo(const UpgradeInfo &info, TaskInfo &taskInfo, BusinessError &businessError)
@@ -204,36 +270,22 @@ int32_t UpdateService::GetTaskInfo(const UpgradeInfo &info, TaskInfo &taskInfo, 
     businessError.errorNum = CallResult::SUCCESS;
     CheckResultEx checkResult;
     GetCheckResult(checkResult);
-
     taskInfo.existTask = checkResult.isExistNewVersion;
     if (!taskInfo.existTask) {
         ENGINE_LOGI("GetTaskInfo no new version");
-        return 0;
+        return INT_CALL_SUCCESS;
     }
 
     taskInfo.taskBody.versionDigestInfo.versionDigest = checkResult.newVersionInfo.versionDigestInfo.versionDigest;
-    OtaStatus otaStatus;
-    BusinessError statusBusinessError;
-    GetOtaStatus(info, otaStatus, statusBusinessError);
-    taskInfo.taskBody.status = otaStatus.status;
-    taskInfo.taskBody.subStatus = otaStatus.subStatus;
-    taskInfo.taskBody.progress = otaStatus.progress;
-    taskInfo.taskBody.errorMessages[0].errorCode = otaStatus.errMsg[0].errorCode;
-    taskInfo.taskBody.errorMessages[0].errorMessage = otaStatus.errMsg[0].errorMsg;
-    return 0;
+    taskInfo.taskBody.status = otaStatus_.status;
+    taskInfo.taskBody.subStatus = otaStatus_.subStatus;
+    taskInfo.taskBody.progress = otaStatus_.progress;
+    taskInfo.taskBody.errorMessages[0].errorCode = otaStatus_.errMsg[0].errorCode;
+    taskInfo.taskBody.errorMessages[0].errorMessage = otaStatus_.errMsg[0].errorMsg;
+    return INT_CALL_SUCCESS;
 }
 
-int32_t UpdateService::GetOtaStatus(const UpgradeInfo &info, OtaStatus &otaStatus, BusinessError &businessError)
-{
-    businessError.errorNum = CallResult::SUCCESS;
-    otaStatus = otaStatus_;
-    ENGINE_LOGI("GetOtaStatus finish %{public}d", otaStatus.status);
-    ENGINE_LOGI("progress %{public}d", otaStatus.progress);
-    ENGINE_LOGI("errCode %{public}d", otaStatus.errMsg[0].errorCode);
-    return 0;
-}
-
-int32_t UpdateService::SetUpdatePolicy(const UpgradeInfo &info, const UpdatePolicy &policy,
+int32_t UpdateService::SetUpgradePolicy(const UpgradeInfo &info, const UpgradePolicy &policy,
     BusinessError &businessError)
 {
     ENGINE_LOGI("autoDownload %{public}d installmode %{public}d startTime %{public}d endTime %{public}d",
@@ -241,22 +293,24 @@ int32_t UpdateService::SetUpdatePolicy(const UpgradeInfo &info, const UpdatePoli
         policy.autoUpgradePeriods[1].end);
     businessError.errorNum = CallResult::SUCCESS;
     policy_ = policy;
-    return 0;
+    return INT_CALL_SUCCESS;
 }
 
-int32_t UpdateService::GetUpdatePolicy(const UpgradeInfo &info, UpdatePolicy &policy, BusinessError &businessError)
+int32_t UpdateService::GetUpgradePolicy(const UpgradeInfo &info, UpgradePolicy &policy, BusinessError &businessError)
 {
-    ENGINE_LOGI("GetUpdatePolicy");
+    ENGINE_LOGI("GetUpgradePolicy");
     businessError.errorNum = CallResult::SUCCESS;
     policy = policy_;
-    return 0;
+    return INT_CALL_SUCCESS;
 }
 
 int32_t UpdateService::CheckNewVersion(const UpgradeInfo &info)
 {
     upgradeStatus_ = UPDATE_STATE_CHECK_VERSION_ON;
+    otaStatus_.status = upgradeStatus_;
     int32_t engineSocket = socket(AF_INET, SOCK_STREAM, 0);
-    ENGINE_CHECK(engineSocket >= 0, SearchCallback("socket error !", SERVER_BUSY); return 1, "socket error !");
+    ENGINE_CHECK(engineSocket >= 0, SearchCallback("socket error !", SERVER_BUSY);
+        return INT_CALL_SUCCESS, "socket error !");
 
     std::string serverIp = OHOS::system::GetParameter(PARAM_NAME_FOR_SEARCH, DEFAULT_SERVER_IP);
     ENGINE_LOGI("CheckNewVersion serverIp: %s ", serverIp.c_str());
@@ -265,7 +319,8 @@ int32_t UpdateService::CheckNewVersion(const UpgradeInfo &info)
     engineSin.sin_family = AF_INET;
     engineSin.sin_port = htons(PORT_NUMBER);
     int32_t ret = inet_pton(AF_INET, serverIp.c_str(), &engineSin.sin_addr);
-    ENGINE_CHECK(ret > 0, close(engineSocket); SearchCallback("Invalid ip!", SERVER_BUSY); return 1, "socket error");
+    ENGINE_CHECK(ret > 0, close(engineSocket); SearchCallback("Invalid ip!", SERVER_BUSY);
+        return INT_CALL_SUCCESS, "socket error");
 
     struct timeval tv = {TIMEOUT_FOR_CONNECT, 0};
     setsockopt(engineSocket, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof(struct timeval));
@@ -273,9 +328,9 @@ int32_t UpdateService::CheckNewVersion(const UpgradeInfo &info)
     ENGINE_CHECK(ret == 0,
         SearchCallback("Connect error !", SERVER_BUSY);
         close(engineSocket);
-        return 1, "connect error");
+        return INT_CALL_SUCCESS, "connect error");
     ReadDataFromSSL(engineSocket);
-    return 0;
+    return INT_CALL_SUCCESS;
 }
 
 static uint64_t GetTimestamp()
@@ -302,13 +357,13 @@ int32_t UpdateService::DownloadVersion(const UpgradeInfo &info, const VersionDig
         progress0.status = UPDATE_STATE_DOWNLOAD_FAIL;
         progress0.endReason = "Invalid status";
         DownloadCallback(progress0);
-        return -1, "Invalid status %d", upgradeStatus_);
+        return INT_CALL_SUCCESS, "Invalid status %d", upgradeStatus_);
 
     ENGINE_CHECK(!versionInfo_.result[0].verifyInfo.empty(),
         progress0.status = UPDATE_STATE_DOWNLOAD_FAIL;
         progress0.endReason = "Invalid verify info";
         DownloadCallback(progress0);
-        return -1, "Invalid verify info");
+        return INT_CALL_SUCCESS, "Invalid verify info");
     std::string downloadFileName = BASE_PATH + "/" + versionInfo_.result[0].verifyInfo;
     size_t localFileLength = DownloadThread::GetLocalFileLength(downloadFileName);
     ENGINE_LOGI("Download %zu %s", localFileLength, downloadFileName.c_str());
@@ -316,22 +371,26 @@ int32_t UpdateService::DownloadVersion(const UpgradeInfo &info, const VersionDig
         progress0.percent = DOWNLOAD_FINISH_PERCENT;
         progress0.status = UPDATE_STATE_DOWNLOAD_SUCCESS;
         DownloadCallback(progress0);
-        return 0;
+        return INT_CALL_SUCCESS;
     }
 
     upgradeStatus_ = UPDATE_STATE_DOWNLOAD_ON;
     if (downloadThread_ == nullptr) {
         downloadThread_ = new DownloadThread([&](const std::string &fileName, const Progress &progress) -> int {
             DownloadCallback(progress);
-            return 0;
+            return INT_CALL_SUCCESS;
         });
         ENGINE_CHECK(downloadThread_ != nullptr,
             progress0.status = UPDATE_STATE_DOWNLOAD_FAIL;
             progress0.endReason = "Failed to start thread";
             DownloadCallback(progress0);
-            return -1, "Failed to start thread");
+            return INT_CALL_SUCCESS, "Failed to start thread");
     }
-    return downloadThread_->StartDownload(downloadFileName, GetDownloadServerUrl());
+    int32_t ret = downloadThread_->StartDownload(downloadFileName, GetDownloadServerUrl());
+    if (ret != 0) {
+        businessError.Build(CallResult::FAIL, "start download fail");
+    }
+    return INT_CALL_SUCCESS;
 }
 
 int32_t UpdateService::PauseDownload(const UpgradeInfo &info, const VersionDigestInfo &versionDigestInfo,
@@ -340,9 +399,8 @@ int32_t UpdateService::PauseDownload(const UpgradeInfo &info, const VersionDiges
     ENGINE_LOGE("PauseDownload versionDigestInfo %{public}s isAllowAutoResume %{public}d",
         versionDigestInfo.versionDigest.c_str(),
         pauseDownloadOptions.isAllowAutoResume);
-    businessError.errorNum = CallResult::UN_SUPPORT;
-    businessError.message = "PauseDownload unsupport";
-    return 0;
+    businessError.Build(CallResult::UN_SUPPORT, "PauseDownload unsupport");
+    return INT_CALL_SUCCESS;
 }
 
 int32_t UpdateService::ResumeDownload(const UpgradeInfo &info, const VersionDigestInfo &versionDigestInfo,
@@ -351,9 +409,8 @@ int32_t UpdateService::ResumeDownload(const UpgradeInfo &info, const VersionDige
     ENGINE_LOGE("ResumeDownload versionDigestInfo %{public}s allowNetwork %{public}d",
         versionDigestInfo.versionDigest.c_str(),
         CAST_INT(resumeDownloadOptions.allowNetwork));
-    businessError.errorNum = CallResult::UN_SUPPORT;
-    businessError.message = "ResumeDownload unsupport";
-    return 0;
+    businessError.Build(CallResult::UN_SUPPORT, "ResumeDownload unsupport");
+    return INT_CALL_SUCCESS;
 }
 
 int32_t UpdateService::DoUpdate(const UpgradeInfo &info, const VersionDigestInfo &versionDigestInfo,
@@ -372,15 +429,19 @@ int32_t UpdateService::DoUpdate(const UpgradeInfo &info, const VersionDigestInfo
         progress.endReason = "Invalid status";
         progress.status = UPDATE_STATE_INSTALL_FAIL;
         UpgradeCallback(progress);
-        return -1, "Invalid status %d", upgradeStatus_);
+        return INT_CALL_SUCCESS, "Invalid status %d", upgradeStatus_);
 
     progress.status = UPDATE_STATE_INSTALL_SUCCESS;
     bool ret = RebootAndInstallUpgradePackage(MISC_FILE, UPDATER_PKG_NAME);
     SYS_EVENT_SYSTEM_UPGRADE(0, ret ? UpdateSystemEvent::EVENT_SUCCESS_RESULT : UpdateSystemEvent::EVENT_FAILED_RESULT);
-    ENGINE_CHECK(ret, return -1, "UpdateService::DoUpdate SetParameter failed");
+    if (!ret) {
+        ENGINE_LOGI("UpdateService::DoUpdate execute failed");
+        businessError.Build(CallResult::FAIL, "result is " + std::to_string(ret));
+        return INT_CALL_SUCCESS;
+    }
     progress.percent = DOWNLOAD_FINISH_PERCENT;
     UpgradeCallback(progress);
-    return 0;
+    return INT_CALL_SUCCESS;
 }
 
 int32_t UpdateService::ClearError(const UpgradeInfo &info, const VersionDigestInfo &versionDigestInfo,
@@ -389,17 +450,15 @@ int32_t UpdateService::ClearError(const UpgradeInfo &info, const VersionDigestIn
     ENGINE_LOGE("ClearError, versionDigestInfo %{public}s ClearOptions %{public}d",
         versionDigestInfo.versionDigest.c_str(),
         CAST_INT(clearOptions.status));
-    businessError.errorNum = CallResult::UN_SUPPORT;
-    businessError.message = "ClearError unsupport";
-    return 0;
+    businessError.Build(CallResult::UN_SUPPORT, "ClearError unsupport");
+    return INT_CALL_SUCCESS;
 }
 
 int32_t UpdateService::TerminateUpgrade(const UpgradeInfo &info, BusinessError &businessError)
 {
     ENGINE_LOGE("TerminateUpgrade");
-    businessError.errorNum = CallResult::UN_SUPPORT;
-    businessError.message = "TerminateUpgrade unsupport";
-    return 0;
+    businessError.Build(CallResult::UN_SUPPORT, "TerminateUpgrade unsupport");
+    return INT_CALL_SUCCESS;
 }
 
 void UpdateService::SearchCallbackEx(BusinessError &businessError, CheckResultEx &checkResult)
@@ -432,6 +491,7 @@ void UpdateService::SearchCallback(const std::string &msg, SearchStatus status)
     } else {
         upgradeStatus_ = UPDATE_STATE_CHECK_VERSION_FAIL;
     }
+    otaStatus_.status = upgradeStatus_;
     auto upgradeCallback = GetUpgradeCallback(upgradeInfo_);
     if (upgradeCallback == nullptr) {
         ENGINE_LOGE("SearchCallback upgradeCallback is null");
@@ -598,7 +658,7 @@ int32_t UpdateService::ParseJsonFile(const std::vector<char> &buffer, VersionInf
             !info.result[0].versionName.empty() &&
             info.result[0].size > 0, return -1, "Error get descriptInfo");
     }
-    return 0;
+    return INT_CALL_SUCCESS;
 }
 
 int32_t UpdateService::ReadCheckVersionResult(const cJSON* results, VersionInfo &info, std::string &url)
@@ -636,7 +696,7 @@ int32_t UpdateService::ReadCheckVersionResult(const cJSON* results, VersionInfo 
         ENGINE_CHECK(item != nullptr, return -1, "Error get descriptPackageId");
         info.result[i].descriptPackageId = item->valuestring;
     }
-    return 0;
+    return INT_CALL_SUCCESS;
 }
 
 int32_t UpdateService::ReadCheckVersiondescriptInfo(const cJSON *descriptInfo, VersionInfo &info)
@@ -656,7 +716,18 @@ int32_t UpdateService::ReadCheckVersiondescriptInfo(const cJSON *descriptInfo, V
             ENGINE_LOGI(" descriptInfo content %s", info.descriptInfo[i].content.c_str());
         }
     }
-    return 0;
+    return INT_CALL_SUCCESS;
+}
+
+int32_t UpdateService::VerifyUpgradePackage(const std::string &packagePath, const std::string &keyPath,
+    BusinessError &businessError)
+{
+    businessError.errorNum = CallResult::SUCCESS;
+    int32_t ret = ::VerifyPackageWithCallback(packagePath.c_str(), keyPath.c_str(),
+        [](int32_t result, uint32_t percent) {});
+    ENGINE_LOGI("VerifyUpgradePackage %s, %s, %{public}d", packagePath.c_str(), keyPath.c_str(), ret);
+    ret = (ret == 0) ? INT_CALL_SUCCESS : INT_CALL_FAIL;
+    return ret;
 }
 
 bool UpdateService::VerifyDownloadPkg(const std::string &pkgName, Progress &progress)
@@ -672,7 +743,7 @@ bool UpdateService::VerifyDownloadPkg(const std::string &pkgName, Progress &prog
     }
     ENGINE_LOGI("versionInfo_.result[0].verifyInfo %s ", versionInfo_.result[0].verifyInfo.c_str());
     std::vector<uint8_t> digest = UpdateHelper::HexToDegist(versionInfo_.result[0].verifyInfo);
-    ret = VerifyPackage(pkgName.c_str(),
+    ret = ::VerifyPackage(pkgName.c_str(),
         SIGNING_CERT_NAME.c_str(), versionInfo_.result[0].versionCode.c_str(), digest.data(), digest.size());
     if (ret != 0) {
         progress.endReason = "Upgrade package verify Failed";
@@ -697,31 +768,38 @@ int32_t UpdateService::Cancel(const UpgradeInfo &info, int32_t service, Business
     if (downloadThread_ != nullptr && service == DOWNLOAD) {
         downloadThread_->StopDownload();
     }
-    return 0;
+    return INT_CALL_SUCCESS;
 }
 
-int32_t UpdateService::RebootAndClean(const std::string &miscFile, const std::string &cmd)
+int32_t UpdateService::FactoryReset(BusinessError &businessError)
 {
 #ifndef UPDATER_UT
-    int ret = RebootAndCleanUserData(miscFile, cmd) ? 0 : -1;
-    SYS_EVENT_SYSTEM_RESET(0,
-        ret == 0 ? UpdateSystemEvent::EVENT_SUCCESS_RESULT : UpdateSystemEvent::EVENT_FAILED_RESULT);
+    businessError.errorNum = CallResult::SUCCESS;
+    int32_t ret = RebootAndCleanUserData(MISC_FILE, CMD_WIPE_DATA) ? INT_CALL_SUCCESS : INT_CALL_FAIL;
+    ENGINE_LOGI("FactoryReset result : %{public}d", ret);
+    SYS_EVENT_SYSTEM_RESET(
+        0, ret == INT_CALL_SUCCESS ? UpdateSystemEvent::EVENT_SUCCESS_RESULT : UpdateSystemEvent::EVENT_FAILED_RESULT);
     return ret;
 #else
-    return 0;
+    return INT_CALL_SUCCESS;
 #endif
 }
 
-int32_t UpdateService::RebootAndInstall(const std::string &miscFile, const std::string &packageName)
+int32_t UpdateService::ApplyNewVersion(const UpgradeInfo &info, const std::string &miscFile,
+    const std::string &packageName, BusinessError &businessError)
 {
 #ifndef UPDATER_UT
     SYS_EVENT_SYSTEM_UPGRADE(0, UpdateSystemEvent::UPGRADE_START);
-    int ret = RebootAndInstallUpgradePackage(miscFile, packageName) ? 0 : -1;
-    SYS_EVENT_SYSTEM_UPGRADE(0,
-        ret == 0 ? UpdateSystemEvent::EVENT_SUCCESS_RESULT : UpdateSystemEvent::EVENT_FAILED_RESULT);
+    businessError.errorNum = CallResult::SUCCESS;
+    SendEvent(info, EventId::EVENT_UPGRADE_UPDATE);
+    int32_t ret = RebootAndInstallUpgradePackage(miscFile, packageName) ? INT_CALL_SUCCESS : INT_CALL_FAIL;
+    ENGINE_LOGI("ApplyNewVersion result : %{public}d", ret);
+    SendEvent(info, ret == INT_CALL_SUCCESS ? EventId::EVENT_UPGRADE_SUCCESS : EventId::EVENT_UPGRADE_FAIL);
+    SYS_EVENT_SYSTEM_UPGRADE(
+        0, ret == INT_CALL_SUCCESS ? UpdateSystemEvent::EVENT_SUCCESS_RESULT : UpdateSystemEvent::EVENT_FAILED_RESULT);
     return ret;
 #else
-    return 0;
+    return INT_CALL_SUCCESS;
 #endif
 }
 
@@ -823,7 +901,7 @@ void BuildTaskInfoDump(const int fd)
 void UpdateService::DumpUpgradeCallback(const int fd)
 {
     dprintf(fd, "---------------------callback info--------------------\n");
-    for (auto& iter : upgradeCallbackMap_) {
+    for (const auto &iter : clientProxyMap_) {
         const UpgradeInfo& info = iter.first;
         dprintf(fd, "%s\n", info.ToString().c_str());
     }
@@ -844,7 +922,7 @@ int UpdateService::Dump(int fd, const std::vector<std::u16string> &args)
     } else {
         dprintf(fd, "input error, no parameters required\n");
     }
-    return 0;
+    return INT_CALL_SUCCESS;
 }
 
 void UpdateService::OnStart()

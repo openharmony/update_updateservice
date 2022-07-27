@@ -28,8 +28,6 @@ public:
     virtual ~IUpdateCallback() = default;
     enum {
         CHECK_VERSION = 1,
-        DOWNLOAD,
-        UPGRADE,
         ON_EVENT
     };
 
