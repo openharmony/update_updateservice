@@ -19,7 +19,6 @@
 #include "iremote_stub.h"
 #include "iupdate_callback.h"
 #include "message_parcel.h"
-#include "parcel.h"
 
 namespace OHOS {
 namespace UpdateEngine {

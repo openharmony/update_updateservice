@@ -15,16 +15,8 @@
 
 #include "update_helper.h"
 
-#include <chrono>
 #include <cstring>
-#include <fstream>
-#include <iostream>
 #include <string>
-#include <unistd.h>
-
-#include "hilog/log.h"
-#include "parcel.h"
-#include "securec.h"
 
 namespace OHOS {
 namespace UpdateEngine {

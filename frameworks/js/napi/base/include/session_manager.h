@@ -16,9 +16,8 @@
 #ifndef UPDATE_SESSION_MGR_H
 #define UPDATE_SESSION_MGR_H
 
-#include <string>
-#include "node_api.h"
 #include "iupdate_session.h"
+#include "js_native_api_types.h"
 
 namespace OHOS {
 namespace UpdateEngine {

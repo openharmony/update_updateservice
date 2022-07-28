@@ -16,7 +16,7 @@
 #define UPDATE_CLIENT_RESTORER_H
 
 #include "iupdater.h"
-#include "node_api.h"
+#include "js_native_api_types.h"
 
 namespace OHOS {
 namespace UpdateEngine {
