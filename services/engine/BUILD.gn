@@ -12,7 +12,7 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
-import("//base/update/updateservice/updateengine.gni")
+import("../../updateengine.gni")
 
 ohos_prebuilt_etc("updater_sa.rc") {
   if (use_musl) {
@@ -40,31 +40,22 @@ ohos_shared_library("$updateengine_library_name") {
   ]
 
   include_dirs = [
-    #WANGQI# "//base/update/updater/services/include",
-    #WANGQI# "//base/update/updater/utils/include",
     "//base/update/updater/interfaces/kits/include",
-    #WANGQI# "//commonlibrary/c_utils/base/include",
     "//utils/native/base/include", # sptr
     "//utils/system/safwk/native/include",
     "$updateengine_root_path/interfaces/inner_api/include",
     "$updateengine_root_path/services/engine/include",
     "$updateengine_root_path/services/callback/include",
-    #WANGQI# "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy/include",
     "//foundation/distributedschedule/safwk/services/safwk/include",
-    #WANGQI# "//foundation/distributedschedule/safwk/interfaces/innerkits/safwk",
     "//third_party/cJSON",
-    #WANGQI# "//third_party/libxml2/include",
     "//third_party/curl/include",
     "//third_party/openssl/include",
     "//third_party/bounds_checking_function/include",
   ]
 
   deps = [
-    #WANGQI# "//base/update/updater/interfaces/kits/misc_info:libmiscinfo",
     "//base/update/updater/interfaces/kits/packages:libpackageExt", # package verify "package/package.h"
     "//base/update/updater/interfaces/kits/updaterkits:libupdaterkits", # install and clear user data "updaterkits/updaterkits.h"
-    #WANGQI# "//base/update/updater/services/log:libupdaterlog",
-    #WANGQI# "//base/update/updater/utils:libutils",
     "//third_party/bounds_checking_function:libsec_static",
     "//third_party/cJSON:cjson_static",
     "//third_party/curl:curl",
@@ -76,7 +67,6 @@ ohos_shared_library("$updateengine_library_name") {
 
   external_deps = [
     "access_token:libaccesstoken_sdk",
-    #WANGQI# "c_utils:utils",
     "hisysevent_native:libhisysevent",
     "hiviewdfx_hilog_native:libhilog",
     "init:libbegetutil",

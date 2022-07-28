@@ -12,7 +12,7 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
-import("//base/update/updateservice/updateengine.gni")
+import("../../../updateengine.gni")
 
 ohos_prebuilt_etc("updater_sa.rc") {
   source = "etc/updater_sa.rc"
@@ -31,30 +31,18 @@ ohos_static_library("$updateengine_inner_library_name") {
   ]
 
   include_dirs = [
-    #WANGQI# "//base/update/updater/services/include",
-    #WANGQI# "//base/update/updater/utils/include",
-    #WANGQI# "//base/update/updater/interfaces/kits/include",
-    #WANGQI# "//commonlibrary/c_utils/base/include",
-    #WANGQI# "//utils/system/safwk/native/include",
     "$updateengine_root_path/interfaces/inner_api/include",
     "$updateengine_root_path/services/engine/include",
     "$updateengine_root_path/services/callback/include",
-    #WANGQI# "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy/include",
-    #WANGQI# "//foundation/distributedschedule/safwk/services/safwk/include",
-    #WANGQI# "//foundation/distributedschedule/safwk/interfaces/innerkits/safwk",
-    #WANGQI# "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy/include",
     "//third_party/bounds_checking_function/include", # secure method
   ]
 
   deps = [
-    #WANGQI# "//base/update/updater/services/log:libupdaterlog",
     "//third_party/bounds_checking_function:libsec_static",
   ]
 
   external_deps = [
-    #WANGQI# "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
-    #WANGQI# "init:libbegetutil",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr_standard:samgr_proxy",
