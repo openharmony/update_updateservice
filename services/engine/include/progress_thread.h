@@ -18,19 +18,9 @@
 
 #include <atomic>
 #include <functional>
-#include <iostream>
 #include <thread>
-#include "cJSON.h"
 #include "curl/curl.h"
-#include "curl/easy.h"
-#include "if_system_ability_manager.h"
-#include "ipc_skeleton.h"
-#include "iremote_stub.h"
-#include "iupdate_service.h"
-#include "openssl/err.h"
-#include "openssl/ssl.h"
-#include "system_ability.h"
-#include "update_service_stub.h"
+#include "update_helper.h"
 
 namespace OHOS {
 namespace UpdateEngine {

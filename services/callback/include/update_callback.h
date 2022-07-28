@@ -16,13 +16,8 @@
 #ifndef UPDATE_CALLBACK_H
 #define UPDATE_CALLBACK_H
 
-#include "if_system_ability_manager.h"
-#include "ipc_skeleton.h"
-#include "iremote_stub.h"
-#include "iupdate_callback.h"
 #include "update_callback_stub.h"
 #include "update_helper.h"
-#include "system_ability.h"
 
 namespace OHOS {
 namespace UpdateEngine {
