@@ -16,7 +16,7 @@
 #include <uv.h>
 
 #include "client_helper.h"
-#include "napi_util.h"
+//#WANGQI# #include "napi_util.h"
 #include "node_api.h"
 #include "update_helper.h"
 #include "update_session.h"

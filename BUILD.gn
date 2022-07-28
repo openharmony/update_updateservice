@@ -15,25 +15,26 @@ import("//build/ohos.gni")
 import("//build/ohos/ohos_kits.gni")
 import("//build/ohos/ohos_part.gni")
 import("//build/ohos/ohos_test.gni")
+import("//base/update/updateservice/updateengine.gni")
 
-ohos_part("update_service") {
+ohos_part("$updateengine_part_name") {
   subsystem_name = "updater"
   module_list = [
-    "//base/update/updateservice/frameworks/js/napi/client:update",
-    "//base/update/updateservice/services/engine:updateservice",
-    "//base/update/updateservice/services/engine:updater_sa.rc",
-    "//base/update/updateservice/services/engine/sa_profile:updater_sa_profile",
-    "//base/update/updateservice/interfaces/inner_api/engine:updateservicekits",
+    "$updateengine_root_path/frameworks/js/napi/client:$updateengine_client_library_name",
+    "$updateengine_root_path/interfaces/inner_api/engine:$updateengine_inner_library_name",
+    "$updateengine_root_path/services/engine:$updateengine_library_name",
+    "$updateengine_root_path/services/engine:updater_sa.rc",
+    "$updateengine_root_path/services/engine/sa_profile:updater_sa_profile",
   ]
-  origin_name = "update_service"
+  origin_name = "$updateengine_part_name"
   variant = "phone"
 }
 
-ohos_inner_kits("update_service_inner_kits") {
+ohos_inner_kits("$updateengine_inner_kits") {
   sdk_libs = [
     {
       type = "so"
-      name = "//base/update/updateservice/interfaces/inner_api/engine:updateservicekits"
+      name = "$updateengine_root_path/interfaces/inner_api/engine:$updateengine_inner_library_name"
       header = {
         header_files = [
           "iupdate_callback.h",
@@ -42,40 +43,40 @@ ohos_inner_kits("update_service_inner_kits") {
           "update_service_kits_impl.h",
           "update_service_kits.h",
         ]
-        header_base = "//base/update/updateservice/interfaces/inner_api/include"
+        header_base = "$updateengine_root_path/interfaces/inner_api/include"
       }
     },
   ]
-  part_name = "update_service"
-  origin_name = "update_service"
+  part_name = "$updateengine_part_name"
+  origin_name = "$updateengine_part_name"
   variant = "phone"
 }
 
-ohos_part_test("update_service_test") {
+ohos_part_test("$updateengine_test_name") {
   testonly = true
   test_packages = [
-    "//base/update/updateservice/test/fuzztest/updateservicecancel_fuzzer:UpdateServiceCancelFuzzTest",
-    "//base/update/updateservice/test/fuzztest/updateservicechecknewversion_fuzzer:UpdateServiceCheckNewVersionFuzzTest",
-    "//base/update/updateservice/test/fuzztest/updateservicedownload_fuzzer:UpdateServiceDownloadFuzzTest",
-    "//base/update/updateservice/test/fuzztest/updateservicegetnewversion_fuzzer:UpdateServiceGetNewVersionFuzzTest",
-    "//base/update/updateservice/test/fuzztest/updateservicegetupgradepolicy_fuzzer:UpdateServiceGetUpgradePolicyFuzzTest",
-    "//base/update/updateservice/test/fuzztest/updateservicegetupgradestatus_fuzzer:UpdateServiceGetUpgradeStatusFuzzTest",
-    "//base/update/updateservice/test/fuzztest/updateserviceregisterupdatecallback_fuzzer:UpdateServiceRegisterUpdateCallbackFuzzTest",
-    "//base/update/updateservice/test/fuzztest/updateservicesetupgradepolicy_fuzzer:UpdateServiceSetUpgradePolicyFuzzTest",
-    "//base/update/updateservice/test/fuzztest/updateserviceunregisterupdatecallback_fuzzer:UpdateServiceUnregisterUpdateCallbackFuzzTest",
+    "$updateengine_root_path/test/fuzztest/updateservicecancel_fuzzer:UpdateServiceCancelFuzzTest",
+    "$updateengine_root_path/test/fuzztest/updateservicechecknewversion_fuzzer:UpdateServiceCheckNewVersionFuzzTest",
+    "$updateengine_root_path/test/fuzztest/updateservicedownload_fuzzer:UpdateServiceDownloadFuzzTest",
+    "$updateengine_root_path/test/fuzztest/updateservicegetnewversion_fuzzer:UpdateServiceGetNewVersionFuzzTest",
+    "$updateengine_root_path/test/fuzztest/updateservicegetupgradepolicy_fuzzer:UpdateServiceGetUpgradePolicyFuzzTest",
+    "$updateengine_root_path/test/fuzztest/updateservicegetupgradestatus_fuzzer:UpdateServiceGetUpgradeStatusFuzzTest",
+    "$updateengine_root_path/test/fuzztest/updateserviceregisterupdatecallback_fuzzer:UpdateServiceRegisterUpdateCallbackFuzzTest",
+    "$updateengine_root_path/test/fuzztest/updateservicesetupgradepolicy_fuzzer:UpdateServiceSetUpgradePolicyFuzzTest",
+    "$updateengine_root_path/test/fuzztest/updateserviceunregisterupdatecallback_fuzzer:UpdateServiceUnregisterUpdateCallbackFuzzTest",
   ]
-  deps = [ ":update_service" ]
-  part_name = "update_service"
+  deps = [ ":$updateengine_part_name" ]
+  part_name = "$updateengine_part_name"
   subsystem_name = "updater"
 }
 
 group("unittest") {
   testonly = true
-  deps = [ "test/unittest:updateservice_unittest" ]
+  deps = [ "test/unittest:$updateengine_unittest_name" ]
 }
 
 group("update_client_jsapi") {
   if (support_jsapi) {
-    deps = [ "//base/update/updateservice/frameworks/js/napi/client/:update" ]
+    deps = [ "$updateengine_root_path/frameworks/js/napi/client/:$updateengine_client_library_name" ]
   }
 }
