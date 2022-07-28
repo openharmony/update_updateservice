@@ -12,7 +12,7 @@
 # limitations under the License.
 
 import("//build/ohos/sa_profile/sa_profile.gni")
-import("//base/update/updateservice/updateengine.gni")
+import("../../../updateengine.gni")
 
 ohos_sa_profile("updater_sa_profile") {
   sources = [ "3006.xml" ]

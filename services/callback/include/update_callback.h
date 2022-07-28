@@ -16,13 +16,7 @@
 #ifndef UPDATE_CALLBACK_H
 #define UPDATE_CALLBACK_H
 
-// #WANGQI# #include "if_system_ability_manager.h"
-// #WANGQI# #include "ipc_skeleton.h"
-// #WANGQI# #include "iremote_stub.h"
-// #WANGQI# #include "iupdate_callback.h"
 #include "update_callback_stub.h"
-// #WANGQI# #include "update_helper.h"
-// #WANGQI# #include "system_ability.h"
 
 namespace OHOS {
 namespace UpdateEngine {

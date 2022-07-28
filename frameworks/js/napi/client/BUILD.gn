@@ -12,9 +12,9 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
-import("//base/update/updateservice/updateengine.gni")
+import("../../../../updateengine.gni")
 
-ohos_shared_library("update") {
+ohos_shared_library("$updateengine_client_library_name") {
   sources = [
     "$updateengine_root_path/frameworks/js/napi/base/src/client_helper.cpp",
     "$updateengine_root_path/frameworks/js/napi/base/src/iupdater.cpp",
@@ -28,40 +28,22 @@ ohos_shared_library("update") {
   ]
 
   include_dirs = [
-    #WANGQI# "//base/update/updater/interfaces/kits/include",
-    #WANGQI# "//base/update/updater/services/include",
-    #WANGQI# "//base/update/updater/utils/include",
     "//third_party/node/src", # napi
     "//foundation/arkui/napi/interfaces/kits",
     "//utils/native/base/include", # sptr
-    #WANGQI# "//commonlibrary/c_utils/base/include",
-    #WANGQI# "//utils/system/safwk/native/include",
     "$updateengine_root_path/interfaces/inner_api/include",
     "$updateengine_root_path/frameworks/js/napi/client",
     "$updateengine_root_path/frameworks/js/napi/base/include",
-    #WANGQI# "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy/include",
-    #WANGQI# "//foundation/distributedschedule/safwk/services/safwk/include",
-    #WANGQI# "//foundation/distributedschedule/safwk/interfaces/innerkits/safwk",
-    #WANGQI# "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy/include",
   ]
 
   deps = [
-    #WANGQI# "//base/update/updater/interfaces/kits/misc_info:libmiscinfo",
-    #WANGQI# "//base/update/updater/interfaces/kits/packages:libpackageExt",
-    #WANGQI# "//base/update/updater/services/log:libupdaterlog",
-    #WANGQI# "//base/update/updater/utils:libutils",
     "$updateengine_root_path/interfaces/inner_api/engine:$updateengine_inner_library_name",
     "//foundation/arkui/napi:ace_napi",
     "//utils/native/base:utils", # sptr
-    #WANGQI# "//third_party/bounds_checking_function:libsec_static",
-    #WANGQI# "//third_party/openssl:libcrypto_static",
-    #WANGQI# "//third_party/openssl:ssl_source",
   ]
 
   external_deps = [
-    #WANGQI# "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
-    #WANGQI# "init:libbegetutil",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr_standard:samgr_proxy",
