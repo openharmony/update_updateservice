@@ -35,10 +35,12 @@ ohos_static_library("$updateengine_inner_library_name") {
     "$updateengine_root_path/services/engine/include",
     "$updateengine_root_path/services/callback/include",
     "//third_party/bounds_checking_function/include", # secure method
+    "//utils/native/base/include", # sptr
   ]
 
   deps = [
     "//third_party/bounds_checking_function:libsec_static",
+    "//utils/native/base:utils", # sptr
   ]
 
   external_deps = [
