@@ -11,26 +11,27 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-module_output_path = "update_service/update_service_test"
-
 #####################hydra-fuzz###################
 import("//build/config/features.gni")
 import("//build/test.gni")
+import("//base/update/updateservice/updateengine.gni")
+
+module_output_path = "$updateengine_part_name/$updateengine_test_name"
 
 ##############################fuzztest##########################################
 ohos_fuzztest("UpdateServiceUnregisterUpdateCallbackFuzzTest") {
   module_out_path = module_output_path
-  fuzz_config_file = "//base/update/updateservice/test/fuzztest/updateserviceunregisterupdatecallback_fuzzer"
+  fuzz_config_file = "$updateengine_root_path/test/fuzztest/updateserviceunregisterupdatecallback_fuzzer"
   include_dirs = [
     "//base/update/updater/services/include",
     "//base/update/updater/utils/include",
     "//base/update/updater/interfaces/kits/include",
     "//commonlibrary/c_utils/base/include",
-    "//base/update/updateservice/test/fuzztest/common",
+    "$updateengine_root_path/test/fuzztest/common",
     "//utils/system/safwk/native/include",
-    "//base/update/updateservice/interfaces/inner_api/include",
-    "//base/update/updateservice/services/engine/include",
-    "//base/update/updateservice/services/callback/include",
+    "$updateengine_root_path/interfaces/inner_api/include",
+    "$updateengine_root_path/services/engine/include",
+    "$updateengine_root_path/services/callback/include",
     "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy/include",
     "//foundation/distributedschedule/safwk/services/safwk/include",
     "//foundation/distributedschedule/safwk/interfaces/innerkits/safwk",
@@ -45,11 +46,11 @@ ohos_fuzztest("UpdateServiceUnregisterUpdateCallbackFuzzTest") {
     "-fno-omit-frame-pointer",
   ]
   sources = [
-    "//base/update/updateservice/test/fuzztest/common/fuzztest_helper.cpp",
-    "//base/update/updateservice/test/fuzztest/updateserviceunregisterupdatecallback_fuzzer/updateserviceunregisterupdatecallback_fuzzer.cpp",
+    "$updateengine_root_path/test/fuzztest/common/fuzztest_helper.cpp",
+    "$updateengine_root_path/test/fuzztest/updateserviceunregisterupdatecallback_fuzzer/updateserviceunregisterupdatecallback_fuzzer.cpp",
   ]
   deps = [
-    "//base/update/updateservice/interfaces/inner_api/engine:updateservicekits",
+    "$updateengine_root_path/interfaces/inner_api/engine:$updateengine_inner_library_name",
   ]
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",
