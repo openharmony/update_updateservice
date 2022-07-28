@@ -42,7 +42,7 @@ ohos_shared_library("updateservice") {
     "//base/update/updater/services/include",
     "//base/update/updater/utils/include",
     "//base/update/updater/interfaces/kits/include",
-    "//utils/native/base/include",
+    "//commonlibrary/c_utils/base/include",
     "//utils/system/safwk/native/include",
     "//base/update/updateservice/interfaces/inner_api/include",
     "//base/update/updateservice/services/engine/include",
@@ -69,11 +69,11 @@ ohos_shared_library("updateservice") {
     "//third_party/libxml2:xml2",
     "//third_party/openssl:libcrypto_static",
     "//third_party/openssl:ssl_source",
-    "//utils/native/base:utils",
   ]
 
   external_deps = [
     "access_token:libaccesstoken_sdk",
+    "c_utils:utils",
     "hisysevent_native:libhisysevent",
     "hiviewdfx_hilog_native:libhilog",
     "init:libbegetutil",

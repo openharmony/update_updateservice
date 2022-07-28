@@ -33,7 +33,7 @@ ohos_static_library("updateservicekits") {
     "//base/update/updater/services/include",
     "//base/update/updater/utils/include",
     "//base/update/updater/interfaces/kits/include",
-    "//utils/native/base/include",
+    "//commonlibrary/c_utils/base/include",
     "//utils/system/safwk/native/include",
     "//base/update/updateservice/interfaces/inner_api/include",
     "//base/update/updateservice/services/engine/include",
@@ -48,10 +48,10 @@ ohos_static_library("updateservicekits") {
   deps = [
     "//base/update/updater/services/log:libupdaterlog",
     "//third_party/bounds_checking_function:libsec_static",
-    "//utils/native/base:utils",
   ]
 
   external_deps = [
+    "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
     "init:libbegetutil",
     "ipc:ipc_core",
