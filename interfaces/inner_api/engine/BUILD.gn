@@ -12,52 +12,43 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
+import("../../../updateengine.gni")
 
 ohos_prebuilt_etc("updater_sa.rc") {
   source = "etc/updater_sa.rc"
   relative_install_dir = "init"
-  part_name = "update_service"
+  part_name = "$updateengine_part_name"
 }
 
-ohos_static_library("updateservicekits") {
+ohos_static_library("$updateengine_inner_library_name") {
   defines = [ "DUAL_ADAPTER" ]
   sources = [
-    "//base/update/updateservice/interfaces/inner_api/engine/update_service_kits_impl.cpp",
-    "//base/update/updateservice/interfaces/inner_api/engine/update_service_proxy.cpp",
-    "//base/update/updateservice/services/callback/src/update_callback.cpp",
-    "//base/update/updateservice/services/callback/src/update_callback_stub.cpp",
-    "//base/update/updateservice/services/engine/src/update_helper.cpp",
+    "$updateengine_root_path/interfaces/inner_api/engine/update_service_kits_impl.cpp",
+    "$updateengine_root_path/interfaces/inner_api/engine/update_service_proxy.cpp",
+    "$updateengine_root_path/services/callback/src/update_callback.cpp",
+    "$updateengine_root_path/services/callback/src/update_callback_stub.cpp",
+    "$updateengine_root_path/services/engine/src/update_helper.cpp",
   ]
 
   include_dirs = [
-    "//base/update/updater/services/include",
-    "//base/update/updater/utils/include",
-    "//base/update/updater/interfaces/kits/include",
-    "//utils/native/base/include",
-    "//utils/system/safwk/native/include",
-    "//base/update/updateservice/interfaces/inner_api/include",
-    "//base/update/updateservice/services/engine/include",
-    "//base/update/updateservice/services/callback/include",
-    "//foundation/systemabilitymgr/samgr/interfaces/innerkits/samgr_proxy/include",
-    "//foundation/systemabilitymgr/safwk/services/safwk/include",
-    "//foundation/systemabilitymgr/safwk/interfaces/innerkits/safwk",
-    "//foundation/systemabilitymgr/samgr/interfaces/innerkits/samgr_proxy/include",
-    "//third_party/bounds_checking_function/include",
+    "$updateengine_root_path/interfaces/inner_api/include",
+    "$updateengine_root_path/services/callback/include",
+    "$updateengine_root_path/services/engine/include",
+    "//third_party/bounds_checking_function/include",  # secure method
+    "//utils/native/base/include",  # sptr
   ]
 
   deps = [
-    "//base/update/updater/services/log:libupdaterlog",
     "//third_party/bounds_checking_function:libsec_static",
-    "//utils/native/base:utils",
+    "//utils/native/base:utils",  # sptr
   ]
 
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",
-    "init:libbegetutil",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
   ]
 
-  part_name = "update_service"
+  part_name = "$updateengine_part_name"
 }
