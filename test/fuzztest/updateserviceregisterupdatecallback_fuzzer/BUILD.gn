@@ -11,32 +11,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-module_output_path = "update_service/update_service_test"
+import("../../../updateengine.gni")
 
 #####################hydra-fuzz###################
 import("//build/config/features.gni")
 import("//build/test.gni")
+module_output_path = "$updateengine_part_name/$updateengine_test_name"
 
 ##############################fuzztest##########################################
 ohos_fuzztest("UpdateServiceRegisterUpdateCallbackFuzzTest") {
   module_out_path = module_output_path
-  fuzz_config_file = "//base/update/updateservice/test/fuzztest/updateserviceregisterupdatecallback_fuzzer"
+  fuzz_config_file = "$updateengine_root_path/test/fuzztest/updateserviceregisterupdatecallback_fuzzer"
   include_dirs = [
-    "//base/update/updater/services/include",
-    "//base/update/updater/utils/include",
-    "//base/update/updater/interfaces/kits/include",
-    "//base/update/updateservice/test/fuzztest/common",
-    "//utils/native/base/include",
-    "//utils/system/safwk/native/include",
-    "//base/update/updateservice/interfaces/inner_api/include",
-    "//base/update/updateservice/services/engine/include",
-    "//base/update/updateservice/services/callback/include",
-    "//foundation/systemabilitymgr/samgr/interfaces/innerkits/samgr_proxy/include",
-    "//foundation/systemabilitymgr/safwk/services/safwk/include",
-    "//foundation/systemabilitymgr/safwk/interfaces/innerkits/safwk",
-    "//foundation/systemabilitymgr/samgr/adapter/interfaces/innerkits/include",
-    "//foundation/systemabilitymgr/samgr/interfaces/innerkits/samgr_proxy/include",
-    "//third_party/bounds_checking_function/include",
+    "$updateengine_root_path/interfaces/inner_api/include",
+    "$updateengine_root_path/services/callback/include",
+    "$updateengine_root_path/services/engine/include",
+    "$updateengine_root_path/test/fuzztest/common",
+    "//third_party/bounds_checking_function/include",  # secure method
+    "//utils/native/base/include",  # sptr
   ]
   cflags = [
     "-g",
@@ -45,15 +37,12 @@ ohos_fuzztest("UpdateServiceRegisterUpdateCallbackFuzzTest") {
     "-fno-omit-frame-pointer",
   ]
   sources = [
-    "//base/update/updateservice/test/fuzztest/common/fuzztest_helper.cpp",
-    "//base/update/updateservice/test/fuzztest/updateserviceregisterupdatecallback_fuzzer/updateserviceregisterupdatecallback_fuzzer.cpp",
+    "$updateengine_root_path/test/fuzztest/common/fuzztest_helper.cpp",
+    "$updateengine_root_path/test/fuzztest/updateserviceregisterupdatecallback_fuzzer/updateserviceregisterupdatecallback_fuzzer.cpp",
   ]
-  deps = [
-    "//base/update/updateservice/interfaces/inner_api/engine:updateservicekits",
-  ]
+  deps = [ "$updateengine_root_path/interfaces/inner_api/engine:$updateengine_inner_library_name" ]
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",
-    "init:libbegetutil",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",

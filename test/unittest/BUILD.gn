@@ -12,6 +12,7 @@
 # limitations under the License.
 
 import("//build/test.gni")
+import("../../updateengine.gni")
 
 module_output_path = "updater/updateservice_test"
 config("utest_config") {
@@ -28,7 +29,7 @@ config("utest_config") {
   ldflags = [ "--coverage" ]
 }
 
-ohos_unittest("updateservice_unittest") {
+ohos_unittest("$updateengine_unittest_name") {
   testonly = true
   module_out_path = module_output_path
   sources = [
@@ -39,29 +40,29 @@ ohos_unittest("updateservice_unittest") {
   ]
 
   sources += [
+    "$updateengine_root_path/frameworks/js/napi/client/update_client.cpp",
+    "$updateengine_root_path/frameworks/js/napi/client/update_module.cpp",
+    "$updateengine_root_path/frameworks/js/napi/client/update_session.cpp",
+    "$updateengine_root_path/interfaces/inner_api/engine/update_service_kits_impl.cpp",
+    "$updateengine_root_path/interfaces/inner_api/engine/update_service_proxy.cpp",
+    "$updateengine_root_path/services/callback/src/update_callback.cpp",
+    "$updateengine_root_path/services/callback/src/update_callback_proxy.cpp",
+    "$updateengine_root_path/services/callback/src/update_callback_stub.cpp",
+    "$updateengine_root_path/services/engine/src/progress_thread.cpp",
+    "$updateengine_root_path/services/engine/src/update_helper.cpp",
+    "$updateengine_root_path/services/engine/src/update_service.cpp",
+    "$updateengine_root_path/services/engine/src/update_service_stub.cpp",
     "//base/update/updater/interfaces/kits/packages/package.cpp",
     "//base/update/updater/interfaces/kits/updaterkits/updaterkits.cpp",
-    "//base/update/updateservice/frameworks/js/napi/client/update_client.cpp",
-    "//base/update/updateservice/frameworks/js/napi/client/update_module.cpp",
-    "//base/update/updateservice/frameworks/js/napi/client/update_session.cpp",
-    "//base/update/updateservice/interfaces/inner_api/engine/update_service_kits_impl.cpp",
-    "//base/update/updateservice/interfaces/inner_api/engine/update_service_proxy.cpp",
-    "//base/update/updateservice/services/callback/src/update_callback.cpp",
-    "//base/update/updateservice/services/callback/src/update_callback_proxy.cpp",
-    "//base/update/updateservice/services/callback/src/update_callback_stub.cpp",
-    "//base/update/updateservice/services/engine/src/progress_thread.cpp",
-    "//base/update/updateservice/services/engine/src/update_helper.cpp",
-    "//base/update/updateservice/services/engine/src/update_service.cpp",
-    "//base/update/updateservice/services/engine/src/update_service_stub.cpp",
   ]
   include_dirs = [
     "//base/update/updater/interfaces/kits/include/",
     "//base/update/updater/interfaces/kits/include/package",
-    "//base/update/updateservice",
-    "//base/update/updateservice/interfaces/inner_api/include",
-    "//base/update/updateservice/frameworks/js/napi/client/",
-    "//base/update/updateservice/services/engine/include",
-    "//base/update/updateservice/services/callback/include",
+    "$updateengine_root_path",
+    "$updateengine_root_path/interfaces/inner_api/include",
+    "$updateengine_root_path/frameworks/js/napi/client/",
+    "$updateengine_root_path/services/engine/include",
+    "$updateengine_root_path/services/callback/include",
     "//base/update/updater/utils/include/",
     "//base/update/updater/services/include/",
     "//base/update/updater/services/include/log",
@@ -99,7 +100,6 @@ ohos_unittest("updateservice_unittest") {
     "//third_party/lz4:liblz4_static",
     "//third_party/openssl:libcrypto_static",
     "//third_party/openssl:ssl_source",
-    "//utils/native/base:utils",
   ]
 
   defines = [
@@ -108,6 +108,7 @@ ohos_unittest("updateservice_unittest") {
   ]
 
   external_deps = [
+    "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
     "init:libbegetutil",
     "ipc:ipc_core",
@@ -119,5 +120,5 @@ ohos_unittest("updateservice_unittest") {
 
   public_configs = [ ":utest_config" ]
   install_enable = true
-  part_name = "update_service"
+  part_name = "$updateengine_part_name"
 }
