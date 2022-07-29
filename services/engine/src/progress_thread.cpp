@@ -17,7 +17,6 @@
 #include <unistd.h>
 #include "curl/curl.h"
 #include "curl/easy.h"
-#include "securec.h"
 #include "update_helper.h"
 
 namespace OHOS {
