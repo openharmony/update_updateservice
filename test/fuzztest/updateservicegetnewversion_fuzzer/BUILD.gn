@@ -21,7 +21,8 @@ module_output_path = "$updateengine_part_name/$updateengine_test_name"
 ##############################fuzztest##########################################
 ohos_fuzztest("UpdateServiceGetNewVersionFuzzTest") {
   module_out_path = module_output_path
-  fuzz_config_file = "$updateengine_root_path/test/fuzztest/updateservicegetnewversion_fuzzer"
+  fuzz_config_file =
+      "$updateengine_root_path/test/fuzztest/updateservicegetnewversion_fuzzer"
   include_dirs = [
     "$updateengine_root_path/interfaces/inner_api/include",
     "$updateengine_root_path/services/callback/include",
