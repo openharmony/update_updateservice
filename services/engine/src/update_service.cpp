@@ -35,7 +35,6 @@
 #include "iservice_registry.h"
 #include "libxml/parser.h"
 #include "libxml/tree.h"
-#include "misc_info/misc_info.h"
 #include "openssl/err.h"
 #include "openssl/ssl.h"
 #include "package/package.h"
@@ -46,7 +45,6 @@
 #include "system_ability_definition.h"
 #include "update_system_event.h"
 #include "updaterkits/updaterkits.h"
-#include "utils.h"
 
 namespace OHOS {
 namespace UpdateEngine {
