@@ -12,7 +12,7 @@
 # limitations under the License.
 
 import("//build/test.gni")
-import("//base/update/updateservice/updateengine.gni")
+import("../../updateengine.gni")
 
 module_output_path = "updater/updateservice_test"
 config("utest_config") {
@@ -40,8 +40,6 @@ ohos_unittest("$updateengine_unittest_name") {
   ]
 
   sources += [
-    "//base/update/updater/interfaces/kits/packages/package.cpp",
-    "//base/update/updater/interfaces/kits/updaterkits/updaterkits.cpp",
     "$updateengine_root_path/frameworks/js/napi/client/update_client.cpp",
     "$updateengine_root_path/frameworks/js/napi/client/update_module.cpp",
     "$updateengine_root_path/frameworks/js/napi/client/update_session.cpp",
@@ -54,6 +52,8 @@ ohos_unittest("$updateengine_unittest_name") {
     "$updateengine_root_path/services/engine/src/update_helper.cpp",
     "$updateengine_root_path/services/engine/src/update_service.cpp",
     "$updateengine_root_path/services/engine/src/update_service_stub.cpp",
+    "//base/update/updater/interfaces/kits/packages/package.cpp",
+    "//base/update/updater/interfaces/kits/updaterkits/updaterkits.cpp",
   ]
   include_dirs = [
     "//base/update/updater/interfaces/kits/include/",
