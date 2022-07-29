@@ -24,21 +24,12 @@ ohos_fuzztest("UpdateServiceDownloadFuzzTest") {
   fuzz_config_file =
       "$updateengine_root_path/test/fuzztest/updateservicedownload_fuzzer"
   include_dirs = [
-    "//base/update/updater/services/include",
-    "//base/update/updater/utils/include",
-    "//base/update/updater/interfaces/kits/include",
-    "$updateengine_root_path/test/fuzztest/common",
-    "//commonlibrary/c_utils/base/include",
-    "//utils/system/safwk/native/include",
     "$updateengine_root_path/interfaces/inner_api/include",
-    "$updateengine_root_path/services/engine/include",
     "$updateengine_root_path/services/callback/include",
-    "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy/include",
-    "//foundation/distributedschedule/safwk/services/safwk/include",
-    "//foundation/distributedschedule/safwk/interfaces/innerkits/safwk",
-    "//foundation/distributedschedule/samgr/adapter/interfaces/innerkits/include",
-    "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy/include",
-    "//third_party/bounds_checking_function/include",
+    "$updateengine_root_path/services/engine/include",
+    "$updateengine_root_path/test/fuzztest/common",
+    "//third_party/bounds_checking_function/include",  # secure method
+    "//utils/native/base/include",  # sptr
   ]
   cflags = [
     "-g",
@@ -55,7 +46,6 @@ ohos_fuzztest("UpdateServiceDownloadFuzzTest") {
   ]
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",
-    "init:libbegetutil",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr_standard:samgr_proxy",

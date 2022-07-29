@@ -15,7 +15,7 @@ import("//build/ohos.gni")
 import("//build/ohos/ohos_kits.gni")
 import("//build/ohos/ohos_part.gni")
 import("//build/ohos/ohos_test.gni")
-import("//base/update/updateservice/updateengine.gni")
+import("./updateengine.gni")
 
 ohos_part("$updateengine_part_name") {
   subsystem_name = "updater"
