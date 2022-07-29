@@ -54,15 +54,15 @@ ohos_shared_library("$updateengine_library_name") {
   ]
 
   deps = [
-    "//base/update/updater/interfaces/kits/packages:libpackageExt", # package verify "package/package.h"
-    "//base/update/updater/interfaces/kits/updaterkits:libupdaterkits", # install and clear user data "updaterkits/updaterkits.h"
+    "//base/update/updater/interfaces/kits/packages:libpackageExt",  # "package/package.h"
+    "//base/update/updater/interfaces/kits/updaterkits:libupdaterkits",  # "updaterkits/updaterkits.h"
     "//third_party/bounds_checking_function:libsec_static",
     "//third_party/cJSON:cjson_static",
     "//third_party/curl:curl",
     "//third_party/libxml2:xml2",
     "//third_party/openssl:libcrypto_static",
     "//third_party/openssl:ssl_source",
-    "//utils/native/base:utils", # sptr
+    "//utils/native/base:utils",  # sptr
   ]
 
   external_deps = [
