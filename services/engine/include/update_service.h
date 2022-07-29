@@ -19,6 +19,7 @@
 #include <iostream>
 #include <thread>
 
+#include "cJSON.h"
 #include "if_system_ability_manager.h"
 #include "ipc_skeleton.h"
 #include "iremote_stub.h"

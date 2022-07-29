@@ -17,6 +17,7 @@
 #define UPDATE_CALLBACK_H
 
 #include "update_callback_stub.h"
+#include "update_helper.h"
 
 namespace OHOS {
 namespace UpdateEngine {

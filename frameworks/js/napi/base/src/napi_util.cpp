@@ -14,7 +14,6 @@
  */
 
 #include "napi_util.h"
-#include "update_client.h"
 
 #include <string>
 

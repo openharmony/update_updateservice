@@ -12,9 +12,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "js_native_api.h"
+#include "js_native_api_types.h"
 #include "local_updater.h"
-#include "napi/native_api.h"
-#include "napi/native_node_api.h"
+#include "napi/native_common.h"
 #include "restorer.h"
 #include "update_client.h"
 
