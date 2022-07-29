@@ -40,17 +40,17 @@ ohos_shared_library("$updateengine_library_name") {
   ]
 
   include_dirs = [
-    "//base/update/updater/interfaces/kits/include",
-    "//utils/native/base/include", # sptr
-    "//utils/system/safwk/native/include",
     "$updateengine_root_path/interfaces/inner_api/include",
-    "$updateengine_root_path/services/engine/include",
     "$updateengine_root_path/services/callback/include",
+    "$updateengine_root_path/services/engine/include",
+    "//base/update/updater/interfaces/kits/include",
     "//foundation/distributedschedule/safwk/services/safwk/include",
+    "//third_party/bounds_checking_function/include",
     "//third_party/cJSON",
     "//third_party/curl/include",
     "//third_party/openssl/include",
-    "//third_party/bounds_checking_function/include",
+    "//utils/native/base/include",  # sptr
+    "//utils/system/safwk/native/include",
   ]
 
   deps = [
