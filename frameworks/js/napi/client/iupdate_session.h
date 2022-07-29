@@ -17,7 +17,7 @@
 #define IUPDATE_SESSION_H
 
 #include <functional>
-#include "node_api.h"
+#include "js_native_api_types.h"
 
 namespace OHOS {
 namespace UpdateEngine {

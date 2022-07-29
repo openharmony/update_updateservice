@@ -16,8 +16,10 @@
 #ifndef UPDATE_CALLBACK_PROXY_H
 #define UPDATE_CALLBACK_PROXY_H
 
+#include "iremote_broker.h"
 #include "iremote_proxy.h"
-#include "iupdate_service.h"
+#include "iupdate_callback.h"
+#include "update_helper.h"
 
 namespace OHOS {
 namespace UpdateEngine {

@@ -14,7 +14,6 @@
  */
 
 #include "update_callback_stub.h"
-#include "securec.h"
 #include "update_helper.h"
 
 using namespace std;

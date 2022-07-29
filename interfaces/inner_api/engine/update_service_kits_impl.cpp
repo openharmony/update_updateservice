@@ -19,7 +19,6 @@
 #include "iservice_registry.h"
 #include "iupdate_service.h"
 #include "iupdate_callback.h"
-#include "securec.h"
 #include "system_ability_definition.h"
 
 namespace OHOS {

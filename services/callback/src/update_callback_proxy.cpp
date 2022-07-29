@@ -14,7 +14,6 @@
  */
 
 #include "update_callback_proxy.h"
-#include "securec.h"
 #include "update_helper.h"
 
 namespace OHOS {

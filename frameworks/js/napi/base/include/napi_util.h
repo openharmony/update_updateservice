@@ -18,9 +18,8 @@
 
 #include <string>
 #include "client_helper.h"
-#include "node_api.h"
-#include "update_define.h"
-#include "update_helper.h"
+#include "js_native_api.h"
+#include "js_native_api_types.h"
 
 namespace OHOS {
 namespace UpdateEngine {
