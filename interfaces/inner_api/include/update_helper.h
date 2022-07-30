@@ -32,8 +32,7 @@
 namespace OHOS {
 namespace UpdateEngine {
 const int CALL_RESULT_OFFSET = 2000;
-constexpr size_t NEW_VERSION_DESCRIPTION_INFO_COUNT = 2;
-constexpr size_t CUR_VERSION_DESCRIPTION_INFO_COUNT = 2;
+constexpr size_t VERSION_DESCRIPTION_INFO_COUNT_MAX = 8;
 
 #define COUNT_OF(array) (sizeof(array) / sizeof((array)[0]))
 
@@ -386,6 +385,20 @@ struct NewVersionInfo {
     }
 };
 
+struct VersionDescriptionInfo {
+    ComponentDescription componentDescriptions[VERSION_DESCRIPTION_INFO_COUNT_MAX];
+
+    VersionDescriptionInfo &operator=(const VersionDescriptionInfo &source)
+    {
+        if (&source != this) {
+            for (size_t i = 0; i < VERSION_DESCRIPTION_INFO_COUNT_MAX; i++) {
+                componentDescriptions[i] = source.componentDescriptions[i];
+            }
+        }
+        return *this;
+    }
+};
+
 struct CheckResultEx {
     bool isExistNewVersion;
     NewVersionInfo newVersionInfo;
@@ -619,14 +632,14 @@ public:
     static int32_t WriteUpgradeInfo(MessageParcel &data, const UpgradeInfo &info);
 
     static int32_t ReadNewVersionDescriptionInfo(MessageParcel &reply,
-        ComponentDescription newVersionDescriptionInfo[]);
+        VersionDescriptionInfo newVersionDescriptionInfo);
     static int32_t WriteNewVersionDescriptionInfo(MessageParcel &data,
-        const ComponentDescription newVersionDescriptionInfo[]);
+        const VersionDescriptionInfo newVersionDescriptionInfo);
 
     static int32_t ReadCurrentVersionDescriptionInfo(MessageParcel &reply,
-        ComponentDescription currentVersionDescriptionInfo[]);
+        VersionDescriptionInfo currentVersionDescriptionInfo);
     static int32_t WriteCurrentVersionDescriptionInfo(MessageParcel &data,
-        const ComponentDescription currentVersionDescriptionInfo[]);
+        const VersionDescriptionInfo currentVersionDescriptionInfo);
 
     static int32_t ReadBusinessError(MessageParcel &reply, BusinessError &businessError);
     static int32_t WriteBusinessError(MessageParcel &data, const BusinessError &businessError);

@@ -93,9 +93,9 @@ private:
     VersionInfo versionInfo_ {};
     CheckResultEx checkResultEx_ {};
     NewVersionInfo newVersionInfo_ {};
-    ComponentDescription newVersionDescriptionInfo_[NEW_VERSION_DESCRIPTION_INFO_COUNT] {};
+    VersionDescriptionInfo newVersionDescriptionInfo_ {};
     CurrentVersionInfo currentVersionInfo_ {};
-    ComponentDescription currentVersionDescriptionInfo_[CUR_VERSION_DESCRIPTION_INFO_COUNT] {};
+    VersionDescriptionInfo currentVersionDescriptionInfo_ {};
     TaskInfo taskInfo_ {};
     VersionDigestInfo versionDigestInfo_ {};
     DescriptionOptions descriptionOptions_ {};

@@ -392,9 +392,7 @@ void UpdateClient::GetUpdateResult(SessionType type, UpdateResult &result)
             result.buildJSObject = ClientHelper::BuildNewVersionInfo;
             break;
         case SessionType::SESSION_GET_NEW_VERSION_DESCRIPTION:
-            for (size_t i = 0; i < NEW_VERSION_DESCRIPTION_INFO_COUNT; i++) {
-                result.result.newVersionDescriptionInfo[i] = &newVersionDescriptionInfo_[i];
-            }
+            result.result.newVersionDescriptionInfo = &newVersionDescriptionInfo_;
             result.buildJSObject = ClientHelper::BuildNewVersionDescriptionInfo;
             break;
         case SessionType::SESSION_GET_TASK_INFO:
@@ -406,22 +404,8 @@ void UpdateClient::GetUpdateResult(SessionType type, UpdateResult &result)
             result.buildJSObject = ClientHelper::BuildCurrentVersionInfo;
             break;
         case SessionType::SESSION_GET_CUR_VERSION_DESCRIPTION:
-            for (size_t i = 0; i < CUR_VERSION_DESCRIPTION_INFO_COUNT; i++) {
-                result.result.currentVersionDescriptionInfo[i] = &currentVersionDescriptionInfo_[i];
-            }
+            result.result.currentVersionDescriptionInfo = &currentVersionDescriptionInfo_;
             result.buildJSObject = ClientHelper::BuildCurrentVersionDescriptionInfo;
-            break;
-        case SessionType::SESSION_DOWNLOAD:
-            result.result.progress = &progress_;
-            result.buildJSObject = ClientHelper::BuildProgress;
-            break;
-        case SessionType::SESSION_UPGRADE:
-            result.result.progress = &progress_;
-            result.buildJSObject = ClientHelper::BuildProgress;
-            break;
-        case SessionType::SESSION_VERIFY_PACKAGE:
-            result.result.progress = &verifyProgress_;
-            result.buildJSObject = ClientHelper::BuildProgress;
             break;
         case SessionType::SESSION_GET_POLICY:
             result.result.upgradePolicy = &upgradePolicy_;
