@@ -52,7 +52,7 @@ static int32_t GetNewVersionDescriptionStub(UpdateServiceStub::UpdateServiceStub
     UpgradeInfo upgradeInfo;
     VersionDigestInfo versionDigestInfo;
     DescriptionOptions descriptionOptions;
-    ComponentDescription newVersionDescriptionInfo[NEW_VERSION_DESCRIPTION_INFO_COUNT];
+    VersionDescriptionInfo newVersionDescriptionInfo;
     BusinessError businessError;
     UpdateHelper::ReadUpgradeInfo(data, upgradeInfo);
     UpdateHelper::ReadVersionDigestInfo(data, versionDigestInfo);
@@ -87,7 +87,7 @@ static int32_t GetCurrentVersionDescriptionStub(UpdateServiceStub::UpdateService
     RETURN_FAIL_WHEN_SERVICE_NULL(service);
     UpgradeInfo upgradeInfo;
     DescriptionOptions descriptionOptions;
-    ComponentDescription currentVersionDescriptionInfo[CUR_VERSION_DESCRIPTION_INFO_COUNT];
+    VersionDescriptionInfo currentVersionDescriptionInfo;
     BusinessError businessError;
     UpdateHelper::ReadUpgradeInfo(data, upgradeInfo);
     UpdateHelper::ReadDescriptionOptions(data, descriptionOptions);

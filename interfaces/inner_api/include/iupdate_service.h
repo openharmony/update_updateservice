@@ -78,14 +78,14 @@ public:
         BusinessError &businessError) = 0;
 
     virtual int32_t GetNewVersionDescription(const UpgradeInfo &info, const VersionDigestInfo &versionDigestInfo,
-        const DescriptionOptions &descriptionOptions, ComponentDescription newVersionDescriptionInfo[],
+        const DescriptionOptions &descriptionOptions, VersionDescriptionInfo newVersionDescriptionInfo,
         BusinessError &businessError) = 0;
 
     virtual int32_t GetCurrentVersionInfo(const UpgradeInfo &info, CurrentVersionInfo &currentVersionInfo,
         BusinessError &businessError) = 0;
 
     virtual int32_t GetCurrentVersionDescription(const UpgradeInfo &info, const DescriptionOptions &descriptionOptions,
-        ComponentDescription currentVersionDescriptionInfo[], BusinessError &businessError) = 0;
+        VersionDescriptionInfo currentVersionDescriptionInfo, BusinessError &businessError) = 0;
 
     virtual int32_t GetTaskInfo(const UpgradeInfo &info, TaskInfo &taskInfo, BusinessError &businessError) = 0;
 
