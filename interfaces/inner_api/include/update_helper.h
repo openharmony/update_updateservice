@@ -32,6 +32,8 @@
 namespace OHOS {
 namespace UpdateEngine {
 const int CALL_RESULT_OFFSET = 2000;
+constexpr size_t NEW_VERSION_DESCRIPTION_INFO_COUNT = 2;
+constexpr size_t CUR_VERSION_DESCRIPTION_INFO_COUNT = 2;
 
 #define COUNT_OF(array) (sizeof(array) / sizeof((array)[0]))
 
@@ -615,6 +617,16 @@ class UpdateHelper {
 public:
     static int32_t ReadUpgradeInfo(MessageParcel &reply, UpgradeInfo &info);
     static int32_t WriteUpgradeInfo(MessageParcel &data, const UpgradeInfo &info);
+
+    static int32_t ReadNewVersionDescriptionInfo(MessageParcel &reply,
+        ComponentDescription newVersionDescriptionInfo[]);
+    static int32_t WriteNewVersionDescriptionInfo(MessageParcel &data,
+        const ComponentDescription newVersionDescriptionInfo[]);
+
+    static int32_t ReadCurrentVersionDescriptionInfo(MessageParcel &reply,
+        ComponentDescription currentVersionDescriptionInfo[]);
+    static int32_t WriteCurrentVersionDescriptionInfo(MessageParcel &data,
+        const ComponentDescription currentVersionDescriptionInfo[]);
 
     static int32_t ReadBusinessError(MessageParcel &reply, BusinessError &businessError);
     static int32_t WriteBusinessError(MessageParcel &data, const BusinessError &businessError);

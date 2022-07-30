@@ -103,6 +103,11 @@ bool IsValidData(const ErrorMessage &errorMessage)
     return errorMessage.errorCode != 0;
 }
 
+bool IsValidData(const ComponentDescription &componentDescription)
+{
+    return componentDescription.componentId != static_cast<uint32_t>(-1);
+}
+
 bool IsValidData(const VersionComponent &versionComponent)
 {
     return versionComponent.componentType != static_cast<uint32_t>(ComponentType::INVALID);
@@ -168,6 +173,34 @@ int32_t ClientHelper::BuildCurrentVersionInfo(napi_env env, napi_value &obj, con
     NapiUtil::SetString(env, obj, "osVersion", info->osVersion);
     NapiUtil::SetString(env, obj, "deviceName", info->deviceName);
     BuildVersionComponents(env, obj, info->versionComponents, COUNT_OF(info->versionComponents));
+    return CAST_INT(ClientStatus::CLIENT_SUCCESS);
+}
+
+int32_t ClientHelper::BuildCurrentVersionDescriptionInfo(napi_env env, napi_value &obj, const UpdateResult &result)
+{
+    size_t i;
+    for (i = 0; i < CUR_VERSION_DESCRIPTION_INFO_COUNT; i++) {
+        PARAM_CHECK(result.result.currentVersionDescriptionInfo[i] != nullptr,
+            return CAST_INT(ClientStatus::CLIENT_SUCCESS), "ClientHelper::BuildCurrentVersionDescriptionInfo null");
+    }
+    PARAM_CHECK(result.type == SessionType::SESSION_GET_CUR_VERSION_DESCRIPTION,
+        return CAST_INT(ClientStatus::CLIENT_INVALID_TYPE),
+        "invalid type %d",
+        result.type);
+    napi_status status = napi_create_array_with_length(env, CUR_VERSION_DESCRIPTION_INFO_COUNT, &obj);
+    PARAM_CHECK(status == napi_ok, return CAST_INT(ClientStatus::CLIENT_INVALID_TYPE),
+        "Failed to create napi_create_array_with_length %d", static_cast<int32_t>(status));
+    for (i = 0; i < CUR_VERSION_DESCRIPTION_INFO_COUNT; i++) {
+        if (IsValidData(*result.result.currentVersionDescriptionInfo[i])) {
+            napi_value napiComponentDescription;
+            status = napi_create_object(env, &napiComponentDescription);
+            NapiUtil::SetInt32(env, napiComponentDescription, "componentId",
+                result.result.currentVersionDescriptionInfo[i]->componentId);
+            BuildDescInfo(env, napiComponentDescription,
+                result.result.currentVersionDescriptionInfo[i]->descriptionInfo);
+            napi_set_element(env, obj, i, napiComponentDescription);
+        }
+    }
     return CAST_INT(ClientStatus::CLIENT_SUCCESS);
 }
 
@@ -247,6 +280,33 @@ int32_t ClientHelper::BuildNewVersionInfo(napi_env env, napi_value &obj, const U
     BuildVersionDigestInfo(env, obj, result.result.newVersionInfo->versionDigestInfo);
     BuildVersionComponents(env, obj, result.result.newVersionInfo->versionComponents,
         COUNT_OF(result.result.newVersionInfo->versionComponents));
+    return CAST_INT(ClientStatus::CLIENT_SUCCESS);
+}
+
+int32_t ClientHelper::BuildNewVersionDescriptionInfo(napi_env env, napi_value &obj, const UpdateResult &result)
+{
+    size_t i;
+    for (i = 0; i < NEW_VERSION_DESCRIPTION_INFO_COUNT; i++) {
+        PARAM_CHECK(result.result.newVersionDescriptionInfo[i] != nullptr,
+            return CAST_INT(ClientStatus::CLIENT_SUCCESS), "ClientHelper::BuildNewVersionDescriptionInfo null");
+    }
+    PARAM_CHECK(result.type == SessionType::SESSION_GET_NEW_VERSION_DESCRIPTION,
+        return CAST_INT(ClientStatus::CLIENT_INVALID_TYPE),
+        "invalid type %d",
+        result.type);
+    napi_status status = napi_create_array_with_length(env, NEW_VERSION_DESCRIPTION_INFO_COUNT, &obj);
+    PARAM_CHECK(status == napi_ok, return CAST_INT(ClientStatus::CLIENT_INVALID_TYPE),
+        "Failed to create napi_create_array_with_length %d", static_cast<int32_t>(status));
+    for (i = 0; i < NEW_VERSION_DESCRIPTION_INFO_COUNT; i++) {
+        if (IsValidData(*result.result.newVersionDescriptionInfo[i])) {
+            napi_value napiComponentDescription;
+            status = napi_create_object(env, &napiComponentDescription);
+            NapiUtil::SetInt32(env, napiComponentDescription, "componentId",
+                result.result.newVersionDescriptionInfo[i]->componentId);
+            BuildDescInfo(env, napiComponentDescription, result.result.newVersionDescriptionInfo[i]->descriptionInfo);
+            napi_set_element(env, obj, i, napiComponentDescription);
+        }
+    }
     return CAST_INT(ClientStatus::CLIENT_SUCCESS);
 }
 

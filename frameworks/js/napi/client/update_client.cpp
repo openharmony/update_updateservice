@@ -318,7 +318,7 @@ napi_value UpdateClient::GetNewVersionDescription(napi_env env, napi_callback_in
     napi_value retValue = StartSession(env, info, sessionParams, [=](SessionType type, void *context) -> int {
         BusinessError *businessError = reinterpret_cast<BusinessError *>(context);
         return UpdateServiceKits::GetInstance().GetNewVersionDescription(
-            upgradeInfo_, versionDigestInfo_, descriptionOptions_, *businessError);
+            upgradeInfo_, versionDigestInfo_, descriptionOptions_, newVersionDescriptionInfo_, *businessError);
     });
     PARAM_CHECK(retValue != nullptr, return nullptr, "Failed to start worker.");
     return retValue;
@@ -353,7 +353,7 @@ napi_value UpdateClient::GetCurrentVersionDescription(napi_env env, napi_callbac
     napi_value retValue = StartSession(env, info, sessionParams, [=](SessionType type, void *context) -> int {
         BusinessError *businessError = reinterpret_cast<BusinessError *>(context);
         return UpdateServiceKits::GetInstance().GetCurrentVersionDescription(
-            upgradeInfo_, descriptionOptions_, *businessError);
+            upgradeInfo_, descriptionOptions_, currentVersionDescriptionInfo_, *businessError);
     });
     PARAM_CHECK(retValue != nullptr, return nullptr, "Failed to start worker.");
     return retValue;
@@ -391,6 +391,12 @@ void UpdateClient::GetUpdateResult(SessionType type, UpdateResult &result)
             result.result.newVersionInfo = &newVersionInfo_;
             result.buildJSObject = ClientHelper::BuildNewVersionInfo;
             break;
+        case SessionType::SESSION_GET_NEW_VERSION_DESCRIPTION:
+            for (size_t i = 0; i < NEW_VERSION_DESCRIPTION_INFO_COUNT; i++) {
+                result.result.newVersionDescriptionInfo[i] = &newVersionDescriptionInfo_[i];
+            }
+            result.buildJSObject = ClientHelper::BuildNewVersionDescriptionInfo;
+            break;
         case SessionType::SESSION_GET_TASK_INFO:
             result.result.taskInfo = &taskInfo_;
             result.buildJSObject = ClientHelper::BuildTaskInfo;
@@ -398,6 +404,12 @@ void UpdateClient::GetUpdateResult(SessionType type, UpdateResult &result)
         case SessionType::SESSION_GET_CUR_VERSION:
             result.result.currentVersionInfo = &currentVersionInfo_;
             result.buildJSObject = ClientHelper::BuildCurrentVersionInfo;
+            break;
+        case SessionType::SESSION_GET_CUR_VERSION_DESCRIPTION:
+            for (size_t i = 0; i < CUR_VERSION_DESCRIPTION_INFO_COUNT; i++) {
+                result.result.currentVersionDescriptionInfo[i] = &currentVersionDescriptionInfo_[i];
+            }
+            result.buildJSObject = ClientHelper::BuildCurrentVersionDescriptionInfo;
             break;
         case SessionType::SESSION_DOWNLOAD:
             result.result.progress = &progress_;
