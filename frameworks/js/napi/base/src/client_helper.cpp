@@ -130,7 +130,7 @@ napi_value BuildComponentDescriptions(napi_env env, const ComponentDescription c
 {
     size_t validComponentCount = GetValidDataCount(componentDescriptions, arraySize);
     if (validComponentCount == 0) {
-        return;
+        return nullptr;
     }
     napi_value napiComponentDescriptions;
     napi_create_array_with_length(env, validComponentCount, &napiComponentDescriptions);
@@ -212,6 +212,7 @@ int32_t ClientHelper::BuildCurrentVersionDescriptionInfo(napi_env env, napi_valu
     PARAM_CHECK(info != nullptr, return CAST_INT(ClientStatus::CLIENT_FAIL), "info is null");
 
     obj = BuildComponentDescriptions(env, info->componentDescriptions, COUNT_OF(info->componentDescriptions));
+    PARAM_CHECK(obj != nullptr, return CAST_INT(ClientStatus::CLIENT_SUCCESS), "BuildComponentDescriptions null");
     return CAST_INT(ClientStatus::CLIENT_SUCCESS);
 }
 
@@ -306,6 +307,7 @@ int32_t ClientHelper::BuildNewVersionDescriptionInfo(napi_env env, napi_value &o
     PARAM_CHECK(info != nullptr, return CAST_INT(ClientStatus::CLIENT_FAIL), "info is null");
 
     obj = BuildComponentDescriptions(env, info->componentDescriptions, COUNT_OF(info->componentDescriptions));
+    PARAM_CHECK(obj != nullptr, return CAST_INT(ClientStatus::CLIENT_SUCCESS), "BuildComponentDescriptions null");
     return CAST_INT(ClientStatus::CLIENT_SUCCESS);
 }
 
