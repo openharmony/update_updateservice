@@ -62,7 +62,7 @@ static int32_t GetNewVersionDescriptionStub(UpdateServiceStub::UpdateServiceStub
         newVersionDescriptionInfo, businessError);
     ENGINE_CHECK(ret == INT_CALL_SUCCESS, return ret, "Failed to GetNewVersionDescription");
     UpdateHelper::WriteBusinessError(reply, businessError);
-    UpdateHelper::WriteNewVersionDescriptionInfo(reply, newVersionDescriptionInfo);
+    UpdateHelper::WriteVersionDescriptionInfo(reply, newVersionDescriptionInfo);
     return INT_CALL_SUCCESS;
 }
 
@@ -96,7 +96,7 @@ static int32_t GetCurrentVersionDescriptionStub(UpdateServiceStub::UpdateService
         businessError);
     ENGINE_CHECK(ret == INT_CALL_SUCCESS, return ret, "Failed to GetCurrentVersionDescription");
     UpdateHelper::WriteBusinessError(reply, businessError);
-    UpdateHelper::WriteCurrentVersionDescriptionInfo(reply, currentVersionDescriptionInfo);
+    UpdateHelper::WriteVersionDescriptionInfo(reply, currentVersionDescriptionInfo);
     return INT_CALL_SUCCESS;
 }
 

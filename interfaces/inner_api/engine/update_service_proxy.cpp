@@ -262,7 +262,7 @@ int32_t UpdateServiceProxy::GetNewVersionDescription(const UpgradeInfo &info,
     int32_t ret = remote->SendRequest(GET_NEW_VERSION_DESCRIPTION, data, reply, option);
     RETURN_FAIL_WHEN_REMOTE_ERR("UpdateServiceProxy::GetNewVersionDescription", ret);
     UpdateHelper::ReadBusinessError(reply, businessError);
-    UpdateHelper::ReadNewVersionDescriptionInfo(reply, newVersionDescriptionInfo);
+    UpdateHelper::ReadVersionDescriptionInfo(reply, newVersionDescriptionInfo);
     return INT_CALL_SUCCESS;
 }
 
@@ -305,7 +305,7 @@ int32_t UpdateServiceProxy::GetCurrentVersionDescription(const UpgradeInfo &info
     int32_t ret = remote->SendRequest(GET_CURRENT_VERSION_DESCRIPTION, data, reply, option);
     RETURN_FAIL_WHEN_REMOTE_ERR("UpdateServiceProxy::GetCurrentVersionDescription", ret);
     UpdateHelper::ReadBusinessError(reply, businessError);
-    UpdateHelper::ReadCurrentVersionDescriptionInfo(reply, currentVersionDescriptionInfo);
+    UpdateHelper::ReadVersionDescriptionInfo(reply, currentVersionDescriptionInfo);
     return INT_CALL_SUCCESS;
 }
 
