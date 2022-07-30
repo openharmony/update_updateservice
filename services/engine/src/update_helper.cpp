@@ -89,51 +89,26 @@ int32_t UpdateHelper::WriteUpgradeInfo(MessageParcel &data, const UpgradeInfo &i
     return 0;
 }
 
-int32_t UpdateHelper::ReadNewVersionDescriptionInfo(MessageParcel &reply,
-    VersionDescriptionInfo newVersionDescriptionInfo)
+int32_t UpdateHelper::ReadVersionDescriptionInfo(MessageParcel &reply,
+    VersionDescriptionInfo versionDescriptionInfo)
 {
     for (size_t i = 0; i < VERSION_DESCRIPTION_INFO_COUNT_MAX; i++) {
-        newVersionDescriptionInfo.componentDescriptions[i].componentId = reply.ReadUint32();
-        newVersionDescriptionInfo.componentDescriptions[i].descriptionInfo.descriptionType =
+        versionDescriptionInfo.componentDescriptions[i].componentId = reply.ReadUint32();
+        versionDescriptionInfo.componentDescriptions[i].descriptionInfo.descriptionType =
             static_cast<DescriptionType>(reply.ReadUint32());
-        newVersionDescriptionInfo.componentDescriptions[i].descriptionInfo.content = Str16ToStr8(reply.ReadString16());
+        versionDescriptionInfo.componentDescriptions[i].descriptionInfo.content = Str16ToStr8(reply.ReadString16());
     }
     return 0;
 }
 
-int32_t UpdateHelper::WriteNewVersionDescriptionInfo(MessageParcel &data,
-    const ComponentDescription newVersionDescriptionInfo[])
+int32_t UpdateHelper::WriteVersionDescriptionInfo(MessageParcel &data,
+    const VersionDescriptionInfo versionDescriptionInfo)
 {
     for (size_t i = 0; i < VERSION_DESCRIPTION_INFO_COUNT_MAX; i++) {
-        data.WriteUint32(newVersionDescriptionInfo.componentDescriptions[i].componentId);
+        data.WriteUint32(versionDescriptionInfo.componentDescriptions[i].componentId);
         data.WriteUint32(static_cast<uint32_t>(
-            newVersionDescriptionInfo.componentDescriptions[i].descriptionInfo.descriptionType));
-        data.WriteString16(Str8ToStr16(newVersionDescriptionInfo.componentDescriptions[i].descriptionInfo.content));
-    }
-    return 0;
-}
-
-int32_t UpdateHelper::ReadCurrentVersionDescriptionInfo(MessageParcel &reply,
-    ComponentDescription currentVersionDescriptionInfo[])
-{
-    for (size_t i = 0; i < VERSION_DESCRIPTION_INFO_COUNT_MAX; i++) {
-        currentVersionDescriptionInfo.componentDescriptions[i].componentId = reply.ReadUint32();
-        currentVersionDescriptionInfo.componentDescriptions[i].descriptionInfo.descriptionType =
-            static_cast<DescriptionType>(reply.ReadUint32());
-        currentVersionDescriptionInfo.componentDescriptions[i].descriptionInfo.content =
-            Str16ToStr8(reply.ReadString16());
-    }
-    return 0;
-}
-
-int32_t UpdateHelper::WriteCurrentVersionDescriptionInfo(MessageParcel &data,
-    const ComponentDescription currentVersionDescriptionInfo[])
-{
-    for (size_t i = 0; i < VERSION_DESCRIPTION_INFO_COUNT_MAX; i++) {
-        data.WriteUint32(currentVersionDescriptionInfo.componentDescriptions[i].componentId);
-        data.WriteUint32(static_cast<uint32_t>(
-            currentVersionDescriptionInfo.componentDescriptions[i].descriptionInfo.descriptionType));
-        data.WriteString16(Str8ToStr16(currentVersionDescriptionInfo.componentDescriptions[i].descriptionInfo.content));
+            versionDescriptionInfo.componentDescriptions[i].descriptionInfo.descriptionType));
+        data.WriteString16(Str8ToStr16(versionDescriptionInfo.componentDescriptions[i].descriptionInfo.content));
     }
     return 0;
 }

@@ -631,15 +631,10 @@ public:
     static int32_t ReadUpgradeInfo(MessageParcel &reply, UpgradeInfo &info);
     static int32_t WriteUpgradeInfo(MessageParcel &data, const UpgradeInfo &info);
 
-    static int32_t ReadNewVersionDescriptionInfo(MessageParcel &reply,
+    static int32_t ReadVersionDescriptionInfo(MessageParcel &reply,
         VersionDescriptionInfo newVersionDescriptionInfo);
-    static int32_t WriteNewVersionDescriptionInfo(MessageParcel &data,
+    static int32_t WriteVersionDescriptionInfo(MessageParcel &data,
         const VersionDescriptionInfo newVersionDescriptionInfo);
-
-    static int32_t ReadCurrentVersionDescriptionInfo(MessageParcel &reply,
-        VersionDescriptionInfo currentVersionDescriptionInfo);
-    static int32_t WriteCurrentVersionDescriptionInfo(MessageParcel &data,
-        const VersionDescriptionInfo currentVersionDescriptionInfo);
 
     static int32_t ReadBusinessError(MessageParcel &reply, BusinessError &businessError);
     static int32_t WriteBusinessError(MessageParcel &data, const BusinessError &businessError);
