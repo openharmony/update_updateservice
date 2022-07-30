@@ -89,6 +89,51 @@ int32_t UpdateHelper::WriteUpgradeInfo(MessageParcel &data, const UpgradeInfo &i
     return 0;
 }
 
+int32_t UpdateHelper::ReadNewVersionDescriptionInfo(MessageParcel &reply,
+    ComponentDescription newVersionDescriptionInfo[])
+{
+    for (size_t i = 0; i < NEW_VERSION_DESCRIPTION_INFO_COUNT; i++) {
+        newVersionDescriptionInfo[i].componentId = reply.ReadUint32();
+        newVersionDescriptionInfo[i].descriptionInfo.descriptionType = static_cast<DescriptionType>(reply.ReadUint32());
+        newVersionDescriptionInfo[i].descriptionInfo.content = Str16ToStr8(reply.ReadString16());
+    }
+    return 0;
+}
+
+int32_t UpdateHelper::WriteNewVersionDescriptionInfo(MessageParcel &data,
+    const ComponentDescription newVersionDescriptionInfo[])
+{
+    for (size_t i = 0; i < NEW_VERSION_DESCRIPTION_INFO_COUNT; i++) {
+        data.WriteUint32(newVersionDescriptionInfo[i].componentId);
+        data.WriteUint32(static_cast<uint32_t>(newVersionDescriptionInfo[i].descriptionInfo.descriptionType));
+        data.WriteString16(Str8ToStr16(newVersionDescriptionInfo[i].descriptionInfo.content));
+    }
+    return 0;
+}
+
+int32_t UpdateHelper::ReadCurrentVersionDescriptionInfo(MessageParcel &reply,
+    ComponentDescription currentVersionDescriptionInfo[])
+{
+    for (size_t i = 0; i < CUR_VERSION_DESCRIPTION_INFO_COUNT; i++) {
+        currentVersionDescriptionInfo[i].componentId = reply.ReadUint32();
+        currentVersionDescriptionInfo[i].descriptionInfo.descriptionType =
+            static_cast<DescriptionType>(reply.ReadUint32());
+        currentVersionDescriptionInfo[i].descriptionInfo.content = Str16ToStr8(reply.ReadString16());
+    }
+    return 0;
+}
+
+int32_t UpdateHelper::WriteCurrentVersionDescriptionInfo(MessageParcel &data,
+    const ComponentDescription currentVersionDescriptionInfo[])
+{
+    for (size_t i = 0; i < CUR_VERSION_DESCRIPTION_INFO_COUNT; i++) {
+        data.WriteUint32(currentVersionDescriptionInfo[i].componentId);
+        data.WriteUint32(static_cast<uint32_t>(currentVersionDescriptionInfo[i].descriptionInfo.descriptionType));
+        data.WriteString16(Str8ToStr16(currentVersionDescriptionInfo[i].descriptionInfo.content));
+    }
+    return 0;
+}
+
 int32_t UpdateHelper::ReadBusinessError(MessageParcel &reply, BusinessError &businessError)
 {
     businessError.message = Str16ToStr8(reply.ReadString16());

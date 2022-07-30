@@ -214,12 +214,13 @@ int32_t UpdateServiceKitsImpl::GetNewVersionInfo(const UpgradeInfo &info, NewVer
 
 int32_t UpdateServiceKitsImpl::GetNewVersionDescription(const UpgradeInfo &info,
     const VersionDigestInfo &versionDigestInfo, const DescriptionOptions &descriptionOptions,
-    BusinessError &businessError)
+    ComponentDescription newVersionDescriptionInfo[], BusinessError &businessError)
 {
     ENGINE_LOGI("UpdateServiceKitsImpl::GetNewVersionDescription");
     auto updateService = GetService();
     RETURN_FAIL_WHEN_SERVICE_NULL(updateService);
-    return updateService->GetNewVersionDescription(info, versionDigestInfo, descriptionOptions, businessError);
+    return updateService->GetNewVersionDescription(info, versionDigestInfo, descriptionOptions,
+        newVersionDescriptionInfo, businessError);
 }
 
 int32_t UpdateServiceKitsImpl::GetCurrentVersionInfo(const UpgradeInfo &info, CurrentVersionInfo &currentVersionInfo,
@@ -232,12 +233,14 @@ int32_t UpdateServiceKitsImpl::GetCurrentVersionInfo(const UpgradeInfo &info, Cu
 }
 
 int32_t UpdateServiceKitsImpl::GetCurrentVersionDescription(const UpgradeInfo &info,
-    const DescriptionOptions &descriptionOptions, BusinessError &businessError)
+    const DescriptionOptions &descriptionOptions, ComponentDescription currentVersionDescriptionInfo[],
+    BusinessError &businessError)
 {
     ENGINE_LOGI("UpdateServiceKitsImpl::GetCurrentVersionDescription");
     auto updateService = GetService();
     RETURN_FAIL_WHEN_SERVICE_NULL(updateService);
-    return updateService->GetCurrentVersionDescription(info, descriptionOptions, businessError);
+    return updateService->GetCurrentVersionDescription(info, descriptionOptions, currentVersionDescriptionInfo,
+        businessError);
 }
 
 int32_t UpdateServiceKitsImpl::GetTaskInfo(const UpgradeInfo &info, TaskInfo &taskInfo, BusinessError &businessError)

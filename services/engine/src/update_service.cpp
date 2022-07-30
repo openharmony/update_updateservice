@@ -235,7 +235,8 @@ int32_t UpdateService::GetNewVersion(const UpgradeInfo &info, NewVersionInfo &ne
 }
 
 int32_t UpdateService::GetNewVersionDescription(const UpgradeInfo &info, const VersionDigestInfo &versionDigestInfo,
-    const DescriptionOptions &descriptionOptions, BusinessError &businessError)
+    const DescriptionOptions &descriptionOptions, ComponentDescription newVersionDescriptionInfo[],
+    BusinessError &businessError)
 {
     ENGINE_LOGE("GetNewVersionDescription versionDigestInfo %{public}s format %{public}d language %{public}s",
         versionDigestInfo.versionDigest.c_str(),
@@ -276,7 +277,8 @@ int32_t UpdateService::GetCurrentVersionInfo(const UpgradeInfo &info, CurrentVer
 }
 
 int32_t UpdateService::GetCurrentVersionDescription(const UpgradeInfo &info,
-    const DescriptionOptions &descriptionOptions, BusinessError &businessError)
+    const DescriptionOptions &descriptionOptions, ComponentDescription currentVersionDescriptionInfo[],
+    BusinessError &businessError)
 {
     ENGINE_LOGE("GetCurrentVersionDescription format %{public}d language %{public}s",
         CAST_INT(descriptionOptions.format),

@@ -52,13 +52,14 @@ public:
         BusinessError &businessError) override;
 
     int32_t GetNewVersionDescription(const UpgradeInfo &info, const VersionDigestInfo &versionDigestInfo,
-        const DescriptionOptions &descriptionOptions, BusinessError &businessError) override;
+        const DescriptionOptions &descriptionOptions, ComponentDescription newVersionDescriptionInfo[],
+        BusinessError &businessError) override;
 
     int32_t GetCurrentVersionInfo(const UpgradeInfo &info, CurrentVersionInfo &currentVersionInfo,
         BusinessError &businessError) override;
 
     int32_t GetCurrentVersionDescription(const UpgradeInfo &info, const DescriptionOptions &descriptionOptions,
-        BusinessError &businessError) override;
+        ComponentDescription currentVersionDescriptionInfo[], BusinessError &businessError) override;
 
     int32_t GetTaskInfo(const UpgradeInfo &info, TaskInfo &taskInfo, BusinessError &businessError) override;
 

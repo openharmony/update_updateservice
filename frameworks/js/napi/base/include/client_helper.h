@@ -79,8 +79,10 @@ struct UpdateResult {
         UpgradePolicy *upgradePolicy;
         Progress *progress;
         NewVersionInfo *newVersionInfo;
+        ComponentDescription *newVersionDescriptionInfo[NEW_VERSION_DESCRIPTION_INFO_COUNT];
         CheckResultEx *checkResultEx;
         CurrentVersionInfo *currentVersionInfo;
+        ComponentDescription *currentVersionDescriptionInfo[CUR_VERSION_DESCRIPTION_INFO_COUNT];
         TaskInfo *taskInfo;
         int32_t status;
     } result;
@@ -173,9 +175,11 @@ public:
 
     static int32_t BuildCheckResultEx(napi_env env, napi_value &obj, const UpdateResult &result);
     static int32_t BuildNewVersionInfo(napi_env env, napi_value &obj, const UpdateResult &result);
+    static int32_t BuildNewVersionDescriptionInfo(napi_env env, napi_value &obj, const UpdateResult &result);
     static int32_t BuildProgress(napi_env env, napi_value &obj, const UpdateResult &result);
     static int32_t BuildUpgradePolicy(napi_env env, napi_value &obj, const UpdateResult &result);
     static int32_t BuildCurrentVersionInfo(napi_env env, napi_value &obj, const UpdateResult &result);
+    static int32_t BuildCurrentVersionDescriptionInfo(napi_env env, napi_value &obj, const UpdateResult &result);
     static int32_t BuildTaskInfo(napi_env env, napi_value &obj, const UpdateResult &result);
     static int32_t BuildInt32Status(napi_env env, napi_value &obj, const UpdateResult &result);
     static int32_t BuildUndefinedStatus(napi_env env, napi_value &obj, const UpdateResult &result);

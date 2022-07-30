@@ -52,14 +52,17 @@ static int32_t GetNewVersionDescriptionStub(UpdateServiceStub::UpdateServiceStub
     UpgradeInfo upgradeInfo;
     VersionDigestInfo versionDigestInfo;
     DescriptionOptions descriptionOptions;
+    ComponentDescription newVersionDescriptionInfo[NEW_VERSION_DESCRIPTION_INFO_COUNT];
     BusinessError businessError;
     UpdateHelper::ReadUpgradeInfo(data, upgradeInfo);
     UpdateHelper::ReadVersionDigestInfo(data, versionDigestInfo);
     UpdateHelper::ReadDescriptionOptions(data, descriptionOptions);
 
-    int32_t ret = service->GetNewVersionDescription(upgradeInfo, versionDigestInfo, descriptionOptions, businessError);
+    int32_t ret = service->GetNewVersionDescription(upgradeInfo, versionDigestInfo, descriptionOptions,
+        newVersionDescriptionInfo, businessError);
     ENGINE_CHECK(ret == INT_CALL_SUCCESS, return ret, "Failed to GetNewVersionDescription");
     UpdateHelper::WriteBusinessError(reply, businessError);
+    UpdateHelper::WriteNewVersionDescriptionInfo(reply, newVersionDescriptionInfo);
     return INT_CALL_SUCCESS;
 }
 
@@ -84,13 +87,16 @@ static int32_t GetCurrentVersionDescriptionStub(UpdateServiceStub::UpdateService
     RETURN_FAIL_WHEN_SERVICE_NULL(service);
     UpgradeInfo upgradeInfo;
     DescriptionOptions descriptionOptions;
+    ComponentDescription currentVersionDescriptionInfo[CUR_VERSION_DESCRIPTION_INFO_COUNT];
     BusinessError businessError;
     UpdateHelper::ReadUpgradeInfo(data, upgradeInfo);
     UpdateHelper::ReadDescriptionOptions(data, descriptionOptions);
 
-    int32_t ret = service->GetCurrentVersionDescription(upgradeInfo, descriptionOptions, businessError);
+    int32_t ret = service->GetCurrentVersionDescription(upgradeInfo, descriptionOptions, currentVersionDescriptionInfo,
+        businessError);
     ENGINE_CHECK(ret == INT_CALL_SUCCESS, return ret, "Failed to GetCurrentVersionDescription");
     UpdateHelper::WriteBusinessError(reply, businessError);
+    UpdateHelper::WriteCurrentVersionDescriptionInfo(reply, currentVersionDescriptionInfo);
     return INT_CALL_SUCCESS;
 }
 

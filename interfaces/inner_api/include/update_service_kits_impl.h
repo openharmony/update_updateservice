@@ -57,13 +57,14 @@ public:
         BusinessError &businessError) final;
 
     int32_t GetNewVersionDescription(const UpgradeInfo &info, const VersionDigestInfo &versionDigestInfo,
-        const DescriptionOptions &descriptionOptions, BusinessError &businessError) final;
+        const DescriptionOptions &descriptionOptions, ComponentDescription newVersionDescriptionInfo[],
+        BusinessError &businessError) final;
 
     int32_t GetCurrentVersionInfo(const UpgradeInfo &info, CurrentVersionInfo &currentVersionInfo,
         BusinessError &businessError) final;
 
     int32_t GetCurrentVersionDescription(const UpgradeInfo &info, const DescriptionOptions &descriptionOptions,
-        BusinessError &businessError) final;
+        ComponentDescription currentVersionDescriptionInfo[], BusinessError &businessError) final;
 
     int32_t GetTaskInfo(const UpgradeInfo &info, TaskInfo &taskInfo, BusinessError &businessError) final;
 
