@@ -285,7 +285,7 @@ struct DescriptionInfo {
 };
 
 struct ComponentDescription {
-    uint32_t componentId;
+    uint32_t componentId = 0;
     DescriptionInfo descriptionInfo;
 
     ComponentDescription &operator=(const ComponentDescription &source)
