@@ -632,9 +632,9 @@ public:
     static int32_t WriteUpgradeInfo(MessageParcel &data, const UpgradeInfo &info);
 
     static int32_t ReadVersionDescriptionInfo(MessageParcel &reply,
-        VersionDescriptionInfo newVersionDescriptionInfo);
+        VersionDescriptionInfo &newVersionDescriptionInfo);
     static int32_t WriteVersionDescriptionInfo(MessageParcel &data,
-        const VersionDescriptionInfo newVersionDescriptionInfo);
+        const VersionDescriptionInfo &newVersionDescriptionInfo);
 
     static int32_t ReadBusinessError(MessageParcel &reply, BusinessError &businessError);
     static int32_t WriteBusinessError(MessageParcel &data, const BusinessError &businessError);

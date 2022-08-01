@@ -214,7 +214,7 @@ int32_t UpdateServiceKitsImpl::GetNewVersionInfo(const UpgradeInfo &info, NewVer
 
 int32_t UpdateServiceKitsImpl::GetNewVersionDescription(const UpgradeInfo &info,
     const VersionDigestInfo &versionDigestInfo, const DescriptionOptions &descriptionOptions,
-    VersionDescriptionInfo newVersionDescriptionInfo, BusinessError &businessError)
+    VersionDescriptionInfo &newVersionDescriptionInfo, BusinessError &businessError)
 {
     ENGINE_LOGI("UpdateServiceKitsImpl::GetNewVersionDescription");
     auto updateService = GetService();
@@ -233,7 +233,7 @@ int32_t UpdateServiceKitsImpl::GetCurrentVersionInfo(const UpgradeInfo &info, Cu
 }
 
 int32_t UpdateServiceKitsImpl::GetCurrentVersionDescription(const UpgradeInfo &info,
-    const DescriptionOptions &descriptionOptions, VersionDescriptionInfo currentVersionDescriptionInfo,
+    const DescriptionOptions &descriptionOptions, VersionDescriptionInfo &currentVersionDescriptionInfo,
     BusinessError &businessError)
 {
     ENGINE_LOGI("UpdateServiceKitsImpl::GetCurrentVersionDescription");

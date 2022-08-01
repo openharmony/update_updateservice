@@ -90,7 +90,7 @@ int32_t UpdateHelper::WriteUpgradeInfo(MessageParcel &data, const UpgradeInfo &i
 }
 
 int32_t UpdateHelper::ReadVersionDescriptionInfo(MessageParcel &reply,
-    VersionDescriptionInfo versionDescriptionInfo)
+    VersionDescriptionInfo &versionDescriptionInfo)
 {
     for (size_t i = 0; i < VERSION_DESCRIPTION_INFO_COUNT_MAX; i++) {
         versionDescriptionInfo.componentDescriptions[i].componentId = reply.ReadUint32();
@@ -102,7 +102,7 @@ int32_t UpdateHelper::ReadVersionDescriptionInfo(MessageParcel &reply,
 }
 
 int32_t UpdateHelper::WriteVersionDescriptionInfo(MessageParcel &data,
-    const VersionDescriptionInfo versionDescriptionInfo)
+    const VersionDescriptionInfo &versionDescriptionInfo)
 {
     for (size_t i = 0; i < VERSION_DESCRIPTION_INFO_COUNT_MAX; i++) {
         data.WriteUint32(versionDescriptionInfo.componentDescriptions[i].componentId);

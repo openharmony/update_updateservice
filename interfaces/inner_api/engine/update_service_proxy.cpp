@@ -245,7 +245,7 @@ int32_t UpdateServiceProxy::GetNewVersion(const UpgradeInfo &info, NewVersionInf
 
 int32_t UpdateServiceProxy::GetNewVersionDescription(const UpgradeInfo &info,
     const VersionDigestInfo &versionDigestInfo, const DescriptionOptions &descriptionOptions,
-    VersionDescriptionInfo newVersionDescriptionInfo, BusinessError &businessError)
+    VersionDescriptionInfo &newVersionDescriptionInfo, BusinessError &businessError)
 {
     ENGINE_LOGI("UpdateServiceProxy::GetNewVersionDescription");
     auto remote = Remote();
@@ -288,7 +288,7 @@ int32_t UpdateServiceProxy::GetCurrentVersionInfo(const UpgradeInfo &info, Curre
 }
 
 int32_t UpdateServiceProxy::GetCurrentVersionDescription(const UpgradeInfo &info,
-    const DescriptionOptions &descriptionOptions, VersionDescriptionInfo currentVersionDescriptionInfo,
+    const DescriptionOptions &descriptionOptions, VersionDescriptionInfo &currentVersionDescriptionInfo,
     BusinessError &businessError)
 {
     ENGINE_LOGI("UpdateServiceProxy::GetCurrentVersionDescription");
