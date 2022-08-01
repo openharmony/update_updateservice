@@ -321,7 +321,7 @@ int32_t ClientHelper::BuildUpgradePolicy(napi_env env, napi_value &obj, const Up
 {
     PARAM_CHECK(result.result.upgradePolicy != nullptr, return CAST_INT(ClientStatus::CLIENT_SUCCESS),
         "ClientHelper::BuildUpgradePolicy null");
-    PARAM_CHECK(result.type == SessionType::SESSION_GET_POLICY || result.type == SessionType::SESSION_SET_POLICY,
+    PARAM_CHECK(result.type == SessionType::SESSION_GET_POLICY,
         return CAST_INT(ClientStatus::CLIENT_INVALID_TYPE), "invalid type %d", result.type);
     napi_status status = napi_create_object(env, &obj);
     PARAM_CHECK(status == napi_ok, return status, "Failed to create napi_create_object %d", status);
@@ -549,8 +549,7 @@ ClientStatus ParseUpgradeFile(napi_env env, const napi_value arg, UpgradeFile &u
 
     int32_t fileType = 0;
     NapiUtil::GetInt32(env, arg, "fileType", fileType);
-    static const std::list enumList = { ComponentType::OTA, ComponentType::PATCH, ComponentType::COTA,
-        ComponentType::PARAM };
+    static const std::list enumList = { ComponentType::OTA };
     PARAM_CHECK(IsValidEnum(enumList, fileType), return ClientStatus::CLIENT_INVALID_PARAM,
         "ParseUpgradeFile error, invalid fileType:%{public}d", fileType);
     upgradeFile.fileType = static_cast<ComponentType>(fileType);

@@ -126,7 +126,7 @@ T* CreateJsObject(napi_env env, napi_callback_info info, napi_ref constructorRef
 napi_value GetOnlineUpdater(napi_env env, napi_callback_info info)
 {
     napi_value jsObject = nullptr;
-    UpdateClient* client = CreateJsObject<UpdateClient>(env, info, g_updateClientConstructorRef, jsObject);
+    UpdateClient *client = CreateJsObject<UpdateClient>(env, info, g_updateClientConstructorRef, jsObject);
     if (client != nullptr) {
         napi_value result = client->GetOnlineUpdater(env, info);
         if (result != nullptr) {
@@ -159,28 +159,28 @@ napi_value GetLocalUpdater(napi_env env, napi_callback_info info)
 
 napi_value CheckNewVersion(napi_env env, napi_callback_info info)
 {
-    UpdateClient* client = UnwrapJsObject<UpdateClient>(env, info);
+    UpdateClient *client = UnwrapJsObject<UpdateClient>(env, info);
     PARAM_CHECK_NAPI_CALL(env, client != nullptr, return nullptr, "Error get client");
     return client->CheckNewVersion(env, info);
 }
 
 napi_value SetUpgradePolicy(napi_env env, napi_callback_info info)
 {
-    UpdateClient* client = UnwrapJsObject<UpdateClient>(env, info);
+    UpdateClient *client = UnwrapJsObject<UpdateClient>(env, info);
     PARAM_CHECK_NAPI_CALL(env, client != nullptr, return nullptr, "Error get client");
     return client->SetUpgradePolicy(env, info);
 }
 
 napi_value GetUpgradePolicy(napi_env env, napi_callback_info info)
 {
-    UpdateClient* client = UnwrapJsObject<UpdateClient>(env, info);
+    UpdateClient *client = UnwrapJsObject<UpdateClient>(env, info);
     PARAM_CHECK_NAPI_CALL(env, client != nullptr, return nullptr, "Error get client");
     return client->GetUpgradePolicy(env, info);
 }
 
 napi_value Download(napi_env env, napi_callback_info info)
 {
-    UpdateClient* client = UnwrapJsObject<UpdateClient>(env, info);
+    UpdateClient *client = UnwrapJsObject<UpdateClient>(env, info);
     PARAM_CHECK_NAPI_CALL(env, client != nullptr, return nullptr, "Error get client");
     return client->Download(env, info);
 }
@@ -188,7 +188,7 @@ napi_value Download(napi_env env, napi_callback_info info)
 napi_value PauseDownload(napi_env env, napi_callback_info info)
 {
     CLIENT_LOGI("PauseDownload");
-    UpdateClient* client = UnwrapJsObject<UpdateClient>(env, info);
+    UpdateClient *client = UnwrapJsObject<UpdateClient>(env, info);
     PARAM_CHECK_NAPI_CALL(env, client != nullptr, return nullptr, "Error get client");
     return client->PauseDownload(env, info);
 }
@@ -196,14 +196,14 @@ napi_value PauseDownload(napi_env env, napi_callback_info info)
 napi_value ResumeDownload(napi_env env, napi_callback_info info)
 {
     CLIENT_LOGI("ResumeDownload");
-    UpdateClient* client = UnwrapJsObject<UpdateClient>(env, info);
+    UpdateClient *client = UnwrapJsObject<UpdateClient>(env, info);
     PARAM_CHECK_NAPI_CALL(env, client != nullptr, return nullptr, "Error get client");
     return client->ResumeDownload(env, info);
 }
 
 napi_value CancelUpgrade(napi_env env, napi_callback_info info)
 {
-    UpdateClient* client = UnwrapJsObject<UpdateClient>(env, info);
+    UpdateClient *client = UnwrapJsObject<UpdateClient>(env, info);
     PARAM_CHECK_NAPI_CALL(env, client != nullptr, return nullptr, "Error get client");
     return client->CancelUpgrade(env, info);
 }
@@ -211,7 +211,7 @@ napi_value CancelUpgrade(napi_env env, napi_callback_info info)
 napi_value Upgrade(napi_env env, napi_callback_info info)
 {
     CLIENT_LOGI("Upgrade");
-    UpdateClient* client = UnwrapJsObject<UpdateClient>(env, info);
+    UpdateClient *client = UnwrapJsObject<UpdateClient>(env, info);
     PARAM_CHECK_NAPI_CALL(env, client != nullptr, return nullptr, "Error get client");
     return client->Upgrade(env, info);
 }
@@ -219,7 +219,7 @@ napi_value Upgrade(napi_env env, napi_callback_info info)
 napi_value ClearError(napi_env env, napi_callback_info info)
 {
     CLIENT_LOGI("ClearError");
-    UpdateClient* client = UnwrapJsObject<UpdateClient>(env, info);
+    UpdateClient *client = UnwrapJsObject<UpdateClient>(env, info);
     PARAM_CHECK_NAPI_CALL(env, client != nullptr, return nullptr, "Error get client");
     return client->ClearError(env, info);
 }
@@ -227,21 +227,21 @@ napi_value ClearError(napi_env env, napi_callback_info info)
 napi_value TerminateUpgrade(napi_env env, napi_callback_info info)
 {
     CLIENT_LOGI("TerminateUpgrade");
-    UpdateClient* client = UnwrapJsObject<UpdateClient>(env, info);
+    UpdateClient *client = UnwrapJsObject<UpdateClient>(env, info);
     PARAM_CHECK_NAPI_CALL(env, client != nullptr, return nullptr, "Error get client");
     return client->TerminateUpgrade(env, info);
 }
 
 napi_value GetNewVersionInfo(napi_env env, napi_callback_info info)
 {
-    UpdateClient* client = UnwrapJsObject<UpdateClient>(env, info);
+    UpdateClient *client = UnwrapJsObject<UpdateClient>(env, info);
     PARAM_CHECK_NAPI_CALL(env, client != nullptr, return nullptr, "Error get client");
     return client->GetNewVersionInfo(env, info);
 }
 
 napi_value GetNewVersionDescription(napi_env env, napi_callback_info info)
 {
-    UpdateClient* client = UnwrapJsObject<UpdateClient>(env, info);
+    UpdateClient *client = UnwrapJsObject<UpdateClient>(env, info);
     PARAM_CHECK_NAPI_CALL(env, client != nullptr, return nullptr, "Error get client");
     return client->GetNewVersionDescription(env, info);
 }
@@ -249,14 +249,14 @@ napi_value GetNewVersionDescription(napi_env env, napi_callback_info info)
 napi_value GetCurrentVersionInfo(napi_env env, napi_callback_info info)
 {
     CLIENT_LOGI("GetCurrentVersionInfo");
-    UpdateClient* client = UnwrapJsObject<UpdateClient>(env, info);
+    UpdateClient *client = UnwrapJsObject<UpdateClient>(env, info);
     PARAM_CHECK_NAPI_CALL(env, client != nullptr, return nullptr, "Error get client");
     return client->GetCurrentVersionInfo(env, info);
 }
 
 napi_value GetCurrentVersionDescription(napi_env env, napi_callback_info info)
 {
-    UpdateClient* client = UnwrapJsObject<UpdateClient>(env, info);
+    UpdateClient *client = UnwrapJsObject<UpdateClient>(env, info);
     PARAM_CHECK_NAPI_CALL(env, client != nullptr, return nullptr, "Error get client");
     return client->GetCurrentVersionDescription(env, info);
 }
@@ -264,7 +264,7 @@ napi_value GetCurrentVersionDescription(napi_env env, napi_callback_info info)
 napi_value GetTaskInfo(napi_env env, napi_callback_info info)
 {
     CLIENT_LOGI("GetTaskInfo");
-    UpdateClient* client = UnwrapJsObject<UpdateClient>(env, info);
+    UpdateClient *client = UnwrapJsObject<UpdateClient>(env, info);
     PARAM_CHECK_NAPI_CALL(env, client != nullptr, return nullptr, "Error get client");
     return client->GetTaskInfo(env, info);
 }

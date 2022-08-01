@@ -28,7 +28,7 @@ namespace UpdateEngine {
 napi_value UpdateClient::Napi::NapiOn(napi_env env, napi_callback_info info)
 {
     CLIENT_LOGI("UpdateClient::Napi::NapiOn");
-    UpdateClient* updater = UnwrapJsObject<UpdateClient>(env, info);
+    UpdateClient *updater = UnwrapJsObject<UpdateClient>(env, info);
     PARAM_CHECK_NAPI_CALL(env, updater != nullptr, return nullptr, "Error get UpdateClient");
     return updater->On(env, info);
 }
@@ -36,7 +36,7 @@ napi_value UpdateClient::Napi::NapiOn(napi_env env, napi_callback_info info)
 napi_value UpdateClient::Napi::NapiOff(napi_env env, napi_callback_info info)
 {
     CLIENT_LOGI("UpdateClient::Napi::NapiOff");
-    UpdateClient* updater = UnwrapJsObject<UpdateClient>(env, info);
+    UpdateClient *updater = UnwrapJsObject<UpdateClient>(env, info);
     PARAM_CHECK_NAPI_CALL(env, updater != nullptr, return nullptr, "Error get UpdateClient");
     return updater->Off(env, info);
 }

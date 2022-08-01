@@ -83,7 +83,6 @@ struct UpdateResult {
         CheckResultEx *checkResultEx;
         CurrentVersionInfo *currentVersionInfo;
         TaskInfo *taskInfo;
-        int32_t status;
     } result;
 
     BuildJSObject buildJSObject;
@@ -171,8 +170,6 @@ struct UpdateResult {
             if ((result.upgradePolicy != nullptr) && (updateResult.result.upgradePolicy != nullptr)) {
                 *(result.upgradePolicy) = *(updateResult.result.upgradePolicy);
             }
-        } else if (type == SessionType::SESSION_VERIFY_PACKAGE) {
-            result.status = updateResult.result.status;
         } else {
             CLIENT_LOGI("UpdateResult unknow type");
         }
