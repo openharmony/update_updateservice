@@ -346,11 +346,6 @@ int32_t ClientHelper::BuildUpgradePolicy(napi_env env, napi_value &obj, const Up
     return napi_ok;
 }
 
-int32_t ClientHelper::BuildInt32Status(napi_env env, napi_value &obj, const UpdateResult &result)
-{
-    return napi_create_int32(env, result.result.status, &obj);
-}
-
 int32_t ClientHelper::BuildUndefinedStatus(napi_env env, napi_value &obj, const UpdateResult &result)
 {
     return napi_get_undefined(env, &obj);
