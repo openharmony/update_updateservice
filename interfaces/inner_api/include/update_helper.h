@@ -130,8 +130,8 @@ enum class NetType {
 enum class Order {
     DOWNLOAD = 1,
     INSTALL = 2,
-    APPLY = 4,
     DOWNLOAD_AND_INSTALL = DOWNLOAD | INSTALL,
+    APPLY = 4,
     INSTALL_AND_APPLY = INSTALL | APPLY
 };
 
