@@ -130,7 +130,7 @@ void BuildComponentDescriptions(napi_env env, napi_value &obj, const ComponentDe
 {
     size_t validComponentCount = GetValidDataCount(componentDescriptions, arraySize);
     if (validComponentCount == 0) {
-        return nullptr;
+        return;
     }
     napi_create_array_with_length(env, validComponentCount, &obj);
     napi_status status;
