@@ -202,13 +202,13 @@ int32_t ClientHelper::BuildCurrentVersionInfo(napi_env env, napi_value &obj, con
 
 int32_t ClientHelper::BuildCurrentVersionDescriptionInfo(napi_env env, napi_value &obj, const UpdateResult &result)
 {
-    PARAM_CHECK(result.result.currentVersionDescriptionInfo != nullptr, return CAST_INT(ClientStatus::CLIENT_SUCCESS),
+    PARAM_CHECK(result.result.versionDescriptionInfo != nullptr, return CAST_INT(ClientStatus::CLIENT_SUCCESS),
         "ClientHelper::BuildCurrentVersionDescriptionInfo null");
     CLIENT_LOGI("BuildCurrentVersionDescriptionInfo");
     PARAM_CHECK(result.type == SessionType::SESSION_GET_CUR_VERSION_DESCRIPTION,
         return CAST_INT(ClientStatus::CLIENT_INVALID_TYPE), "invalid type %{public}d", result.type);
 
-    VersionDescriptionInfo *info = result.result.currentVersionDescriptionInfo;
+    VersionDescriptionInfo *info = result.result.versionDescriptionInfo;
     PARAM_CHECK(info != nullptr, return CAST_INT(ClientStatus::CLIENT_FAIL), "info is null");
 
     obj = BuildComponentDescriptions(env, info->componentDescriptions, COUNT_OF(info->componentDescriptions));
@@ -297,13 +297,13 @@ int32_t ClientHelper::BuildNewVersionInfo(napi_env env, napi_value &obj, const U
 
 int32_t ClientHelper::BuildNewVersionDescriptionInfo(napi_env env, napi_value &obj, const UpdateResult &result)
 {
-    PARAM_CHECK(result.result.newVersionDescriptionInfo != nullptr, return CAST_INT(ClientStatus::CLIENT_SUCCESS),
+    PARAM_CHECK(result.result.versionDescriptionInfo != nullptr, return CAST_INT(ClientStatus::CLIENT_SUCCESS),
         "ClientHelper::BuildNewVersionDescriptionInfo null");
     CLIENT_LOGI("BuildNewVersionDescriptionInfo");
     PARAM_CHECK(result.type == SessionType::SESSION_GET_NEW_VERSION_DESCRIPTION,
         return CAST_INT(ClientStatus::CLIENT_INVALID_TYPE), "invalid type %{public}d", result.type);
 
-    VersionDescriptionInfo *info = result.result.newVersionDescriptionInfo;
+    VersionDescriptionInfo *info = result.result.versionDescriptionInfo;
     PARAM_CHECK(info != nullptr, return CAST_INT(ClientStatus::CLIENT_FAIL), "info is null");
 
     obj = BuildComponentDescriptions(env, info->componentDescriptions, COUNT_OF(info->componentDescriptions));

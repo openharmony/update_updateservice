@@ -79,10 +79,9 @@ struct UpdateResult {
         UpgradePolicy *upgradePolicy;
         Progress *progress;
         NewVersionInfo *newVersionInfo;
-        VersionDescriptionInfo *newVersionDescriptionInfo;
+        VersionDescriptionInfo *versionDescriptionInfo;
         CheckResultEx *checkResultEx;
         CurrentVersionInfo *currentVersionInfo;
-        VersionDescriptionInfo *currentVersionDescriptionInfo;
         TaskInfo *taskInfo;
         int32_t status;
     } result;
@@ -101,15 +100,13 @@ struct UpdateResult {
         } else if (type == SessionType::SESSION_GET_NEW_VERSION) {
             delete result.newVersionInfo;
             result.newVersionInfo = nullptr;
-        } else if (type == SessionType::SESSION_GET_NEW_VERSION_DESCRIPTION) {
-            delete result.newVersionDescriptionInfo;
-            result.newVersionDescriptionInfo = nullptr;
+        } else if (type == SessionType::SESSION_GET_NEW_VERSION_DESCRIPTION
+            || type == SessionType::SESSION_GET_CUR_VERSION_DESCRIPTION) {
+            delete result.versionDescriptionInfo;
+            result.versionDescriptionInfo = nullptr;
         } else if (type == SessionType::SESSION_GET_CUR_VERSION) {
             delete result.currentVersionInfo;
             result.currentVersionInfo = nullptr;
-        } else if (type == SessionType::SESSION_GET_CUR_VERSION_DESCRIPTION) {
-            delete result.currentVersionDescriptionInfo;
-            result.currentVersionDescriptionInfo = nullptr;
         } else if (type == SessionType::SESSION_GET_POLICY) {
             delete result.upgradePolicy;
             result.upgradePolicy = nullptr;
@@ -151,13 +148,14 @@ struct UpdateResult {
             if ((result.newVersionInfo != nullptr) && (updateResult.result.newVersionInfo != nullptr)) {
                 *(result.newVersionInfo) = *(updateResult.result.newVersionInfo);
             }
-        } else if (type == SessionType::SESSION_GET_NEW_VERSION_DESCRIPTION) {
-            if (result.newVersionDescriptionInfo == nullptr) {
-                result.newVersionDescriptionInfo = new (std::nothrow) VersionDescriptionInfo();
+        } else if (type == SessionType::SESSION_GET_NEW_VERSION_DESCRIPTION
+            || type == SessionType::SESSION_GET_CUR_VERSION_DESCRIPTION) {
+            if (result.versionDescriptionInfo == nullptr) {
+                result.versionDescriptionInfo = new (std::nothrow) VersionDescriptionInfo();
             }
-            if ((result.newVersionDescriptionInfo != nullptr)
-                && (updateResult.result.newVersionDescriptionInfo != nullptr)) {
-                *(result.newVersionDescriptionInfo) = *(updateResult.result.newVersionDescriptionInfo);
+            if ((result.versionDescriptionInfo != nullptr)
+                && (updateResult.result.versionDescriptionInfo != nullptr)) {
+                *(result.versionDescriptionInfo) = *(updateResult.result.versionDescriptionInfo);
             }
         } else if (type == SessionType::SESSION_GET_CUR_VERSION) {
             if (result.currentVersionInfo == nullptr) {
@@ -165,14 +163,6 @@ struct UpdateResult {
             }
             if ((result.currentVersionInfo != nullptr) && (updateResult.result.currentVersionInfo != nullptr)) {
                 *(result.currentVersionInfo) = *(updateResult.result.currentVersionInfo);
-            }
-        } else if (type == SessionType::SESSION_GET_CUR_VERSION_DESCRIPTION) {
-            if (result.currentVersionDescriptionInfo == nullptr) {
-                result.currentVersionDescriptionInfo = new (std::nothrow) VersionDescriptionInfo();
-            }
-            if ((result.currentVersionDescriptionInfo != nullptr)
-                && (updateResult.result.currentVersionDescriptionInfo != nullptr)) {
-                *(result.currentVersionDescriptionInfo) = *(updateResult.result.currentVersionDescriptionInfo);
             }
         } else if (type == SessionType::SESSION_GET_POLICY) {
             if (result.upgradePolicy == nullptr) {
