@@ -187,10 +187,9 @@ public:
 
     static int32_t BuildCheckResultEx(napi_env env, napi_value &obj, const UpdateResult &result);
     static int32_t BuildNewVersionInfo(napi_env env, napi_value &obj, const UpdateResult &result);
-    static int32_t BuildNewVersionDescriptionInfo(napi_env env, napi_value &obj, const UpdateResult &result);
+    static int32_t BuildVersionDescriptionInfo(napi_env env, napi_value &obj, const UpdateResult &result);
     static int32_t BuildUpgradePolicy(napi_env env, napi_value &obj, const UpdateResult &result);
     static int32_t BuildCurrentVersionInfo(napi_env env, napi_value &obj, const UpdateResult &result);
-    static int32_t BuildCurrentVersionDescriptionInfo(napi_env env, napi_value &obj, const UpdateResult &result);
     static int32_t BuildTaskInfo(napi_env env, napi_value &obj, const UpdateResult &result);
     static int32_t BuildInt32Status(napi_env env, napi_value &obj, const UpdateResult &result);
     static int32_t BuildUndefinedStatus(napi_env env, napi_value &obj, const UpdateResult &result);

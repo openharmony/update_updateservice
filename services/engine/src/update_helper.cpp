@@ -69,6 +69,27 @@ void WriteErrorMessages(MessageParcel &data, const ErrorMessage errorMessages[],
     }
 }
 
+void ReadComponentDescriptions(MessageParcel &reply, ComponentDescription componentDescriptions[], size_t arraySize)
+{
+    int32_t size = reply.ReadInt32();
+    for (size_t i = 0; (i < static_cast<size_t>(size)) && (i < arraySize); i++) {
+        componentDescriptions[i].componentId = reply.ReadUint32();
+        componentDescriptions[i].descriptionInfo.descriptionType = static_cast<DescriptionType>(reply.ReadUint32());
+        componentDescriptions[i].descriptionInfo.content = Str16ToStr8(reply.ReadString16());
+    }
+}
+
+void WriteComponentDescriptions(MessageParcel &data, const ComponentDescription componentDescriptions[],
+    size_t arraySize)
+{
+    data.WriteInt32(static_cast<int32_t>(arraySize));
+    for (size_t i = 0; i < arraySize; i++) {
+        data.WriteUint32(componentDescriptions[i].componentId);
+        data.WriteUint32(static_cast<uint32_t>(componentDescriptions[i].descriptionInfo.descriptionType));
+        data.WriteString16(Str8ToStr16(componentDescriptions[i].descriptionInfo.content));
+    }
+}
+
 int32_t UpdateHelper::ReadUpgradeInfo(MessageParcel &reply, UpgradeInfo &info)
 {
     info.upgradeApp = Str16ToStr8(reply.ReadString16());
@@ -92,24 +113,16 @@ int32_t UpdateHelper::WriteUpgradeInfo(MessageParcel &data, const UpgradeInfo &i
 int32_t UpdateHelper::ReadVersionDescriptionInfo(MessageParcel &reply,
     VersionDescriptionInfo &versionDescriptionInfo)
 {
-    for (size_t i = 0; i < VERSION_DESCRIPTION_INFO_COUNT_MAX; i++) {
-        versionDescriptionInfo.componentDescriptions[i].componentId = reply.ReadUint32();
-        versionDescriptionInfo.componentDescriptions[i].descriptionInfo.descriptionType =
-            static_cast<DescriptionType>(reply.ReadUint32());
-        versionDescriptionInfo.componentDescriptions[i].descriptionInfo.content = Str16ToStr8(reply.ReadString16());
-    }
+    ReadComponentDescriptions(reply, versionDescriptionInfo.componentDescriptions,
+        COUNT_OF(versionDescriptionInfo.componentDescriptions));
     return 0;
 }
 
 int32_t UpdateHelper::WriteVersionDescriptionInfo(MessageParcel &data,
     const VersionDescriptionInfo &versionDescriptionInfo)
 {
-    for (size_t i = 0; i < VERSION_DESCRIPTION_INFO_COUNT_MAX; i++) {
-        data.WriteUint32(versionDescriptionInfo.componentDescriptions[i].componentId);
-        data.WriteUint32(static_cast<uint32_t>(
-            versionDescriptionInfo.componentDescriptions[i].descriptionInfo.descriptionType));
-        data.WriteString16(Str8ToStr16(versionDescriptionInfo.componentDescriptions[i].descriptionInfo.content));
-    }
+    WriteComponentDescriptions(data, versionDescriptionInfo.componentDescriptions,
+        COUNT_OF(versionDescriptionInfo.componentDescriptions));
     return 0;
 }
 

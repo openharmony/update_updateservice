@@ -32,7 +32,6 @@
 namespace OHOS {
 namespace UpdateEngine {
 const int CALL_RESULT_OFFSET = 2000;
-constexpr size_t VERSION_DESCRIPTION_INFO_COUNT_MAX = 8;
 
 #define COUNT_OF(array) (sizeof(array) / sizeof((array)[0]))
 
@@ -386,14 +385,13 @@ struct NewVersionInfo {
 };
 
 struct VersionDescriptionInfo {
-    ComponentDescription componentDescriptions[VERSION_DESCRIPTION_INFO_COUNT_MAX];
+    ComponentDescription componentDescriptions[2];
 
     VersionDescriptionInfo &operator=(const VersionDescriptionInfo &source)
     {
         if (&source != this) {
-            for (size_t i = 0; i < VERSION_DESCRIPTION_INFO_COUNT_MAX; i++) {
-                componentDescriptions[i] = source.componentDescriptions[i];
-            }
+            componentDescriptions[0] = source.componentDescriptions[0];
+            componentDescriptions[1] = source.componentDescriptions[1];
         }
         return *this;
     }

@@ -198,22 +198,6 @@ int32_t ClientHelper::BuildCurrentVersionInfo(napi_env env, napi_value &obj, con
     return CAST_INT(ClientStatus::CLIENT_SUCCESS);
 }
 
-int32_t ClientHelper::BuildCurrentVersionDescriptionInfo(napi_env env, napi_value &obj, const UpdateResult &result)
-{
-    PARAM_CHECK(result.result.versionDescriptionInfo != nullptr, return CAST_INT(ClientStatus::CLIENT_SUCCESS),
-        "ClientHelper::BuildCurrentVersionDescriptionInfo null");
-    CLIENT_LOGI("BuildCurrentVersionDescriptionInfo");
-    PARAM_CHECK(result.type == SessionType::SESSION_GET_CUR_VERSION_DESCRIPTION,
-        return CAST_INT(ClientStatus::CLIENT_INVALID_TYPE), "invalid type %{public}d", result.type);
-
-    VersionDescriptionInfo *info = result.result.versionDescriptionInfo;
-    PARAM_CHECK(info != nullptr, return CAST_INT(ClientStatus::CLIENT_FAIL), "info is null");
-
-    BuildComponentDescriptions(env, obj, info->componentDescriptions, COUNT_OF(info->componentDescriptions));
-    PARAM_CHECK(obj != nullptr, return CAST_INT(ClientStatus::CLIENT_SUCCESS), "BuildComponentDescriptions null");
-    return CAST_INT(ClientStatus::CLIENT_SUCCESS);
-}
-
 void BuildVersionDigestInfo(napi_env env, napi_value &obj, const VersionDigestInfo &versionDigestInfo)
 {
     napi_value napiVersionDigestInfo;
@@ -293,12 +277,13 @@ int32_t ClientHelper::BuildNewVersionInfo(napi_env env, napi_value &obj, const U
     return CAST_INT(ClientStatus::CLIENT_SUCCESS);
 }
 
-int32_t ClientHelper::BuildNewVersionDescriptionInfo(napi_env env, napi_value &obj, const UpdateResult &result)
+int32_t ClientHelper::BuildVersionDescriptionInfo(napi_env env, napi_value &obj, const UpdateResult &result)
 {
     PARAM_CHECK(result.result.versionDescriptionInfo != nullptr, return CAST_INT(ClientStatus::CLIENT_SUCCESS),
-        "ClientHelper::BuildNewVersionDescriptionInfo null");
-    CLIENT_LOGI("BuildNewVersionDescriptionInfo");
-    PARAM_CHECK(result.type == SessionType::SESSION_GET_NEW_VERSION_DESCRIPTION,
+        "ClientHelper::BuildVersionDescriptionInfo null");
+    CLIENT_LOGI("BuildVersionDescriptionInfo");
+    PARAM_CHECK(result.type == SessionType::SESSION_GET_NEW_VERSION_DESCRIPTION
+        || result.type == SessionType::SESSION_GET_CUR_VERSION_DESCRIPTION,
         return CAST_INT(ClientStatus::CLIENT_INVALID_TYPE), "invalid type %{public}d", result.type);
 
     VersionDescriptionInfo *info = result.result.versionDescriptionInfo;
