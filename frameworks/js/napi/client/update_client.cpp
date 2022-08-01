@@ -393,7 +393,7 @@ void UpdateClient::GetUpdateResult(SessionType type, UpdateResult &result)
             break;
         case SessionType::SESSION_GET_NEW_VERSION_DESCRIPTION:
             result.result.versionDescriptionInfo = &newVersionDescriptionInfo_;
-            result.buildJSObject = ClientHelper::BuildNewVersionDescriptionInfo;
+            result.buildJSObject = ClientHelper::BuildVersionDescriptionInfo;
             break;
         case SessionType::SESSION_GET_TASK_INFO:
             result.result.taskInfo = &taskInfo_;
@@ -405,7 +405,7 @@ void UpdateClient::GetUpdateResult(SessionType type, UpdateResult &result)
             break;
         case SessionType::SESSION_GET_CUR_VERSION_DESCRIPTION:
             result.result.versionDescriptionInfo = &currentVersionDescriptionInfo_;
-            result.buildJSObject = ClientHelper::BuildCurrentVersionDescriptionInfo;
+            result.buildJSObject = ClientHelper::BuildVersionDescriptionInfo;
             break;
         case SessionType::SESSION_GET_POLICY:
             result.result.upgradePolicy = &upgradePolicy_;
