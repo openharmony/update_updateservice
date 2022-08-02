@@ -61,6 +61,27 @@ void WriteErrorMessages(MessageParcel &data, const ErrorMessage errorMessages[],
     }
 }
 
+void ReadComponentDescriptions(MessageParcel &reply, ComponentDescription componentDescriptions[], size_t arraySize)
+{
+    int32_t size = reply.ReadInt32();
+    for (size_t i = 0; (i < static_cast<size_t>(size)) && (i < arraySize); i++) {
+        componentDescriptions[i].componentId = reply.ReadUint32();
+        componentDescriptions[i].descriptionInfo.descriptionType = static_cast<DescriptionType>(reply.ReadUint32());
+        componentDescriptions[i].descriptionInfo.content = Str16ToStr8(reply.ReadString16());
+    }
+}
+
+void WriteComponentDescriptions(MessageParcel &data, const ComponentDescription componentDescriptions[],
+    size_t arraySize)
+{
+    data.WriteInt32(static_cast<int32_t>(arraySize));
+    for (size_t i = 0; i < arraySize; i++) {
+        data.WriteUint32(componentDescriptions[i].componentId);
+        data.WriteUint32(static_cast<uint32_t>(componentDescriptions[i].descriptionInfo.descriptionType));
+        data.WriteString16(Str8ToStr16(componentDescriptions[i].descriptionInfo.content));
+    }
+}
+
 int32_t UpdateHelper::ReadUpgradeInfo(MessageParcel &reply, UpgradeInfo &info)
 {
     info.upgradeApp = Str16ToStr8(reply.ReadString16());
@@ -78,6 +99,22 @@ int32_t UpdateHelper::WriteUpgradeInfo(MessageParcel &data, const UpgradeInfo &i
     data.WriteInt32(static_cast<int32_t>(info.businessType.subType));
     data.WriteString16(Str8ToStr16(info.upgradeDevId));
     data.WriteString16(Str8ToStr16(info.controlDevId));
+    return 0;
+}
+
+int32_t UpdateHelper::ReadVersionDescriptionInfo(MessageParcel &reply,
+    VersionDescriptionInfo &versionDescriptionInfo)
+{
+    ReadComponentDescriptions(reply, versionDescriptionInfo.componentDescriptions,
+        COUNT_OF(versionDescriptionInfo.componentDescriptions));
+    return 0;
+}
+
+int32_t UpdateHelper::WriteVersionDescriptionInfo(MessageParcel &data,
+    const VersionDescriptionInfo &versionDescriptionInfo)
+{
+    WriteComponentDescriptions(data, versionDescriptionInfo.componentDescriptions,
+        COUNT_OF(versionDescriptionInfo.componentDescriptions));
     return 0;
 }
 
@@ -102,6 +139,7 @@ void ReadVersionComponents(MessageParcel &reply, VersionComponent versionCompone
     int32_t size = reply.ReadInt32();
     for (size_t i = 0; (i < static_cast<size_t>(size)) && (i < arraySize); i++) {
         VersionComponent *versionComponent = &versionComponents[i];
+        versionComponent->componentId = reply.ReadUint32();
         versionComponent->componentType = reply.ReadUint32();
         versionComponent->upgradeAction = Str16ToStr8(reply.ReadString16());
         versionComponent->displayVersion = Str16ToStr8(reply.ReadString16());
@@ -119,6 +157,7 @@ void WriteVersionComponents(MessageParcel &data, const VersionComponent versionC
     data.WriteInt32(static_cast<int32_t>(arraySize));
     for (size_t i = 0; i < arraySize; i++) {
         const VersionComponent *versionComponent = &versionComponents[i];
+        data.WriteUint32(versionComponent->componentId);
         data.WriteUint32(versionComponent->componentType);
         data.WriteString16(Str8ToStr16(versionComponent->upgradeAction));
         data.WriteString16(Str8ToStr16(versionComponent->displayVersion));
@@ -274,6 +313,20 @@ int32_t UpdateHelper::ReadVersionDigestInfo(MessageParcel &reply, VersionDigestI
 int32_t UpdateHelper::WriteVersionDigestInfo(MessageParcel &data, const VersionDigestInfo &versionDigestInfo)
 {
     data.WriteString16(Str8ToStr16(versionDigestInfo.versionDigest));
+    return 0;
+}
+
+int32_t UpdateHelper::ReadDescriptionOptions(MessageParcel &reply, DescriptionOptions &descriptionOptions)
+{
+    descriptionOptions.format = static_cast<DescriptionFormat>(reply.ReadUint32());
+    descriptionOptions.language = Str16ToStr8(reply.ReadString16());
+    return 0;
+}
+
+int32_t UpdateHelper::WriteDescriptionOptions(MessageParcel &data, const DescriptionOptions &descriptionOptions)
+{
+    data.WriteUint32(static_cast<uint32_t>(descriptionOptions.format));
+    data.WriteString16(Str8ToStr16(descriptionOptions.language));
     return 0;
 }
 

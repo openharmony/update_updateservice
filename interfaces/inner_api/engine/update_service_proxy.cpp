@@ -243,6 +243,29 @@ int32_t UpdateServiceProxy::GetNewVersion(const UpgradeInfo &info, NewVersionInf
     return INT_CALL_SUCCESS;
 }
 
+int32_t UpdateServiceProxy::GetNewVersionDescription(const UpgradeInfo &info,
+    const VersionDigestInfo &versionDigestInfo, const DescriptionOptions &descriptionOptions,
+    VersionDescriptionInfo &newVersionDescriptionInfo, BusinessError &businessError)
+{
+    ENGINE_LOGI("UpdateServiceProxy::GetNewVersionDescription");
+    auto remote = Remote();
+    RETURN_WHEN_REMOTE_NULL(remote);
+
+    MessageParcel data;
+    RETURN_WHEN_TOKEN_WRITE_FAIL(data);
+    UpdateHelper::WriteUpgradeInfo(data, info);
+    UpdateHelper::WriteVersionDigestInfo(data, versionDigestInfo);
+    UpdateHelper::WriteDescriptionOptions(data, descriptionOptions);
+
+    MessageParcel reply;
+    MessageOption option;
+    int32_t ret = remote->SendRequest(GET_NEW_VERSION_DESCRIPTION, data, reply, option);
+    RETURN_FAIL_WHEN_REMOTE_ERR("UpdateServiceProxy::GetNewVersionDescription", ret);
+    UpdateHelper::ReadBusinessError(reply, businessError);
+    UpdateHelper::ReadVersionDescriptionInfo(reply, newVersionDescriptionInfo);
+    return INT_CALL_SUCCESS;
+}
+
 int32_t UpdateServiceProxy::GetCurrentVersionInfo(const UpgradeInfo &info, CurrentVersionInfo &currentVersionInfo,
     BusinessError &businessError)
 {
@@ -261,6 +284,28 @@ int32_t UpdateServiceProxy::GetCurrentVersionInfo(const UpgradeInfo &info, Curre
 
     UpdateHelper::ReadBusinessError(reply, businessError);
     UpdateHelper::ReadCurrentVersionInfo(reply, currentVersionInfo);
+    return INT_CALL_SUCCESS;
+}
+
+int32_t UpdateServiceProxy::GetCurrentVersionDescription(const UpgradeInfo &info,
+    const DescriptionOptions &descriptionOptions, VersionDescriptionInfo &currentVersionDescriptionInfo,
+    BusinessError &businessError)
+{
+    ENGINE_LOGI("UpdateServiceProxy::GetCurrentVersionDescription");
+    auto remote = Remote();
+    RETURN_WHEN_REMOTE_NULL(remote);
+
+    MessageParcel data;
+    RETURN_WHEN_TOKEN_WRITE_FAIL(data);
+    UpdateHelper::WriteUpgradeInfo(data, info);
+    UpdateHelper::WriteDescriptionOptions(data, descriptionOptions);
+
+    MessageParcel reply;
+    MessageOption option;
+    int32_t ret = remote->SendRequest(GET_CURRENT_VERSION_DESCRIPTION, data, reply, option);
+    RETURN_FAIL_WHEN_REMOTE_ERR("UpdateServiceProxy::GetCurrentVersionDescription", ret);
+    UpdateHelper::ReadBusinessError(reply, businessError);
+    UpdateHelper::ReadVersionDescriptionInfo(reply, currentVersionDescriptionInfo);
     return INT_CALL_SUCCESS;
 }
 

@@ -45,6 +45,27 @@ static int32_t GetNewVersionStub(UpdateServiceStub::UpdateServiceStubPtr service
     return INT_CALL_SUCCESS;
 }
 
+static int32_t GetNewVersionDescriptionStub(UpdateServiceStub::UpdateServiceStubPtr service,
+    MessageParcel& data, MessageParcel& reply, MessageOption &option)
+{
+    RETURN_FAIL_WHEN_SERVICE_NULL(service);
+    UpgradeInfo upgradeInfo;
+    VersionDigestInfo versionDigestInfo;
+    DescriptionOptions descriptionOptions;
+    VersionDescriptionInfo newVersionDescriptionInfo;
+    BusinessError businessError;
+    UpdateHelper::ReadUpgradeInfo(data, upgradeInfo);
+    UpdateHelper::ReadVersionDigestInfo(data, versionDigestInfo);
+    UpdateHelper::ReadDescriptionOptions(data, descriptionOptions);
+
+    int32_t ret = service->GetNewVersionDescription(upgradeInfo, versionDigestInfo, descriptionOptions,
+        newVersionDescriptionInfo, businessError);
+    ENGINE_CHECK(ret == INT_CALL_SUCCESS, return ret, "Failed to GetNewVersionDescription");
+    UpdateHelper::WriteBusinessError(reply, businessError);
+    UpdateHelper::WriteVersionDescriptionInfo(reply, newVersionDescriptionInfo);
+    return INT_CALL_SUCCESS;
+}
+
 static int32_t GetCurrentVersionStub(UpdateServiceStub::UpdateServiceStubPtr service,
     MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
@@ -57,6 +78,25 @@ static int32_t GetCurrentVersionStub(UpdateServiceStub::UpdateServiceStubPtr ser
     ENGINE_CHECK(ret == INT_CALL_SUCCESS, return ret, "Failed to GetCurrentVersion");
     UpdateHelper::WriteBusinessError(reply, businessError);
     UpdateHelper::WriteCurrentVersionInfo(reply, currentVersionInfo);
+    return INT_CALL_SUCCESS;
+}
+
+static int32_t GetCurrentVersionDescriptionStub(UpdateServiceStub::UpdateServiceStubPtr service,
+    MessageParcel& data, MessageParcel& reply, MessageOption &option)
+{
+    RETURN_FAIL_WHEN_SERVICE_NULL(service);
+    UpgradeInfo upgradeInfo;
+    DescriptionOptions descriptionOptions;
+    VersionDescriptionInfo currentVersionDescriptionInfo;
+    BusinessError businessError;
+    UpdateHelper::ReadUpgradeInfo(data, upgradeInfo);
+    UpdateHelper::ReadDescriptionOptions(data, descriptionOptions);
+
+    int32_t ret = service->GetCurrentVersionDescription(upgradeInfo, descriptionOptions, currentVersionDescriptionInfo,
+        businessError);
+    ENGINE_CHECK(ret == INT_CALL_SUCCESS, return ret, "Failed to GetCurrentVersionDescription");
+    UpdateHelper::WriteBusinessError(reply, businessError);
+    UpdateHelper::WriteVersionDescriptionInfo(reply, currentVersionDescriptionInfo);
     return INT_CALL_SUCCESS;
 }
 
@@ -324,7 +364,9 @@ int32_t UpdateServiceStub::OnRemoteRequest(uint32_t code,
         {IUpdateService::SET_POLICY, SetUpgradePolicyStub},
         {IUpdateService::GET_POLICY, GetUpgradePolicyStub},
         {IUpdateService::GET_NEW_VERSION, GetNewVersionStub},
+        {IUpdateService::GET_NEW_VERSION_DESCRIPTION, GetNewVersionDescriptionStub},
         {IUpdateService::GET_CURRENT_VERSION, GetCurrentVersionStub},
+        {IUpdateService::GET_CURRENT_VERSION_DESCRIPTION, GetCurrentVersionDescriptionStub},
         {IUpdateService::GET_TASK_INFO, GetTaskInfoStub},
         {IUpdateService::REGISTER_CALLBACK, RegisterUpdateCallbackStub},
         {IUpdateService::UNREGISTER_CALLBACK, UnregisterUpdateCallbackStub},

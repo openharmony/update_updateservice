@@ -130,8 +130,8 @@ enum class NetType {
 enum class Order {
     DOWNLOAD = 1,
     INSTALL = 2,
-    APPLY = 4,
     DOWNLOAD_AND_INSTALL = DOWNLOAD | INSTALL,
+    APPLY = 4,
     INSTALL_AND_APPLY = INSTALL | APPLY
 };
 
@@ -146,6 +146,11 @@ enum class BusinessSubType {
 enum class DescriptionType {
     CONTENT = 0,
     URI = 1
+};
+
+enum class DescriptionFormat {
+    STANDARD = 0,
+    SIMPLIFIED = 1
 };
 
 enum class EventId {
@@ -247,6 +252,11 @@ struct ErrorMessage {
     std::string errorMessage;
 };
 
+struct DescriptionOptions {
+    DescriptionFormat format;
+    std::string language;
+};
+
 struct DownloadOptions {
     NetType allowNetwork = NetType::WIFI;
     Order order = Order::DOWNLOAD;
@@ -271,6 +281,20 @@ struct ClearOptions {
 struct DescriptionInfo {
     DescriptionType descriptionType = DescriptionType::CONTENT;
     std::string content;
+};
+
+struct ComponentDescription {
+    uint32_t componentId = 0;
+    DescriptionInfo descriptionInfo;
+
+    ComponentDescription &operator=(const ComponentDescription &source)
+    {
+        if (&source != this) {
+            componentId = source.componentId;
+            descriptionInfo = source.descriptionInfo;
+        }
+        return *this;
+    }
 };
 
 struct CheckResult {
@@ -303,6 +327,7 @@ struct VersionInfo {
 };
 
 struct VersionComponent {
+    uint32_t componentId;
     uint32_t componentType = static_cast<uint32_t>(ComponentType::INVALID);
     std::string upgradeAction;
     std::string displayVersion;
@@ -314,6 +339,7 @@ struct VersionComponent {
     VersionComponent &operator=(const VersionComponent &source)
     {
         if (&source != this) {
+            componentId = source.componentId;
             componentType = source.componentType;
             upgradeAction = source.upgradeAction;
             displayVersion = source.displayVersion;
@@ -353,6 +379,19 @@ struct NewVersionInfo {
             versionDigestInfo = source.versionDigestInfo;
             versionComponents[0] = source.versionComponents[0];
             versionComponents[1] = source.versionComponents[1];
+        }
+        return *this;
+    }
+};
+
+struct VersionDescriptionInfo {
+    ComponentDescription componentDescriptions[2];
+
+    VersionDescriptionInfo &operator=(const VersionDescriptionInfo &source)
+    {
+        if (&source != this) {
+            componentDescriptions[0] = source.componentDescriptions[0];
+            componentDescriptions[1] = source.componentDescriptions[1];
         }
         return *this;
     }
@@ -590,6 +629,11 @@ public:
     static int32_t ReadUpgradeInfo(MessageParcel &reply, UpgradeInfo &info);
     static int32_t WriteUpgradeInfo(MessageParcel &data, const UpgradeInfo &info);
 
+    static int32_t ReadVersionDescriptionInfo(MessageParcel &reply,
+        VersionDescriptionInfo &newVersionDescriptionInfo);
+    static int32_t WriteVersionDescriptionInfo(MessageParcel &data,
+        const VersionDescriptionInfo &newVersionDescriptionInfo);
+
     static int32_t ReadBusinessError(MessageParcel &reply, BusinessError &businessError);
     static int32_t WriteBusinessError(MessageParcel &data, const BusinessError &businessError);
 
@@ -613,6 +657,9 @@ public:
 
     static int32_t ReadVersionDigestInfo(MessageParcel &reply, VersionDigestInfo &versionDigestInfo);
     static int32_t WriteVersionDigestInfo(MessageParcel &data, const VersionDigestInfo &versionDigestInfo);
+
+    static int32_t ReadDescriptionOptions(MessageParcel &reply, DescriptionOptions &descriptionOptions);
+    static int32_t WriteDescriptionOptions(MessageParcel &data, const DescriptionOptions &descriptionOptions);
 
     static int32_t ReadDownloadOptions(MessageParcel &reply, DownloadOptions &downloadOptions);
     static int32_t WriteDownloadOptions(MessageParcel &data, const DownloadOptions &downloadOptions);

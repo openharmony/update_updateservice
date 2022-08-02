@@ -44,6 +44,7 @@ enum class SessionType {
     SESSION_CLEAR_ERROR,
     SESSION_TERMINATE_UPGRADE,
     SESSION_GET_NEW_VERSION,
+    SESSION_GET_NEW_VERSION_DESCRIPTION,
     SESSION_SUBSCRIBE,
     SESSION_UNSUBSCRIBE,
     SESSION_GET_UPDATER,
@@ -52,6 +53,7 @@ enum class SessionType {
     SESSION_VERIFY_PACKAGE,
     SESSION_CANCEL_UPGRADE,
     SESSION_GET_CUR_VERSION,
+    SESSION_GET_CUR_VERSION_DESCRIPTION,
     SESSION_GET_TASK_INFO,
     SESSION_REPLY_PARAM_ERROR,
     SESSION_MAX
@@ -77,10 +79,10 @@ struct UpdateResult {
         UpgradePolicy *upgradePolicy;
         Progress *progress;
         NewVersionInfo *newVersionInfo;
+        VersionDescriptionInfo *versionDescriptionInfo;
         CheckResultEx *checkResultEx;
         CurrentVersionInfo *currentVersionInfo;
         TaskInfo *taskInfo;
-        int32_t status;
     } result;
 
     BuildJSObject buildJSObject;
@@ -97,6 +99,10 @@ struct UpdateResult {
         } else if (type == SessionType::SESSION_GET_NEW_VERSION) {
             delete result.newVersionInfo;
             result.newVersionInfo = nullptr;
+        } else if (type == SessionType::SESSION_GET_NEW_VERSION_DESCRIPTION ||
+            type == SessionType::SESSION_GET_CUR_VERSION_DESCRIPTION) {
+            delete result.versionDescriptionInfo;
+            result.versionDescriptionInfo = nullptr;
         } else if (type == SessionType::SESSION_GET_CUR_VERSION) {
             delete result.currentVersionInfo;
             result.currentVersionInfo = nullptr;
@@ -141,6 +147,15 @@ struct UpdateResult {
             if ((result.newVersionInfo != nullptr) && (updateResult.result.newVersionInfo != nullptr)) {
                 *(result.newVersionInfo) = *(updateResult.result.newVersionInfo);
             }
+        } else if (type == SessionType::SESSION_GET_NEW_VERSION_DESCRIPTION ||
+            type == SessionType::SESSION_GET_CUR_VERSION_DESCRIPTION) {
+            if (result.versionDescriptionInfo == nullptr) {
+                result.versionDescriptionInfo = new (std::nothrow) VersionDescriptionInfo();
+            }
+            if ((result.versionDescriptionInfo != nullptr)
+                && (updateResult.result.versionDescriptionInfo != nullptr)) {
+                *(result.versionDescriptionInfo) = *(updateResult.result.versionDescriptionInfo);
+            }
         } else if (type == SessionType::SESSION_GET_CUR_VERSION) {
             if (result.currentVersionInfo == nullptr) {
                 result.currentVersionInfo = new (std::nothrow) CurrentVersionInfo();
@@ -155,8 +170,6 @@ struct UpdateResult {
             if ((result.upgradePolicy != nullptr) && (updateResult.result.upgradePolicy != nullptr)) {
                 *(result.upgradePolicy) = *(updateResult.result.upgradePolicy);
             }
-        } else if (type == SessionType::SESSION_VERIFY_PACKAGE) {
-            result.status = updateResult.result.status;
         } else {
             CLIENT_LOGI("UpdateResult unknow type");
         }
@@ -171,11 +184,10 @@ public:
 
     static int32_t BuildCheckResultEx(napi_env env, napi_value &obj, const UpdateResult &result);
     static int32_t BuildNewVersionInfo(napi_env env, napi_value &obj, const UpdateResult &result);
-    static int32_t BuildProgress(napi_env env, napi_value &obj, const UpdateResult &result);
+    static int32_t BuildVersionDescriptionInfo(napi_env env, napi_value &obj, const UpdateResult &result);
     static int32_t BuildUpgradePolicy(napi_env env, napi_value &obj, const UpdateResult &result);
     static int32_t BuildCurrentVersionInfo(napi_env env, napi_value &obj, const UpdateResult &result);
     static int32_t BuildTaskInfo(napi_env env, napi_value &obj, const UpdateResult &result);
-    static int32_t BuildInt32Status(napi_env env, napi_value &obj, const UpdateResult &result);
     static int32_t BuildUndefinedStatus(napi_env env, napi_value &obj, const UpdateResult &result);
 
     static ClientStatus GetUpgradeInfoFromArg(napi_env env, const napi_value arg, UpgradeInfo &upgradeInfo);
@@ -186,6 +198,7 @@ public:
     static ClientStatus GetVersionDigestInfoFromArg(napi_env env, const napi_value arg,
         VersionDigestInfo &versionDigestInfo);
 
+    static ClientStatus GetOptionsFromArg(napi_env env, const napi_value arg, DescriptionOptions &descriptionOptions);
     static ClientStatus GetOptionsFromArg(napi_env env, const napi_value arg, UpgradeOptions &upgradeOptions);
     static ClientStatus GetOptionsFromArg(napi_env env, const napi_value arg, ClearOptions &clearOptions);
     static ClientStatus GetOptionsFromArg(napi_env env, const napi_value arg, DownloadOptions &downloadOptions);
@@ -199,6 +212,7 @@ public:
     static ClientStatus BuildEventInfo(napi_env env, napi_value &obj, const EventInfo &eventInfo);
 
 private:
+    static ClientStatus GetDescriptionFormat(napi_env env, const napi_value arg, DescriptionFormat &format);
     static ClientStatus GetNetType(napi_env env, const napi_value arg, NetType &netType);
     static ClientStatus GetOrder(napi_env env, const napi_value arg, Order &order);
 };

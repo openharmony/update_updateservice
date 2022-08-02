@@ -56,8 +56,15 @@ public:
     int32_t GetNewVersionInfo(const UpgradeInfo &info, NewVersionInfo &newVersionInfo,
         BusinessError &businessError) final;
 
+    int32_t GetNewVersionDescription(const UpgradeInfo &info, const VersionDigestInfo &versionDigestInfo,
+        const DescriptionOptions &descriptionOptions, VersionDescriptionInfo &newVersionDescriptionInfo,
+        BusinessError &businessError) final;
+
     int32_t GetCurrentVersionInfo(const UpgradeInfo &info, CurrentVersionInfo &currentVersionInfo,
         BusinessError &businessError) final;
+
+    int32_t GetCurrentVersionDescription(const UpgradeInfo &info, const DescriptionOptions &descriptionOptions,
+        VersionDescriptionInfo &currentVersionDescriptionInfo, BusinessError &businessError) final;
 
     int32_t GetTaskInfo(const UpgradeInfo &info, TaskInfo &taskInfo, BusinessError &businessError) final;
 

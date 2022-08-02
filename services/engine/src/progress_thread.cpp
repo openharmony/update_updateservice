@@ -100,8 +100,8 @@ bool DownloadThread::ProcessThreadExecute()
 {
     packageSize_ = GetLocalFileLength(downloadFileName_);
     ENGINE_LOGI("download  packageSize_: %zu ", packageSize_);
-    bool findDot = (downloadFileName_.find("/.") != std::string::npos)
-        || (downloadFileName_.find("./") != std::string::npos);
+    bool findDot = (downloadFileName_.find("/.") != std::string::npos) ||
+        (downloadFileName_.find("./") != std::string::npos);
     ENGINE_CHECK(!findDot,
         DownloadCallback(0, UPDATE_STATE_DOWNLOAD_FAIL, "Failed to check file");
         return true, "Failed to check file %s", downloadFileName_.c_str());
