@@ -42,7 +42,9 @@ public:
     napi_value SetUpgradePolicy(napi_env env, napi_callback_info info);
     napi_value GetUpgradePolicy(napi_env env, napi_callback_info info);
     napi_value GetNewVersionInfo(napi_env env, napi_callback_info info);
+    napi_value GetNewVersionDescription(napi_env env, napi_callback_info info);
     napi_value GetCurrentVersionInfo(napi_env env, napi_callback_info info);
+    napi_value GetCurrentVersionDescription(napi_env env, napi_callback_info info);
     napi_value GetTaskInfo(napi_env env, napi_callback_info info);
 
     // Event mode, which is used to send the result to the JS.
@@ -91,9 +93,12 @@ private:
     VersionInfo versionInfo_ {};
     CheckResultEx checkResultEx_ {};
     NewVersionInfo newVersionInfo_ {};
+    VersionDescriptionInfo newVersionDescriptionInfo_ {};
     CurrentVersionInfo currentVersionInfo_ {};
+    VersionDescriptionInfo currentVersionDescriptionInfo_ {};
     TaskInfo taskInfo_ {};
     VersionDigestInfo versionDigestInfo_ {};
+    DescriptionOptions descriptionOptions_ {};
     UpgradeOptions upgradeOptions_;
     ClearOptions clearOptions_ {};
     DownloadOptions downloadOptions_ {};

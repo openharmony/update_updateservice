@@ -125,8 +125,8 @@ int32_t SessionManager::ProcessUnsubscribe(const std::string &eventType, size_t 
         hasNext = GetNextSessionId(nextSessId);
 
         UpdateListener *listener = static_cast<UpdateListener *>(iter->second.get());
-        if (listener->GetType() != SessionType::SESSION_SUBSCRIBE
-            || eventType.compare(listener->GetEventType()) != 0) {
+        if (listener->GetType() != SessionType::SESSION_SUBSCRIBE ||
+            eventType.compare(listener->GetEventType()) != 0) {
             continue;
         }
         CLIENT_LOGI("ProcessUnsubscribe remove session");

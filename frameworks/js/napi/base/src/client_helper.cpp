@@ -103,6 +103,11 @@ bool IsValidData(const ErrorMessage &errorMessage)
     return errorMessage.errorCode != 0;
 }
 
+bool IsValidData(const ComponentDescription &componentDescription)
+{
+    return componentDescription.componentId != 0;
+}
+
 bool IsValidData(const VersionComponent &versionComponent)
 {
     return versionComponent.componentType != static_cast<uint32_t>(ComponentType::INVALID);
@@ -120,6 +125,28 @@ size_t GetValidDataCount(const T dataArray[], size_t arraySize)
     return validDataCount;
 }
 
+void BuildComponentDescriptions(napi_env env, napi_value &obj, const ComponentDescription componentDescriptions[],
+    size_t arraySize)
+{
+    size_t validComponentCount = GetValidDataCount(componentDescriptions, arraySize);
+    if (validComponentCount == 0) {
+        return;
+    }
+    napi_create_array_with_length(env, validComponentCount, &obj);
+    napi_status status;
+    size_t index = 0;
+    for (size_t i = 0; (i < arraySize) && (index < validComponentCount); i++) {
+        if (IsValidData(componentDescriptions[i])) {
+            napi_value napiComponentDescription;
+            status = napi_create_object(env, &napiComponentDescription);
+            NapiUtil::SetInt32(env, napiComponentDescription, "componentId", componentDescriptions[i].componentId);
+            BuildDescInfo(env, napiComponentDescription, componentDescriptions[i].descriptionInfo);
+            napi_set_element(env, obj, index, napiComponentDescription);
+            index++;
+        }
+    }
+}
+
 void BuildVersionComponents(napi_env env, napi_value &obj, const VersionComponent versionComponents[], size_t arraySize)
 {
     size_t validComponentCount = GetValidDataCount(versionComponents, arraySize);
@@ -134,6 +161,7 @@ void BuildVersionComponents(napi_env env, napi_value &obj, const VersionComponen
         if (IsValidData(versionComponents[i])) {
             napi_value napiVersionComponent;
             status = napi_create_object(env, &napiVersionComponent);
+            NapiUtil::SetInt32(env, napiVersionComponent, "componentId", versionComponents[i].componentId);
             NapiUtil::SetInt32(env, napiVersionComponent, "componentType", versionComponents[i].componentType);
             NapiUtil::SetString(env, napiVersionComponent, "upgradeAction",
                 versionComponents[i].upgradeAction.c_str());
@@ -249,6 +277,23 @@ int32_t ClientHelper::BuildNewVersionInfo(napi_env env, napi_value &obj, const U
     return CAST_INT(ClientStatus::CLIENT_SUCCESS);
 }
 
+int32_t ClientHelper::BuildVersionDescriptionInfo(napi_env env, napi_value &obj, const UpdateResult &result)
+{
+    PARAM_CHECK(result.result.versionDescriptionInfo != nullptr, return CAST_INT(ClientStatus::CLIENT_SUCCESS),
+        "ClientHelper::BuildVersionDescriptionInfo null");
+    CLIENT_LOGI("BuildVersionDescriptionInfo");
+    PARAM_CHECK(result.type == SessionType::SESSION_GET_NEW_VERSION_DESCRIPTION ||
+        result.type == SessionType::SESSION_GET_CUR_VERSION_DESCRIPTION,
+        return CAST_INT(ClientStatus::CLIENT_INVALID_TYPE), "invalid type %{public}d", result.type);
+
+    VersionDescriptionInfo *info = result.result.versionDescriptionInfo;
+    PARAM_CHECK(info != nullptr, return CAST_INT(ClientStatus::CLIENT_FAIL), "info is null");
+
+    BuildComponentDescriptions(env, obj, info->componentDescriptions, COUNT_OF(info->componentDescriptions));
+    PARAM_CHECK(obj != nullptr, return CAST_INT(ClientStatus::CLIENT_SUCCESS), "BuildComponentDescriptions null");
+    return CAST_INT(ClientStatus::CLIENT_SUCCESS);
+}
+
 int32_t ClientHelper::BuildCheckResultEx(napi_env env, napi_value &obj, const UpdateResult &result)
 {
     PARAM_CHECK(result.result.checkResultEx != nullptr, return CAST_INT(ClientStatus::CLIENT_SUCCESS),
@@ -272,24 +317,11 @@ int32_t ClientHelper::BuildCheckResultEx(napi_env env, napi_value &obj, const Up
     return CAST_INT(ClientStatus::CLIENT_SUCCESS);
 }
 
-int32_t ClientHelper::BuildProgress(napi_env env, napi_value &obj, const UpdateResult &result)
-{
-    PARAM_CHECK(result.result.progress != nullptr, return CAST_INT(ClientStatus::CLIENT_SUCCESS),
-        "ClientHelper::BuildProgress null");
-    napi_status status = napi_create_object(env, &obj);
-    PARAM_CHECK(status == napi_ok, return CAST_INT(ClientStatus::CLIENT_INVALID_TYPE),
-        "Failed to create napi_create_object %d", static_cast<int32_t>(status));
-    NapiUtil::SetInt32(env, obj, "status", result.result.progress->status);
-    NapiUtil::SetInt32(env, obj, "percent", result.result.progress->percent);
-    NapiUtil::SetString(env, obj, "endReason", result.result.progress->endReason);
-    return CAST_INT(ClientStatus::CLIENT_SUCCESS);
-}
-
 int32_t ClientHelper::BuildUpgradePolicy(napi_env env, napi_value &obj, const UpdateResult &result)
 {
     PARAM_CHECK(result.result.upgradePolicy != nullptr, return CAST_INT(ClientStatus::CLIENT_SUCCESS),
         "ClientHelper::BuildUpgradePolicy null");
-    PARAM_CHECK(result.type == SessionType::SESSION_GET_POLICY || result.type == SessionType::SESSION_SET_POLICY,
+    PARAM_CHECK(result.type == SessionType::SESSION_GET_POLICY,
         return CAST_INT(ClientStatus::CLIENT_INVALID_TYPE), "invalid type %d", result.type);
     napi_status status = napi_create_object(env, &obj);
     PARAM_CHECK(status == napi_ok, return status, "Failed to create napi_create_object %d", status);
@@ -312,11 +344,6 @@ int32_t ClientHelper::BuildUpgradePolicy(napi_env env, napi_value &obj, const Up
     }
     status = napi_set_named_property(env, obj, "autoUpgradePeriods", autoUpgradePeriods);
     return napi_ok;
-}
-
-int32_t ClientHelper::BuildInt32Status(napi_env env, napi_value &obj, const UpdateResult &result)
-{
-    return napi_create_int32(env, result.result.status, &obj);
 }
 
 int32_t ClientHelper::BuildUndefinedStatus(napi_env env, napi_value &obj, const UpdateResult &result)
@@ -403,6 +430,17 @@ ClientStatus ClientHelper::GetUpgradePolicyFromArg(napi_env env, const napi_valu
     return ClientStatus::CLIENT_SUCCESS;
 }
 
+ClientStatus ClientHelper::GetDescriptionFormat(napi_env env, const napi_value arg, DescriptionFormat &format)
+{
+    int tmpFormat = 0;
+    NapiUtil::GetInt32(env, arg, "format", tmpFormat);
+    static const std::list formatList = {DescriptionFormat::STANDARD, DescriptionFormat::SIMPLIFIED};
+    PARAM_CHECK(IsValidEnum(formatList, tmpFormat), return ClientStatus::CLIENT_INVALID_TYPE,
+        "GetDescriptionFormat error, invalid format:%{public}d", tmpFormat);
+    format = static_cast<DescriptionFormat>(tmpFormat);
+    return ClientStatus::CLIENT_SUCCESS;
+}
+
 ClientStatus ClientHelper::GetNetType(napi_env env, const napi_value arg, NetType &netType)
 {
     int allowNetwork = 0;
@@ -424,6 +462,15 @@ ClientStatus ClientHelper::GetOrder(napi_env env, const napi_value arg, Order &o
     PARAM_CHECK(IsValidEnum(orderList, tmpOrder), return ClientStatus::CLIENT_INVALID_TYPE,
         "GetOrder error, invalid order:%{public}d", tmpOrder);
     order = static_cast<Order>(tmpOrder);
+    return ClientStatus::CLIENT_SUCCESS;
+}
+
+ClientStatus ClientHelper::GetOptionsFromArg(napi_env env, const napi_value arg, DescriptionOptions &descriptionOptions)
+{
+    ClientStatus ret = GetDescriptionFormat(env, arg, descriptionOptions.format);
+    PARAM_CHECK(ret == ClientStatus::CLIENT_SUCCESS, return ClientStatus::CLIENT_INVALID_TYPE,
+        "GetDescriptionOptionsFromArg GetDescriptionFormat error");
+    NapiUtil::GetString(env, arg, "language", descriptionOptions.language);
     return ClientStatus::CLIENT_SUCCESS;
 }
 
@@ -497,8 +544,7 @@ ClientStatus ParseUpgradeFile(napi_env env, const napi_value arg, UpgradeFile &u
 
     int32_t fileType = 0;
     NapiUtil::GetInt32(env, arg, "fileType", fileType);
-    static const std::list enumList = { ComponentType::OTA, ComponentType::PATCH, ComponentType::COTA,
-        ComponentType::PARAM };
+    static const std::list enumList = { ComponentType::OTA };
     PARAM_CHECK(IsValidEnum(enumList, fileType), return ClientStatus::CLIENT_INVALID_PARAM,
         "ParseUpgradeFile error, invalid fileType:%{public}d", fileType);
     upgradeFile.fileType = static_cast<ComponentType>(fileType);
