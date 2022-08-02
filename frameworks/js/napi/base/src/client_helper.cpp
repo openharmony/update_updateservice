@@ -282,8 +282,8 @@ int32_t ClientHelper::BuildVersionDescriptionInfo(napi_env env, napi_value &obj,
     PARAM_CHECK(result.result.versionDescriptionInfo != nullptr, return CAST_INT(ClientStatus::CLIENT_SUCCESS),
         "ClientHelper::BuildVersionDescriptionInfo null");
     CLIENT_LOGI("BuildVersionDescriptionInfo");
-    PARAM_CHECK(result.type == SessionType::SESSION_GET_NEW_VERSION_DESCRIPTION
-        || result.type == SessionType::SESSION_GET_CUR_VERSION_DESCRIPTION,
+    PARAM_CHECK(result.type == SessionType::SESSION_GET_NEW_VERSION_DESCRIPTION ||
+        result.type == SessionType::SESSION_GET_CUR_VERSION_DESCRIPTION,
         return CAST_INT(ClientStatus::CLIENT_INVALID_TYPE), "invalid type %{public}d", result.type);
 
     VersionDescriptionInfo *info = result.result.versionDescriptionInfo;

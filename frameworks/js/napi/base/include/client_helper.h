@@ -99,8 +99,8 @@ struct UpdateResult {
         } else if (type == SessionType::SESSION_GET_NEW_VERSION) {
             delete result.newVersionInfo;
             result.newVersionInfo = nullptr;
-        } else if (type == SessionType::SESSION_GET_NEW_VERSION_DESCRIPTION
-            || type == SessionType::SESSION_GET_CUR_VERSION_DESCRIPTION) {
+        } else if (type == SessionType::SESSION_GET_NEW_VERSION_DESCRIPTION ||
+            type == SessionType::SESSION_GET_CUR_VERSION_DESCRIPTION) {
             delete result.versionDescriptionInfo;
             result.versionDescriptionInfo = nullptr;
         } else if (type == SessionType::SESSION_GET_CUR_VERSION) {
@@ -147,8 +147,8 @@ struct UpdateResult {
             if ((result.newVersionInfo != nullptr) && (updateResult.result.newVersionInfo != nullptr)) {
                 *(result.newVersionInfo) = *(updateResult.result.newVersionInfo);
             }
-        } else if (type == SessionType::SESSION_GET_NEW_VERSION_DESCRIPTION
-            || type == SessionType::SESSION_GET_CUR_VERSION_DESCRIPTION) {
+        } else if (type == SessionType::SESSION_GET_NEW_VERSION_DESCRIPTION ||
+            type == SessionType::SESSION_GET_CUR_VERSION_DESCRIPTION) {
             if (result.versionDescriptionInfo == nullptr) {
                 result.versionDescriptionInfo = new (std::nothrow) VersionDescriptionInfo();
             }
