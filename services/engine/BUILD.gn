@@ -59,7 +59,6 @@ ohos_shared_library("$updateengine_library_name") {
     "//third_party/bounds_checking_function:libsec_static",
     "//third_party/cJSON:cjson_static",
     "//third_party/curl:curl",
-    "//third_party/libxml2:xml2",
     "//third_party/openssl:libcrypto_static",
     "//third_party/openssl:ssl_source",
     "//utils/native/base:utils",  # sptr
@@ -71,7 +70,6 @@ ohos_shared_library("$updateengine_library_name") {
     "hiviewdfx_hilog_native:libhilog",
     "init:libbegetutil",
     "ipc:ipc_core",
-    "ipc:ipc_single",
     "safwk:system_ability_fwk",
     "samgr_standard:samgr_proxy",
   ]
