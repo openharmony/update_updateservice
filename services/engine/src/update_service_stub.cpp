@@ -390,8 +390,7 @@ int32_t UpdateServiceStub::OnRemoteRequest(uint32_t code,
         }
     }
     ENGINE_LOGE("UpdateServiceStub OnRemoteRequest code %{public}u not found", code);
-    IPCObjectStub::OnRemoteRequest(code, data, reply, option);
-    return CALL_RESULT_TO_IPC_RESULT(INT_UN_SUPPORT);
+    return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
 }
 } // namespace UpdateEngine
 } // namespace OHOS
