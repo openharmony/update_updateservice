@@ -44,7 +44,7 @@ ohos_shared_library("$updateengine_library_name") {
     "$updateengine_root_path/services/callback/include",
     "$updateengine_root_path/services/engine/include",
     "//base/update/updater/interfaces/kits/include",
-    "//foundation/distributedschedule/safwk/services/safwk/include",
+    "//foundation/systemabilitymgr/safwk/services/safwk/include",
     "//third_party/bounds_checking_function/include",
     "//third_party/cJSON",
     "//third_party/curl/include",
@@ -71,7 +71,7 @@ ohos_shared_library("$updateengine_library_name") {
     "init:libbegetutil",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
-    "samgr_standard:samgr_proxy",
+    "samgr:samgr_proxy",
   ]
 
   part_name = "$updateengine_part_name"

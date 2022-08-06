@@ -77,11 +77,11 @@ ohos_unittest("$updateengine_unittest_name") {
     "//third_party/curl/include",
     "//third_party/openssl/include",
     "//foundation/communication/ipc/interfaces/innerkits/ipc_core/include",
-    "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy/include",
-    "//foundation/distributedschedule/safwk/services/safwk/include",
-    "//foundation/distributedschedule/safwk/interfaces/innerkits/safwk",
-    "//foundation/distributedschedule/samgr/adapter/interfaces/innerkits/include",
-    "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy/include",
+    "//foundation/systemabilitymgr/samgr/interfaces/innerkits/samgr_proxy/include",
+    "//foundation/systemabilitymgr/safwk/services/safwk/include",
+    "//foundation/systemabilitymgr/safwk/interfaces/innerkits/safwk",
+    "//foundation/systemabilitymgr/samgr/adapter/interfaces/innerkits/include",
+    "//foundation/systemabilitymgr/samgr/interfaces/innerkits/samgr_proxy/include",
   ]
 
   deps = [
@@ -113,7 +113,7 @@ ohos_unittest("$updateengine_unittest_name") {
     "init:libbegetutil",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
-    "samgr_standard:samgr_proxy",
+    "samgr:samgr_proxy",
   ]
 
   cflags_cc = [ "-fexceptions" ]
