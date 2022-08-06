@@ -25,7 +25,7 @@
         "hiviewdfx_hilog_native",
         "ipc",
         "safwk",
-        "samgr_standard",
+        "samgr",
         "napi",
         "startup_l2"
       ],
