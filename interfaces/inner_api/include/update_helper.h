@@ -600,9 +600,9 @@ struct UpdateCallbackInfo {
 };
 
 #ifdef UPDATE_SERVICE
-static constexpr OHOS::HiviewDFX::HiLogLabel UPDATE_LABEL = {LOG_CORE, 0xD000A01, "UPDATE_SA"};
+static constexpr OHOS::HiviewDFX::HiLogLabel UPDATE_LABEL = {LOG_CORE, 0XD002E00, "UPDATE_SA"};
 #else
-static constexpr OHOS::HiviewDFX::HiLogLabel UPDATE_LABEL = {LOG_CORE, 0xD000A01, "UPDATE_KITS"};
+static constexpr OHOS::HiviewDFX::HiLogLabel UPDATE_LABEL = {LOG_CORE, 0XD002E00, "UPDATE_KITS"};
 #endif
 
 enum class UpdateLogLevel {
