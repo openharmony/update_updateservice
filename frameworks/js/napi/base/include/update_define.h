@@ -19,7 +19,7 @@
 
 namespace OHOS {
 namespace UpdateEngine {
-static constexpr OHOS::HiviewDFX::HiLogLabel UPDATE_CLIENT = {LOG_CORE, 0xD000A01, "UPDATE_CLIENT"};
+static constexpr OHOS::HiviewDFX::HiLogLabel UPDATE_CLIENT = {LOG_CORE, 0XD002E00, "UPDATE_CLIENT"};
 
 #define CLIENT_LOGI(format, ...)  \
     OHOS::HiviewDFX::HiLog::Info(UPDATE_CLIENT, "[%{public}s(%{public}d)] " format, \
