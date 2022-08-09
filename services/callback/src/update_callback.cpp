@@ -24,7 +24,7 @@ void UpdateCallback::OnCheckVersionDone(const BusinessError &businessError, cons
 
 void UpdateCallback::OnEvent(const EventInfo &eventInfo)
 {
-    ENGINE_LOGI("OnEvent eventId %d", eventInfo.eventId);
+    ENGINE_LOGI("OnEvent eventId %{public}d", eventInfo.eventId);
 }
 } // namespace UpdateEngine
 } // namespace OHOS
