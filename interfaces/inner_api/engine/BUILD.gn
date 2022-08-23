@@ -24,6 +24,7 @@ ohos_static_library("$updateengine_inner_library_name") {
   defines = [ "DUAL_ADAPTER" ]
   sources = [
     "$updateengine_root_path/interfaces/inner_api/engine/update_service_kits_impl.cpp",
+    "$updateengine_root_path/interfaces/inner_api/engine/update_service_ondemand.cpp",
     "$updateengine_root_path/interfaces/inner_api/engine/update_service_proxy.cpp",
     "$updateengine_root_path/services/callback/src/update_callback.cpp",
     "$updateengine_root_path/services/callback/src/update_callback_stub.cpp",
