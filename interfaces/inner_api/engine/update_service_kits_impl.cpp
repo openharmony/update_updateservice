@@ -20,6 +20,7 @@
 #include "iupdate_service.h"
 #include "iupdate_callback.h"
 #include "system_ability_definition.h"
+#include "update_service_ondemand.h"
 
 namespace OHOS {
 namespace UpdateEngine {
@@ -59,7 +60,11 @@ sptr<IUpdateService> UpdateServiceKitsImpl::GetService()
     sptr<ISystemAbilityManager> samgr = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     ENGINE_CHECK(samgr != nullptr, return nullptr, "Get samgr failed");
     sptr<IRemoteObject> object = samgr->GetSystemAbility(UPDATE_DISTRIBUTED_SERVICE_ID);
-    ENGINE_CHECK(object != nullptr, return nullptr, "Get update object from samgr failed");
+    if (object == nullptr) {
+        ENGINE_CHECK(UpdateServiceOnDemand::GetInstance()->TryLoadUpdaterSa(), return nullptr, "TryLoadUpdaterSa fail");
+        object = samgr->GetSystemAbility(UPDATE_DISTRIBUTED_SERVICE_ID);
+        ENGINE_CHECK(object != nullptr, return nullptr, "Get update object from samgr failed");
+    }
 
     if (deathRecipient_ == nullptr) {
         deathRecipient_ = new DeathRecipient();
