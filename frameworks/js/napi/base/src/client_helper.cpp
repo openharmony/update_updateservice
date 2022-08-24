@@ -105,7 +105,7 @@ bool IsValidData(const ErrorMessage &errorMessage)
 
 bool IsValidData(const ComponentDescription &componentDescription)
 {
-    return componentDescription.componentId != "";
+    return !componentDescription.componentId.empty();
 }
 
 bool IsValidData(const VersionComponent &versionComponent)
