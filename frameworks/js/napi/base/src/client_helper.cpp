@@ -105,7 +105,7 @@ bool IsValidData(const ErrorMessage &errorMessage)
 
 bool IsValidData(const ComponentDescription &componentDescription)
 {
-    return componentDescription.componentId != 0;
+    return !componentDescription.componentId.empty();
 }
 
 bool IsValidData(const VersionComponent &versionComponent)
@@ -139,7 +139,8 @@ void BuildComponentDescriptions(napi_env env, napi_value &obj, const ComponentDe
         if (IsValidData(componentDescriptions[i])) {
             napi_value napiComponentDescription;
             status = napi_create_object(env, &napiComponentDescription);
-            NapiUtil::SetInt32(env, napiComponentDescription, "componentId", componentDescriptions[i].componentId);
+            NapiUtil::SetString(env, napiComponentDescription, "componentId",
+                componentDescriptions[i].componentId.c_str());
             BuildDescInfo(env, napiComponentDescription, componentDescriptions[i].descriptionInfo);
             napi_set_element(env, obj, index, napiComponentDescription);
             index++;
@@ -161,7 +162,7 @@ void BuildVersionComponents(napi_env env, napi_value &obj, const VersionComponen
         if (IsValidData(versionComponents[i])) {
             napi_value napiVersionComponent;
             status = napi_create_object(env, &napiVersionComponent);
-            NapiUtil::SetInt32(env, napiVersionComponent, "componentId", versionComponents[i].componentId);
+            NapiUtil::SetString(env, napiVersionComponent, "componentId", versionComponents[i].componentId.c_str());
             NapiUtil::SetInt32(env, napiVersionComponent, "componentType", versionComponents[i].componentType);
             NapiUtil::SetString(env, napiVersionComponent, "upgradeAction",
                 versionComponents[i].upgradeAction.c_str());

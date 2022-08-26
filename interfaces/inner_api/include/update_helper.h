@@ -284,7 +284,7 @@ struct DescriptionInfo {
 };
 
 struct ComponentDescription {
-    uint32_t componentId = 0;
+    std::string componentId;
     DescriptionInfo descriptionInfo;
 
     ComponentDescription &operator=(const ComponentDescription &source)
@@ -327,7 +327,7 @@ struct VersionInfo {
 };
 
 struct VersionComponent {
-    uint32_t componentId;
+    std::string componentId;
     uint32_t componentType = static_cast<uint32_t>(ComponentType::INVALID);
     std::string upgradeAction;
     std::string displayVersion;

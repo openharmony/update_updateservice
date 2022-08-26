@@ -370,7 +370,7 @@ declare namespace update {
          *
          * @since 9
          */
-        componentId: number;
+        componentId: string;
 
         /**
          * Component type
@@ -454,7 +454,7 @@ declare namespace update {
          *
          * @since 9
          */
-        componentId: number;
+        componentId: string;
 
         /**
          * Description info
