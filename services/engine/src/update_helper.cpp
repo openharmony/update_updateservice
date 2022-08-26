@@ -65,7 +65,7 @@ void ReadComponentDescriptions(MessageParcel &reply, ComponentDescription compon
 {
     int32_t size = reply.ReadInt32();
     for (size_t i = 0; (i < static_cast<size_t>(size)) && (i < arraySize); i++) {
-        componentDescriptions[i].componentId = reply.ReadUint32();
+        componentDescriptions[i].componentId = Str16ToStr8(reply.ReadString16());
         componentDescriptions[i].descriptionInfo.descriptionType = static_cast<DescriptionType>(reply.ReadUint32());
         componentDescriptions[i].descriptionInfo.content = Str16ToStr8(reply.ReadString16());
     }
@@ -76,7 +76,7 @@ void WriteComponentDescriptions(MessageParcel &data, const ComponentDescription 
 {
     data.WriteInt32(static_cast<int32_t>(arraySize));
     for (size_t i = 0; i < arraySize; i++) {
-        data.WriteUint32(componentDescriptions[i].componentId);
+        data.WriteString16(Str8ToStr16(componentDescriptions[i].componentId));
         data.WriteUint32(static_cast<uint32_t>(componentDescriptions[i].descriptionInfo.descriptionType));
         data.WriteString16(Str8ToStr16(componentDescriptions[i].descriptionInfo.content));
     }
@@ -139,7 +139,7 @@ void ReadVersionComponents(MessageParcel &reply, VersionComponent versionCompone
     int32_t size = reply.ReadInt32();
     for (size_t i = 0; (i < static_cast<size_t>(size)) && (i < arraySize); i++) {
         VersionComponent *versionComponent = &versionComponents[i];
-        versionComponent->componentId = reply.ReadUint32();
+        versionComponent->componentId = Str16ToStr8(reply.ReadString16());
         versionComponent->componentType = reply.ReadUint32();
         versionComponent->upgradeAction = Str16ToStr8(reply.ReadString16());
         versionComponent->displayVersion = Str16ToStr8(reply.ReadString16());
@@ -157,7 +157,7 @@ void WriteVersionComponents(MessageParcel &data, const VersionComponent versionC
     data.WriteInt32(static_cast<int32_t>(arraySize));
     for (size_t i = 0; i < arraySize; i++) {
         const VersionComponent *versionComponent = &versionComponents[i];
-        data.WriteUint32(versionComponent->componentId);
+        data.WriteString16(Str8ToStr16(versionComponent->componentId));
         data.WriteUint32(versionComponent->componentType);
         data.WriteString16(Str8ToStr16(versionComponent->upgradeAction));
         data.WriteString16(Str8ToStr16(versionComponent->displayVersion));
