@@ -29,7 +29,6 @@ ohos_fuzztest("UpdateServiceDownloadFuzzTest") {
     "$updateengine_root_path/services/engine/include",
     "$updateengine_root_path/test/fuzztest/common",
     "//third_party/bounds_checking_function/include",  # secure method
-    "//utils/native/base/include",  # sptr
   ]
   cflags = [
     "-g",
@@ -43,6 +42,7 @@ ohos_fuzztest("UpdateServiceDownloadFuzzTest") {
   ]
   deps = [ "$updateengine_root_path/interfaces/inner_api/engine:$updateengine_inner_library_name" ]
   external_deps = [
+    "c_utils:utils",  # sptr
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
