@@ -49,7 +49,6 @@ ohos_shared_library("$updateengine_library_name") {
     "//third_party/cJSON",
     "//third_party/curl/include",
     "//third_party/openssl/include",
-    "//utils/native/base/include",  # sptr
     "//utils/system/safwk/native/include",
   ]
 
@@ -61,11 +60,11 @@ ohos_shared_library("$updateengine_library_name") {
     "//third_party/curl:curl",
     "//third_party/openssl:libcrypto_static",
     "//third_party/openssl:ssl_source",
-    "//utils/native/base:utils",  # sptr
   ]
 
   external_deps = [
     "access_token:libaccesstoken_sdk",
+    "c_utils:utils",  # sptr
     "hisysevent_native:libhisysevent",
     "hiviewdfx_hilog_native:libhilog",
     "init:libbegetutil",
