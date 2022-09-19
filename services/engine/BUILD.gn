@@ -70,7 +70,6 @@ ohos_shared_library("$updateengine_library_name") {
     "init:libbegetutil",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
-    "samgr:samgr_proxy",
   ]
 
   part_name = "$updateengine_part_name"
