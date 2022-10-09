@@ -32,6 +32,7 @@
 #include <vector>
 
 #include "cJSON.h"
+#include "init_reboot.h"
 #include "iservice_registry.h"
 #include "libxml/parser.h"
 #include "libxml/tree.h"
@@ -43,6 +44,7 @@
 #include "progress_thread.h"
 #include "securec.h"
 #include "system_ability_definition.h"
+#include "update_service_ab_update.h"
 #include "update_system_event.h"
 #include "updaterkits/updaterkits.h"
 
@@ -440,6 +442,24 @@ int32_t UpdateService::DoUpdate(const UpgradeInfo &info, const VersionDigestInfo
     ENGINE_LOGE("DoUpdate versionDigest=%{public}s UpgradeOptions %{public}d",
         versionDigestInfo.versionDigest.c_str(),
         CAST_INT(upgradeOptions.order));
+    if (UpdateServiceAbUpdate::IsAbUpdate()) {
+        if (upgradeOptions.order == Order::APPLY) {
+            ENGINE_LOGI("Try DoUpdate Now");
+            if (DoReboot(NULL) != 0) {
+                ENGINE_LOGE("AbUpdate DoReboot fail");
+                return INT_CALL_FAIL;
+            }
+            return INT_CALL_SUCCESS;
+        }
+        int32_t ret = UpdateServiceAbUpdate::DoAbUpdate(info, UPDATER_PKG_NAME);
+        SYS_EVENT_SYSTEM_UPGRADE(ret == INT_CALL_SUCCESS, UpdateSystemEvent::EVENT_FAILED_RESULT);
+        if (ret != INT_CALL_SUCCESS) {
+            ENGINE_LOGE("AbUpdate err=%{public}d", ret);
+            businessError.Build(CallResult::FAIL, "result is " + std::to_string(ret));
+            return INT_CALL_FAIL;
+        }
+        return INT_CALL_SUCCESS;
+    }
     SYS_EVENT_SYSTEM_UPGRADE(0, UpdateSystemEvent::UPGRADE_START);
     upgradeInterval_.timeStart = GetTimestamp();
     Progress progress;
@@ -770,7 +790,7 @@ bool UpdateService::VerifyDownloadPkg(const std::string &pkgName, Progress &prog
         progress.endReason = "Upgrade package verify Failed";
         SYS_EVENT_VERIFY_FAILED(0, UpdateHelper::BuildEventDevId(upgradeInfo_),
             UpdateSystemEvent::EVENT_PKG_VERIFY_FAILED);
-        ENGINE_LOGE("Package %{public}s verification Failed", pkgName.c_str());
+        ENGINE_LOGE("Package %{public}s verification Failed, ret = %d", pkgName.c_str(), ret);
         return false;
     }
     ENGINE_LOGE("Package verify success");
