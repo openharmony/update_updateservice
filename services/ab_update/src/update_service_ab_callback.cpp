@@ -32,7 +32,8 @@ UpdateServiceAbCallback::UpdateServiceAbCallback(const UpgradeInfo &info)
     }
 }
 
-void UpdateServiceAbCallback::OnUpgradeProgress(int updateStatus, int percent) {
+void UpdateServiceAbCallback::OnUpgradeProgress(int updateStatus, int percent)
+{
     ENGINE_LOGI("UpdateServiceAbCallback OnUpgradeProgress progress %d percent %d", updateStatus, percent);
     switch (updateStatus) {
         case OHOS::SysInstaller::UPDATE_STATE_FAILED:
