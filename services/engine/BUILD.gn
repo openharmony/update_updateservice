@@ -13,7 +13,7 @@
 
 import("//build/ohos.gni")
 import("../../updateengine.gni")
-import("$updateengine_root_path/services/ab_update/ab_update.gni")
+import("../ab_update/ab_update.gni")
 
 ohos_prebuilt_etc("updater_sa.rc") {
   if (use_musl) {

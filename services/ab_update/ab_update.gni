@@ -15,30 +15,28 @@ import("../../updateengine.gni")
 
 ab_update_root_path = "$updateengine_root_path/services/ab_update"
 
-ab_update_internal_deps = [
-    "//base/update/sys_installer/interfaces/innerkits/ipc_client:libsysinstallerkits",
-]
+ab_update_internal_deps = [ "//base/update/sys_installer/interfaces/innerkits/ipc_client:libsysinstallerkits" ]
 ab_update_external_deps = []
 
 ab_update_include = [
-    "$ab_update_root_path/include",
-    "//base/update/sys_installer/include",
-    "//base/update/sys_installer/interfaces/innerkits",
-    "//base/update/sys_installer/interfaces/inner_api/include",
-    "//base/update/sys_installer/interfaces/innerkits/ipc_client/include",
-    "//base/update/updater/services/include",
-    "//base/update/updater/utils/include",
-    "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy/include",
-    "//foundation/distributedschedule/safwk/services/safwk/include",
-    "//foundation/distributedschedule/safwk/interfaces/innerkits/safwk",
-    "//foundation/distributedschedule/samgr/adapter/interfaces/innerkits/include",
-    "//third_party/bounds_checking_function/include",
-    "//utils/native/base/include",
-    "//utils/system/safwk/native/include",
+  "$ab_update_root_path/include",
+  "//base/update/sys_installer/include",
+  "//base/update/sys_installer/interfaces/innerkits",
+  "//base/update/sys_installer/interfaces/inner_api/include",
+  "//base/update/sys_installer/interfaces/innerkits/ipc_client/include",
+  "//base/update/updater/services/include",
+  "//base/update/updater/utils/include",
+  "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy/include",
+  "//foundation/distributedschedule/safwk/services/safwk/include",
+  "//foundation/distributedschedule/safwk/interfaces/innerkits/safwk",
+  "//foundation/distributedschedule/samgr/adapter/interfaces/innerkits/include",
+  "//third_party/bounds_checking_function/include",
+  "//utils/native/base/include",
+  "//utils/system/safwk/native/include",
 ]
 
 ab_update_src = [
-    "$ab_update_root_path/src/update_service_ab_callback_stub.cpp",
-    "$ab_update_root_path/src/update_service_ab_callback.cpp",
-    "$ab_update_root_path/src/update_service_ab_update.cpp",
+  "$ab_update_root_path/src/update_service_ab_callback_stub.cpp",
+  "$ab_update_root_path/src/update_service_ab_callback.cpp",
+  "$ab_update_root_path/src/update_service_ab_update.cpp",
 ]
