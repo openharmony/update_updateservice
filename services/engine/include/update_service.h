@@ -100,6 +100,7 @@ public:
     void SearchCallbackEx(BusinessError &businessError, CheckResultEx &checkResult);
 
     static sptr<UpdateService> GetInstance();
+    sptr<IUpdateCallback> GetUpgradeCallback(const UpgradeInfo &info);
 
     void SetCheckInterval(uint64_t interval);
     void SetDownloadInterval(uint64_t interval);
@@ -123,7 +124,6 @@ private:
     void UpgradeCallback(const Progress &progress);
     std::string GetDownloadServerUrl() const;
     void InitVersionInfo(VersionInfo &versionInfo) const;
-    sptr<IUpdateCallback> GetUpgradeCallback(const UpgradeInfo &info);
     void SendEvent(const UpgradeInfo &upgradeInfo, EventId eventId);
 
 #ifndef UPDATER_UT
