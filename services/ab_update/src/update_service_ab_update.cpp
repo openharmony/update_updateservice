@@ -22,12 +22,13 @@ namespace UpdateEngine {
 sptr<OHOS::SysInstaller::ISysInstallerCallback> UpdateServiceAbUpdate::cb_ = nullptr;
 const std::string PARAM_NAME_FOR_BOOTSLOTS = "ohos.boot.bootslots";
 const std::string BOOTSLOTS_DEFAULT_VALUE = "0";
+constexpr const int32_t BOOTSLOTS_AB_UPDATE = 2;
 
 bool UpdateServiceAbUpdate::IsAbUpdate()
 {
     int32_t bootslots = atoi(OHOS::system::GetParameter(PARAM_NAME_FOR_BOOTSLOTS, BOOTSLOTS_DEFAULT_VALUE).c_str());
     ENGINE_LOGI("bootslots is [%d]", bootslots);
-    return (bootslots == 2);
+    return (bootslots == BOOTSLOTS_AB_UPDATE);
 }
 
 int32_t UpdateServiceAbUpdate::DoAbUpdate(const UpgradeInfo &info, const std::string &packageName)

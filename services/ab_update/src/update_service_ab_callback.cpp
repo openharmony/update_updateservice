@@ -29,10 +29,13 @@ void UpdateServiceAbCallback::OnUpgradeProgress(int updateStatus, int percent)
     switch (updateStatus) {
         case OHOS::SysInstaller::UPDATE_STATE_INIT:
         case OHOS::SysInstaller::UPDATE_STATE_ONGOING:
+            eventInfo_.taskBody.status = UPDATE_STATE_UPDATE_ON;
         case OHOS::SysInstaller::UPDATE_STATE_SUCCESSFUL:
+            eventInfo_.taskBody.status = UPDATE_STATE_UPDATE_SUCCESS;
             eventInfo_.eventId = EventId::EVENT_UPGRADE_UPDATE;
             break;
         case OHOS::SysInstaller::UPDATE_STATE_FAILED:
+            eventInfo_.taskBody.status = UPDATE_STATE_UPDATE_FAIL;
             eventInfo_.eventId = EventId::EVENT_UPGRADE_FAIL;
             break;
         default:
@@ -56,7 +59,6 @@ void UpdateServiceAbCallback::OnUpgradeProgress(int updateStatus, int percent)
 void UpdateServiceAbCallback::InitEventInfo()
 {
     eventInfo_.taskBody.installMode = INSTALLMODE_NORMAL;
-    eventInfo_.taskBody.status = UPDATE_STATE_UPDATE_ON;
     eventInfo_.taskBody.subStatus = 0;
     eventInfo_.taskBody.versionDigestInfo.versionDigest = "versionDigest";
 }

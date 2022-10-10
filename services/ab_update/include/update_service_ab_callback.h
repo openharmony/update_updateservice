@@ -24,12 +24,12 @@
 
 namespace OHOS {
 namespace UpdateEngine {
-class UpdateServiceAbCallback : public OHOS::SysInstaller::SysInstallerCallbackStub {
+class UpdateServiceAbCallback final : public OHOS::SysInstaller::SysInstallerCallbackStub {
 public:
     UpdateServiceAbCallback(const UpgradeInfo &info);
     ~UpdateServiceAbCallback() = default;
 
-    void OnUpgradeProgress(int updateStatus, int percent);
+    void OnUpgradeProgress(int updateStatus, int percent) final;
 
 private:
     void InitEventInfo();
