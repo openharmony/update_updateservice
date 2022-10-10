@@ -47,7 +47,7 @@ void UpdateServiceAbCallback::OnUpgradeProgress(int updateStatus, int percent)
     eventInfo_.taskBody.progress = percent;
     sptr<UpdateService> service = UpdateService::GetInstance();
     if (service == nullptr) {
-        ENGINE_LOGI("UpdateServiceAbCallback OnUpgradeProgress UpdateService no instance");
+        ENGINE_LOGE("UpdateServiceAbCallback OnUpgradeProgress UpdateService no instance");
         return;
     }
     sptr<IUpdateCallback> upgradeCallback = service->GetUpgradeCallback(info_);
