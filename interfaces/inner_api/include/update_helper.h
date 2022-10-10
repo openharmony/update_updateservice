@@ -475,7 +475,7 @@ struct OtaStatus {
     uint32_t progress;
     UpgradeStatus status;
     int32_t subStatus;
-    ErrMsg errMsg[2];
+    ErrMsg errMsg[1];
 
     OtaStatus &operator=(const OtaStatus &source)
     {
