@@ -30,6 +30,8 @@ void UpdateServiceAbCallback::OnUpgradeProgress(int updateStatus, int percent)
         case OHOS::SysInstaller::UPDATE_STATE_INIT:
         case OHOS::SysInstaller::UPDATE_STATE_ONGOING:
             eventInfo_.taskBody.status = UPDATE_STATE_UPDATE_ON;
+            eventInfo_.eventId = EventId::EVENT_UPGRADE_UPDATE;
+            break;
         case OHOS::SysInstaller::UPDATE_STATE_SUCCESSFUL:
             eventInfo_.taskBody.status = UPDATE_STATE_UPDATE_SUCCESS;
             eventInfo_.eventId = EventId::EVENT_UPGRADE_UPDATE;
