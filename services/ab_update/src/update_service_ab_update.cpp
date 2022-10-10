@@ -26,8 +26,8 @@ const std::string BOOTSLOTS_DEFAULT_VALUE = "0";
 bool UpdateServiceAbUpdate::IsAbUpdate()
 {
     int32_t bootslots = atoi(OHOS::system::GetParameter(PARAM_NAME_FOR_BOOTSLOTS, BOOTSLOTS_DEFAULT_VALUE).c_str());
-    ENGINE_LOGE("bootslots is [%d]", bootslots);
-    return (bootslots > 1);
+    ENGINE_LOGI("bootslots is [%d]", bootslots);
+    return (bootslots == 2);
 }
 
 int32_t UpdateServiceAbUpdate::DoAbUpdate(const UpgradeInfo &info, const std::string &packageName)
@@ -36,11 +36,20 @@ int32_t UpdateServiceAbUpdate::DoAbUpdate(const UpgradeInfo &info, const std::st
         ENGINE_LOGE("IsAbUpdate false, UpdateServiceAbUpdate fail");
         return INT_CALL_FAIL;
     }
+
     int32_t ret = OHOS::SysInstaller::SysInstallerKitsImpl::GetInstance().SysInstallerInit();
     if (ret != 0) {
         ENGINE_LOGE("SysInstallerInit fail, ret = %d, UpdateServiceAbUpdate fail", ret);
         return INT_CALL_FAIL;
     }
+
+    auto updateStatus = OHOS::SysInstaller::SysInstallerKitsImpl::GetInstance().GetUpdateStatus();
+    if (updateStatus != OHOS::SysInstaller::UPDATE_STATE_INIT &&
+        updateStatus != OHOS::SysInstaller::UPDATE_STATE_FAILED) {
+        ENGINE_LOGE("AbUpgrade process status is invalid, status is %d, UpdateServiceAbUpdate fail", updateStatus);
+        return INT_CALL_FAIL;
+    }
+
     if (cb_ == nullptr) {
         cb_ = new UpdateServiceAbCallback(info);
     }
@@ -49,11 +58,7 @@ int32_t UpdateServiceAbUpdate::DoAbUpdate(const UpgradeInfo &info, const std::st
         ENGINE_LOGE("SetUpdateCallback fail, ret = %d, UpdateServiceAbUpdate fail", ret);
         return INT_CALL_FAIL;
     }
-    auto updateStatus = OHOS::SysInstaller::SysInstallerKitsImpl::GetInstance().GetUpdateStatus();
-    if (updateStatus != OHOS::SysInstaller::UPDATE_STATE_INIT) {
-        ENGINE_LOGE("AbUpgrade process status is not init, status is %d, UpdateServiceAbUpdate fail", updateStatus);
-        return INT_CALL_FAIL;
-    }
+
     ret = OHOS::SysInstaller::SysInstallerKitsImpl::GetInstance().StartUpdatePackageZip(packageName);
     if (ret != 0) {
         ENGINE_LOGE("StartUpdatePackageZip fail, ret = %d, UpdateServiceAbUpdate fail", ret);

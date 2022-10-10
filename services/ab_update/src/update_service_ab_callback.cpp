@@ -20,35 +20,37 @@ namespace UpdateEngine {
 UpdateServiceAbCallback::UpdateServiceAbCallback(const UpgradeInfo &info)
 {
     InitEventInfo();
-    sptr<UpdateService> service = UpdateService::GetInstance();
-    if (service == nullptr) {
-        ENGINE_LOGI("UpdateServiceAbCallback UpdateService no instance");
-        return;
-    }
-    upgradeCallback_ = service->GetUpgradeCallback(info);
-    if (upgradeCallback_ == nullptr) {
-        ENGINE_LOGE("UpdateServiceAbCallback upgradeCallback_ is null");
-        return;
-    }
+    info_ = info;
 }
 
 void UpdateServiceAbCallback::OnUpgradeProgress(int updateStatus, int percent)
 {
     ENGINE_LOGI("UpdateServiceAbCallback OnUpgradeProgress progress %d percent %d", updateStatus, percent);
     switch (updateStatus) {
+        case OHOS::SysInstaller::UPDATE_STATE_INIT:
+        case OHOS::SysInstaller::UPDATE_STATE_ONGOING:
+        case OHOS::SysInstaller::UPDATE_STATE_SUCCESSFUL:
+            eventInfo_.eventId = EventId::EVENT_UPGRADE_UPDATE;
+            break;
         case OHOS::SysInstaller::UPDATE_STATE_FAILED:
             eventInfo_.eventId = EventId::EVENT_UPGRADE_FAIL;
             break;
         default:
-            eventInfo_.eventId = EventId::EVENT_UPGRADE_UPDATE;
-            break;
+            ENGINE_LOGE("updateStatus invalid, is %d", updateStatus);
+            return;
     }
     eventInfo_.taskBody.progress = percent;
-    if (upgradeCallback_ == nullptr) {
-        ENGINE_LOGE("OnUpgradeProgress upgradeCallback_ is null");
+    sptr<UpdateService> service = UpdateService::GetInstance();
+    if (service == nullptr) {
+        ENGINE_LOGI("UpdateServiceAbCallback OnUpgradeProgress UpdateService no instance");
         return;
     }
-    upgradeCallback_->OnEvent(eventInfo_);
+    sptr<IUpdateCallback> upgradeCallback = service->GetUpgradeCallback(info_);
+    if (upgradeCallback == nullptr) {
+        ENGINE_LOGE("UpdateServiceAbCallback OnUpgradeProgress upgradeCallback_ is null");
+        return;
+    }
+    upgradeCallback->OnEvent(eventInfo_);
 }
 
 void UpdateServiceAbCallback::InitEventInfo()
