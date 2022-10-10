@@ -13,6 +13,7 @@
 
 import("//build/ohos.gni")
 import("../../updateengine.gni")
+import("../ab_update/ab_update.gni")
 
 ohos_prebuilt_etc("updater_sa.rc") {
   if (use_musl) {
@@ -39,6 +40,8 @@ ohos_shared_library("$updateengine_library_name") {
     "$updateengine_root_path/services/engine/src/update_service_stub.cpp",
   ]
 
+  sources += ab_update_src
+
   include_dirs = [
     "$updateengine_root_path/interfaces/inner_api/include",
     "$updateengine_root_path/services/callback/include",
@@ -52,6 +55,8 @@ ohos_shared_library("$updateengine_library_name") {
     "//utils/system/safwk/native/include",
   ]
 
+  include_dirs += ab_update_include
+
   deps = [
     "//base/update/updater/interfaces/kits/packages:libpackageExt",  # "package/package.h"
     "//base/update/updater/interfaces/kits/updaterkits:libupdaterkits",  # "updaterkits/updaterkits.h"
@@ -61,6 +66,8 @@ ohos_shared_library("$updateengine_library_name") {
     "//third_party/openssl:libcrypto_static",
     "//third_party/openssl:ssl_source",
   ]
+
+  deps += ab_update_internal_deps
 
   external_deps = [
     "access_token:libaccesstoken_sdk",
