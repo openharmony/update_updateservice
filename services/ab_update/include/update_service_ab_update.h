@@ -25,13 +25,11 @@ namespace UpdateEngine {
 class UpdateServiceAbUpdate {
 public:
     UpdateServiceAbUpdate() = default;
-
     ~UpdateServiceAbUpdate() = default;
 
     DISALLOW_COPY_AND_MOVE(UpdateServiceAbUpdate);
 
     static bool IsAbUpdate();
-
     static int32_t DoAbUpdate(const UpgradeInfo &info, const std::string &packageName);
 
 private:
