@@ -36,6 +36,6 @@ ab_update_include = [
 ]
 
 ab_update_src = [
-    "$ab_update_root_path/src/update_service_ab_callback.cpp",
-    "$ab_update_root_path/src/update_service_ab_update.cpp",
+  "$ab_update_root_path/src/update_service_ab_callback.cpp",
+  "$ab_update_root_path/src/update_service_ab_update.cpp",
 ]
