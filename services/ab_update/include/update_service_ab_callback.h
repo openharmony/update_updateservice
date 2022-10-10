@@ -16,14 +16,15 @@
 #ifndef UPDATE_SERVICE_AB_CALLBACK_H
 #define UPDATE_SERVICE_AB_CALLBACK_H
 
-#include "iremote_proxy.h"
+#include "sys_installer_callback_stub.h"
 #include "sys_installer_common.h"
+#include "sys_installer_kits_impl.h"
+
 #include "update_service.h"
-#include "update_service_ab_callback_stub.h"
 
 namespace OHOS {
 namespace UpdateEngine {
-class UpdateServiceAbCallback : public UpdateServiceAbCallbackStub {
+class UpdateServiceAbCallback : public OHOS::SysInstaller::SysInstallerCallbackStub {
 public:
     UpdateServiceAbCallback(const UpgradeInfo &info);
     ~UpdateServiceAbCallback() = default;
@@ -34,7 +35,7 @@ private:
     void InitEventInfo();
 
     EventInfo eventInfo_;
-    sptr<IUpdateCallback> upgradeCallback_ = nullptr;
+    UpgradeInfo info_;
 };
 } // namespace UpdateEngine
 } // namespace OHOS

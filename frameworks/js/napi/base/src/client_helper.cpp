@@ -254,9 +254,7 @@ int32_t ClientHelper::BuildTaskInfo(napi_env env, napi_value &obj, const UpdateR
     PARAM_CHECK(status == napi_ok, return CAST_INT(ClientStatus::CLIENT_INVALID_TYPE),
         "Failed to create napi_create_object %d", static_cast<int32_t>(status));
     NapiUtil::SetBool(env, obj, "existTask", result.result.taskInfo->existTask);
-    if (result.result.taskInfo->existTask) {
-        BuildTaskBody(env, obj, result.result.taskInfo->taskBody);
-    }
+    BuildTaskBody(env, obj, result.result.taskInfo->taskBody);
     return CAST_INT(ClientStatus::CLIENT_SUCCESS);
 }
 

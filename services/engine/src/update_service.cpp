@@ -296,15 +296,19 @@ int32_t UpdateService::GetTaskInfo(const UpgradeInfo &info, TaskInfo &taskInfo, 
     taskInfo.existTask = checkResult.isExistNewVersion;
     if (!taskInfo.existTask) {
         ENGINE_LOGI("GetTaskInfo no new version");
-        return INT_CALL_SUCCESS;
     }
 
     taskInfo.taskBody.versionDigestInfo.versionDigest = checkResult.newVersionInfo.versionDigestInfo.versionDigest;
     taskInfo.taskBody.status = otaStatus_.status;
     taskInfo.taskBody.subStatus = otaStatus_.subStatus;
     taskInfo.taskBody.progress = otaStatus_.progress;
+    taskInfo.taskBody.installMode = InstallMode::INSTALLMODE_NORMAL;
     taskInfo.taskBody.errorMessages[0].errorCode = otaStatus_.errMsg[0].errorCode;
     taskInfo.taskBody.errorMessages[0].errorMessage = otaStatus_.errMsg[0].errorMsg;
+    taskInfo.taskBody.errorMessages[1].errorCode = otaStatus_.errMsg[1].errorCode;
+    taskInfo.taskBody.errorMessages[1].errorMessage = otaStatus_.errMsg[1].errorMsg;
+    taskInfo.taskBody.versionComponents[0] = checkResult.newVersionInfo.versionComponents[0];
+    taskInfo.taskBody.versionComponents[1] = checkResult.newVersionInfo.versionComponents[1];
     return INT_CALL_SUCCESS;
 }
 
