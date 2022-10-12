@@ -59,15 +59,6 @@ enum class SessionType {
     SESSION_MAX
 };
 
-enum class ClientStatus {
-    CLIENT_SUCCESS = 0,
-    CLIENT_INVALID_PARAM = 1000,
-    CLIENT_INVALID_TYPE,
-    CLIENT_REPEAT_REQ,
-    CLIENT_FAIL,
-    CLIENT_CHECK_NEW_FIRST,
-};
-
 struct SessionParams {
     SessionType type;
     size_t callbackStartIndex;
@@ -199,6 +190,8 @@ public:
     static int32_t BuildTaskInfo(napi_env env, napi_value &obj, const UpdateResult &result);
     static int32_t BuildUndefinedStatus(napi_env env, napi_value &obj, const UpdateResult &result);
     static napi_value BuildThrowError(napi_env env, const BusinessError &businessError);
+    static void NapiThrowParamError(
+        napi_env env, std::vector<std::string> &paraNames, std::vector<std::string> &paramTypes);
 
     static ClientStatus GetUpgradeInfoFromArg(napi_env env, const napi_value arg, UpgradeInfo &upgradeInfo);
     static ClientStatus GetUpgradePolicyFromArg(napi_env env, const napi_value arg, UpgradePolicy &upgradePolicy);
@@ -220,8 +213,6 @@ public:
         EventClassifyInfo &eventClassifyInfo);
     static int32_t BuildBusinessError(napi_env env, napi_value &obj, const BusinessError &businessError);
     static ClientStatus BuildEventInfo(napi_env env, napi_value &obj, const EventInfo &eventInfo);
-    static void NapiThrowParamError(
-        napi_env env, std::vector<std::string> &paraNames, std::vector<std::string> &paramTypes);
 
 private:
     static ClientStatus GetDescriptionFormat(napi_env env, const napi_value arg, DescriptionFormat &format);
