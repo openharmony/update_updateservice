@@ -657,12 +657,12 @@ static std::string ConvertVectorToStr(std::vector<std::string> &strVector)
 }
 
 void ClientHelper::NapiThrowParamError(
-    napi_env env, std::vector<std::string> &paraNames, std::vector<std::string> &paramTypes)
+    napi_env env, std::vector<std::string> &paramNames, std::vector<std::string> &paramTypes)
 {
     BusinessError businessError;
     CallResult errCode = CallResult::PARAM_ERR;
     std::string errMsg = "BusinessError " + std::to_string(static_cast<int32_t>(errCode))
-        .append(": Parameter error. The type of { ").append(ConvertVectorToStr(paraNames)).append(" }")
+        .append(": Parameter error. The type of { ").append(ConvertVectorToStr(paramNames)).append(" }")
         .append("must be { ").append(ConvertVectorToStr(paramTypes)).append(" }.");
     businessError.Build(errCode, errMsg);
     napi_value msg = BuildThrowError(env, businessError);

@@ -103,12 +103,12 @@ napi_value UpdateAsyncSession::StartWork(napi_env env, size_t startIndex, const 
     for (size_t i = 0; (i < (totalArgc_ - startIndex)) && (i < callbackNumber_); i++) {
         CLIENT_LOGI("CreateReference index:%u", static_cast<unsigned int>(i + startIndex));
         ClientStatus ret = NapiUtil::IsTypeOf(env, args[i + startIndex], napi_function);
-        std::vector<std::string> paraNames;
-        paraNames.push_back("callback");
+        std::vector<std::string> paramNames;
+        paramNames.push_back("callback");
         std::vector<std::string> paramTypes;
         paramTypes.push_back("napi_function");
         PARAM_CHECK_NAPI_CALL(env, ret == ClientStatus::CLIENT_SUCCESS,
-            ClientHelper::NapiThrowParamError(env, paraNames, paramTypes);
+            ClientHelper::NapiThrowParamError(env, paramNames, paramTypes);
             return nullptr, "invalid type");
         ret = NapiUtil::CreateReference(env, args[i + startIndex], 1, callbackRef_[i]);
         PARAM_CHECK_NAPI_CALL(env, ret == ClientStatus::CLIENT_SUCCESS, return nullptr, "Failed to create reference");
