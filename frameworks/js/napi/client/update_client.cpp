@@ -63,11 +63,19 @@ napi_value UpdateClient::GetOnlineUpdater(napi_env env, napi_callback_info info)
     napi_value args[MAX_ARGC] = {0};
     napi_status status = napi_get_cb_info(env, info, &argc, args, nullptr, nullptr);
     PARAM_CHECK_NAPI_CALL(env, status == napi_ok, return nullptr, "Error get cb info");
-    PARAM_CHECK_NAPI_CALL(env, argc >= 1, return nullptr, "Invalid param");
+    std::vector<std::string> paramNames;
+    paramNames.push_back("upgradeInfo");
+    std::vector<std::string> paramTypes;
+    paramTypes.push_back("UpgradeInfo");
+    PARAM_CHECK_NAPI_CALL(env, argc >= 1,
+        ClientHelper::NapiThrowParamError(env, paramNames, paramTypes);
+        return nullptr, "Invalid param");
     PARAM_CHECK_NAPI_CALL(env, !isInit_, return result, "Has been init");
 
     ClientStatus ret = ClientHelper::GetUpgradeInfoFromArg(env, args[0], upgradeInfo_);
-    PARAM_CHECK(ret == ClientStatus::CLIENT_SUCCESS, return nullptr, "Failed to get upgradeInfo param");
+    PARAM_CHECK(ret == ClientStatus::CLIENT_SUCCESS,
+        ClientHelper::NapiThrowParamError(env, paramNames, paramTypes);
+        return nullptr, "Failed to get upgradeInfo param");
 
     UpdateCallbackInfo callback {
         [=](const BusinessError &businessError, const CheckResultEx &checkResultEx) {
@@ -102,7 +110,7 @@ napi_value UpdateClient::CancelUpgrade(napi_env env, napi_callback_info info)
     CLIENT_LOGI("CancelUpgrade");
     SessionParams sessionParams(SessionType::SESSION_CANCEL_UPGRADE, CALLBACK_POSITION_ONE, true);
     std::shared_ptr<UpdateSession> sess = nullptr;
-    sess = std::make_shared<UpdateAsyncessionNoCallback>(this, sessionParams, argc);
+    sess = std::make_shared<UpdateAsyncSessionNoCallback>(this, sessionParams, argc);
     PARAM_CHECK_NAPI_CALL(env, sess != nullptr, return nullptr, "Failed to create update session");
     sessionsMgr_->AddSession(sess);
     napi_value retValue = sess->StartWork(
@@ -128,12 +136,20 @@ ClientStatus UpdateClient::ParseUpgOptions(napi_env env, napi_callback_info info
     PARAM_CHECK_NAPI_CALL(env, status == napi_ok, return ClientStatus::CLIENT_INVALID_PARAM, "Error get cb info");
 
     ClientStatus ret = ClientHelper::GetVersionDigestInfoFromArg(env, args[0], versionDigestInfo);
-    PARAM_CHECK(ret == ClientStatus::CLIENT_SUCCESS, return ClientStatus::CLIENT_INVALID_PARAM,
-        "Failed to get versionDigestInfo param");
+    std::vector<std::string> paramNames;
+    paramNames.push_back("versionDigestInfo");
+    std::vector<std::string> paramTypes;
+    paramTypes.push_back("VersionDigestInfo");
+    PARAM_CHECK(ret == ClientStatus::CLIENT_SUCCESS, ClientHelper::NapiThrowParamError(env, paramNames, paramTypes);
+        return ClientStatus::CLIENT_INVALID_PARAM, "Failed to get versionDigestInfo param");
 
     ret = ClientHelper::GetOptionsFromArg(env, args[1], options);
-    PARAM_CHECK(ret == ClientStatus::CLIENT_SUCCESS, return ClientStatus::CLIENT_INVALID_PARAM,
-        "Failed to get Options param");
+    std::vector<std::string> names;
+    names.push_back("descriptionOptions");
+    std::vector<std::string> types;
+    types.push_back("DescriptionOptions");
+    PARAM_CHECK(ret == ClientStatus::CLIENT_SUCCESS, ClientHelper::NapiThrowParamError(env, names, types);
+        return ClientStatus::CLIENT_INVALID_PARAM, "Failed to get Options param");
     return ClientStatus::CLIENT_SUCCESS;
 }
 
@@ -146,7 +162,15 @@ napi_value UpdateClient::Download(napi_env env, napi_callback_info info)
     CLIENT_LOGI("Download");
 
     ClientStatus ret = ParseUpgOptions(env, info, versionDigestInfo_, downloadOptions_);
-    PARAM_CHECK(ret == ClientStatus::CLIENT_SUCCESS, return nullptr, "Failed to get Download param");
+    std::vector<std::string> paramNames;
+    paramNames.push_back("versionDigestInfo");
+    paramNames.push_back("downloadOptions");
+    std::vector<std::string> paramTypes;
+    paramTypes.push_back("VersionDigestInfo");
+    paramTypes.push_back("DownloadOptions");
+    PARAM_CHECK(ret == ClientStatus::CLIENT_SUCCESS,
+        ClientHelper::NapiThrowParamError(env, paramNames, paramTypes);
+        return nullptr, "Failed to get Download param");
 
     SessionParams sessionParams(SessionType::SESSION_DOWNLOAD, CALLBACK_POSITION_THREE, true);
     napi_value retValue = StartSession(env, info, sessionParams, [=](SessionType type, void *context) -> int {
@@ -166,7 +190,15 @@ napi_value UpdateClient::PauseDownload(napi_env env, napi_callback_info info)
     PARAM_CHECK_NAPI_CALL(env, status == napi_ok, return nullptr, "Error get cb info");
 
     ClientStatus ret = ParseUpgOptions(env, info, versionDigestInfo_, pauseDownloadOptions_);
-    PARAM_CHECK(ret == ClientStatus::CLIENT_SUCCESS, return nullptr, "Failed to get pauseDownloadOptions param");
+    std::vector<std::string> paramNames;
+    paramNames.push_back("versionDigestInfo");
+    paramNames.push_back("pauseDownloadOptions");
+    std::vector<std::string> paramTypes;
+    paramTypes.push_back("VersionDigestInfo");
+    paramTypes.push_back("PauseDownloadOptions");
+    PARAM_CHECK(ret == ClientStatus::CLIENT_SUCCESS,
+        ClientHelper::NapiThrowParamError(env, paramNames, paramTypes);
+        return nullptr, "Failed to get pauseDownloadOptions param");
 
     SessionParams sessionParams(SessionType::SESSION_PAUSE_DOWNLOAD, CALLBACK_POSITION_THREE, true);
     napi_value retValue = StartSession(env, info, sessionParams, [=](SessionType type, void *context) -> int {
@@ -186,7 +218,15 @@ napi_value UpdateClient::ResumeDownload(napi_env env, napi_callback_info info)
     PARAM_CHECK_NAPI_CALL(env, status == napi_ok, return nullptr, "Error get cb info");
 
     ClientStatus ret = ParseUpgOptions(env, info, versionDigestInfo_, resumeDownloadOptions_);
-    PARAM_CHECK(ret == ClientStatus::CLIENT_SUCCESS, return nullptr, "Failed to get resumeDownloadOptions param");
+    std::vector<std::string> paramNames;
+    paramNames.push_back("versionDigestInfo");
+    paramNames.push_back("resumeDownloadOptions");
+    std::vector<std::string> paramTypes;
+    paramTypes.push_back("VersionDigestInfo");
+    paramTypes.push_back("ResumeDownloadOptions");
+    PARAM_CHECK(ret == ClientStatus::CLIENT_SUCCESS,
+        ClientHelper::NapiThrowParamError(env, paramNames, paramTypes);
+        return nullptr, "Failed to get resumeDownloadOptions param");
 
     SessionParams sessionParams(SessionType::SESSION_RESUME_DOWNLOAD, CALLBACK_POSITION_THREE, true);
     napi_value retValue = StartSession(env, info, sessionParams, [=](SessionType type, void *context) -> int {
@@ -206,7 +246,15 @@ napi_value UpdateClient::Upgrade(napi_env env, napi_callback_info info)
     PARAM_CHECK_NAPI_CALL(env, status == napi_ok, return nullptr, "Error get cb info");
 
     ClientStatus ret = ParseUpgOptions(env, info, versionDigestInfo_, upgradeOptions_);
-    PARAM_CHECK(ret == ClientStatus::CLIENT_SUCCESS, return nullptr, "Failed to get resumeDownloadOptions param");
+    std::vector<std::string> paramNames;
+    paramNames.push_back("versionDigestInfo");
+    paramNames.push_back("upgradeOptions");
+    std::vector<std::string> paramTypes;
+    paramTypes.push_back("VersionDigestInfo");
+    paramTypes.push_back("UpgradeOptions");
+    PARAM_CHECK(ret == ClientStatus::CLIENT_SUCCESS,
+        ClientHelper::NapiThrowParamError(env, paramNames, paramTypes);
+        return nullptr, "Failed to get resumeDownloadOptions param");
 
     SessionParams sessionParams(SessionType::SESSION_UPGRADE, CALLBACK_POSITION_THREE, true);
     napi_value retValue = StartSession(env, info, sessionParams, [=](SessionType type, void *context) -> int {
@@ -230,7 +278,15 @@ napi_value UpdateClient::ClearError(napi_env env, napi_callback_info info)
     PARAM_CHECK_NAPI_CALL(env, status == napi_ok, return nullptr, "Error get cb info");
 
     ClientStatus ret = ParseUpgOptions(env, info, versionDigestInfo_, clearOptions_);
-    PARAM_CHECK(ret == ClientStatus::CLIENT_SUCCESS, return nullptr, "Failed to get clearOptions param");
+    std::vector<std::string> paramNames;
+    paramNames.push_back("versionDigestInfo");
+    paramNames.push_back("clearOptions");
+    std::vector<std::string> paramTypes;
+    paramTypes.push_back("VersionDigestInfo");
+    paramTypes.push_back("ClearOptions");
+    PARAM_CHECK(ret == ClientStatus::CLIENT_SUCCESS,
+        ClientHelper::NapiThrowParamError(env, paramNames, paramTypes);
+        return nullptr, "Failed to get clearOptions param");
 
     SessionParams sessionParams(SessionType::SESSION_CLEAR_ERROR, CALLBACK_POSITION_THREE, true);
     napi_value retValue = StartSession(env, info, sessionParams,
@@ -267,7 +323,13 @@ napi_value UpdateClient::SetUpgradePolicy(napi_env env, napi_callback_info info)
     PARAM_CHECK_NAPI_CALL(env, status == napi_ok, return nullptr, "Error get cb info");
 
     ClientStatus ret = ClientHelper::GetUpgradePolicyFromArg(env, args[0], upgradePolicy_);
-    PARAM_CHECK(ret == ClientStatus::CLIENT_SUCCESS, return nullptr, "Failed to get upgradePolicy param");
+    std::vector<std::string> paramNames;
+    paramNames.push_back("upgradePolicy");
+    std::vector<std::string> paramTypes;
+    paramTypes.push_back("UpgradePolicy");
+    PARAM_CHECK(ret == ClientStatus::CLIENT_SUCCESS,
+        ClientHelper::NapiThrowParamError(env, paramNames, paramTypes);
+        return nullptr, "Failed to get upgradePolicy param");
 
     SessionParams sessionParams(SessionType::SESSION_SET_POLICY, CALLBACK_POSITION_TWO, true);
     napi_value retValue = StartSession(env, info, sessionParams,
@@ -312,7 +374,15 @@ napi_value UpdateClient::GetNewVersionDescription(napi_env env, napi_callback_in
     CLIENT_LOGI("GetNewVersionDescription");
 
     ClientStatus ret = ParseUpgOptions(env, info, versionDigestInfo_, descriptionOptions_);
-    PARAM_CHECK(ret == ClientStatus::CLIENT_SUCCESS, return nullptr, "Failed to get GetNewVersionDescription param");
+    std::vector<std::string> paramNames;
+    paramNames.push_back("versionDigestInfo");
+    paramNames.push_back("descriptionOptions");
+    std::vector<std::string> paramTypes;
+    paramTypes.push_back("VersionDigestInfo");
+    paramTypes.push_back("DescriptionOptions");
+    PARAM_CHECK(ret == ClientStatus::CLIENT_SUCCESS,
+        ClientHelper::NapiThrowParamError(env, paramNames, paramTypes);
+        return nullptr, "Failed to get GetNewVersionDescription param");
 
     SessionParams sessionParams(SessionType::SESSION_GET_NEW_VERSION_DESCRIPTION, CALLBACK_POSITION_THREE, true);
     napi_value retValue = StartSession(env, info, sessionParams, [=](SessionType type, void *context) -> int {
@@ -346,8 +416,15 @@ napi_value UpdateClient::GetCurrentVersionDescription(napi_env env, napi_callbac
     CLIENT_LOGI("GetCurrentVersionDescription");
 
     ClientStatus ret = ParseUpgOptions(env, info, versionDigestInfo_, descriptionOptions_);
-    PARAM_CHECK(ret == ClientStatus::CLIENT_SUCCESS, return nullptr,
-        "Failed to get GetCurrentVersionDescription param");
+    std::vector<std::string> paramNames;
+    paramNames.push_back("versionDigestInfo");
+    paramNames.push_back("descriptionOptions");
+    std::vector<std::string> paramTypes;
+    paramTypes.push_back("VersionDigestInfo");
+    paramTypes.push_back("DescriptionOptions");
+    PARAM_CHECK(ret == ClientStatus::CLIENT_SUCCESS,
+        ClientHelper::NapiThrowParamError(env, paramNames, paramTypes);
+        return nullptr, "Failed to get GetCurrentVersionDescription param");
 
     SessionParams sessionParams(SessionType::SESSION_GET_CUR_VERSION_DESCRIPTION, CALLBACK_POSITION_TWO, true);
     napi_value retValue = StartSession(env, info, sessionParams, [=](SessionType type, void *context) -> int {
