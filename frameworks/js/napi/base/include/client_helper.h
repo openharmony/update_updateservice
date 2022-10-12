@@ -189,6 +189,9 @@ public:
     static int32_t BuildCurrentVersionInfo(napi_env env, napi_value &obj, const UpdateResult &result);
     static int32_t BuildTaskInfo(napi_env env, napi_value &obj, const UpdateResult &result);
     static int32_t BuildUndefinedStatus(napi_env env, napi_value &obj, const UpdateResult &result);
+    static napi_value BuildThrowError(napi_env env, const BusinessError &businessError);
+    static void NapiThrowParamError(
+        napi_env env, std::vector<std::string> &paramNames, std::vector<std::string> &paramTypes);
 
     static ClientStatus GetUpgradeInfoFromArg(napi_env env, const napi_value arg, UpgradeInfo &upgradeInfo);
     static ClientStatus GetUpgradePolicyFromArg(napi_env env, const napi_value arg, UpgradePolicy &upgradePolicy);
