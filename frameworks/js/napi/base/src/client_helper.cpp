@@ -644,7 +644,8 @@ napi_value ClientHelper::BuildThrowError(napi_env env, const BusinessError &busi
     return error;
 }
 
-static std::string ConvertVectorToStr(std::vector<std::string> &strVector) {
+static std::string ConvertVectorToStr(std::vector<std::string> &strVector)
+{
     std::string strValue;
     for (auto &str : strVector) {
         if (!strValue.empty()) {
@@ -655,7 +656,8 @@ static std::string ConvertVectorToStr(std::vector<std::string> &strVector) {
     return strValue;
 }
 
-void ClientHelper::NapiThrowParamError(napi_env env, std::vector<std::string> &paraNames, std::vector<std::string> &paramTypes)
+void ClientHelper::NapiThrowParamError(
+    napi_env env, std::vector<std::string> &paraNames, std::vector<std::string> &paramTypes)
 {
     BusinessError businessError;
     CallResult errCode = CallResult::PARAM_ERR;
