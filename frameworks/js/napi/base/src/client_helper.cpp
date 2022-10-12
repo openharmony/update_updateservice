@@ -640,7 +640,7 @@ napi_value ClientHelper::BuildThrowError(napi_env env, const BusinessError &busi
         static_cast<int32_t>(status));
     NapiUtil::SetInt32(env, errJs, "code", static_cast<int32_t>(businessError.errorNum));
     NapiUtil::SetString(env, errJs, "message", businessError.message);
-    BuildErrorMessages(env, errJs, "data", businessError.data);
+    BuildErrorMessages(env, errJs, "data", COUNT_OF(businessError.data));
     return errJs;
 }
 

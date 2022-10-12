@@ -76,15 +76,15 @@ napi_value UpdateClient::GetOnlineUpdater(napi_env env, napi_callback_info info)
     napi_status status = napi_get_cb_info(env, info, &argc, args, nullptr, nullptr);
     PARAM_CHECK_NAPI_CALL(env, status == napi_ok,
         NapiThrowError(env, CallResult::PARAM_ERR, "callback info");
-        return result, "Error get cb info");
+        return nullptr, "Error get cb info");
     PARAM_CHECK_NAPI_CALL(env, argc >= 1, NapiThrowError(env, CallResult::PARAM_ERR, "param");
-        return result, "Invalid param");
+        return nullptr, "Invalid param");
     PARAM_CHECK_NAPI_CALL(env, !isInit_, return result, "Has been init");
 
     ClientStatus ret = ClientHelper::GetUpgradeInfoFromArg(env, args[0], upgradeInfo_);
     PARAM_CHECK(ret == ClientStatus::CLIENT_SUCCESS,
         NapiThrowError(env, CallResult::PARAM_ERR, "upgradeInfo param");
-        return result, "Failed to get upgradeInfo param");
+        return nullptr, "Failed to get upgradeInfo param");
 
     UpdateCallbackInfo callback {
         [=](const BusinessError &businessError, const CheckResultEx &checkResultEx) {
