@@ -84,7 +84,7 @@ napi_value IUpdater::StartSession(napi_env env, napi_callback_info info, Session
         static_cast<int32_t>(sessionParams.type), argc, static_cast<int>(sessionParams.callbackStartIndex));
     std::shared_ptr<IUpdateSession> sess = nullptr;
     if (argc > sessionParams.callbackStartIndex) {
-        sess = std::make_shared<UpdateAsyncession>(this, sessionParams, argc);
+        sess = std::make_shared<UpdateAsyncSession>(this, sessionParams, argc);
     } else {
         sess = std::make_shared<UpdatePromiseSession>(this, sessionParams, argc);
     }
