@@ -630,6 +630,20 @@ int32_t ClientHelper::BuildBusinessError(napi_env env, napi_value &obj, const Bu
     return CAST_INT(ClientStatus::CLIENT_SUCCESS);
 }
 
+napi_value ClientHelper::BuildThrowError(napi_env env, const BusinessError &businessError)
+{
+    napi_value msg = nullptr;
+    napi_create_string_utf8(env, businessError.message.c_str(), NAPI_AUTO_LENGTH, &msg);
+    napi_value errJs = nullptr;
+    napi_status status = napi_create_error(env, nullptr, msg, &errJs);
+    PARAM_CHECK(status == napi_ok, return nullptr, "Failed to create napi_create_object %d",
+        static_cast<int32_t>(status));
+    NapiUtil::SetInt32(env, errJs, "code", static_cast<int32_t>(businessError.errorNum));
+    NapiUtil::SetString(env, errJs, "message", static_cast<int32_t>(businessError.message));
+    BuildErrorMessages(env, errJs, "data", businessError.data);
+    return errJs;
+}
+
 ClientStatus BuildTaskBody(napi_env env, napi_value &obj, EventId eventId, const TaskBody &taskBody)
 {
     auto iter = g_taskBodyTemplateMap.find(eventId);
