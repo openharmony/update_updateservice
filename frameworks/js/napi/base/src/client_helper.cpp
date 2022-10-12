@@ -632,16 +632,16 @@ int32_t ClientHelper::BuildBusinessError(napi_env env, napi_value &obj, const Bu
 
 napi_value ClientHelper::BuildThrowError(napi_env env, const BusinessError &businessError)
 {
-    napi_value msg = nullptr;
-    napi_create_string_utf8(env, businessError.message.c_str(), NAPI_AUTO_LENGTH, &msg);
-    napi_value errJs = nullptr;
-    napi_status status = napi_create_error(env, nullptr, msg, &errJs);
+    napi_value message = nullptr;
+    napi_create_string_utf8(env, businessError.message.c_str(), NAPI_AUTO_LENGTH, &message);
+    napi_value error = nullptr;
+    napi_status status = napi_create_error(env, nullptr, message, &error);
     PARAM_CHECK(status == napi_ok, return nullptr, "Failed to create napi_create_object %d",
         static_cast<int32_t>(status));
-    NapiUtil::SetInt32(env, errJs, "code", static_cast<int32_t>(businessError.errorNum));
-    NapiUtil::SetString(env, errJs, "message", businessError.message);
-    BuildErrorMessages(env, errJs, "data", businessError.data, COUNT_OF(businessError.data));
-    return errJs;
+    NapiUtil::SetInt32(env, error, "code", static_cast<int32_t>(businessError.errorNum));
+    NapiUtil::SetString(env, error, "message", businessError.message);
+    BuildErrorMessages(env, error, "data", businessError.data, COUNT_OF(businessError.data));
+    return error;
 }
 
 static std::string ConvertVectorToStr(std::vector<std::string> &strVector) {
@@ -660,8 +660,8 @@ void ClientHelper::NapiThrowParamError(napi_env env, std::vector<std::string> &p
     BusinessError businessError;
     CallResult errCode = CallResult::PARAM_ERR;
     std::string errMsg = "BusinessError " + std::to_string(static_cast<int32_t>(errCode))
-        .append(": Parameter error. The type of { ").append(GetParamsStr(paraNames)).append(" }")
-        .append("must be { ").append(GetParamsStr(paramTypes)).append(" }.");
+        .append(": Parameter error. The type of { ").append(ConvertVectorToStr(paraNames)).append(" }")
+        .append("must be { ").append(ConvertVectorToStr(paramTypes)).append(" }.");
     businessError.Build(errCode, errMsg);
     napi_value msg = BuildThrowError(env, businessError);
     napi_status status = napi_throw(env, msg);
