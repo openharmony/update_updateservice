@@ -167,7 +167,7 @@ napi_value UpdateClient::Download(napi_env env, napi_callback_info info)
     paraNames.push_back("downloadOptions");
     std::vector<std::string> paramTypes;
     paramTypes.push_back("VersionDigestInfo");
-    paramTypes.push_back("VersionDigestInfo");
+    paramTypes.push_back("DownloadOptions");
     PARAM_CHECK(ret == ClientStatus::CLIENT_SUCCESS,
         ClientHelper::NapiThrowParamError(env, paraNames, paramTypes);
         return nullptr, "Failed to get Download param");
