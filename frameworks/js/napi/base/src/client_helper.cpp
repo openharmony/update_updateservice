@@ -639,7 +639,7 @@ napi_value ClientHelper::BuildThrowError(napi_env env, const BusinessError &busi
     PARAM_CHECK(status == napi_ok, return nullptr, "Failed to create napi_create_object %d",
         static_cast<int32_t>(status));
     NapiUtil::SetInt32(env, errJs, "code", static_cast<int32_t>(businessError.errorNum));
-    NapiUtil::SetString(env, errJs, "message", static_cast<int32_t>(businessError.message));
+    NapiUtil::SetString(env, errJs, "message", businessError.message);
     BuildErrorMessages(env, errJs, "data", businessError.data);
     return errJs;
 }
