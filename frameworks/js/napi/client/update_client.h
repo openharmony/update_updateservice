@@ -34,7 +34,6 @@ public:
     UpdateClient(napi_env env, napi_value thisVar);
     ~UpdateClient() override;
 
-    void NapiThrowError(napi_env env, CallResult errCode, std::string paraName);
     // Obtain the online updater engine and return it through the sync API.
     napi_value GetOnlineUpdater(napi_env env, napi_callback_info info);
 
