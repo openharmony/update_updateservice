@@ -60,7 +60,7 @@ void UpdateClient::NapiThrowError(napi_env env, CallResult errCode, std::string 
     BusinessError businessError;
     std::string errMsg = "BusinessError " + std::to_string(static_cast<int32_t>(errCode))
         + ": Parameter error. The type of ${" + paraName + "}"
-        + "must be ${��ȷ������} [or ${������ȷ������}].";
+        + "must be ${正确的类型} [or ${其他正确的输入}].";
     businessError.Build(errCode, errMsg);
     napi_value msg = ClientHelper::BuildThrowError(env, businessError);
     napi_status status = napi_throw(env, msg);
