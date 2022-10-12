@@ -691,17 +691,6 @@ ClientStatus ClientHelper::BuildEventInfo(napi_env env, napi_value &obj, const E
     return ClientStatus::CLIENT_SUCCESS;
 }
 
-static std::string ConvertVectorToStr(std::vector<std::string> &strVector) {
-    std::string strValue;
-    for (auto &str : strVector) {
-        if (!strValue.empty()) {
-            strValue.append(", ");
-        }
-        strValue.append(str);
-    }
-    return strValue;
-}
-
 void ClientHelper::NapiThrowParamError(napi_env env, std::vector<std::string> &paraNames, std::vector<std::string> &paramTypes)
 {
     BusinessError businessError;
@@ -713,6 +702,17 @@ void ClientHelper::NapiThrowParamError(napi_env env, std::vector<std::string> &p
     napi_value msg = BuildThrowError(env, businessError);
     napi_status status = napi_throw(env, msg);
     PARAM_CHECK(status == napi_ok, return, "Failed to napi_throw %d", static_cast<int32_t>(status));
+}
+
+static std::string ConvertVectorToStr(std::vector<std::string> &strVector) {
+    std::string strValue;
+    for (auto &str : strVector) {
+        if (!strValue.empty()) {
+            strValue.append(", ");
+        }
+        strValue.append(str);
+    }
+    return strValue;
 }
 } // namespace UpdateEngine
 } // namespace OHOS
