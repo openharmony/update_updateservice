@@ -91,10 +91,10 @@ void UpdateSession::ExecuteWork(napi_env env, void *data)
     sess->ExecuteWork(env);
 }
 
-napi_value UpdateAsyncession::StartWork(napi_env env, size_t startIndex, const napi_value *args)
+napi_value UpdateAsyncSession::StartWork(napi_env env, size_t startIndex, const napi_value *args)
 {
-    CLIENT_LOGI("UpdateAsyncession::StartWork startIndex: %{public}zu", startIndex);
-    CLIENT_LOGI("UpdateAsyncession::totalArgc_ %{public}zu callbackNumber_: %{public}zu", totalArgc_, callbackNumber_);
+    CLIENT_LOGI("UpdateAsyncSession::StartWork startIndex: %{public}zu", startIndex);
+    CLIENT_LOGI("UpdateAsyncSession::totalArgc_ %{public}zu callbackNumber_: %{public}zu", totalArgc_, callbackNumber_);
     PARAM_CHECK_NAPI_CALL(env, args != nullptr && totalArgc_ >= startIndex, return nullptr, "Invalid para");
     napi_value workName = CreateWorkerName(env);
     PARAM_CHECK_NAPI_CALL(env, workName != nullptr, return nullptr, "Failed to worker name");
@@ -103,8 +103,13 @@ napi_value UpdateAsyncession::StartWork(napi_env env, size_t startIndex, const n
     for (size_t i = 0; (i < (totalArgc_ - startIndex)) && (i < callbackNumber_); i++) {
         CLIENT_LOGI("CreateReference index:%u", static_cast<unsigned int>(i + startIndex));
         ClientStatus ret = NapiUtil::IsTypeOf(env, args[i + startIndex], napi_function);
-        PARAM_CHECK_NAPI_CALL(env, ret == ClientStatus::CLIENT_SUCCESS, return nullptr, "invalid type");
-
+        std::vector<std::string> paramNames;
+        paramNames.push_back("callback");
+        std::vector<std::string> paramTypes;
+        paramTypes.push_back("napi_function");
+        PARAM_CHECK_NAPI_CALL(env, ret == ClientStatus::CLIENT_SUCCESS,
+            ClientHelper::NapiThrowParamError(env, paramNames, paramTypes);
+            return nullptr, "invalid type");
         ret = NapiUtil::CreateReference(env, args[i + startIndex], 1, callbackRef_[i]);
         PARAM_CHECK_NAPI_CALL(env, ret == ClientStatus::CLIENT_SUCCESS, return nullptr, "Failed to create reference");
     }
@@ -135,9 +140,9 @@ napi_value UpdateAsyncession::StartWork(napi_env env, size_t startIndex, const n
     return result;
 }
 
-void UpdateAsyncession::NotifyJS(napi_env env, napi_value thisVar, const UpdateResult &result)
+void UpdateAsyncSession::NotifyJS(napi_env env, napi_value thisVar, const UpdateResult &result)
 {
-    CLIENT_LOGI("UpdateAsyncession::NotifyJS callbackNumber_: %{public}d", static_cast<int32_t>(callbackNumber_));
+    CLIENT_LOGI("UpdateAsyncSession::NotifyJS callbackNumber_: %{public}d", static_cast<int32_t>(callbackNumber_));
 
     napi_value callback;
     napi_value undefined;
@@ -149,7 +154,7 @@ void UpdateAsyncession::NotifyJS(napi_env env, napi_value thisVar, const UpdateR
     GetBusinessError(businessError, result);
     uint32_t ret;
     if (UpdateHelper::IsErrorExist(businessError)) {
-        CLIENT_LOGI("UpdateAsyncession::NotifyJS error exist");
+        CLIENT_LOGI("UpdateAsyncSession::NotifyJS error exist");
         ret = static_cast<uint32_t>(ClientHelper::BuildBusinessError(env, retArgs[0], businessError));
     } else {
         ret = static_cast<uint32_t>(result.buildJSObject(env, retArgs[1], result));
@@ -169,9 +174,9 @@ void UpdateAsyncession::NotifyJS(napi_env env, napi_value thisVar, const UpdateR
     worker_ = nullptr;
 }
 
-void UpdateAsyncession::CompleteWork(napi_env env, napi_status status)
+void UpdateAsyncSession::CompleteWork(napi_env env, napi_status status)
 {
-    CLIENT_LOGI("UpdateAsyncession::CompleteWork callbackNumber_: %{public}d, %{public}d",
+    CLIENT_LOGI("UpdateAsyncSession::CompleteWork callbackNumber_: %{public}d, %{public}d",
         static_cast<int32_t>(callbackNumber_),
         sessionParams_.type);
     if (IsNeedWaitAsyncCallback()) {
@@ -182,9 +187,9 @@ void UpdateAsyncession::CompleteWork(napi_env env, napi_status status)
     NotifyJS(env, NULL, result);
 }
 
-void UpdateAsyncessionNoCallback::CompleteWork(napi_env env, napi_status status)
+void UpdateAsyncSessionNoCallback::CompleteWork(napi_env env, napi_status status)
 {
-    CLIENT_LOGI("UpdateAsyncessionNoCallback::CompleteWork callbackNumber_: %d",
+    CLIENT_LOGI("UpdateAsyncSessionNoCallback::CompleteWork callbackNumber_: %d",
         static_cast<int32_t>(callbackNumber_));
 }
 

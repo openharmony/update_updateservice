@@ -124,15 +124,15 @@ protected:
     DoWorkFunction doWorker_ {};
 };
 
-class UpdateAsyncession : public UpdateSession {
+class UpdateAsyncSession : public UpdateSession {
 public:
-    UpdateAsyncession(IUpdater *client, SessionParams &sessionParams, size_t argc, size_t callbackNumber = 1)
+    UpdateAsyncSession(IUpdater *client, SessionParams &sessionParams, size_t argc, size_t callbackNumber = 1)
         : UpdateSession(client, sessionParams, argc, callbackNumber)
     {
         callbackRef_.resize(callbackNumber);
     }
 
-    ~UpdateAsyncession() override
+    ~UpdateAsyncSession() override
     {
         callbackRef_.clear();
     }
@@ -146,13 +146,13 @@ private:
     std::vector<napi_ref> callbackRef_ = {0};
 };
 
-class UpdateAsyncessionNoCallback : public UpdateAsyncession {
+class UpdateAsyncSessionNoCallback : public UpdateAsyncSession {
 public:
-    UpdateAsyncessionNoCallback(
+    UpdateAsyncSessionNoCallback(
         IUpdater *client, SessionParams &sessionParams, size_t argc, size_t callbackNumber = 0)
-        : UpdateAsyncession(client, sessionParams, argc, callbackNumber) {}
+        : UpdateAsyncSession(client, sessionParams, argc, callbackNumber) {}
 
-    ~UpdateAsyncessionNoCallback() override {}
+    ~UpdateAsyncSessionNoCallback() override {}
 
     void CompleteWork(napi_env env, napi_status status) override;
 };

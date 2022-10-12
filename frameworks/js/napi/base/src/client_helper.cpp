@@ -630,6 +630,46 @@ int32_t ClientHelper::BuildBusinessError(napi_env env, napi_value &obj, const Bu
     return CAST_INT(ClientStatus::CLIENT_SUCCESS);
 }
 
+napi_value ClientHelper::BuildThrowError(napi_env env, const BusinessError &businessError)
+{
+    napi_value message = nullptr;
+    napi_create_string_utf8(env, businessError.message.c_str(), NAPI_AUTO_LENGTH, &message);
+    napi_value error = nullptr;
+    napi_status status = napi_create_error(env, nullptr, message, &error);
+    PARAM_CHECK(status == napi_ok, return nullptr, "Failed to create napi_create_object %d",
+        static_cast<int32_t>(status));
+    NapiUtil::SetInt32(env, error, "code", static_cast<int32_t>(businessError.errorNum));
+    NapiUtil::SetString(env, error, "message", businessError.message);
+    BuildErrorMessages(env, error, "data", businessError.data, COUNT_OF(businessError.data));
+    return error;
+}
+
+static std::string ConvertVectorToStr(std::vector<std::string> &strVector)
+{
+    std::string strValue;
+    for (auto &str : strVector) {
+        if (!strValue.empty()) {
+            strValue.append(", ");
+        }
+        strValue.append(str);
+    }
+    return strValue;
+}
+
+void ClientHelper::NapiThrowParamError(
+    napi_env env, std::vector<std::string> &paramNames, std::vector<std::string> &paramTypes)
+{
+    BusinessError businessError;
+    CallResult errCode = CallResult::PARAM_ERR;
+    std::string errMsg = "BusinessError " + std::to_string(static_cast<int32_t>(errCode))
+        .append(": Parameter error. The type of { ").append(ConvertVectorToStr(paramNames)).append(" }")
+        .append("must be { ").append(ConvertVectorToStr(paramTypes)).append(" }.");
+    businessError.Build(errCode, errMsg);
+    napi_value msg = BuildThrowError(env, businessError);
+    napi_status status = napi_throw(env, msg);
+    PARAM_CHECK(status == napi_ok, return, "Failed to napi_throw %d", static_cast<int32_t>(status));
+}
+
 ClientStatus BuildTaskBody(napi_env env, napi_value &obj, EventId eventId, const TaskBody &taskBody)
 {
     auto iter = g_taskBodyTemplateMap.find(eventId);
