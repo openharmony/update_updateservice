@@ -64,13 +64,13 @@ napi_value UpdateClient::GetOnlineUpdater(napi_env env, napi_callback_info info)
     napi_status status = napi_get_cb_info(env, info, &argc, args, nullptr, nullptr);
     PARAM_CHECK_NAPI_CALL(env, status == napi_ok, return nullptr, "Error get cb info");
     PARAM_CHECK_NAPI_CALL(env, argc >= 1,
-        ClientHelper::NapiThrowParamError(env, {"upgradeInfo_"}, {"UpgradeInfo"});
+        ClientHelper::NapiThrowParamError(env, {"upgradeInfo"}, {"UpgradeInfo"});
         return nullptr, "Invalid param");
     PARAM_CHECK_NAPI_CALL(env, !isInit_, return result, "Has been init");
 
     ClientStatus ret = ClientHelper::GetUpgradeInfoFromArg(env, args[0], upgradeInfo_);
     PARAM_CHECK(ret == ClientStatus::CLIENT_SUCCESS,
-        ClientHelper::NapiThrowParamError(env, {"upgradeInfo_"}, {"UpgradeInfo"});
+        ClientHelper::NapiThrowParamError(env, {"upgradeInfo"}, {"UpgradeInfo"});
         return nullptr, "Failed to get upgradeInfo param");
 
     UpdateCallbackInfo callback {
@@ -106,7 +106,7 @@ napi_value UpdateClient::CancelUpgrade(napi_env env, napi_callback_info info)
     CLIENT_LOGI("CancelUpgrade");
     SessionParams sessionParams(SessionType::SESSION_CANCEL_UPGRADE, CALLBACK_POSITION_ONE, true);
     std::shared_ptr<UpdateSession> sess = nullptr;
-    sess = std::make_shared<UpdateAsyncessionNoCallback>(this, sessionParams, argc);
+    sess = std::make_shared<UpdateAsyncSessionNoCallback>(this, sessionParams, argc);
     PARAM_CHECK_NAPI_CALL(env, sess != nullptr, return nullptr, "Failed to create update session");
     sessionsMgr_->AddSession(sess);
     napi_value retValue = sess->StartWork(
@@ -175,7 +175,7 @@ napi_value UpdateClient::PauseDownload(napi_env env, napi_callback_info info)
 
     ClientStatus ret = ParseUpgOptions(env, info, versionDigestInfo_, pauseDownloadOptions_);
     PARAM_CHECK(ret == ClientStatus::CLIENT_SUCCESS, ClientHelper::NapiThrowParamError(env,
-        {"versionDigestInfo_", "pauseDownloadOptions_"}, {"VersionDigestInfo", "PauseDownloadOptions"});
+        {"versionDigestInfo", "pauseDownloadOptions"}, {"VersionDigestInfo", "PauseDownloadOptions"});
         return nullptr, "Failed to get pauseDownloadOptions param");
 
     SessionParams sessionParams(SessionType::SESSION_PAUSE_DOWNLOAD, CALLBACK_POSITION_THREE, true);
@@ -197,7 +197,7 @@ napi_value UpdateClient::ResumeDownload(napi_env env, napi_callback_info info)
 
     ClientStatus ret = ParseUpgOptions(env, info, versionDigestInfo_, resumeDownloadOptions_);
     PARAM_CHECK(ret == ClientStatus::CLIENT_SUCCESS, ClientHelper::NapiThrowParamError(env,
-        {"versionDigestInfo_", "resumeDownloadOptions_"}, {"VersionDigestInfo", "ResumeDownloadOptions"});
+        {"versionDigestInfo", "resumeDownloadOptions"}, {"VersionDigestInfo", "ResumeDownloadOptions"});
         return nullptr, "Failed to get resumeDownloadOptions param");
 
     SessionParams sessionParams(SessionType::SESSION_RESUME_DOWNLOAD, CALLBACK_POSITION_THREE, true);
@@ -219,7 +219,7 @@ napi_value UpdateClient::Upgrade(napi_env env, napi_callback_info info)
 
     ClientStatus ret = ParseUpgOptions(env, info, versionDigestInfo_, upgradeOptions_);
     PARAM_CHECK(ret == ClientStatus::CLIENT_SUCCESS, ClientHelper::NapiThrowParamError(env,
-        {"versionDigestInfo_", "upgradeOptions_"}, {"VersionDigestInfo", "UpgradeOptions"});
+        {"versionDigestInfo", "upgradeOptions"}, {"VersionDigestInfo", "UpgradeOptions"});
         return nullptr, "Failed to get resumeDownloadOptions param");
 
     SessionParams sessionParams(SessionType::SESSION_UPGRADE, CALLBACK_POSITION_THREE, true);
@@ -245,7 +245,7 @@ napi_value UpdateClient::ClearError(napi_env env, napi_callback_info info)
 
     ClientStatus ret = ParseUpgOptions(env, info, versionDigestInfo_, clearOptions_);
     PARAM_CHECK(ret == ClientStatus::CLIENT_SUCCESS, ClientHelper::NapiThrowParamError(env,
-        {"versionDigestInfo_", "clearOptions_"}, {"VersionDigestInfo", "ClearOptions"});
+        {"versionDigestInfo", "clearOptions"}, {"VersionDigestInfo", "ClearOptions"});
         return nullptr, "Failed to get clearOptions param");
 
     SessionParams sessionParams(SessionType::SESSION_CLEAR_ERROR, CALLBACK_POSITION_THREE, true);
@@ -284,7 +284,7 @@ napi_value UpdateClient::SetUpgradePolicy(napi_env env, napi_callback_info info)
 
     ClientStatus ret = ClientHelper::GetUpgradePolicyFromArg(env, args[0], upgradePolicy_);
     PARAM_CHECK(ret == ClientStatus::CLIENT_SUCCESS, ClientHelper::NapiThrowParamError(env,
-        {"upgradePolicy_"}, {"UpgradePolicy"});
+        {"upgradePolicy"}, {"UpgradePolicy"});
         return nullptr, "Failed to get upgradePolicy param");
 
     SessionParams sessionParams(SessionType::SESSION_SET_POLICY, CALLBACK_POSITION_TWO, true);
@@ -331,7 +331,7 @@ napi_value UpdateClient::GetNewVersionDescription(napi_env env, napi_callback_in
 
     ClientStatus ret = ParseUpgOptions(env, info, versionDigestInfo_, descriptionOptions_);
     PARAM_CHECK(ret == ClientStatus::CLIENT_SUCCESS, ClientHelper::NapiThrowParamError(env,
-        {"versionDigestInfo_", "descriptionOptions_"}, {"VersionDigestInfo", "DescriptionOptions"});
+        {"versionDigestInfo", "descriptionOptions"}, {"VersionDigestInfo", "DescriptionOptions"});
         return nullptr, "Failed to get GetNewVersionDescription param");
 
     SessionParams sessionParams(SessionType::SESSION_GET_NEW_VERSION_DESCRIPTION, CALLBACK_POSITION_THREE, true);
@@ -367,7 +367,7 @@ napi_value UpdateClient::GetCurrentVersionDescription(napi_env env, napi_callbac
 
     ClientStatus ret = ParseUpgOptions(env, info, versionDigestInfo_, descriptionOptions_);
     PARAM_CHECK(ret == ClientStatus::CLIENT_SUCCESS, ClientHelper::NapiThrowParamError(env,
-        {"versionDigestInfo_", "descriptionOptions_"}, {"VersionDigestInfo", "DescriptionOptions"});
+        {"versionDigestInfo", "descriptionOptions"}, {"VersionDigestInfo", "DescriptionOptions"});
         return nullptr, "Failed to get GetCurrentVersionDescription param");
 
     SessionParams sessionParams(SessionType::SESSION_GET_CUR_VERSION_DESCRIPTION, CALLBACK_POSITION_TWO, true);

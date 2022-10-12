@@ -544,9 +544,9 @@ HWTEST_F(UpdateClientTest, TestNewClient, TestSize.Level1)
     delete client;
 }
 
-HWTEST_F(UpdateClientTest, TestUpdateAsyncessionNoCallback, TestSize.Level1)
+HWTEST_F(UpdateClientTest, TestUpdateAsyncSessionNoCallback, TestSize.Level1)
 {
-    UpdateSession *sess = new UpdateAsyncessionNoCallback(g_testClient, 2, 1, 0);
+    UpdateSession *sess = new UpdateAsyncSessionNoCallback(g_testClient, 2, 1, 0);
     EXPECT_NE(sess, nullptr);
     delete sess;
 }
