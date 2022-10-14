@@ -16,7 +16,8 @@
 #ifndef UPDATE_SERVICE_AB_CALLBACK_H
 #define UPDATE_SERVICE_AB_CALLBACK_H
 
-#include "sys_installer_callback_stub.h"
+#include "isys_installer_callback_func.h"
+#include "sys_installer_callback.h"
 #include "sys_installer_common.h"
 #include "sys_installer_kits_impl.h"
 
@@ -24,7 +25,7 @@
 
 namespace OHOS {
 namespace UpdateEngine {
-class UpdateServiceAbCallback final : public OHOS::SysInstaller::SysInstallerCallbackStub {
+class UpdateServiceAbCallback final : public ISysInstallerCallbackFunc {
 public:
     UpdateServiceAbCallback(const UpgradeInfo &info);
     ~UpdateServiceAbCallback() = default;
