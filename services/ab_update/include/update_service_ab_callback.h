@@ -30,7 +30,7 @@ public:
     UpdateServiceAbCallback(const UpgradeInfo &info);
     ~UpdateServiceAbCallback() = default;
 
-    void OnUpgradeProgress(int updateStatus, int percent) final;
+    void OnUpgradeProgress(UpdateStatus updateStatus, int percent) final;
 
 private:
     void InitEventInfo();

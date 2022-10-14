@@ -23,7 +23,7 @@ UpdateServiceAbCallback::UpdateServiceAbCallback(const UpgradeInfo &info)
     info_ = info;
 }
 
-void UpdateServiceAbCallback::OnUpgradeProgress(int updateStatus, int percent)
+void UpdateServiceAbCallback::OnUpgradeProgress(UpdateStatus updateStatus, int percent)
 {
     ENGINE_LOGI("UpdateServiceAbCallback OnUpgradeProgress progress %d percent %d", updateStatus, percent);
     switch (updateStatus) {
