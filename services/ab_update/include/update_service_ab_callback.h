@@ -25,7 +25,7 @@
 
 namespace OHOS {
 namespace UpdateEngine {
-class UpdateServiceAbCallback final : public ISysInstallerCallbackFunc {
+class UpdateServiceAbCallback final : public OHOS::SysInstaller::ISysInstallerCallbackFunc {
 public:
     UpdateServiceAbCallback(const UpgradeInfo &info);
     ~UpdateServiceAbCallback() = default;
