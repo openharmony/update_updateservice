@@ -19,7 +19,7 @@
 
 namespace OHOS {
 namespace UpdateEngine {
-sptr<OHOS::SysInstaller::ISysInstallerCallback> UpdateServiceAbUpdate::cb_ = nullptr;
+sptr<OHOS::SysInstaller::ISysInstallerCallbackFunc> UpdateServiceAbUpdate::cb_ = nullptr;
 const std::string PARAM_NAME_FOR_BOOTSLOTS = "ohos.boot.bootslots";
 const std::string BOOTSLOTS_DEFAULT_VALUE = "0";
 const std::string BOOTSLOTS_AB_UPDATE_VALUE = "2";
