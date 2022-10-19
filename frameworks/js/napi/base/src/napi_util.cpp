@@ -66,7 +66,7 @@ int32_t NapiUtil::GetString(napi_env env, napi_value arg, std::string &strValue)
 
     std::vector<char> buff(STRING_MAX_LENGTH);
     size_t copied;
-    status = napi_get_value_string_utf8(env, arg, (char*)buff.data(), STRING_MAX_LENGTH, &copied);
+    status = napi_get_value_string_utf8(env, arg, static_cast<char*>(buff.data()), STRING_MAX_LENGTH, &copied);
     PARAM_CHECK(status == napi_ok, return CAST_INT(ClientStatus::CLIENT_INVALID_TYPE), "Error get string");
     strValue.assign(buff.data(), copied);
     return CAST_INT(ClientStatus::CLIENT_SUCCESS);

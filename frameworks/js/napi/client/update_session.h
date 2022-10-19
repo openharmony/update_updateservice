@@ -199,7 +199,7 @@ public:
 
     bool CheckEqual(napi_env env, napi_value handler, const std::string &type);
 
-    bool IsSubscribeEvent(const EventClassifyInfo &eventClassifyInfo)
+    bool IsSubscribeEvent(const EventClassifyInfo &eventClassifyInfo) const
     {
         return eventClassifyInfo_.eventClassify == eventClassifyInfo.eventClassify;
     }

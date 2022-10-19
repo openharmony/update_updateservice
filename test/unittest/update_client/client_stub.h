@@ -32,7 +32,7 @@ public:
     TestNApiValue(int type, const void *value);
     ~TestNApiValue() {}
 
-    int GetType()
+    int GetType() const
     {
         return type_;
     }
