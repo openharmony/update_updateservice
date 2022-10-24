@@ -15,8 +15,6 @@
 
 #include "fuzztest_helper.h"
 
-#include "update_helper.h"
-
 namespace OHOS {
 namespace UpdateEngine {
 constexpr uint32_t CHAR_TO_INT_INDEX0 = 0;
@@ -54,16 +52,13 @@ static void FtOnEvent(const EventInfo &eventInfo)
 bool FuzztestHelper::TrySetData(const uint8_t* data, size_t size)
 {
     if (size < FUZZ_DATA_LEN) {
-        ENGINE_LOGE("TrySetData data's size too short, size is %d, need min len is %d", size, FUZZ_DATA_LEN);
         return false;
     }
 
     if (memcpy_s(data_, sizeof(data_), data, sizeof(data_)) != EOK) {
-        ENGINE_LOGE("TrySetData memcpy_s error");
         return false;
     }
 
-    ENGINE_LOGI("TrySetData succeed");
     return true;
 }
 
@@ -71,7 +66,6 @@ int32_t FuzztestHelper::GetInt()
 {
     int32_t number;
     if (index_ + FUZZ_INT_LEN_DATA > FUZZ_DATA_LEN) {
-        ENGINE_LOGI("GetInt index_ reset");
         index_ = FUZZ_HEAD_DATA;
     }
     number = static_cast<int32_t>(
@@ -144,7 +138,6 @@ VersionDigestInfo FuzztestHelper::BuildVersionDigestInfo()
 void FuzztestHelper::GetCharArray(char *charArray, uint32_t arraySize)
 {
     if (index_ + arraySize > FUZZ_DATA_LEN) {
-        ENGINE_LOGI("GetCharArray index_ reset");
         index_ = FUZZ_HEAD_DATA;
     }
     for (uint32_t i = 0; i < arraySize; i++) {
@@ -157,7 +150,6 @@ uint32_t FuzztestHelper::GetUInt()
 {
     uint32_t number;
     if (index_ + FUZZ_INT_LEN_DATA > FUZZ_DATA_LEN) {
-        ENGINE_LOGI("GetUInt index_ reset");
         index_ = FUZZ_HEAD_DATA;
     }
     number = (static_cast<uint32_t>(data_[index_ + CHAR_TO_INT_INDEX0]) <<
