@@ -16,41 +16,35 @@
 #ifndef UPDATE_SERVICE_COMMON_FUZZER_H
 #define UPDATE_SERVICE_COMMON_FUZZER_H
 
-#include "update_service_kits_impl.h"
-
 #include <cstddef>
 #include <cstdint>
 #include <securec.h>
+#include "singleton.h"
+
+#include "update_service_kits_impl.h"
 
 namespace OHOS {
 namespace UpdateEngine {
-class FuzztestHelper {
+constexpr const int32_t FUZZ_DATA_LEN = 500;
+
+class FuzztestHelper : public DelayedSingleton<FuzztestHelper> {
+    DECLARE_DELAYED_SINGLETON(FuzztestHelper);
+
 public:
-    FuzztestHelper(const uint8_t* data, size_t size);
-    virtual ~FuzztestHelper() = default;
-    DISALLOW_COPY_AND_MOVE(FuzztestHelper);
-
-    UpdateCallbackInfo BuildUpdateCallbackInfo();
-
-    UpgradePolicy BuildUpgradePolicy();
-
-    BusinessType BuildBusinessType();
-
-    UpgradeInfo BuildUpgradeInfo();
-
-    VersionDigestInfo BuildVersionDigestInfo();
-
+    bool TrySetData(const uint8_t* data, size_t size);
     int32_t GetInt();
-
-    static const uint32_t FUZZ_DATA_LEN = 500;
+    BusinessType BuildBusinessType();
+    UpdateCallbackInfo BuildUpdateCallbackInfo();
+    UpgradeInfo BuildUpgradeInfo();
+    UpgradePolicy BuildUpgradePolicy();
+    VersionDigestInfo BuildVersionDigestInfo();
 
 private:
     void GetCharArray(char *charArray, uint32_t arraySize);
-
     uint32_t GetUInt();
 
     uint32_t index_ = 0;
-    uint8_t data_[FUZZ_DATA_LEN] {};
+    uint8_t data_[FUZZ_DATA_LEN] = {0};
 };
 } // namespace UpdateEngine
 } // namespace OHOS

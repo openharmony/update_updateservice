@@ -30,6 +30,8 @@ namespace UpdateEngine {
 #define RETURN_FAIL_WHEN_SERVICE_NULL(service) \
     ENGINE_CHECK((service) != nullptr, return INT_CALL_IPC_ERR, "service null")
 
+constexpr const pid_t ROOT_UID = 0;
+
 static int32_t GetNewVersionStub(UpdateServiceStub::UpdateServiceStubPtr service,
     MessageParcel& data, MessageParcel& reply, MessageOption &option)
 {
@@ -333,6 +335,11 @@ static int32_t VerifyUpgradePackageStub(UpdateServiceStub::UpdateServiceStubPtr 
 
 static bool IsPermissionGranted(uint32_t code)
 {
+    if (IPCSkeleton::GetCallingUid() == ROOT_UID) {
+        ENGINE_LOGI("calling uid is root, permission granted");
+        return true;
+    }
+
     Security::AccessToken::AccessTokenID callerToken = IPCSkeleton::GetCallingTokenID();
     string permission = "ohos.permission.UPDATE_SYSTEM";
     if (code == IUpdateService::FACTORY_RESET) {

@@ -21,6 +21,7 @@
 #include "singleton.h"
 #include "iupdate_callback.h"
 #include "update_callback.h"
+#include "update_service_proxy.h"
 
 namespace OHOS {
 namespace UpdateEngine {
