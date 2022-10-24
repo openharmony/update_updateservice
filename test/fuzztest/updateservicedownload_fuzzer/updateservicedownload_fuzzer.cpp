@@ -20,14 +20,21 @@ using namespace OHOS::UpdateEngine;
 namespace OHOS {
 bool FuzzUpdateServiceDownload(const uint8_t* data, size_t size)
 {
-    if (size < FuzztestHelper::FUZZ_DATA_LEN) {
+    if (size < FUZZ_DATA_LEN) {
+        ENGINE_LOGE("Input data's size too short, size is %d, need min len is %d", size, FUZZ_DATA_LEN);
         return false;
     }
-    FuzztestHelper fuzztestHelper(data, size);
+
+    if (!DelayedSingleton<FuzztestHelper>::GetInstance()->TrySetData(data, size)) {
+        ENGINE_LOGE("FuzztestHelper TrySetData failed");
+        return false;
+    }
+
     DownloadOptions downloadOptions;
     BusinessError businessError;
-    return UpdateServiceKits::GetInstance().Download(fuzztestHelper.BuildUpgradeInfo(),
-        fuzztestHelper.BuildVersionDigestInfo(), downloadOptions, businessError) == 0;
+    return UpdateServiceKits::GetInstance().Download(
+        DelayedSingleton<FuzztestHelper>::GetInstance()->BuildUpgradeInfo(),
+        DelayedSingleton<FuzztestHelper>::GetInstance()->BuildVersionDigestInfo(), downloadOptions, businessError) == 0;
 }
 }
 
