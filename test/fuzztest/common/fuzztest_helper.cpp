@@ -39,7 +39,7 @@ constexpr uint32_t FUZZ_CHAR_ARRAY_LEN_DATA = 64;
 
 FuzztestHelper::FuzztestHelper()
 {
-    static const char *PERMS[] = {
+    static const char *perms[] = {
         "ohos.permission.UPDATE_SYSTEM",
         "ohos.permission.FACTORY_RESET"
     };
@@ -48,7 +48,7 @@ FuzztestHelper::FuzztestHelper()
         .permsNum = 2,
         .aclsNum = 0,
         .dcaps = nullptr,
-        .perms = PERMS,
+        .perms = perms,
         .acls = nullptr,
         .processName = "updateservice_fuzztest",
         .aplStr = "system_basic",
