@@ -119,6 +119,7 @@ public:
         ctx.upgradeFile = "/data/ota_package/updater.zip";
         UpdateService *updateServer = new UpdateService(0, true);
         int ret = updateServer->RegisterUpdateCallback(ctx, callback_);
+        EXPECT_EQ(0, ret);
         EXPECT_NE(updateServer, nullptr);
         updateServer->DoUpdate();
         ret = updateServer->UnregisterUpdateCallback();
