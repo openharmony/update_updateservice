@@ -50,7 +50,7 @@ FuzztestHelper::FuzztestHelper()
         .dcaps = nullptr,
         .perms = PERMS,
         .acls = nullptr,
-        .processName = "updateengine_fuzztest",
+        .processName = "updateservice_fuzztest",
         .aplStr = "system_basic",
     };
     uint64_t tokenId = GetAccessTokenId(&infoInstance);
