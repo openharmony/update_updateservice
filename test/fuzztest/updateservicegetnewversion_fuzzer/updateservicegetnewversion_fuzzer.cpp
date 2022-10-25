@@ -20,14 +20,18 @@ using namespace OHOS::UpdateEngine;
 namespace OHOS {
 bool FuzzUpdateServiceGetNewVersion(const uint8_t* data, size_t size)
 {
-    if (size < FuzztestHelper::FUZZ_DATA_LEN) {
+    if (size < FUZZ_DATA_LEN) {
         return false;
     }
-    FuzztestHelper fuzztestHelper(data, size);
+
+    if (!DelayedSingleton<FuzztestHelper>::GetInstance()->TrySetData(data, size)) {
+        return false;
+    }
+
     NewVersionInfo newVersionInfo;
     BusinessError businessError;
-    return UpdateServiceKits::GetInstance().GetNewVersionInfo(fuzztestHelper.BuildUpgradeInfo(), newVersionInfo,
-        businessError) == 0;
+    return UpdateServiceKits::GetInstance().GetNewVersionInfo(
+        DelayedSingleton<FuzztestHelper>::GetInstance()->BuildUpgradeInfo(), newVersionInfo, businessError) == 0;
 }
 }
 

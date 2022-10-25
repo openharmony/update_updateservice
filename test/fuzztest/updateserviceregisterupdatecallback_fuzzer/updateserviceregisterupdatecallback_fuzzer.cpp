@@ -20,12 +20,17 @@ using namespace OHOS::UpdateEngine;
 namespace OHOS {
 bool FuzzUpdateServiceRegisterUpdateCallback(const uint8_t* data, size_t size)
 {
-    if (size < FuzztestHelper::FUZZ_DATA_LEN) {
+    if (size < FUZZ_DATA_LEN) {
         return false;
     }
-    FuzztestHelper fuzztestHelper(data, size);
+
+    if (!DelayedSingleton<FuzztestHelper>::GetInstance()->TrySetData(data, size)) {
+        return false;
+    }
+
     return UpdateServiceKits::GetInstance().RegisterUpdateCallback(
-        fuzztestHelper.BuildUpgradeInfo(), fuzztestHelper.BuildUpdateCallbackInfo()) == 0;
+        DelayedSingleton<FuzztestHelper>::GetInstance()->BuildUpgradeInfo(),
+        DelayedSingleton<FuzztestHelper>::GetInstance()->BuildUpdateCallbackInfo()) == 0;
 }
 }
 
