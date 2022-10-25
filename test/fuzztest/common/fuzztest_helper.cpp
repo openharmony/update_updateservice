@@ -15,6 +15,10 @@
 
 #include "fuzztest_helper.h"
 
+#include "accesstoken_kit.h"
+#include "nativetoken_kit.h"
+#include "token_setproc.h"
+
 namespace OHOS {
 namespace UpdateEngine {
 constexpr uint32_t CHAR_TO_INT_INDEX0 = 0;
@@ -35,6 +39,26 @@ constexpr uint32_t FUZZ_CHAR_ARRAY_LEN_DATA = 64;
 
 FuzztestHelper::FuzztestHelper()
 {
+    static const char *PERMS[] = {
+        "ohos.permission.UPDATE_SYSTEM",
+        "ohos.permission.FACTORY_RESET"
+    };
+    NativeTokenInfoParams infoInstance = {
+        .dcapsNum = 0,
+        .permsNum = 2,
+        .aclsNum = 0,
+        .dcaps = nullptr,
+        .perms = PERMS,
+        .acls = nullptr,
+        .processName = "updateengine_fuzztest",
+        .aplStr = "system_basic",
+    };
+    uint64_t tokenId = GetAccessTokenId(&infoInstance);
+    if (tokenId == 0) {
+        return;
+    }
+    SetSelfTokenID(tokenId);
+    OHOS::Security::AccessToken::AccessTokenKit::ReloadNativeTokenInfo();
 }
 
 FuzztestHelper::~FuzztestHelper()
