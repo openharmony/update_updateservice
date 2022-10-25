@@ -34,6 +34,7 @@ void UpdateCallbackProxy::OnCheckVersionDone(const BusinessError &businessError,
     ENGINE_CHECK(remote != nullptr, return, "Can not get remote");
 
     int32_t result = UpdateHelper::WriteBusinessError(data, businessError);
+    ENGINE_CHECK(result == 0, return, "Can not WriteBusinessError");
     result = UpdateHelper::WriteCheckResult(data, checkResultEx);
 
     ENGINE_CHECK(result == 0, return, "Can not WriteVersionInfo");

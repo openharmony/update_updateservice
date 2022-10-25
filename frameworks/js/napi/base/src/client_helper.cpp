@@ -339,11 +339,12 @@ int32_t ClientHelper::BuildUpgradePolicy(napi_env env, napi_value &obj, const Up
     for (size_t i = 0; i < count; i++) {
         napi_value result;
         status = napi_create_object(env, &result);
+        PARAM_CHECK(status == napi_ok, return status, "Failed to create napi_create_object %d", status);
         NapiUtil::SetInt32(env, result, "start", upgradePolicy.autoUpgradePeriods[i].start);
         NapiUtil::SetInt32(env, result, "end", upgradePolicy.autoUpgradePeriods[i].end);
         napi_set_element(env, autoUpgradePeriods, i, result);
     }
-    status = napi_set_named_property(env, obj, "autoUpgradePeriods", autoUpgradePeriods);
+    napi_set_named_property(env, obj, "autoUpgradePeriods", autoUpgradePeriods);
     return napi_ok;
 }
 
@@ -371,10 +372,6 @@ void ParseBusinessType(napi_env env, const napi_value arg, UpgradeInfo &upgradeI
         napi_value businessTypeValue;
         status = napi_get_named_property(env, arg, "businessType", &businessTypeValue);
         NapiUtil::GetString(env, businessTypeValue, "vendor", upgradeInfo.businessType.vendor);
-
-        int32_t subType;
-        NapiUtil::GetInt32(env, businessTypeValue, "subType", subType);
-        upgradeInfo.businessType.subType = static_cast<BusinessSubType>(subType);
     }
     upgradeInfo.businessType.subType = BusinessSubType::FIRMWARE;
 }
