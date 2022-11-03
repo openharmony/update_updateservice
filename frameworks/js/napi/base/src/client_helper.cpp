@@ -344,7 +344,7 @@ int32_t ClientHelper::BuildUpgradePolicy(napi_env env, napi_value &obj, const Up
         NapiUtil::SetInt32(env, result, "end", upgradePolicy.autoUpgradePeriods[i].end);
         napi_set_element(env, autoUpgradePeriods, i, result);
     }
-    napi_set_named_property(env, obj, "autoUpgradePeriods", autoUpgradePeriods);
+    (void)napi_set_named_property(env, obj, "autoUpgradePeriods", autoUpgradePeriods);
     return napi_ok;
 }
 
