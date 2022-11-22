@@ -835,7 +835,9 @@ int32_t UpdateService::ApplyNewVersion(const UpgradeInfo &info, const std::strin
     SYS_EVENT_SYSTEM_UPGRADE(0, UpdateSystemEvent::UPGRADE_START);
     businessError.errorNum = CallResult::SUCCESS;
     SendEvent(info, EventId::EVENT_UPGRADE_UPDATE);
-    int32_t ret = RebootAndInstallUpgradePackage(miscFile, packageName) ? INT_CALL_SUCCESS : INT_CALL_FAIL;
+    std::vector<std::string> packagePath;
+    packagePath.push_back(packageName);
+    int32_t ret = RebootAndInstallUpgradePackage(miscFile, packagePath) ? INT_CALL_SUCCESS : INT_CALL_FAIL;
     ENGINE_LOGI("ApplyNewVersion result : %{public}d", ret);
     SendEvent(info, ret == INT_CALL_SUCCESS ? EventId::EVENT_UPGRADE_SUCCESS : EventId::EVENT_UPGRADE_FAIL);
     SYS_EVENT_SYSTEM_UPGRADE(
