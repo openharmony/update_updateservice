@@ -473,7 +473,9 @@ int32_t UpdateService::DoUpdate(const UpgradeInfo &info, const VersionDigestInfo
         return INT_CALL_SUCCESS, "Invalid status %d", upgradeStatus_);
 
     progress.status = UPDATE_STATE_INSTALL_SUCCESS;
-    bool ret = RebootAndInstallUpgradePackage(MISC_FILE, UPDATER_PKG_NAME);
+    std::vector<std::string> updaterPkgName;
+    updaterPkgName.push_back(UPDATER_PKG_NAME);
+    bool ret = RebootAndInstallUpgradePackage(MISC_FILE, updaterPkgName);
     SYS_EVENT_SYSTEM_UPGRADE(0, ret ? UpdateSystemEvent::EVENT_SUCCESS_RESULT : UpdateSystemEvent::EVENT_FAILED_RESULT);
     if (!ret) {
         ENGINE_LOGI("UpdateService::DoUpdate execute failed");
