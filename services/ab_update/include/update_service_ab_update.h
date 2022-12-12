@@ -33,7 +33,7 @@ public:
     static int32_t DoAbUpdate(const UpgradeInfo &info, const std::string &packageName);
 
 private:
-    static sptr<OHOS::SysInstaller::ISysInstallerCallback> cb_;
+    static sptr<OHOS::SysInstaller::ISysInstallerCallbackFunc> cb_;
 };
 } // namespace UpdateEngine
 } // namespace OHOS

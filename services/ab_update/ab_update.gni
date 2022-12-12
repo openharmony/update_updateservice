@@ -20,6 +20,8 @@ ab_update_external_deps = []
 
 ab_update_include = [
   "$ab_update_root_path/include",
+  "//base/update/sys_installer/common/include",
+  "//base/update/sys_installer/common/include",
   "//base/update/sys_installer/include",
   "//base/update/sys_installer/interfaces/innerkits",
   "//base/update/sys_installer/interfaces/inner_api/include",
