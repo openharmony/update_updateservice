@@ -44,10 +44,6 @@ static constexpr int PERCENT_60 = 60;
 static constexpr int PERCENT_100 = 100;
 static constexpr int NUMBER_2 = 2;
 
-extern TestNApiEnv g_testEnv;
-extern uint32_t g_testSessionId;
-extern UpdateClient* g_testClient;
-
 namespace {
 void  CHECK_RESULT_EQ(int ret, int value)
 {
