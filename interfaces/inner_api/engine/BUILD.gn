@@ -38,7 +38,7 @@ ohos_static_library("$updateengine_inner_library_name") {
     "//third_party/bounds_checking_function/include",  # secure method
   ]
 
-  deps = [ "//third_party/bounds_checking_function:libsec_static" ]
+  deps = [ "//third_party/bounds_checking_function:libsec_shared" ]
 
   external_deps = [
     "c_utils:utils",  # sptr
