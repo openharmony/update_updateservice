@@ -81,6 +81,9 @@ protected:
     {
         std::string msg = "execute error";
         switch (workResult_) {
+            case INT_NOT_SYSTEM_APP:
+                msg = "Caller not system app";
+                break;
             case INT_APP_NOT_GRANTED:
                 msg = "permission not granted";
                 break;
