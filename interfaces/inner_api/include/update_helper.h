@@ -45,6 +45,7 @@ enum class CallResult {
     FORBIDDEN = 103,
     IPC_ERR = 104,
     APP_NOT_GRANTED = 200,
+    NOT_SYSTEM_APP = 202,
     PARAM_ERR = 401,
     TIME_OUT = 402,
     DB_ERROR = 501,
@@ -58,6 +59,7 @@ constexpr int32_t INT_UN_SUPPORT = CAST_INT(CallResult::UN_SUPPORT);
 constexpr int32_t INT_FORBIDDEN = CAST_INT(CallResult::FORBIDDEN);
 constexpr int32_t INT_CALL_IPC_ERR = CAST_INT(CallResult::IPC_ERR);
 constexpr int32_t INT_APP_NOT_GRANTED = CAST_INT(CallResult::APP_NOT_GRANTED);
+constexpr int32_t INT_NOT_SYSTEM_APP = CAST_INT(CallResult::NOT_SYSTEM_APP);
 constexpr int32_t INT_PARAM_ERR = CAST_INT(CallResult::PARAM_ERR);
 
 // 搜索状态

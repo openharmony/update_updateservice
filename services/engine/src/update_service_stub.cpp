@@ -14,9 +14,11 @@
  */
 
 #include "accesstoken_kit.h"
+#include "access_token.h"
 #include "hap_token_info.h"
 #include "ipc_skeleton.h"
 #include "securec.h"
+#include "tokenid_kit.h"
 #include "update_helper.h"
 #include "update_service_stub.h"
 #include "update_system_event.h"
@@ -25,6 +27,8 @@ using namespace std;
 
 namespace OHOS {
 namespace UpdateEngine {
+constexpr const pid_t ROOT_UID = 0;
+
 #define CALL_RESULT_TO_IPC_RESULT(callResult) ((callResult) + CALL_RESULT_OFFSET)
 
 #define RETURN_FAIL_WHEN_SERVICE_NULL(service) \
@@ -331,6 +335,26 @@ static int32_t VerifyUpgradePackageStub(UpdateServiceStub::UpdateServiceStubPtr 
     return INT_CALL_SUCCESS;
 }
 
+static bool IsCallerValid()
+{
+    OHOS::Security::AccessToken::AccessTokenID callerToken = IPCSkeleton::GetCallingTokenID();
+    auto callerTokenType = OHOS::Security::AccessToken::AccessTokenKit::GetTokenType(callerToken);
+    switch (callerTokenType) {
+        case OHOS::Security::AccessToken::TypeATokenTypeEnum::TOKEN_HAP: {
+            uint64_t callerFullTokenID = IPCSkeleton::GetCallingFullTokenID();
+            // hap进程只允许系统应用调用
+            return OHOS::Security::AccessToken::TokenIdKit::IsSystemAppByFullTokenID(callerFullTokenID);
+        }
+        case OHOS::Security::AccessToken::TypeATokenTypeEnum::TOKEN_NATIVE: {
+            // native进程只允许root权限调用
+            return IPCSkeleton::GetCallingUid() == ROOT_UID;
+        }
+        default:
+            // 其他情况调用予以禁止
+            return false;
+    }
+}
+
 static bool IsPermissionGranted(uint32_t code)
 {
     Security::AccessToken::AccessTokenID callerToken = IPCSkeleton::GetCallingTokenID();
@@ -375,6 +399,10 @@ int32_t UpdateServiceStub::OnRemoteRequest(uint32_t code,
         {IUpdateService::APPLY_NEW_VERSION, ApplyNewVersionStub},
         {IUpdateService::VERIFY_UPGRADE_PACKAGE, VerifyUpgradePackageStub},
     };
+
+    if (!IsCallerValid()) {
+        return CALL_RESULT_TO_IPC_RESULT(INT_NOT_SYSTEM_APP);
+    }
 
     if (!IsPermissionGranted(code)) {
         UpgradeInfo tmpInfo;
