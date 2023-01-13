@@ -60,11 +60,11 @@ ohos_shared_library("$updateengine_library_name") {
   deps = [
     "//base/update/updater/interfaces/kits/packages:libpackageExt",  # "package/package.h"
     "//base/update/updater/interfaces/kits/updaterkits:libupdaterkits",  # "updaterkits/updaterkits.h"
-    "//third_party/bounds_checking_function:libsec_static",
-    "//third_party/cJSON:cjson_static",
-    "//third_party/curl:curl",
-    "//third_party/openssl:libcrypto_static",
-    "//third_party/openssl:ssl_source",
+    "//third_party/bounds_checking_function:libsec_shared",
+    "//third_party/cJSON:cjson",
+    "//third_party/curl:curl_shared",
+    "//third_party/openssl:libcrypto_shared",
+    "//third_party/openssl:libssl_shared",
   ]
 
   deps += ab_update_internal_deps

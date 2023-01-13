@@ -98,8 +98,8 @@ ohos_unittest("$updateengine_unittest_name") {
     "//third_party/googletest:gtest_main",
     "//third_party/libxml2:xml2",
     "//third_party/lz4:liblz4_static",
-    "//third_party/openssl:libcrypto_static",
-    "//third_party/openssl:ssl_source",
+    "//third_party/openssl:libcrypto_shared",
+    "//third_party/openssl:libssl_shared",
   ]
 
   defines = [
