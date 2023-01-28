@@ -679,8 +679,6 @@ public:
     static int32_t WriteClearOptions(MessageParcel &data, const ClearOptions &clearOptions);
 
     static std::vector<uint8_t> HexToDegist(const std::string &str);
-    static int32_t CompareVersion(const std::string &version1, const std::string &version2);
-    static std::vector<std::string> SplitString(const std::string &str, const std::string &delimiter);
 
     static bool IsErrorExist(const BusinessError &businessError);
 
