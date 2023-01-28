@@ -524,13 +524,6 @@ void UpdateService::SearchCallback(const std::string &msg, SearchStatus status)
     versionInfo_.errMsg = msg;
     if (status == HAS_NEW_VERSION || status == NO_NEW_VERSION) {
         upgradeStatus_ = UPDATE_STATE_CHECK_VERSION_SUCCESS;
-
-        // Compare the downloaded version with the local version.
-        std::string loadVersion = OHOS::system::GetParameter(PARAM_NAME_FOR_VERSION, DEFAULT_VERSION);
-        int32_t ret = UpdateHelper::CompareVersion(versionInfo_.result[0].versionCode, loadVersion);
-        if (ret <= 0) {
-            versionInfo_.status = NO_NEW_VERSION;
-        }
     } else {
         upgradeStatus_ = UPDATE_STATE_CHECK_VERSION_FAIL;
     }
@@ -775,18 +768,9 @@ int32_t UpdateService::VerifyUpgradePackage(const std::string &packagePath, cons
 
 bool UpdateService::VerifyDownloadPkg(const std::string &pkgName, Progress &progress)
 {
-    // Compare the downloaded version with the local version. Only update is supported.
-    std::string loadVersion = OHOS::system::GetParameter(PARAM_NAME_FOR_VERSION, DEFAULT_VERSION);
-    int32_t ret = UpdateHelper::CompareVersion(versionInfo_.result[0].versionCode, loadVersion);
-    if (ret <= 0) {
-        progress.endReason = "Update package version earlier than the local version";
-        ENGINE_LOGE("Version compare Failed local '%{public}s' server '%{public}s'",
-            loadVersion.c_str(), versionInfo_.result[0].versionCode.c_str());
-        return false;
-    }
     ENGINE_LOGI("versionInfo_.result[0].verifyInfo %s ", versionInfo_.result[0].verifyInfo.c_str());
     std::vector<uint8_t> digest = UpdateHelper::HexToDegist(versionInfo_.result[0].verifyInfo);
-    ret = ::VerifyPackage(pkgName.c_str(),
+    int32_t ret = ::VerifyPackage(pkgName.c_str(),
         SIGNING_CERT_NAME.c_str(), versionInfo_.result[0].versionCode.c_str(), digest.data(), digest.size());
     if (ret != 0) {
         progress.endReason = "Upgrade package verify Failed";
