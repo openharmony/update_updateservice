@@ -417,46 +417,9 @@ std::string UpdateHelper::GetBriefFileName(const std::string &file)
     return file;
 }
 
-std::vector<std::string> UpdateHelper::SplitString(const std::string &str, const std::string &delimiter)
-{
-    std::vector<std::string> result;
-    ENGINE_CHECK(!str.empty(), return result, "string is empty");
-
-    size_t found = std::string::npos;
-    size_t start = 0;
-    while (true) {
-        found = str.find_first_of(delimiter, start);
-        result.push_back(str.substr(start, found - start));
-        if (found == std::string::npos) {
-            break;
-        }
-        start = found + 1;
-    }
-    return result;
-}
-
 bool UpdateHelper::IsErrorExist(const BusinessError &businessError)
 {
     return businessError.errorNum != CallResult::SUCCESS;
-}
-
-int32_t UpdateHelper::CompareVersion(const std::string &version1, const std::string &version2)
-{
-    std::vector<std::string> result1 = SplitString(version1, ".");
-    std::vector<std::string> result2 = SplitString(version2, ".");
-    if (result1.size() != result2.size()) {
-        return ((result1.size() > result2.size()) ? -1 : 1);
-    }
-
-    for (size_t i = 1; i < result1.size(); i++) {
-        long long ver1 = std::stoll(result1[i]);
-        long long ver2 = std::stoll(result2[i]);
-        if (ver1 == ver2) {
-            continue;
-        }
-        return ((ver1 > ver2) ? 1 : -1);
-    }
-    return 0;
 }
 
 std::vector<uint8_t> UpdateHelper::HexToDegist(const std::string &str)
