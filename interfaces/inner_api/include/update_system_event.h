@@ -23,7 +23,7 @@
 namespace OHOS {
 namespace UpdateEngine {
 #define EVENT_WRITE(eventName, type, ...)  \
-    OHOS::HiviewDFX::HiSysEvent::Write("UPDATE", eventName, type, ##__VA_ARGS__)
+    OHOS::HiviewDFX::HiSysEvent::HiSysEventWrite("UPDATE", eventName, type, ##__VA_ARGS__)
 
 #define SYS_EVENT_UPGRADE_INTERVAL(validCheck, versionInfo, type, interval)  \
     if (!(validCheck)) {    \
