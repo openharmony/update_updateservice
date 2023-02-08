@@ -28,6 +28,7 @@ using namespace std;
 namespace OHOS {
 namespace UpdateEngine {
 constexpr const pid_t ROOT_UID = 0;
+constexpr const pid_t EDM_UID = 3057;
 
 #define CALL_RESULT_TO_IPC_RESULT(callResult) ((callResult) + CALL_RESULT_OFFSET)
 
@@ -346,8 +347,9 @@ static bool IsCallerValid()
             return OHOS::Security::AccessToken::TokenIdKit::IsSystemAppByFullTokenID(callerFullTokenID);
         }
         case OHOS::Security::AccessToken::TypeATokenTypeEnum::TOKEN_NATIVE: {
-            // native进程只允许root权限调用
-            return IPCSkeleton::GetCallingUid() == ROOT_UID;
+            pid_t callerUid = IPCSkeleton::GetCallingUid();
+            // native进程只允许root权限和edm调用
+            return callerUid == ROOT_UID || callerUid == EDM_UID;
         }
         default:
             // 其他情况调用予以禁止
