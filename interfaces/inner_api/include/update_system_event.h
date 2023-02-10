@@ -23,11 +23,11 @@
 namespace OHOS {
 namespace UpdateEngine {
 #define EVENT_WRITE(eventName, type, ...)  \
-    OHOS::HiviewDFX::HiSysEvent::Write("UPDATE", eventName, type, ##__VA_ARGS__)
+    HiSysEventWrite(OHOS::HiviewDFX::HiSysEvent::Domain::UPDATE, eventName, type, ##__VA_ARGS__)
 
-#define SYS_EVENT_UPDATE_INTERVAL(validCheck, versionInfo, type, interval)  \
+#define SYS_EVENT_UPGRADE_INTERVAL(validCheck, versionInfo, type, interval)  \
     if (!(validCheck)) {    \
-        EVENT_WRITE("UPDATE_INTERVAL", OHOS::HiviewDFX::HiSysEvent::EventType::STATISTIC,    \
+        EVENT_WRITE("UPGRADE_INTERVAL", OHOS::HiviewDFX::HiSysEvent::EventType::STATISTIC,    \
             "VERSION_INFO", versionInfo, "TYPE", type, "INTERVAL", interval);    \
     }
 

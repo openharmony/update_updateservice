@@ -13,7 +13,7 @@
 
 domain: UPDATE
 
-UPDATE_INTERVAL:
+UPGRADE_INTERVAL:
   __BASE: {type: STATISTIC, level: MINOR, desc: system upgrade event interval}
   VERSION_INFO: {type: STRING, desc: version info}
   TYPE: {type: STRING, desc: check or download or install}
