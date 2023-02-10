@@ -533,7 +533,7 @@ void UpdateService::SearchCallback(const std::string &msg, SearchStatus status)
         ENGINE_LOGE("SearchCallback upgradeCallback is null");
         return;
     }
-    SYS_EVENT_UPDATE_INTERVAL(0, UpdateHelper::BuildEventVersionInfo(versionInfo_),
+    SYS_EVENT_UPGRADE_INTERVAL(0, UpdateHelper::BuildEventVersionInfo(versionInfo_),
         UpdateSystemEvent::EVENT_CHECK_INTERVAL, checkInterval_);
     BusinessError businessError {};
     CheckResultEx checkResultEx {};
@@ -582,7 +582,7 @@ void UpdateService::DownloadCallback(const Progress &progress)
 
     if (downloadProgress.percent == MAX_PERCENT) {
         downloadInterval_ = GetTimestamp();
-        SYS_EVENT_UPDATE_INTERVAL(0, UpdateHelper::BuildEventVersionInfo(versionInfo_),
+        SYS_EVENT_UPGRADE_INTERVAL(0, UpdateHelper::BuildEventVersionInfo(versionInfo_),
             UpdateSystemEvent::EVENT_DOWNLOAD_INTERVAL, downloadInterval_);
     }
     switch (downloadProgress.status) {
@@ -619,7 +619,7 @@ void UpdateService::UpgradeCallback(const Progress &progress)
 
     if (progress.percent == MAX_PERCENT) {
         upgradeInterval_.timeEnd = GetTimestamp();
-        SYS_EVENT_UPDATE_INTERVAL(0, UpdateHelper::BuildEventVersionInfo(versionInfo_),
+        SYS_EVENT_UPGRADE_INTERVAL(0, UpdateHelper::BuildEventVersionInfo(versionInfo_),
             UpdateSystemEvent::EVENT_UPGRADE_INTERVAL,
             upgradeInterval_.timeEnd > upgradeInterval_.timeStart
             ? (upgradeInterval_.timeEnd - upgradeInterval_.timeStart) : 0);
