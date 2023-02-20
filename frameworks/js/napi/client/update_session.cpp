@@ -337,7 +337,7 @@ bool UpdateListener::IsSameListener(napi_env env, const EventClassifyInfo &event
 void UpdateListener::RemoveHandlerRef(napi_env env)
 {
     std::lock_guard<std::mutex> lock(mutex_);
-    CLIENT_LOGI("RemoveHandlerRef handlerRef_:%{public}p %{public}u", handlerRef_, GetSessionId());
+    CLIENT_LOGI("RemoveHandlerRef handlerRef sessionId:%{public}u", GetSessionId());
     napi_delete_reference(env, handlerRef_);
     handlerRef_ = nullptr;
 }
