@@ -402,6 +402,13 @@ int32_t UpdateServiceStub::OnRemoteRequest(uint32_t code,
         {IUpdateService::VERIFY_UPGRADE_PACKAGE, VerifyUpgradePackageStub},
     };
 
+    ENGINE_LOGI("UpdateServiceStub func code %{public}u", code);
+    auto iter = requestFuncMap.find(code);
+    if (iter == requestFuncMap.end()) {
+        ENGINE_LOGE("UpdateServiceStub OnRemoteRequest code %{public}u not found", code);
+        return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
+    }
+
     if (!IsCallerValid()) {
         return CALL_RESULT_TO_IPC_RESULT(INT_NOT_SYSTEM_APP);
     }
@@ -413,14 +420,7 @@ int32_t UpdateServiceStub::OnRemoteRequest(uint32_t code,
             UpdateSystemEvent::EVENT_PERMISSION_VERIFY_FAILED);
         return CALL_RESULT_TO_IPC_RESULT(INT_APP_NOT_GRANTED);
     }
-    ENGINE_LOGI("UpdateServiceStub func code %{public}u", code);
-    for (auto iter = requestFuncMap.begin(); iter != requestFuncMap.end(); iter++) {
-        if (iter->first == code) {
-            return CALL_RESULT_TO_IPC_RESULT(iter->second(this, data, reply, option));
-        }
-    }
-    ENGINE_LOGE("UpdateServiceStub OnRemoteRequest code %{public}u not found", code);
-    return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
+    return CALL_RESULT_TO_IPC_RESULT(iter->second(this, data, reply, option));
 }
 } // namespace UpdateEngine
 } // namespace OHOS
