@@ -14,8 +14,10 @@
  */
 #include "js_native_api.h"
 #include "js_native_api_types.h"
+#include "client_helper.h"
 #include "local_updater.h"
 #include "napi/native_common.h"
+#include "napi_util.h"
 #include "restorer.h"
 #include "update_client.h"
 
@@ -41,17 +43,18 @@ static thread_local napi_ref g_localUpdaterConstructorRef = nullptr;
 
 std::shared_ptr<Restorer> g_restorer = nullptr;
 std::shared_ptr<LocalUpdater> g_localUpdater = nullptr;
+std::map<UpgradeInfo, std::shared_ptr<UpdateClient>> g_onlineUpdater;
 
 template<typename T, typename Initializer, typename Finalizer>
 napi_value JsConstructor(napi_env env, napi_callback_info info, Initializer initializer, Finalizer finalizer)
 {
-    size_t argc = 1;
-    napi_value args[1] = {0};
+    size_t argc = MAX_ARGC;
+    napi_value args[MAX_ARGC] = {0};
     napi_value thisVar = nullptr;
     void* data = nullptr;
     napi_get_cb_info(env, info, &argc, args, &thisVar, &data);
 
-    T* object = initializer(env, thisVar);
+    T* object = initializer(env, thisVar, args[0]);
     if (object == nullptr) {
         return thisVar;
     }
@@ -62,15 +65,25 @@ napi_value JsConstructor(napi_env env, napi_callback_info info, Initializer init
 template<typename T>
 napi_value JsConstructor(napi_env env, napi_callback_info info)
 {
-    auto initializer = [](napi_env env, napi_value value) {
-        T* object = new (std::nothrow) T(env, value);
-        return object;
+    auto initializer = [](napi_env env, napi_value value, const napi_value arg) {
+        UpgradeInfo upgradeInfo;
+        ClientStatus ret = ClientHelper::GetUpgradeInfoFromArg(env, arg, upgradeInfo);
+        if (ret != ClientStatus::CLIENT_SUCCESS) {
+            T* object = NULL;
+            return object;
+        }
+        if (g_onlineUpdater.count(upgradeInfo) == 0) {
+            CLIENT_LOGI("JsConstructor new UpdateClient subtype: %{public}d", upgradeInfo.businessType.subType);
+            std::shared_ptr<UpdateClient> updateClient = std::make_shared<UpdateClient>(env, value);
+            g_onlineUpdater[upgradeInfo] = updateClient;
+        } else {
+            CLIENT_LOGI("JsConstructor UpdateClient use cache");
+        }
+        return g_onlineUpdater[upgradeInfo].get();
     };
 
     auto finalizer = [](napi_env env, void* data, void* hint) {
         CLIENT_LOGI("delete js object");
-        T* object = static_cast<T*>(data);
-        delete object;
     };
 
     return JsConstructor<T>(env, info, initializer, finalizer);
@@ -78,7 +91,7 @@ napi_value JsConstructor(napi_env env, napi_callback_info info)
 
 napi_value JsConstructorRestorer(napi_env env, napi_callback_info info)
 {
-    auto initializer = [](napi_env env, napi_value value) {
+    auto initializer = [](napi_env env, napi_value value, const napi_value arg) {
         if (g_restorer == nullptr) {
             CLIENT_LOGI("JsConstructorRestorer, create native object");
             g_restorer = std::make_shared<Restorer>(env, value);
@@ -91,7 +104,7 @@ napi_value JsConstructorRestorer(napi_env env, napi_callback_info info)
 
 napi_value JsConstructorLocalUpdater(napi_env env, napi_callback_info info)
 {
-    auto initializer = [](napi_env env, napi_value value) {
+    auto initializer = [](napi_env env, napi_value value, const napi_value arg) {
         if (g_localUpdater == nullptr) {
             CLIENT_LOGI("JsConstructorLocalUpdater, create native object");
             g_localUpdater = std::make_shared<LocalUpdater>(env, value);
@@ -110,7 +123,13 @@ T* CreateJsObject(napi_env env, napi_callback_info info, napi_ref constructorRef
     PARAM_CHECK_NAPI_CALL(env, status == napi_ok, return nullptr,
         "CreateJsObject error, napi_get_reference_value fail");
 
-    status = napi_new_instance(env, constructor, 0, nullptr, &jsObject);
+    size_t argc = MAX_ARGC;
+    napi_value args[MAX_ARGC] = {0};
+    status = napi_get_cb_info(env, info, &argc, args, nullptr, nullptr);
+    if (status != napi_ok) {
+        CLIENT_LOGI("CreateJsObject, napi_get_cb_info error");
+    }
+    status = napi_new_instance(env, constructor, argc, args, &jsObject);
     PARAM_CHECK_NAPI_CALL(env, status == napi_ok, return nullptr, "CreateJsObject error, napi_new_instance fail");
 
     T *nativeObject = nullptr;
