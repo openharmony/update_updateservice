@@ -14,13 +14,9 @@
 import("//base/update/updateservice/updateengine.gni")
 
 sqlite_root_path = "$updateengine_root_path/services/core/ability/sqlite"
-sqlite_external_deps = [
-    "relational_store:native_rdb",
-]
+sqlite_external_deps = [ "relational_store:native_rdb" ]
 sqlite_include = [
-    "$sqlite_root_path/core/include",
-    "//foundation/distributeddatamgr/relational_store/interfaces/inner_api/rdb/include",
+  "$sqlite_root_path/core/include",
+  "//foundation/distributeddatamgr/relational_store/interfaces/inner_api/rdb/include",
 ]
-sqlite_src = [
-    "$sqlite_root_path/core/src/sqlite_db.cpp",
-]
+sqlite_src = [ "$sqlite_root_path/core/src/sqlite_db.cpp" ]

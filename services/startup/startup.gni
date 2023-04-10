@@ -20,17 +20,17 @@ startup_external_deps = []
 startup_deps = []
 startup_public_deps = []
 startup_include = [
-    "$startup_root_path/access/include",
-    "$startup_root_path/manage/include",
-    "$startup_root_path/model/include",
+  "$startup_root_path/access/include",
+  "$startup_root_path/manage/include",
+  "$startup_root_path/model/include",
 ]
 startup_src = [
-    "$startup_root_path/access/src/access_factory.cpp",
-    "$startup_root_path/access/src/access_manager.cpp",
-    "$startup_root_path/access/src/default_access.cpp",
-    "$startup_root_path/access/src/firmware_access.cpp",
-    "$startup_root_path/manage/src/schedule_config.cpp",
-    "$startup_root_path/manage/src/schedule_manager.cpp",
-    "$startup_root_path/manage/src/startup_manager.cpp",
-    "$startup_root_path/manage/src/startup_schedule.cpp",
+  "$startup_root_path/access/src/access_factory.cpp",
+  "$startup_root_path/access/src/access_manager.cpp",
+  "$startup_root_path/access/src/default_access.cpp",
+  "$startup_root_path/access/src/firmware_access.cpp",
+  "$startup_root_path/manage/src/schedule_config.cpp",
+  "$startup_root_path/manage/src/schedule_manager.cpp",
+  "$startup_root_path/manage/src/startup_manager.cpp",
+  "$startup_root_path/manage/src/startup_schedule.cpp",
 ]
