@@ -22,31 +22,37 @@
 #include <iostream>
 #include <ipc_types.h>
 #include <list>
+#include <map>
 #include <string>
 #include <string_ex.h>
+
 #include "parcel.h"
 #include "message_parcel.h"
 #include "hilog/log.h"
 #include "system_ability_definition.h"
 
+#include "json_builder.h"
+#include "update_define.h"
+
 namespace OHOS {
 namespace UpdateEngine {
-const int CALL_RESULT_OFFSET = 2000;
-
-#define COUNT_OF(array) (sizeof(array) / sizeof((array)[0]))
-
-#define CAST_INT(enumClass) (static_cast<int32_t>(enumClass))
+static const std::string OUC_PACKAGE_NAME = "com.ohos.updateapp";
+static const std::string OUC_SERVICE_EXT_ABILITY_NAME = "ServiceExtAbility";
+constexpr int CALL_RESULT_OFFSET = 2000;
 
 enum class CallResult {
+// 通用错误码
+    APP_NOT_GRANTED = 201,
+    NOT_SYSTEM_APP = 202,
+    PARAM_ERR = 401,
+    UN_SUPPORT = 801,
+
+// 模块内错误码
     SUCCESS = 0,
     FAIL = 100,
-    UN_SUPPORT = 101,
     DEV_UPG_INFO_ERR = 102,
     FORBIDDEN = 103,
     IPC_ERR = 104,
-    APP_NOT_GRANTED = 200,
-    NOT_SYSTEM_APP = 202,
-    PARAM_ERR = 401,
     TIME_OUT = 402,
     DB_ERROR = 501,
     IO_ERROR = 502,
@@ -61,9 +67,14 @@ constexpr int32_t INT_CALL_IPC_ERR = CAST_INT(CallResult::IPC_ERR);
 constexpr int32_t INT_APP_NOT_GRANTED = CAST_INT(CallResult::APP_NOT_GRANTED);
 constexpr int32_t INT_NOT_SYSTEM_APP = CAST_INT(CallResult::NOT_SYSTEM_APP);
 constexpr int32_t INT_PARAM_ERR = CAST_INT(CallResult::PARAM_ERR);
+constexpr int32_t INT_DEV_UPG_INFO_ERR = CAST_INT(CallResult::DEV_UPG_INFO_ERR);
+constexpr int32_t INT_TIME_OUT = CAST_INT(CallResult::TIME_OUT);
+constexpr int32_t INT_DB_ERROR = CAST_INT(CallResult::DB_ERROR);
+constexpr int32_t INT_IO_ERROR = CAST_INT(CallResult::IO_ERROR);
+constexpr int32_t INT_NET_ERROR = CAST_INT(CallResult::NET_ERROR);
 
 // 搜索状态
-enum SearchStatus {
+enum class SearchStatus {
     NET_ERROR = -2,
     SYSTEM_ERROR,
     HAS_NEW_VERSION,
@@ -72,39 +83,39 @@ enum SearchStatus {
     CHECK_EXECUTE_ERR,
 };
 
-enum UpgradeStatus {
-    UPDATE_STATE_INIT = 0,
-    UPDATE_STATE_CHECK_VERSION_ON = 10,
-    UPDATE_STATE_CHECK_VERSION_FAIL,
-    UPDATE_STATE_CHECK_VERSION_SUCCESS,
-    UPDATE_STATE_DOWNLOAD_ON = 20,
-    UPDATE_STATE_DOWNLOAD_PAUSE,
-    UPDATE_STATE_DOWNLOAD_CANCEL,
-    UPDATE_STATE_DOWNLOAD_FAIL,
-    UPDATE_STATE_DOWNLOAD_SUCCESS,
-    UPDATE_STATE_VERIFY_ON = 30,
-    UPDATE_STATE_VERIFY_FAIL,
-    UPDATE_STATE_VERIFY_SUCCESS,
-    UPDATE_STATE_PACKAGE_TRANS_ON = 70,
-    UPDATE_STATE_PACKAGE_TRANS_FAIL,
-    UPDATE_STATE_PACKAGE_TRANS_SUCCESS,
-    UPDATE_STATE_INSTALL_ON = 80,
-    UPDATE_STATE_INSTALL_FAIL,
-    UPDATE_STATE_INSTALL_SUCCESS,
-    UPDATE_STATE_UPDATE_ON = 90,
-    UPDATE_STATE_UPDATE_FAIL,
-    UPDATE_STATE_UPDATE_SUCCESS
+enum class UpgradeStatus {
+    INIT = 0,
+    CHECKING_VERSION = 10,
+    CHECK_VERSION_FAIL,
+    CHECK_VERSION_SUCCESS,
+    DOWNLOADING = 20,
+    DOWNLOAD_PAUSE,
+    DOWNLOAD_CANCEL,
+    DOWNLOAD_FAIL,
+    DOWNLOAD_SUCCESS,
+    VERIFYING = 30,
+    VERIFY_FAIL,
+    VERIFY_SUCCESS,
+    PACKAGE_TRANSING = 70,
+    PACKAGE_TRANS_FAIL,
+    PACKAGE_TRANS_SUCCESS,
+    INSTALLING = 80,
+    INSTALL_FAIL,
+    INSTALL_SUCCESS,
+    UPDATING = 90,
+    UPDATE_FAIL,
+    UPDATE_SUCCESS
 };
 
-enum PackageType {
-    PACKAGE_TYPE_DYNAMIC = 0,
-    PACKAGE_TYPE_NORMAL = 1,
-    PACKAGE_TYPE_BASE = 2,
-    PACKAGE_TYPE_CUST = 3,
-    PACKAGE_TYPE_PRELOAD = 4,
-    PACKAGE_TYPE_COTA = 5,
-    PACKAGE_TYPE_VERSION = 6,
-    PACKAGE_TYPE_PATCH = 7
+enum class PackageType {
+    DYNAMIC = 0,
+    NORMAL = 1,
+    BASE = 2,
+    CUST = 3,
+    PRELOAD = 4,
+    COTA = 5,
+    VERSION = 6,
+    PATCH = 8
 };
 
 enum class ComponentType {
@@ -122,9 +133,12 @@ enum class EffectiveMode {
 };
 
 enum class NetType {
+    NO_NET = 0,
     CELLULAR = 1,
     METERED_WIFI = 2,
     NOT_METERED_WIFI = 4,
+    CELLULAR_AND_METERED_WIFI = CELLULAR | METERED_WIFI,
+    CELLULAR_AND_NOT_METERED_WIFI = CELLULAR | NOT_METERED_WIFI,
     WIFI = METERED_WIFI | NOT_METERED_WIFI,
     CELLULAR_AND_WIFI = CELLULAR | WIFI
 };
@@ -142,12 +156,14 @@ enum class EventClassify {
 };
 
 enum class BusinessSubType {
-    FIRMWARE = 1
+    FIRMWARE = 1,
+    PARAM = 2
 };
 
 enum class DescriptionType {
     CONTENT = 0,
-    URI = 1
+    URI = 1,
+    ID = 2
 };
 
 enum class DescriptionFormat {
@@ -172,7 +188,44 @@ enum class EventId {
     EVENT_APPLY_WAIT,
     EVENT_APPLY_START,
     EVENT_UPGRADE_SUCCESS,
-    EVENT_UPGRADE_FAIL
+    EVENT_UPGRADE_FAIL,
+    EVENT_AUTH_START,
+    EVENT_AUTH_SUCCESS,
+    EVENT_DOWNLOAD_CANCEL,
+    EVENT_INITIALIZE
+};
+
+enum TaskBodyMemeberMask {
+    VERSION_DIGEST_INFO = 0x00000001,
+    UPGRADE_STATUS      = 0x00000010,
+    SUB_STATUS          = 0x00000100,
+    PROGRESS            = 0x00001000,
+    INSTALL_MODE        = 0x00010000,
+    ERROR_MESSAGE       = 0x00100000,
+    VERSION_COMPONENT   = 0x01000000
+};
+
+static std::map<EventId, uint32_t> g_taskBodyTemplateMap = {
+    { EventId::EVENT_TASK_RECEIVE,     VERSION_DIGEST_INFO },
+    { EventId::EVENT_TASK_CANCEL,      VERSION_DIGEST_INFO },
+    { EventId::EVENT_DOWNLOAD_WAIT,    VERSION_DIGEST_INFO | UPGRADE_STATUS | INSTALL_MODE },
+    { EventId::EVENT_DOWNLOAD_START,   VERSION_DIGEST_INFO | INSTALL_MODE },
+    { EventId::EVENT_DOWNLOAD_UPDATE,  VERSION_DIGEST_INFO | UPGRADE_STATUS | PROGRESS | INSTALL_MODE },
+    { EventId::EVENT_DOWNLOAD_PAUSE,   VERSION_DIGEST_INFO | UPGRADE_STATUS | PROGRESS | INSTALL_MODE | ERROR_MESSAGE },
+    { EventId::EVENT_DOWNLOAD_RESUME,  VERSION_DIGEST_INFO | UPGRADE_STATUS | PROGRESS | INSTALL_MODE },
+    { EventId::EVENT_DOWNLOAD_SUCCESS, VERSION_DIGEST_INFO | INSTALL_MODE },
+    { EventId::EVENT_DOWNLOAD_CANCEL,  VERSION_DIGEST_INFO | UPGRADE_STATUS },
+    { EventId::EVENT_DOWNLOAD_FAIL,    VERSION_DIGEST_INFO | INSTALL_MODE | ERROR_MESSAGE },
+    { EventId::EVENT_UPGRADE_WAIT,     VERSION_DIGEST_INFO | UPGRADE_STATUS | INSTALL_MODE | ERROR_MESSAGE },
+    { EventId::EVENT_UPGRADE_START,    VERSION_DIGEST_INFO | UPGRADE_STATUS | INSTALL_MODE },
+    { EventId::EVENT_UPGRADE_UPDATE,   VERSION_DIGEST_INFO | UPGRADE_STATUS | PROGRESS | INSTALL_MODE },
+    { EventId::EVENT_APPLY_WAIT,       VERSION_DIGEST_INFO | UPGRADE_STATUS | ERROR_MESSAGE },
+    { EventId::EVENT_APPLY_START,      VERSION_DIGEST_INFO },
+    { EventId::EVENT_UPGRADE_SUCCESS,  VERSION_DIGEST_INFO | VERSION_COMPONENT },
+    { EventId::EVENT_UPGRADE_FAIL,     VERSION_DIGEST_INFO | VERSION_COMPONENT | ERROR_MESSAGE },
+    { EventId::EVENT_AUTH_START,       VERSION_DIGEST_INFO | VERSION_COMPONENT | UPGRADE_STATUS},
+    { EventId::EVENT_AUTH_SUCCESS,     VERSION_DIGEST_INFO | VERSION_COMPONENT | UPGRADE_STATUS },
+    { EventId::EVENT_INITIALIZE,       UPGRADE_STATUS }
 };
 
 class UpgradeAction {
@@ -186,7 +239,17 @@ public:
     static constexpr const char *PUBLIC = "public";
 };
 
-struct BusinessType {
+struct BaseJsonStruct {
+    virtual ~BaseJsonStruct() {}
+    virtual JsonBuilder GetJsonBuilder() = 0;
+
+    virtual std::string ToJson()
+    {
+        return GetJsonBuilder().ToJson();
+    };
+};
+
+struct BusinessType : public BaseJsonStruct {
     std::string vendor; // BusinessVendor
     BusinessSubType subType = BusinessSubType::FIRMWARE;
 
@@ -200,6 +263,8 @@ struct BusinessType {
 
         return false;
     }
+
+    JsonBuilder GetJsonBuilder() final;
 };
 
 const std::string LOCAL_UPGRADE_INFO = "LocalUpgradeInfo";
@@ -208,17 +273,6 @@ struct UpgradeInfo {
     BusinessType businessType;
     std::string upgradeDevId;
     std::string controlDevId;
-
-    UpgradeInfo &operator=(const UpgradeInfo &source)
-    {
-        if (&source != this) {
-            upgradeApp = source.upgradeApp;
-            businessType = source.businessType;
-            upgradeDevId = source.upgradeDevId;
-            controlDevId = source.controlDevId;
-        }
-        return *this;
-    }
 
     bool operator<(const UpgradeInfo &r) const
     {
@@ -245,17 +299,36 @@ struct UpgradeInfo {
     }
 };
 
-struct VersionDigestInfo {
-    std::string versionDigest;
+struct SubscribeInfo : public BaseJsonStruct {
+    std::string upgradeApp = OUC_PACKAGE_NAME;
+    BusinessType businessType;
+    std::string abilityName;
+    std::string subscriberDevId;
+    std::string devUpgradeId;
+
+    SubscribeInfo(BusinessSubType subType)
+    {
+        businessType.subType = subType;
+    }
+
+    JsonBuilder GetJsonBuilder() final;
 };
 
-struct ErrorMessage {
+struct VersionDigestInfo : public BaseJsonStruct {
+    std::string versionDigest;
+
+    JsonBuilder GetJsonBuilder() final;
+};
+
+struct ErrorMessage : public BaseJsonStruct {
     int32_t errorCode = 0;
     std::string errorMessage;
+
+    JsonBuilder GetJsonBuilder() final;
 };
 
 struct DescriptionOptions {
-    DescriptionFormat format;
+    DescriptionFormat format = DescriptionFormat::STANDARD;
     std::string language;
 };
 
@@ -277,250 +350,98 @@ struct UpgradeOptions {
 };
 
 struct ClearOptions {
-    UpgradeStatus status = UpgradeStatus::UPDATE_STATE_INIT;
+    UpgradeStatus status = UpgradeStatus::INIT;
 };
 
-struct DescriptionInfo {
+enum class InstallMode {
+    NORMAL = 0,
+    NIGHT,
+    AUTO
+};
+
+struct DescriptionInfo : public BaseJsonStruct {
     DescriptionType descriptionType = DescriptionType::CONTENT;
     std::string content;
+
+    JsonBuilder GetJsonBuilder() final;
 };
 
 struct ComponentDescription {
     std::string componentId;
     DescriptionInfo descriptionInfo;
-
-    ComponentDescription &operator=(const ComponentDescription &source)
-    {
-        if (&source != this) {
-            componentId = source.componentId;
-            descriptionInfo = source.descriptionInfo;
-        }
-        return *this;
-    }
 };
 
-struct CheckResult {
-    size_t size;
-    PackageType packageType;
-    std::string versionName;
-    std::string versionCode;
-    std::string verifyInfo;
-    std::string descriptPackageId;
-};
-
-struct VersionInfo {
-    SearchStatus status;
-    std::string errMsg;
-    CheckResult result[2];
-    DescriptionInfo descriptInfo[2];
-
-    VersionInfo &operator=(const VersionInfo &source)
-    {
-        if (&source != this) {
-            status = source.status;
-            errMsg = source.errMsg;
-            result[0] = source.result[0];
-            result[1] = source.result[1];
-            descriptInfo[0] = source.descriptInfo[0];
-            descriptInfo[1] = source.descriptInfo[1];
-        }
-        return *this;
-    }
-};
-
-struct VersionComponent {
+struct VersionComponent : public BaseJsonStruct {
     std::string componentId;
-    uint32_t componentType = static_cast<uint32_t>(ComponentType::INVALID);
+    int32_t componentType = CAST_INT(ComponentType::INVALID);
     std::string upgradeAction;
     std::string displayVersion;
     std::string innerVersion;
-    size_t size;
-    size_t effectiveMode;
+    size_t size = 0;
+    size_t effectiveMode = static_cast<size_t>(EffectiveMode::COLD);
     DescriptionInfo descriptionInfo;
+    std::string componentExtra;
 
-    VersionComponent &operator=(const VersionComponent &source)
-    {
-        if (&source != this) {
-            componentId = source.componentId;
-            componentType = source.componentType;
-            upgradeAction = source.upgradeAction;
-            displayVersion = source.displayVersion;
-            innerVersion = source.innerVersion;
-            size = source.size;
-            effectiveMode = source.effectiveMode;
-            descriptionInfo = source.descriptionInfo;
-        }
-        return *this;
-    }
+    JsonBuilder GetJsonBuilder() final;
 };
 
 struct CurrentVersionInfo {
     std::string osVersion;
     std::string deviceName;
-    VersionComponent versionComponents[2];
-
-    CurrentVersionInfo &operator=(const CurrentVersionInfo &source)
-    {
-        if (&source != this) {
-            osVersion = source.osVersion;
-            deviceName = source.deviceName;
-            versionComponents[0] = source.versionComponents[0];
-            versionComponents[1] = source.versionComponents[1];
-        }
-        return *this;
-    }
+    std::vector<VersionComponent> versionComponents;
 };
 
 struct NewVersionInfo {
     VersionDigestInfo versionDigestInfo;
-    VersionComponent versionComponents[2];
-
-    NewVersionInfo &operator=(const NewVersionInfo &source)
-    {
-        if (&source != this) {
-            versionDigestInfo = source.versionDigestInfo;
-            versionComponents[0] = source.versionComponents[0];
-            versionComponents[1] = source.versionComponents[1];
-        }
-        return *this;
-    }
+    std::vector<VersionComponent> versionComponents;
 };
 
 struct VersionDescriptionInfo {
-    ComponentDescription componentDescriptions[2];
-
-    VersionDescriptionInfo &operator=(const VersionDescriptionInfo &source)
-    {
-        if (&source != this) {
-            componentDescriptions[0] = source.componentDescriptions[0];
-            componentDescriptions[1] = source.componentDescriptions[1];
-        }
-        return *this;
-    }
+    std::vector<ComponentDescription> componentDescriptions;
 };
 
-struct CheckResultEx {
-    bool isExistNewVersion;
+struct CheckResult {
+    bool isExistNewVersion = false;
     NewVersionInfo newVersionInfo;
-
-    CheckResultEx &operator=(const CheckResultEx &source)
-    {
-        if (&source != this) {
-            isExistNewVersion = source.isExistNewVersion;
-            newVersionInfo = source.newVersionInfo;
-        }
-        return *this;
-    }
 };
 
 struct TaskBody {
     VersionDigestInfo versionDigestInfo;
-    UpgradeStatus status = UPDATE_STATE_INIT;
-    int32_t subStatus;
-    uint32_t progress;
-    int32_t installMode;
-    ErrorMessage errorMessages[2];
-    VersionComponent versionComponents[2];
+    UpgradeStatus status = UpgradeStatus::INIT;
+    int32_t subStatus = CAST_INT(UpgradeStatus::INIT);
+    int32_t progress = 0;
+    int32_t installMode = CAST_INT(InstallMode::NORMAL);
+    std::vector<ErrorMessage> errorMessages;
+    std::vector<VersionComponent> versionComponents;
 
-    TaskBody &operator=(const TaskBody &source)
-    {
-        if (&source != this) {
-            versionDigestInfo = source.versionDigestInfo;
-            status = source.status;
-            subStatus = source.subStatus;
-            progress = source.progress;
-            installMode = source.installMode;
-            errorMessages[0] = source.errorMessages[0];
-            errorMessages[1] = source.errorMessages[1];
-            versionComponents[0] = source.versionComponents[0];
-            versionComponents[1] = source.versionComponents[1];
-        }
-        return *this;
-    }
+    JsonBuilder GetJsonBuilder(EventId eventId);
 };
 
 struct TaskInfo {
     bool existTask;
     TaskBody taskBody;
-
-    TaskInfo &operator=(const TaskInfo &source)
-    {
-        if (&source != this) {
-            existTask = source.existTask;
-            taskBody = source.taskBody;
-        }
-        return *this;
-    }
 };
 
 struct Progress {
     uint32_t percent = 0;
-    UpgradeStatus status;
+    UpgradeStatus status = UpgradeStatus::INIT;
     std::string endReason;
 };
 
 struct ErrMsg {
     int32_t errorCode = 0;
     std::string errorMsg;
-
-    ErrMsg &operator=(const ErrMsg &source)
-    {
-        if (&source != this) {
-            errorCode = source.errorCode;
-            errorMsg = source.errorMsg;
-        }
-        return *this;
-    }
-};
-
-struct OtaStatus {
-    uint32_t progress;
-    UpgradeStatus status;
-    int32_t subStatus;
-    ErrMsg errMsg[1];
-
-    OtaStatus &operator=(const OtaStatus &source)
-    {
-        if (&source != this) {
-            progress = source.progress;
-            status = source.status;
-            subStatus = source.subStatus;
-            errMsg[0] = source.errMsg[0];
-        }
-        return *this;
-    }
 };
 
 struct UpgradeInterval {
-    uint64_t timeStart;
-    uint64_t timeEnd;
-};
-
-enum InstallMode {
-    INSTALLMODE_NORMAL = 0,
-    INSTALLMODE_NIGHT,
-    INSTALLMODE_AUTO
-};
-
-enum AutoUpgradeCondition {
-    AUTOUPGRADECONDITION_IDLE = 0,
+    uint64_t timeStart = 0;
+    uint64_t timeEnd = 0;
 };
 
 struct BusinessError {
     std::string message;
     CallResult errorNum = CallResult::SUCCESS;
-    ErrorMessage data[2];
-
-    BusinessError &operator=(const BusinessError &source)
-    {
-        if (&source != this) {
-            message = source.message;
-            errorNum = source.errorNum;
-            data[0] = source.data[0];
-            data[1] = source.data[1];
-        }
-        return *this;
-    }
+    std::vector<ErrorMessage> data;
 
     BusinessError &Build(CallResult callResult, const std::string &msg)
     {
@@ -528,37 +449,35 @@ struct BusinessError {
         message = msg;
         return *this;
     }
-};
 
-struct UpgradePeriod {
-    uint32_t start;
-    uint32_t end;
-};
-
-struct UpgradePolicy {
-    bool downloadStrategy;
-    bool autoUpgradeStrategy;
-    UpgradePeriod autoUpgradePeriods[2];
-
-    UpgradePolicy &operator=(const UpgradePolicy &source)
+    BusinessError &AddErrorMessage(int32_t errorCode, const std::string &errorMessage)
     {
-        if (&source != this) {
-            downloadStrategy = source.downloadStrategy;
-            autoUpgradeStrategy = source.autoUpgradeStrategy;
-            autoUpgradePeriods[0] = source.autoUpgradePeriods[0];
-            autoUpgradePeriods[1] = source.autoUpgradePeriods[1];
-        }
+        ErrorMessage errMsg;
+        errMsg.errorCode = errorCode;
+        errMsg.errorMessage = errorMessage;
+        data.push_back(errMsg);
         return *this;
     }
 };
 
+struct UpgradePeriod {
+    uint32_t start = 0;
+    uint32_t end = 0;
+};
+
+struct UpgradePolicy {
+    bool downloadStrategy = false;
+    bool autoUpgradeStrategy = false;
+    UpgradePeriod autoUpgradePeriods[2];
+};
+
 struct UpgradeFile {
-    ComponentType fileType;
+    ComponentType fileType = ComponentType::INVALID;
     std::string filePath;
 };
 
 struct EventClassifyInfo {
-    EventClassify eventClassify;
+    EventClassify eventClassify = EventClassify::TASK;
     std::string extraInfo;
 
     EventClassifyInfo() : eventClassify(EventClassify::TASK) {}
@@ -566,53 +485,33 @@ struct EventClassifyInfo {
     EventClassifyInfo(EventClassify classify, const std::string &info) : eventClassify(classify), extraInfo(info) {}
 };
 
-struct EventInfo {
-    EventId eventId;
+struct EventInfo : public BaseJsonStruct {
+    EventId eventId = EventId::EVENT_TASK_BASE;
     TaskBody taskBody;
 
     EventInfo() {}
     EventInfo(EventId id, TaskBody body) : eventId(id), taskBody(body) {}
 
-    EventInfo &operator=(const EventInfo &source)
-    {
-        if (&source != this) {
-            eventId = source.eventId;
-            taskBody = source.taskBody;
-        }
-        return *this;
-    }
+    JsonBuilder GetJsonBuilder() final;
 };
 
-using CheckNewVersionDone = std::function<void(const BusinessError &businessError, const CheckResultEx &checkResultEx)>;
+struct ConfigInfo {
+    std::string businessDomain;
+    uint32_t abInstallTimeout = 1800; // 1800s
+};
+
+enum class AuthType {
+    PKI = 1,
+    WD = 2
+};
+
+using CheckNewVersionDone = std::function<void(const BusinessError &businessError, const CheckResult &checkResult)>;
 using OnEvent = std::function<void(const EventInfo &eventInfo)>;
 
 // 回调函数
 struct UpdateCallbackInfo {
     CheckNewVersionDone checkNewVersionDone;
     OnEvent onEvent;
-
-    UpdateCallbackInfo &operator=(const UpdateCallbackInfo &source)
-    {
-        if (&source != this) {
-            checkNewVersionDone = source.checkNewVersionDone;
-            onEvent = source.onEvent;
-        }
-        return *this;
-    }
-};
-
-#ifdef UPDATE_SERVICE
-static constexpr OHOS::HiviewDFX::HiLogLabel UPDATE_LABEL = {LOG_CORE, 0XD002E00, "UPDATE_SA"};
-#else
-static constexpr OHOS::HiviewDFX::HiLogLabel UPDATE_LABEL = {LOG_CORE, 0XD002E00, "UPDATE_KITS"};
-#endif
-
-enum class UpdateLogLevel {
-    UPDATE_DEBUG = 0,
-    UPDATE_INFO,
-    UPDATE_WARN,
-    UPDATE_ERROR,
-    UPDATE_FATAL
 };
 
 template<typename T>
@@ -628,99 +527,15 @@ bool IsValidEnum(const std::list<T> &enumList, int32_t number)
 
 class UpdateHelper {
 public:
-    static int32_t ReadUpgradeInfo(MessageParcel &reply, UpgradeInfo &info);
-    static int32_t WriteUpgradeInfo(MessageParcel &data, const UpgradeInfo &info);
-
-    static int32_t ReadVersionDescriptionInfo(MessageParcel &reply,
-        VersionDescriptionInfo &newVersionDescriptionInfo);
-    static int32_t WriteVersionDescriptionInfo(MessageParcel &data,
-        const VersionDescriptionInfo &newVersionDescriptionInfo);
-
-    static int32_t ReadBusinessError(MessageParcel &reply, BusinessError &businessError);
-    static int32_t WriteBusinessError(MessageParcel &data, const BusinessError &businessError);
-
-    static int32_t ReadCheckResult(MessageParcel &reply, CheckResultEx &checkResultEx);
-    static int32_t WriteCheckResult(MessageParcel &data, const CheckResultEx &checkResultEx);
-
-    static int32_t ReadNewVersionInfo(MessageParcel &reply, NewVersionInfo &newVersionInfo);
-    static int32_t WriteNewVersionInfo(MessageParcel &data, const NewVersionInfo &newVersionInfo);
-
-    static int32_t ReadCurrentVersionInfo(MessageParcel &reply, CurrentVersionInfo &info);
-    static int32_t WriteCurrentVersionInfo(MessageParcel &data, const CurrentVersionInfo &info);
-
-    static int32_t ReadTaskInfo(MessageParcel &reply, TaskInfo &info);
-    static int32_t WriteTaskInfo(MessageParcel &data, const TaskInfo &info);
-
-    static int32_t ReadUpgradePolicy(MessageParcel &reply, UpgradePolicy &policy);
-    static int32_t WriteUpgradePolicy(MessageParcel &data, const UpgradePolicy &policy);
-
-    static int32_t ReadEventInfo(MessageParcel &reply, EventInfo &eventInfo);
-    static int32_t WriteEventInfo(MessageParcel &data, const EventInfo &eventInfo);
-
-    static int32_t ReadVersionDigestInfo(MessageParcel &reply, VersionDigestInfo &versionDigestInfo);
-    static int32_t WriteVersionDigestInfo(MessageParcel &data, const VersionDigestInfo &versionDigestInfo);
-
-    static int32_t ReadDescriptionOptions(MessageParcel &reply, DescriptionOptions &descriptionOptions);
-    static int32_t WriteDescriptionOptions(MessageParcel &data, const DescriptionOptions &descriptionOptions);
-
-    static int32_t ReadDownloadOptions(MessageParcel &reply, DownloadOptions &downloadOptions);
-    static int32_t WriteDownloadOptions(MessageParcel &data, const DownloadOptions &downloadOptions);
-
-    static int32_t ReadPauseDownloadOptions(MessageParcel &reply, PauseDownloadOptions &pauseDownloadOptions);
-    static int32_t WritePauseDownloadOptions(MessageParcel &data, const PauseDownloadOptions &pauseDownloadOptions);
-
-    static int32_t ReadResumeDownloadOptions(MessageParcel &reply, ResumeDownloadOptions &resumeDownloadOptions);
-    static int32_t WriteResumeDownloadOptions(MessageParcel &data, const ResumeDownloadOptions &resumeDownloadOptions);
-
-    static int32_t ReadUpgradeOptions(MessageParcel &reply, UpgradeOptions &upgradeOptions);
-    static int32_t WriteUpgradeOptions(MessageParcel &data, const UpgradeOptions &upgradeOptions);
-
-    static int32_t ReadClearOptions(MessageParcel &reply, ClearOptions &clearOptions);
-    static int32_t WriteClearOptions(MessageParcel &data, const ClearOptions &clearOptions);
-
-    static std::vector<uint8_t> HexToDegist(const std::string &str);
-
-    static bool IsErrorExist(const BusinessError &businessError);
-
     static std::string BuildEventDevId(const UpgradeInfo &info);
-    static std::string BuildEventVersionInfo(const VersionInfo &ver);
-
-    static std::string Anonymization(const std::string &src);
-
-    static bool JudgeLevel(const UpdateLogLevel& level);
-
-    static void SetLogLevel(const UpdateLogLevel& level)
-    {
-        level_ = level;
-    }
-
-    static const UpdateLogLevel& GetLogLevel()
-    {
-        return level_;
-    }
-
-    static std::string GetBriefFileName(const std::string &file);
-
-private:
-    static UpdateLogLevel level_;
+    static bool IsUpgradeFailed(UpgradeStatus status);
 };
 
-// 暂时记录两边日志
-#define PRINT_LOG(LEVEL, Level, fmt, ...) \
-    if (UpdateHelper::JudgeLevel(UpdateLogLevel::LEVEL)) \
-        OHOS::HiviewDFX::HiLog::Level(UPDATE_LABEL, "[%{public}s(%{public}d)] " fmt, \
-        UpdateHelper::GetBriefFileName(std::string(__FILE__)).c_str(), __LINE__, ##__VA_ARGS__)
-
-#define ENGINE_LOGI(fmt, ...) PRINT_LOG(UPDATE_INFO, Info, fmt, ##__VA_ARGS__)
-#define ENGINE_LOGE(fmt, ...) PRINT_LOG(UPDATE_ERROR, Error, fmt, ##__VA_ARGS__)
-
-#define ENGINE_CHECK(retCode, exper, ...) \
-    do { \
-        if (!(retCode)) {                     \
-            ENGINE_LOGE(__VA_ARGS__);         \
-            exper;                            \
-        } \
-    } while (0)
+struct DirInfo {
+    std::string dirName;
+    int32_t dirPermissions;
+    bool isAllowDestroyContents = false; // 是否允许删除当前目录下的所有文件（包括子目录）
+};
 } // namespace UpdateEngine
 } // namespace OHOS
 #endif // UPDATE_HELPER_H

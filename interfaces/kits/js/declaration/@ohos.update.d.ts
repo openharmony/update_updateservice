@@ -846,7 +846,8 @@ declare namespace update {
      * @since 9
      */
     export enum BusinessSubType {
-        FIRMWARE = 1
+        FIRMWARE = 1,
+        PARAM = 2
     }
 
     /**
@@ -856,6 +857,9 @@ declare namespace update {
      */
     export enum ComponentType {
         OTA = 1,
+        PATCH = 2,
+        COTA = 4,
+        PARAM = 8
     }
 
     /**
@@ -886,7 +890,8 @@ declare namespace update {
      */
     export enum DescriptionType {
         CONTENT = 0,
-        URI = 1
+        URI = 1,
+        ID = 2
     }
 
     /**
@@ -974,7 +979,10 @@ declare namespace update {
         EVENT_APPLY_WAIT,
         EVENT_APPLY_START,
         EVENT_UPGRADE_SUCCESS,
-        EVENT_UPGRADE_FAIL
+        EVENT_UPGRADE_FAIL,
+        EVENT_AUTH_START,
+        EVENT_AUTH_SUCCESS,
+        EVENT_DOWNLOAD_CANCEL
     }
 }
 

@@ -19,6 +19,8 @@
 #include <functional>
 #include "js_native_api_types.h"
 
+#include "update_helper.h"
+
 namespace OHOS {
 namespace UpdateEngine {
 class IUpdateSession {
@@ -34,6 +36,8 @@ public:
     virtual void NotifyJS(napi_env env, napi_value thisVar, const UpdateResult &result) = 0;
 
     virtual bool IsAsyncCompleteWork() = 0;
+
+    virtual void OnAsyncComplete(const BusinessError &businessError) = 0;
 };
 } // namespace UpdateEngine
 } // namespace OHOS

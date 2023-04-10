@@ -16,6 +16,7 @@
 #ifndef UPDATE_SESSION_H
 #define UPDATE_SESSION_H
 
+#include <condition_variable>
 #include <memory>
 #include <mutex>
 #include <string>
@@ -50,6 +51,14 @@ public:
         return sessionId;
     }
 
+    void OnAsyncComplete(const BusinessError &businessError) final
+    {
+        std::lock_guard<std::mutex> lock(conditionVariableMutex_);
+        businessError_ = businessError;
+        asyncExecuteComplete_ = true;
+        conditionVariable_.notify_all();
+    }
+
     virtual void CompleteWork(napi_env env, napi_status status) {}
     virtual void ExecuteWork(napi_env env);
     virtual napi_value StartWork(napi_env env, size_t startIndex, const napi_value *args) = 0;
@@ -60,7 +69,7 @@ public:
 
     bool IsAsyncCompleteWork() override
     {
-        return false;
+        return sessionParams_.type == SessionType::SESSION_CHECK_VERSION;
     }
 
 protected:
@@ -77,24 +86,94 @@ protected:
         return workResult_ == INT_CALL_SUCCESS;
     }
 
+    void GetSessionFuncParameter(std::string &funcName, std::string &permissionName)
+    {
+        struct UpdateFuncMap {
+            SessionType type;
+            std::string func;
+        } sessionFuncMap[] = {
+            { SessionType::SESSION_CHECK_VERSION,               "checkNewVersion" },
+            { SessionType::SESSION_DOWNLOAD,                    "download" },
+            { SessionType::SESSION_PAUSE_DOWNLOAD,              "pauseDownload" },
+            { SessionType::SESSION_RESUME_DOWNLOAD,             "resumeDownload" },
+            { SessionType::SESSION_UPGRADE,                     "upgrade" },
+            { SessionType::SESSION_SET_POLICY,                  "setUpgradePolicy" },
+            { SessionType::SESSION_GET_POLICY,                  "getUpgradePolicy" },
+            { SessionType::SESSION_CLEAR_ERROR,                 "clearError" },
+            { SessionType::SESSION_TERMINATE_UPGRADE,           "terminateUpgrade" },
+            { SessionType::SESSION_GET_NEW_VERSION,             "getNewVersionInfo" },
+            { SessionType::SESSION_GET_NEW_VERSION_DESCRIPTION, "getNewVersionDescription" },
+            { SessionType::SESSION_SUBSCRIBE,                   "subscribe" },
+            { SessionType::SESSION_UNSUBSCRIBE,                 "unsubscribe" },
+            { SessionType::SESSION_GET_UPDATER,                 "getUpdater" },
+            { SessionType::SESSION_APPLY_NEW_VERSION,           "applyNewVersion" },
+            { SessionType::SESSION_FACTORY_RESET,               "factoryReset" },
+            { SessionType::SESSION_VERIFY_PACKAGE,              "verifyPackage" },
+            { SessionType::SESSION_CANCEL_UPGRADE,              "cancel" },
+            { SessionType::SESSION_GET_CUR_VERSION,             "getCurrentVersionInfo" },
+            { SessionType::SESSION_GET_CUR_VERSION_DESCRIPTION, "getCurrentVersionDescription" },
+            { SessionType::SESSION_GET_TASK_INFO,               "getTaskInfo" },
+            { SessionType::SESSION_REPLY_PARAM_ERROR,           "replyParamError" },
+            { SessionType::SESSION_MAX,                         "max" }
+        };
+        for (auto &[type, func] : sessionFuncMap) {
+            if (type == sessionParams_.type) {
+                funcName = func;
+                break;
+            }
+        }
+        if (sessionParams_.type == SessionType::SESSION_FACTORY_RESET) {
+            permissionName = "ohos.permission.FACTORY_RESET";
+        } else {
+            permissionName = "ohos.permission.UPDATE_SYSTEM";
+        }
+    }
+
     void BuildWorkBusinessErr(BusinessError &businessError)
     {
         std::string msg = "execute error";
+        std::string funcName = "";
+        std::string permissionName = "";
         switch (workResult_) {
             case INT_NOT_SYSTEM_APP:
-                msg = "Caller not system app";
+                msg = "BusinessError " + std::to_string(workResult_) + ": Caller not system app.";
                 break;
             case INT_APP_NOT_GRANTED:
-                msg = "permission not granted";
+                GetSessionFuncParameter(funcName, permissionName);
+                msg = "BusinessError " + std::to_string(workResult_) + ": Permission denied. An attempt was made to " +
+                    funcName + " forbidden by permission: " + permissionName + ".";
                 break;
             case INT_CALL_IPC_ERR:
-                msg = "ipc error";
+                msg = "BusinessError " + std::to_string(COMPONENT_ERR + workResult_) + ": IPC error.";
                 break;
             case INT_UN_SUPPORT:
-                msg = "api unsupport";
+                GetSessionFuncParameter(funcName, permissionName);
+                msg = "BusinessError " + std::to_string(workResult_) + ": Capability not supported. " +
+                    "function " + funcName + " can not work correctly due to limited device capabilities.";
                 break;
             case INT_PARAM_ERR:
                 msg = "param error";
+                break;
+            case INT_CALL_FAIL:
+                msg = "BusinessError " + std::to_string(COMPONENT_ERR + workResult_) + ": Execute fail.";
+                break;
+            case INT_FORBIDDEN:
+                msg = "BusinessError " + std::to_string(COMPONENT_ERR + workResult_) + ": Forbidden execution.";
+                break;
+            case INT_DEV_UPG_INFO_ERR:
+                msg = "BusinessError " + std::to_string(COMPONENT_ERR + workResult_) + ": Device info error.";
+                break;
+            case INT_TIME_OUT:
+                msg = "BusinessError " + std::to_string(COMPONENT_ERR + workResult_) + ": Execute timeout.";
+                break;
+            case INT_DB_ERROR:
+                msg = "BusinessError " + std::to_string(COMPONENT_ERR + workResult_) + ": DB error.";
+                break;
+            case INT_IO_ERROR:
+                msg = "BusinessError " + std::to_string(COMPONENT_ERR + workResult_) + ": IO error.";
+                break;
+            case INT_NET_ERROR:
+                msg = "BusinessError " + std::to_string(COMPONENT_ERR + workResult_) + ": Network error.";
                 break;
             default:
                 break;
@@ -111,11 +190,6 @@ protected:
         }
     }
 
-    bool IsNeedWaitAsyncCallback()
-    {
-        return IsAsyncCompleteWork() && IsWorkExecuteSuccess();
-    }
-
     uint32_t sessionId {0};
     IUpdater *client_ = nullptr;
     BusinessError businessError_ {};
@@ -125,17 +199,20 @@ protected:
     size_t callbackNumber_ = 0;
     void* context_ {};
     DoWorkFunction doWorker_ {};
+    std::condition_variable conditionVariable_;
+    std::mutex conditionVariableMutex_;
+    bool asyncExecuteComplete_ = false;
 };
 
-class UpdateAsyncSession : public UpdateSession {
+class UpdateAsyncession : public UpdateSession {
 public:
-    UpdateAsyncSession(IUpdater *client, SessionParams &sessionParams, size_t argc, size_t callbackNumber = 1)
+    UpdateAsyncession(IUpdater *client, SessionParams &sessionParams, size_t argc, size_t callbackNumber = 1)
         : UpdateSession(client, sessionParams, argc, callbackNumber)
     {
         callbackRef_.resize(callbackNumber);
     }
 
-    ~UpdateAsyncSession() override
+    ~UpdateAsyncession() override
     {
         callbackRef_.clear();
     }
@@ -149,13 +226,13 @@ private:
     std::vector<napi_ref> callbackRef_ = {0};
 };
 
-class UpdateAsyncSessionNoCallback : public UpdateAsyncSession {
+class UpdateAsyncessionNoCallback : public UpdateAsyncession {
 public:
-    UpdateAsyncSessionNoCallback(
+    UpdateAsyncessionNoCallback(
         IUpdater *client, SessionParams &sessionParams, size_t argc, size_t callbackNumber = 0)
-        : UpdateAsyncSession(client, sessionParams, argc, callbackNumber) {}
+        : UpdateAsyncession(client, sessionParams, argc, callbackNumber) {}
 
-    ~UpdateAsyncSessionNoCallback() override {}
+    ~UpdateAsyncessionNoCallback() override {}
 
     void CompleteWork(napi_env env, napi_status status) override;
 };

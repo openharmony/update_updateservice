@@ -12,16 +12,43 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
+import("//build/ohos/ohos_kits.gni")
+import("//build/ohos/ohos_part.gni")
+import("//build/ohos/ohos_test.gni")
 import("./updateengine.gni")
 
-group("update_service") {
-  deps = [
-    "interfaces/inner_api/engine:updateservicekits",
-    "services/engine:updater_sa.rc",
-    "services/engine:updateservice",
-    "services/engine/sa_profile:updater_sa_profile",
+ohos_part("$updateengine_part_name") {
+  subsystem_name = "updater"
+  module_list = [
+    "$updateengine_root_path/frameworks/js/napi/client:$updateengine_client_library_name",
+    "$updateengine_root_path/interfaces/inner_api/engine:$updateengine_inner_library_name",
+    "$updateengine_root_path/services/engine:$updateengine_library_name",
+    "$updateengine_root_path/services/engine:dupdate_config.json",
+    "$updateengine_root_path/services/engine:updater_sa.rc",
+    "$updateengine_root_path/services/engine/sa_profile:updater_sa_profile",
   ]
-  if (support_jsapi) {
-    deps += [ "frameworks/js/napi/client:update" ]
-  }
+  origin_name = "$updateengine_part_name"
+  variant = "phone"
+}
+
+ohos_inner_kits("$updateengine_inner_kits") {
+  sdk_libs = [
+    {
+      type = "so"
+      name = "$updateengine_root_path/interfaces/inner_api/engine:$updateengine_inner_library_name"
+      header = {
+        header_files = [
+          "iupdate_callback.h",
+          "iupdate_service.h",
+          "update_helper.h",
+          "update_service_kits_impl.h",
+          "update_service_kits.h",
+        ]
+        header_base = "$updateengine_root_path/interfaces/inner_api/include"
+      }
+    },
+  ]
+  part_name = "$updateengine_part_name"
+  origin_name = "$updateengine_part_name"
+  variant = "phone"
 }

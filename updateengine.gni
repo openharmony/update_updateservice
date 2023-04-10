@@ -19,3 +19,7 @@ updateengine_part_name = "update_service"
 updateengine_root_path = "//base/update/updateservice"
 updateengine_test_name = "update_service_test"
 updateengine_unittest_name = "update_service_unittest"
+updateengine_adapter_config = "$updateengine_root_path/adapter/default_config/feature_config"
+
+
+import("$updateengine_adapter_config/standard/config.gni")

@@ -1,0 +1,5 @@
+{
+    "pullupInterval": 14400,
+    "idleCheckInterval": 180,
+    "abInstallerTimeout":1800,
+}

@@ -17,9 +17,12 @@
 #define UPDATE_NAPI_UTIL_H
 
 #include <string>
-#include "client_helper.h"
+#include <vector>
+
 #include "js_native_api.h"
 #include "js_native_api_types.h"
+
+#include "client_helper.h"
 
 namespace OHOS {
 namespace UpdateEngine {
@@ -69,6 +72,15 @@ public:
     static ClientStatus IsTypeOf(napi_env env, napi_value arg, napi_valuetype type);
 
     static ClientStatus CreateReference(napi_env env, napi_value arg, uint32_t refcount, napi_ref &reference);
+    static napi_value CreateUint32(napi_env env, uint32_t code);
+    static napi_value CreateStringUtf8(napi_env env, const std::string &str);
+
+    static void CreateProperty(napi_env env, napi_value exports, const std::string &name,
+                               const std::vector<std::pair<std::string, napi_value>> &properties);
+private:
+    static napi_value CreateObject(napi_env env);
+    static void DefineProperties(napi_env env, napi_value object,
+                                 const std::vector<std::pair<std::string, napi_value>> &properties);
 };
 } // namespace UpdateEngine
 } // namespace OHOS
