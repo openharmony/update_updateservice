@@ -20,6 +20,14 @@ ohos_prebuilt_etc("updater_sa.rc") {
   part_name = "$updateengine_part_name"
 }
 
+config("updateengine_inner_library_native_config") {
+  include_dirs = [
+    "$updateengine_root_path/services/core/ability/define/include",
+    "$updateengine_root_path/services/core/ability/log/include",
+    "$updateengine_root_path/services/core/ability/utils/include",
+  ]
+}
+
 ohos_static_library("$updateengine_inner_library_name") {
   defines = [ "DUAL_ADAPTER" ]
   sources = [
@@ -28,22 +36,28 @@ ohos_static_library("$updateengine_inner_library_name") {
     "$updateengine_root_path/interfaces/inner_api/engine/update_service_proxy.cpp",
     "$updateengine_root_path/services/callback/src/update_callback.cpp",
     "$updateengine_root_path/services/callback/src/update_callback_stub.cpp",
+    "$updateengine_root_path/services/core/ability/log/src/update_log.cpp",
+    "$updateengine_root_path/services/engine/src/message_parcel_helper.cpp",
     "$updateengine_root_path/services/engine/src/update_helper.cpp",
   ]
 
   include_dirs = [
     "$updateengine_root_path/interfaces/inner_api/include",
     "$updateengine_root_path/services/callback/include",
+    "$updateengine_root_path/services/core/ability/utils/include",
     "$updateengine_root_path/services/engine/include",
     "//third_party/bounds_checking_function/include",  # secure method
   ]
 
-  deps = [ "//third_party/bounds_checking_function:libsec_shared" ]
+  public_configs = [ ":updateengine_inner_library_native_config" ]
+
+  deps = [ "//third_party/bounds_checking_function:libsec_static" ]
 
   external_deps = [
     "c_utils:utils",  # sptr
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
+    "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
   ]
 

@@ -17,6 +17,7 @@ import("../../../../updateengine.gni")
 ohos_shared_library("$updateengine_client_library_name") {
   sources = [
     "$updateengine_root_path/frameworks/js/napi/base/src/client_helper.cpp",
+    "$updateengine_root_path/frameworks/js/napi/base/src/define_property.cpp",
     "$updateengine_root_path/frameworks/js/napi/base/src/iupdater.cpp",
     "$updateengine_root_path/frameworks/js/napi/base/src/napi_util.cpp",
     "$updateengine_root_path/frameworks/js/napi/base/src/session_manager.cpp",
@@ -44,6 +45,7 @@ ohos_shared_library("$updateengine_client_library_name") {
     "c_utils:utils",  # sptr
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
+    "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
   ]
 

@@ -22,11 +22,12 @@ std::mutex UpdateServiceOnDemand::instanceLock_;
 
 sptr<UpdateServiceOnDemand> UpdateServiceOnDemand::GetInstance()
 {
-    instanceLock_.lock();
     if (instance_ == nullptr) {
-        instance_ = new UpdateServiceOnDemand;
+        std::lock_guard<std::mutex> lock(instanceLock_);
+        if (instance_ == nullptr) {
+            instance_ = new UpdateServiceOnDemand();
+        }
     }
-    instanceLock_.unlock();
     return instance_;
 }
 
@@ -51,14 +52,7 @@ void UpdateServiceOnDemand::OnLoadSystemAbilityFail(int32_t systemAbilityId)
 
 void UpdateServiceOnDemand::InitStatus()
 {
-    if (loadUpdaterSaStatus_ != LoadUpdaterSaStatus::WAIT_RESULT) {
-        loadUpdaterSaStatus_ = LoadUpdaterSaStatus::WAIT_RESULT;
-    }
-}
-
-void UpdateServiceOnDemand::WaitUpdaterSaInit()
-{
-    usleep(UPDATER_SA_INIT_TIME);
+    loadUpdaterSaStatus_ = LoadUpdaterSaStatus::WAIT_RESULT;
 }
 
 bool UpdateServiceOnDemand::CheckUpdaterSaLoaded()
@@ -95,7 +89,6 @@ bool UpdateServiceOnDemand::LoadUpdaterSa()
         ENGINE_LOGE("systemAbilityId: %{public}d, CheckUpdaterSaLoaded failed", UPDATE_DISTRIBUTED_SERVICE_ID);
         return false;
     }
-    WaitUpdaterSaInit();
     ENGINE_LOGI("systemAbilityId: %{public}d, load succeed", UPDATE_DISTRIBUTED_SERVICE_ID);
     return true;
 }

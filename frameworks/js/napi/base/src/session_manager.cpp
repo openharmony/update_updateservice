@@ -17,6 +17,8 @@
 
 #include "client_helper.h"
 #include "node_api.h"
+
+#include "update_define.h"
 #include "update_helper.h"
 #include "update_session.h"
 #include "session_manager.h"
@@ -25,30 +27,18 @@ using namespace std;
 
 namespace OHOS {
 namespace UpdateEngine {
-struct NotifyInput {
-    NotifyInput() = default;
-    NotifyInput(SessionManager *sesssionManager, const string &itype, UpdateResult *iresult)
-        : sesssionMgr(sesssionManager), type(itype), result(iresult) {}
-    SessionManager *sesssionMgr = nullptr;
-    string type;
-    UpdateResult *result = nullptr;
-};
-
 SessionManager::SessionManager(napi_env env, napi_ref thisReference) : env_(env), thisReference_(thisReference) {}
 
 SessionManager::~SessionManager()
 {
-    sessions_.clear();
-    if (thisReference_ != nullptr) {
-        napi_delete_reference(env_, thisReference_);
-    }
+    Clear();
 }
 
 void SessionManager::AddSession(std::shared_ptr<IUpdateSession> session)
 {
     PARAM_CHECK(session != nullptr, return, "Invalid param");
 #ifndef UPDATER_API_TEST
-    std::lock_guard<std::mutex> guard(sessionMutex_);
+    std::lock_guard<std::recursive_mutex> guard(sessionMutex_);
 #endif
     sessions_.insert(make_pair(session->GetSessionId(), session));
 }
@@ -57,19 +47,17 @@ void SessionManager::RemoveSession(uint32_t sessionId)
 {
     CLIENT_LOGI("RemoveSession sess");
 #ifndef UPDATER_API_TEST
-    std::lock_guard<std::mutex> guard(sessionMutex_);
+    std::lock_guard<std::recursive_mutex> guard(sessionMutex_);
 #endif
-    IUpdateSession *sess = nullptr;
-    auto iter = sessions_.find(sessionId);
-    if (iter != sessions_.end()) {
-        sess = iter->second.get();
-        sessions_.erase(iter);
-    }
+    sessions_.erase(sessionId);
 }
 
 void SessionManager::Clear()
 {
-    sessions_.clear();
+    {
+        std::lock_guard<std::recursive_mutex> guard(sessionMutex_);
+        sessions_.clear();
+    }
     if (thisReference_ != nullptr) {
         napi_delete_reference(env_, thisReference_);
     }
@@ -78,7 +66,7 @@ void SessionManager::Clear()
 bool SessionManager::GetFirstSessionId(uint32_t &sessionId)
 {
 #ifndef UPDATER_API_TEST
-    std::lock_guard<std::mutex> guard(sessionMutex_);
+    std::lock_guard<std::recursive_mutex> guard(sessionMutex_);
 #endif
     {
         if (sessions_.empty()) {
@@ -92,7 +80,7 @@ bool SessionManager::GetFirstSessionId(uint32_t &sessionId)
 bool SessionManager::GetNextSessionId(uint32_t &sessionId)
 {
 #ifndef UPDATER_API_TEST
-    std::lock_guard<std::mutex> guard(sessionMutex_);
+    std::lock_guard<std::recursive_mutex> guard(sessionMutex_);
 #endif
     {
         auto iter = sessions_.find(sessionId);
@@ -145,7 +133,7 @@ int32_t SessionManager::ProcessUnsubscribe(const std::string &eventType, size_t 
 
 void SessionManager::Unsubscribe(const EventClassifyInfo &eventClassifyInfo, napi_value handle)
 {
-    std::lock_guard<std::mutex> guard(sessionMutex_);
+    std::lock_guard<std::recursive_mutex> guard(sessionMutex_);
     for (auto iter = sessions_.begin(); iter != sessions_.end();) {
         if (iter->second == nullptr) {
             iter = sessions_.erase(iter); // erase nullptr
@@ -200,7 +188,7 @@ IUpdateSession *SessionManager::FindSessionByHandle(napi_env env, const std::str
 IUpdateSession *SessionManager::FindSessionByHandle(napi_env env, const EventClassifyInfo &eventClassifyInfo,
     napi_value arg)
 {
-    std::lock_guard<std::mutex> guard(sessionMutex_);
+    std::lock_guard<std::recursive_mutex> guard(sessionMutex_);
     for (auto &iter : sessions_) {
         if (iter.second == nullptr) {
             continue;
@@ -218,53 +206,6 @@ IUpdateSession *SessionManager::FindSessionByHandle(napi_env env, const EventCla
     return nullptr;
 }
 
-void SessionManager::PublishToJS(const std::string &type, const UpdateResult &result)
-{
-    CLIENT_LOGI("PublishToJS %{public}s", type.c_str());
-    napi_handle_scope scope;
-    napi_status status = napi_open_handle_scope(env_, &scope);
-    PARAM_CHECK_NAPI_CALL(env_, status == napi_ok, return, "Error open_handle_scope");
-    napi_value thisVar = nullptr;
-    status = napi_get_reference_value(env_, thisReference_, &thisVar);
-    PARAM_CHECK_NAPI_CALL(env_, status == napi_ok, napi_close_handle_scope(env_, scope); return,
-        "Error get_reference");
-
-    uint32_t nextSessId = 0;
-    bool hasNext = GetFirstSessionId(nextSessId);
-    while (hasNext) {
-        uint32_t currSessId = nextSessId;
-        auto iter = sessions_.find(currSessId);
-        if (iter == sessions_.end()) {
-            break;
-        }
-        hasNext = GetNextSessionId(nextSessId);
-        if (iter->second == nullptr) {
-            CLIENT_LOGE("PublishToJS error, updateSession is null, %{public}d", iter->first);
-            continue;
-        }
-        IUpdateSession *updateSession = (iter->second).get();
-        CLIENT_LOGI("PublishToJS GetType %{public}d", updateSession->GetType());
-        if (updateSession->GetType() == SessionType::SESSION_SUBSCRIBE) {
-            UpdateListener *listener = static_cast<UpdateListener *>(updateSession);
-            if (type.compare(listener->GetEventType()) != 0) {
-                continue;
-            }
-
-            listener->NotifyJS(env_, thisVar, result);
-            if (listener->IsOnce()) {
-                listener->RemoveHandlerRef(env_);
-                RemoveSession(currSessId);
-            }
-        } else if (updateSession->IsAsyncCompleteWork()) {
-            updateSession->NotifyJS(env_, thisVar, result);
-            RemoveSession(currSessId);
-        } else {
-            CLIENT_LOGI("PublishToJS GetType unknown type");
-        }
-    }
-    napi_close_handle_scope(env_, scope);
-}
-
 void SessionManager::PublishToJS(const EventClassifyInfo &eventClassifyInfo, const EventInfo &eventInfo)
 {
     napi_handle_scope scope;
@@ -275,7 +216,7 @@ void SessionManager::PublishToJS(const EventClassifyInfo &eventClassifyInfo, con
     PARAM_CHECK_NAPI_CALL(env_, status == napi_ok, napi_close_handle_scope(env_, scope); return,
         "Error get_reference");
 
-    std::lock_guard<std::mutex> guard(sessionMutex_);
+    std::lock_guard<std::recursive_mutex> guard(sessionMutex_);
     for (auto &iter : sessions_) {
         if (iter.second == nullptr) {
             continue;
@@ -295,43 +236,31 @@ void SessionManager::PublishToJS(const EventClassifyInfo &eventClassifyInfo, con
     napi_close_handle_scope(env_, scope);
 }
 
-void SessionManager::Emit(const std::string &type, const UpdateResult &result)
+void SessionManager::Emit(const std::string &type, const BusinessError &businessError)
 {
-    auto freeUpdateResult = [](UpdateResult *lres) {
-        if (lres != nullptr) {
-            lres->Release();
-        }
-        delete lres;
-    };
     CLIENT_LOGI("SessionManager::Emit %{public}s", type.c_str());
-
-    UpdateResult *res = new (std::nothrow) UpdateResult();
-    if (res == nullptr) {
-        return;
+    std::lock_guard<std::recursive_mutex> guard(sessionMutex_);
+    uint32_t nextSessId = 0;
+    bool hasNext = GetFirstSessionId(nextSessId);
+    while (hasNext) {
+        uint32_t currSessId = nextSessId;
+        auto iter = sessions_.find(currSessId);
+        if (iter == sessions_.end()) {
+            break;
+        }
+        hasNext = GetNextSessionId(nextSessId);
+        if (iter->second == nullptr) {
+            CLIENT_LOGE("SessionManager::Emit error, updateSession is null, %{public}d", iter->first);
+            continue;
+        }
+        IUpdateSession *updateSession = (iter->second).get();
+        CLIENT_LOGI("SessionManager::Emit GetType %{public}d", updateSession->GetType());
+        if (updateSession->IsAsyncCompleteWork()) {
+            updateSession->OnAsyncComplete(businessError);
+        } else {
+            CLIENT_LOGI("SessionManager::Emit GetType unknown type");
+        }
     }
-    *res = result;
-    uv_loop_s *loop = nullptr;
-    napi_get_uv_event_loop(env_, &loop);
-    PARAM_CHECK(loop != nullptr, freeUpdateResult(res); return, "get event loop failed.");
-
-    uv_work_t *work = new (std::nothrow) uv_work_t;
-    PARAM_CHECK(work != nullptr, freeUpdateResult(res); return, "alloc work failed.");
-
-    work->data = (void *)new (std::nothrow) NotifyInput(this, type, res);
-    PARAM_CHECK(work->data != nullptr, freeUpdateResult(res); delete work; return, "alloc work data failed.");
-
-    uv_queue_work(
-        loop,
-        work,
-        [](uv_work_t *work) {}, // run in C++ thread
-        [](uv_work_t *work, int status) {
-            NotifyInput *input = (NotifyInput *)work->data;
-            input->sesssionMgr->PublishToJS(input->type, *input->result);
-            input->result->Release();
-            delete input->result;
-            delete input;
-            delete work;
-        });
 }
 
 void SessionManager::Emit(const EventClassifyInfo &eventClassifyInfo, const EventInfo &eventInfo)
@@ -342,7 +271,7 @@ void SessionManager::Emit(const EventClassifyInfo &eventClassifyInfo, const Even
     PARAM_CHECK(loop != nullptr, return, "get event loop failed.");
 
     using UvWorkData = std::tuple<SessionManager*, EventClassifyInfo, EventInfo>;
-    UvWorkData* data = new (std::nothrow) std::tuple(this, eventClassifyInfo, eventInfo);
+    UvWorkData *data = new (std::nothrow) std::tuple(this, eventClassifyInfo, eventInfo);
     PARAM_CHECK(data != nullptr, return, "alloc data failed.");
 
     uv_work_t *work = new (std::nothrow) uv_work_t;

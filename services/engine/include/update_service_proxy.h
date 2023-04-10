@@ -31,7 +31,7 @@ public:
 
     int32_t CheckNewVersion(const UpgradeInfo &info) override;
 
-    int32_t DownloadVersion(const UpgradeInfo &info, const VersionDigestInfo &versionDigestInfo,
+    int32_t Download(const UpgradeInfo &info, const VersionDigestInfo &versionDigestInfo,
         const DownloadOptions &downloadOptions, BusinessError &businessError) override;
 
     int32_t PauseDownload(const UpgradeInfo &info, const VersionDigestInfo &versionDigestInfo,
@@ -40,7 +40,7 @@ public:
     int32_t ResumeDownload(const UpgradeInfo &info, const VersionDigestInfo &versionDigestInfo,
         const ResumeDownloadOptions &resumeDownloadOptions, BusinessError &businessError) override;
 
-    int32_t DoUpdate(const UpgradeInfo &info, const VersionDigestInfo &versionDigest,
+    int32_t Upgrade(const UpgradeInfo &info, const VersionDigestInfo &versionDigest,
         const UpgradeOptions &upgradeOptions, BusinessError &businessError) override;
 
     int32_t ClearError(const UpgradeInfo &info, const VersionDigestInfo &versionDigest,
@@ -48,7 +48,7 @@ public:
 
     int32_t TerminateUpgrade(const UpgradeInfo &info, BusinessError &businessError) override;
 
-    int32_t GetNewVersion(const UpgradeInfo &info, NewVersionInfo &newVersionInfo,
+    int32_t GetNewVersionInfo(const UpgradeInfo &info, NewVersionInfo &newVersionInfo,
         BusinessError &businessError) override;
 
     int32_t GetNewVersionDescription(const UpgradeInfo &info, const VersionDigestInfo &versionDigestInfo,

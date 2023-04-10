@@ -12,6 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #include "restorer.h"
 #include "napi_util.h"
 #include "update_service_kits.h"

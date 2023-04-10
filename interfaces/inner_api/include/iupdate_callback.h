@@ -33,7 +33,7 @@ public:
 
     DECLARE_INTERFACE_DESCRIPTOR(u"OHOS.Update.IUpdateCallback");
 public:
-    virtual void OnCheckVersionDone(const BusinessError &businessError, const CheckResultEx &checkResultEx) = 0;
+    virtual void OnCheckVersionDone(const BusinessError &businessError, const CheckResult &checkResult) = 0;
 
     virtual void OnEvent(const EventInfo &eventInfo) = 0;
 };

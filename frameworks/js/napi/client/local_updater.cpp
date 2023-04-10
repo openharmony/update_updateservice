@@ -12,8 +12,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #include "local_updater.h"
 #include "napi_util.h"
+
+#include "update_define.h"
 #include "update_service_kits.h"
 #include "update_session.h"
 
@@ -64,7 +67,7 @@ void LocalUpdater::Init()
 {
     PARAM_CHECK(!isInit_, return, "local updater has init.");
     UpdateCallbackInfo callback {
-        [](const BusinessError &businessError, const CheckResultEx &checkResultEx) {},
+        [](const BusinessError &businessError, const CheckResult &checkResult) {},
         [this](const EventInfo &eventInfo) {
             NotifyEventInfo(eventInfo);
         },

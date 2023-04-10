@@ -59,7 +59,7 @@ public:
     void GetUpdateResult(SessionType type, UpdateResult &result) override;
 
     // Notify the session.
-    void NotifyCheckVersionDone(const BusinessError &businessError, const CheckResultEx &checkResultEx);
+    void NotifyCheckVersionDone(const BusinessError &businessError, const CheckResult &checkResult) override;
     void NotifyDownloadProgress(const BusinessError &businessError, const Progress &progress);
     void NotifyUpgradeProgresss(const BusinessError &businessError, const Progress &progress);
 
@@ -77,9 +77,12 @@ public:
     }
     #endif
 private:
+    void InitCallback();
     template <typename T>
     ClientStatus ParseUpgOptions(napi_env env, napi_callback_info info, VersionDigestInfo &versionDigestInfo,
         T &options);
+    template <typename T>
+    ClientStatus ParseUpgOptions(napi_env env, napi_callback_info info, T &options);
 #ifndef UPDATER_API_TEST
     std::mutex sessionMutex_;
 #endif
@@ -90,8 +93,7 @@ private:
     UpgradePolicy upgradePolicy_ {};
     Progress progress_ {};
     Progress verifyProgress_ {};
-    VersionInfo versionInfo_ {};
-    CheckResultEx checkResultEx_ {};
+    CheckResult checkResult_ {};
     NewVersionInfo newVersionInfo_ {};
     VersionDescriptionInfo newVersionDescriptionInfo_ {};
     CurrentVersionInfo currentVersionInfo_ {};

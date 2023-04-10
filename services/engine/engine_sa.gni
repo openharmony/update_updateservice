@@ -1,0 +1,150 @@
+# Copyright (c) 2022 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/ohos.gni")
+import("//base/update/updateservice/updateengine.gni")
+import("$updateengine_root_path/services/core/ability/log/log.gni")
+import("$updateengine_root_path/services/core/ability/sqlite/sqlite.gni")
+import("$updateengine_root_path/services/firmware/firmware.gni")
+import("$updateengine_root_path/services/startup/startup.gni")
+
+sa_sources = [
+  "$updateengine_root_path/services/callback/src/update_callback.cpp",
+  "$updateengine_root_path/services/callback/src/update_callback_proxy.cpp",
+  "$updateengine_root_path/services/callback/src/update_callback_stub.cpp",
+  "$updateengine_root_path/services/core/ability/adapter/src/config_parse.cpp",
+  "$updateengine_root_path/services/core/ability/adapter/src/device_adapter.cpp",
+  "$updateengine_root_path/services/core/ability/alarm/src/alarm_manager.cpp",
+  "$updateengine_root_path/services/core/ability/alarm/src/timer_manager.cpp",
+  "$updateengine_root_path/services/core/ability/callback/src/base_callback_utils.cpp",
+  "$updateengine_root_path/services/core/ability/preference/src/preference_utils.cpp",
+  "$updateengine_root_path/services/core/ability/status_cache/src/status_cache.cpp",
+  "$updateengine_root_path/services/core/ability/utils/src/file_utils.cpp",
+  "$updateengine_root_path/services/core/ability/utils/src/sha256_utils.cpp",
+  "$updateengine_root_path/services/core/ability/utils/src/time_utils_proxy.cpp",
+  "$updateengine_root_path/services/engine/src/message_parcel_helper.cpp",
+  "$updateengine_root_path/services/engine/src/progress_thread.cpp",
+  "$updateengine_root_path/services/engine/src/update_helper.cpp",
+  "$updateengine_root_path/services/engine/src/update_notify.cpp",
+  "$updateengine_root_path/services/engine/src/update_service.cpp",
+  "$updateengine_root_path/services/engine/src/update_service_cache.cpp",
+  "$updateengine_root_path/services/engine/src/update_service_impl_firmware.cpp",
+  "$updateengine_root_path/services/engine/src/update_service_impl_manager.cpp",
+  "$updateengine_root_path/services/engine/src/update_service_local_updater.cpp",
+  "$updateengine_root_path/services/engine/src/update_service_restorer.cpp",
+  "$updateengine_root_path/services/engine/src/update_service_stub.cpp",
+  "$updateengine_root_path/services/engine/src/update_service_util_hmos.cpp",
+  "$updateengine_root_path/services/utils/src/dupdate_net_observer.cpp",
+  "$updateengine_root_path/services/utils/src/dupdate_net_manager.cpp",
+  "$updateengine_root_path/services/utils/src/dupdate_timer.c",
+]
+
+sa_sources += firmware_src
+sa_sources += sqlite_src
+sa_sources += update_log_src
+sa_sources += startup_src
+
+sa_include_dirs = [
+  "$updateengine_root_path/services/auto_update/include",
+  "$updateengine_root_path/services/bi_report/include",
+  "$updateengine_root_path/services/callback/include",
+  "$updateengine_root_path/services/core/ability/adapter/include",
+  "$updateengine_root_path/services/core/ability/alarm/include",
+  "$updateengine_root_path/services/core/ability/callback/include",
+  "$updateengine_root_path/services/core/ability/common/include",
+  "$updateengine_root_path/services/core/ability/define/include",
+  "$updateengine_root_path/services/core/ability/model/include",
+  "$updateengine_root_path/services/core/ability/net/include",
+  "$updateengine_root_path/services/core/ability/preference/include",
+  "$updateengine_root_path/services/core/ability/status_cache/include",
+  "$updateengine_root_path/services/core/ability/utils/include",
+  "$updateengine_root_path/services/engine/include",
+  "$updateengine_root_path/services/osal/include",
+  "$updateengine_root_path/services/service/include",
+  "$updateengine_root_path/services/utils/include",
+  "$updateengine_root_path/interfaces/inner_api/include",
+  "//base/update/updater/interfaces/kits/include",  # package.h/updaterkits.h
+  "//base/update/updater/services/include",  # fs_manager/mount.h
+  "//commonlibrary/utils_lite/include",  # OHOS_SUCCESS
+  "//third_party/curl/include",
+  "//utils/native/base/include",  # sptr
+  "//utils/system/safwk/native/include",
+  "//third_party/libxml2/include",
+  "//third_party/glib/glib",
+  "//third_party/glib",
+  "//third_party/openssl/include",
+  "third_party/cJSON/",
+]
+
+sa_include_dirs += firmware_include
+sa_include_dirs += sqlite_include
+sa_include_dirs += update_log_include
+sa_include_dirs += startup_include
+
+sa_deps = [
+  "//base/update/updater/services/fs_manager:libfsmanager",  # factory_reset_GetBlockDeviceByMountPoint_"fs_manager/mount.h"
+  "//third_party/curl:curl",
+  "//third_party/libxml2:libxml2",
+  "//third_party/jsoncpp:jsoncpp",
+  "//third_party/glib:glib_packages",
+  "//third_party/mbedtls:mbedtls_shared",
+  "//third_party/openssl:libcrypto_shared",
+  "//third_party/openssl:libssl_shared",
+  "//third_party/cJSON:cjson",
+]
+
+sa_deps += firmware_deps
+sa_deps += update_log_deps
+sa_deps += startup_deps
+
+sa_external_deps = [
+  "ability_base:base",
+  "ability_base:want",
+  "ability_runtime:ability_manager",
+  "access_token:libaccesstoken_sdk",
+  "access_token:libtokenid_sdk",
+  "battery_manager:batterysrv_client",
+  "common_event_service:cesfwk_innerkits",
+  "config_policy:configpolicy_util",
+  "c_utils:utils",  # refbase
+  "hisysevent_native:libhisysevent",
+  "hiviewdfx_hilog_native:libhilog",
+  "init:libbegetutil",
+  "ipc:ipc_core",
+  "netmanager_base:net_conn_manager_if",
+  "preferences:native_preferences",
+  "power_manager:powermgr_client",  # IsScreenOn()
+  "safwk:system_ability_fwk",
+  "samgr:samgr_proxy",
+  "updater:libpackageExt",  # "package/package.h"
+  "updater:libupdaterkits", # "updaterkits/updaterkits.h"
+]
+
+sa_external_deps += firmware_external_deps
+sa_external_deps += sqlite_external_deps
+sa_external_deps += update_log_external_deps
+sa_external_deps += startup_external_deps
+
+sa_public_deps = []
+sa_public_deps += startup_public_deps
+
+sa_defines = [
+  "DUAL_ADAPTER",
+  "UPDATE_SERVICE",
+]
+
+sa_cflags = [
+  "-fPIC",
+  "-Os",
+  "-Werror",
+]

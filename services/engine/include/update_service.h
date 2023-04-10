@@ -19,14 +19,13 @@
 #include <iostream>
 #include <thread>
 
-#include "cJSON.h"
 #include "if_system_ability_manager.h"
 #include "ipc_skeleton.h"
 #include "iremote_stub.h"
-#include "iupdate_service.h"
-#include "progress_thread.h"
 #include "system_ability.h"
+
 #include "update_helper.h"
+#include "update_service_impl_manager.h"
 #include "update_service_stub.h"
 
 namespace OHOS {
@@ -44,7 +43,7 @@ public:
 
     int32_t CheckNewVersion(const UpgradeInfo &info) override;
 
-    int32_t DownloadVersion(const UpgradeInfo &info, const VersionDigestInfo &versionDigestInfo,
+    int32_t Download(const UpgradeInfo &info, const VersionDigestInfo &versionDigestInfo,
         const DownloadOptions &downloadOptions, BusinessError &businessError) override;
 
     int32_t PauseDownload(const UpgradeInfo &info, const VersionDigestInfo &versionDigestInfo,
@@ -53,7 +52,7 @@ public:
     int32_t ResumeDownload(const UpgradeInfo &info, const VersionDigestInfo &versionDigestInfo,
         const ResumeDownloadOptions &resumeDownloadOptions, BusinessError &businessError) override;
 
-    int32_t DoUpdate(const UpgradeInfo &info, const VersionDigestInfo &versionDigest,
+    int32_t Upgrade(const UpgradeInfo &info, const VersionDigestInfo &versionDigest,
         const UpgradeOptions &upgradeOptions, BusinessError &businessError) override;
 
     int32_t ClearError(const UpgradeInfo &info, const VersionDigestInfo &versionDigest,
@@ -61,7 +60,7 @@ public:
 
     int32_t TerminateUpgrade(const UpgradeInfo &info, BusinessError &businessError) override;
 
-    int32_t GetNewVersion(
+    int32_t GetNewVersionInfo(
         const UpgradeInfo &info, NewVersionInfo &newVersionInfo, BusinessError &businessError) override;
 
     int32_t GetNewVersionDescription(const UpgradeInfo &info, const VersionDigestInfo &versionDigestInfo,
@@ -91,26 +90,11 @@ public:
     int32_t VerifyUpgradePackage(const std::string &packagePath, const std::string &keyPath,
         BusinessError &businessError) override;
 
-    void DownloadCallback(const Progress &progress);
-
     int Dump(int fd, const std::vector<std::u16string> &args) override;
 
-    void SearchCallback(const std::string &msg, SearchStatus status);
-
-    void SearchCallbackEx(BusinessError &businessError, CheckResultEx &checkResult);
-
     static sptr<UpdateService> GetInstance();
+
     sptr<IUpdateCallback> GetUpgradeCallback(const UpgradeInfo &info);
-
-    void SetCheckInterval(uint64_t interval);
-    void SetDownloadInterval(uint64_t interval);
-    uint64_t GetCheckInterval();
-    uint64_t GetDownloadInterval();
-    void GetUpgradeContext(std::string &devIdInfo);
-
-    static int32_t ParseJsonFile(const std::vector<char> &buffer, VersionInfo &info, std::string &url);
-    static int32_t ReadCheckVersionResult(const cJSON* results, VersionInfo &info, std::string &url);
-    static int32_t ReadCheckVersiondescriptInfo(const cJSON *descriptInfo, VersionInfo &info);
 
 #ifndef UPDATER_UT
 protected:
@@ -120,20 +104,12 @@ protected:
 
 private:
     void DumpUpgradeCallback(const int fd);
-    void GetCheckResult(CheckResultEx &checkResult);
-    void UpgradeCallback(const Progress &progress);
-    std::string GetDownloadServerUrl() const;
-    void InitVersionInfo(VersionInfo &versionInfo) const;
-    void SendEvent(const UpgradeInfo &upgradeInfo, EventId eventId);
 
 #ifndef UPDATER_UT
 private:
 #else
 public:
 #endif
-    bool VerifyDownloadPkg(const std::string &pkgName, Progress &progress);
-    void ReadDataFromSSL(int32_t engineSocket);
-
     class ClientDeathRecipient final : public IRemoteObject::DeathRecipient {
     public:
         ClientDeathRecipient(const UpgradeInfo &upgradeInfo) : upgradeInfo_(upgradeInfo) {}
@@ -147,7 +123,6 @@ public:
     class ClientProxy {
     public:
         ClientProxy(const UpgradeInfo &info, const sptr<IUpdateCallback> &callback);
-        ClientProxy &operator=(const ClientProxy &source);
         void AddDeathRecipient();
         void RemoveDeathRecipient();
         sptr<IUpdateCallback> Get();
@@ -157,22 +132,10 @@ public:
     };
 
 private:
-    UpgradePolicy policy_ = {
-        1, 1, {{10, 20}, {10, 20}}
-    };
-    UpgradeStatus upgradeStatus_ = UPDATE_STATE_INIT;
-    VersionInfo versionInfo_ {};
-    CheckResultEx checkResultEx_ {};
-    OtaStatus otaStatus_ {};
-    UpgradeInterval upgradeInterval_ {};
-    uint64_t checkInterval_ = 0;
-    uint64_t downloadInterval_ = 0;
     std::mutex clientProxyMapLock_;
     std::map<UpgradeInfo, ClientProxy> clientProxyMap_;
-    DownloadThread *downloadThread_  { nullptr };
-    UpgradeInfo upgradeInfo_ {};
-    std::string downloadUrl_;
     static sptr<UpdateService> updateService_;
+    std::shared_ptr<UpdateServiceImplManager> updateImplMgr_;
 };
 } // namespace UpdateEngine
 } // namespace OHOS
