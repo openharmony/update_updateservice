@@ -11,8 +11,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("//build/ohos.gni")
 import("//base/update/updateservice/updateengine.gni")
+import("//build/ohos.gni")
 import("$updateengine_root_path/services/core/ability/log/log.gni")
 import("$updateengine_root_path/services/core/ability/sqlite/sqlite.gni")
 import("$updateengine_root_path/services/firmware/firmware.gni")
@@ -44,8 +44,8 @@ sa_sources = [
   "$updateengine_root_path/services/engine/src/update_service_restorer.cpp",
   "$updateengine_root_path/services/engine/src/update_service_stub.cpp",
   "$updateengine_root_path/services/engine/src/update_service_util_hmos.cpp",
-  "$updateengine_root_path/services/utils/src/dupdate_net_observer.cpp",
   "$updateengine_root_path/services/utils/src/dupdate_net_manager.cpp",
+  "$updateengine_root_path/services/utils/src/dupdate_net_observer.cpp",
   "$updateengine_root_path/services/utils/src/dupdate_timer.c",
 ]
 
@@ -93,14 +93,14 @@ sa_include_dirs += startup_include
 
 sa_deps = [
   "//base/update/updater/services/fs_manager:libfsmanager",  # factory_reset_GetBlockDeviceByMountPoint_"fs_manager/mount.h"
+  "//third_party/cJSON:cjson",
   "//third_party/curl:curl",
-  "//third_party/libxml2:libxml2",
-  "//third_party/jsoncpp:jsoncpp",
   "//third_party/glib:glib_packages",
+  "//third_party/jsoncpp:jsoncpp",
+  "//third_party/libxml2:libxml2",
   "//third_party/mbedtls:mbedtls_shared",
   "//third_party/openssl:libcrypto_shared",
   "//third_party/openssl:libssl_shared",
-  "//third_party/cJSON:cjson",
 ]
 
 sa_deps += firmware_deps
@@ -114,20 +114,20 @@ sa_external_deps = [
   "access_token:libaccesstoken_sdk",
   "access_token:libtokenid_sdk",
   "battery_manager:batterysrv_client",
+  "c_utils:utils",  # refbase
   "common_event_service:cesfwk_innerkits",
   "config_policy:configpolicy_util",
-  "c_utils:utils",  # refbase
   "hisysevent_native:libhisysevent",
   "hiviewdfx_hilog_native:libhilog",
   "init:libbegetutil",
   "ipc:ipc_core",
   "netmanager_base:net_conn_manager_if",
-  "preferences:native_preferences",
   "power_manager:powermgr_client",  # IsScreenOn()
+  "preferences:native_preferences",
   "safwk:system_ability_fwk",
   "samgr:samgr_proxy",
   "updater:libpackageExt",  # "package/package.h"
-  "updater:libupdaterkits", # "updaterkits/updaterkits.h"
+  "updater:libupdaterkits",  # "updaterkits/updaterkits.h"
 ]
 
 sa_external_deps += firmware_external_deps
