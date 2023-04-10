@@ -17,9 +17,13 @@
 
 #include <string>
 
+#include "napi/native_common.h"
+
+#include "update_define.h"
+
 namespace OHOS {
 namespace UpdateEngine {
-const int32_t STRING_MAX_LENGTH = 200;
+constexpr int32_t STRING_MAX_LENGTH = 200;
 
 int32_t NapiUtil::GetInt32(napi_env env, napi_value arg, const std::string &attrName, int32_t &intValue)
 {
@@ -66,7 +70,7 @@ int32_t NapiUtil::GetString(napi_env env, napi_value arg, std::string &strValue)
 
     std::vector<char> buff(STRING_MAX_LENGTH);
     size_t copied;
-    status = napi_get_value_string_utf8(env, arg, static_cast<char*>(buff.data()), STRING_MAX_LENGTH, &copied);
+    status = napi_get_value_string_utf8(env, arg, (char*)buff.data(), STRING_MAX_LENGTH, &copied);
     PARAM_CHECK(status == napi_ok, return CAST_INT(ClientStatus::CLIENT_INVALID_TYPE), "Error get string");
     strValue.assign(buff.data(), copied);
     return CAST_INT(ClientStatus::CLIENT_SUCCESS);
@@ -118,6 +122,65 @@ ClientStatus NapiUtil::CreateReference(napi_env env, napi_value arg, uint32_t re
     napi_status status = napi_create_reference(env, arg, refcount, &reference);
     PARAM_CHECK(status == napi_ok, return ClientStatus::CLIENT_FAIL, "Failed to create reference");
     return ClientStatus::CLIENT_SUCCESS;
+}
+
+napi_value NapiUtil::CreateUint32(napi_env env, uint32_t code)
+{
+    napi_value value = nullptr;
+    if (napi_create_uint32(env, code, &value) != napi_ok) {
+        return nullptr;
+    }
+    return value;
+}
+
+napi_value NapiUtil::CreateStringUtf8(napi_env env, const std::string &str)
+{
+    napi_value value = nullptr;
+    if (napi_create_string_utf8(env, str.c_str(), strlen(str.c_str()), &value) != napi_ok) {
+        return nullptr;
+    }
+    return value;
+}
+
+napi_value NapiUtil::CreateObject(napi_env env)
+{
+    napi_value object = nullptr;
+    napi_status status = napi_create_object(env, &object);
+    if (status != napi_ok) {
+        CLIENT_LOGE("CreateObject, napi_create_object fail");
+    }
+    return object;
+}
+
+void NapiUtil::CreateProperty(napi_env env,  napi_value exports, const std::string &name,
+                              const std::vector<std::pair<std::string, napi_value>> &properties)
+{
+    napi_value objectValue = CreateObject(env);
+    if (objectValue == nullptr) {
+        return;
+    }
+    DefineProperties(env, objectValue, properties);
+    napi_status status = napi_set_named_property(env, exports, name.c_str(), objectValue);
+    if (status != napi_ok) {
+        CLIENT_LOGE("CreateProperty, napi_set_named_property fail");
+    }
+}
+
+void NapiUtil::DefineProperties(napi_env env, napi_value object,
+                                const std::vector<std::pair<std::string, napi_value>> &properties)
+{
+    size_t size = properties.size();
+    napi_property_descriptor descriptors[size];
+    for (size_t pos = 0; pos < size; pos++) {
+        if (properties[pos].first.empty()) {
+            continue;
+        }
+        descriptors[pos] = DECLARE_NAPI_STATIC_PROPERTY(properties[pos].first.c_str(), properties[pos].second);
+    }
+    napi_status status = napi_define_properties(env, object, size, descriptors);
+    if (status != napi_ok) {
+        CLIENT_LOGE("DefineProperties, napi_define_properties fail");
+    }
 }
 } // namespace UpdateEngine
 } // namespace OHOS

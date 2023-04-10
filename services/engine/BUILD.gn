@@ -11,80 +11,29 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import("//base/update/updateservice/services/engine/engine_sa.gni")
 import("//build/ohos.gni")
-import("../../updateengine.gni")
-import("../ab_update/ab_update.gni")
+
+ohos_prebuilt_etc("dupdate_config.json") {
+  source = "etc/dupdate_config.json"
+  relative_install_dir = "update"
+  part_name = "$updateengine_part_name"
+  subsystem_name = "updater"
+}
 
 ohos_prebuilt_etc("updater_sa.rc") {
-  if (use_musl) {
-    source = "etc/updater_sa.cfg"
-  } else {
-    source = "etc/updater_sa.rc"
-  }
+  source = "etc/updater_sa.cfg"
   relative_install_dir = "init"
   part_name = "$updateengine_part_name"
 }
 
 ohos_shared_library("$updateengine_library_name") {
-  defines = [
-    "DUAL_ADAPTER",
-    "UPDATE_SERVICE",
-  ]
-  sources = [
-    "$updateengine_root_path/services/callback/src/update_callback.cpp",
-    "$updateengine_root_path/services/callback/src/update_callback_proxy.cpp",
-    "$updateengine_root_path/services/callback/src/update_callback_stub.cpp",
-    "$updateengine_root_path/services/engine/src/progress_thread.cpp",
-    "$updateengine_root_path/services/engine/src/update_helper.cpp",
-    "$updateengine_root_path/services/engine/src/update_service.cpp",
-    "$updateengine_root_path/services/engine/src/update_service_stub.cpp",
-  ]
-
-  sources += ab_update_src
-
-  include_dirs = [
-    "$updateengine_root_path/interfaces/inner_api/include",
-    "$updateengine_root_path/services/callback/include",
-    "$updateengine_root_path/services/engine/include",
-    "//base/update/updater/interfaces/kits/include",
-    "//foundation/systemabilitymgr/safwk/services/safwk/include",
-    "//third_party/bounds_checking_function/include",
-    "//third_party/cJSON",
-    "//third_party/curl/include",
-    "//third_party/openssl/include",
-    "//utils/system/safwk/native/include",
-  ]
-
-  include_dirs += ab_update_include
-
-  deps = [
-    "//base/update/updater/interfaces/kits/packages:libpackageExt",  # "package/package.h"
-    "//base/update/updater/interfaces/kits/updaterkits:libupdaterkits",  # "updaterkits/updaterkits.h"
-    "//third_party/bounds_checking_function:libsec_shared",
-    "//third_party/cJSON:cjson",
-    "//third_party/curl:curl_shared",
-    "//third_party/openssl:libcrypto_shared",
-    "//third_party/openssl:libssl_shared",
-  ]
-
-  deps += ab_update_internal_deps
-
-  external_deps = [
-    "access_token:libaccesstoken_sdk",
-    "access_token:libtokenid_sdk",
-    "c_utils:utils",  # sptr
-    "hisysevent_native:libhisysevent",
-    "hiviewdfx_hilog_native:libhilog",
-    "init:libbegetutil",
-    "ipc:ipc_core",
-    "safwk:system_ability_fwk",
-  ]
-
+  include_dirs = sa_include_dirs
+  sources = sa_sources
+  deps = sa_deps
+  external_deps = sa_external_deps
+  public_deps = sa_public_deps
   part_name = "$updateengine_part_name"
-
-  cflags = [
-    "-fPIC",
-    "-Os",
-    "-Werror",
-  ]
+  defines = sa_defines
+  cflags = sa_cflags
 }

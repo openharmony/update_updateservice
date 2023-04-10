@@ -27,9 +27,8 @@
 
 namespace OHOS {
 namespace UpdateEngine {
-static constexpr int64_t UPDATER_SA_INIT_TIME = 1000 * 1000;
-static constexpr int64_t SLEEP_TIME = 500 * 1000;
-static constexpr int32_t RETRY_TIMES = 10;
+static constexpr int64_t SLEEP_TIME = 50 * 1000;
+static constexpr int32_t RETRY_TIMES = 100;
 
 enum class LoadUpdaterSaStatus {
     WAIT_RESULT = 0,
@@ -46,7 +45,6 @@ public:
 
 private:
     void InitStatus();
-    void WaitUpdaterSaInit();
     bool CheckUpdaterSaLoaded();
     bool LoadUpdaterSa();
 

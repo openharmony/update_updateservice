@@ -17,9 +17,12 @@
 
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
+#include "system_ability_definition.h"
+
 #include "iupdate_service.h"
 #include "iupdate_callback.h"
-#include "system_ability_definition.h"
+#include "update_define.h"
+#include "update_log.h"
 #include "update_service_ondemand.h"
 
 namespace OHOS {
@@ -106,17 +109,17 @@ UpdateServiceKitsImpl::RemoteUpdateCallback::~RemoteUpdateCallback()
 }
 
 void UpdateServiceKitsImpl::RemoteUpdateCallback::OnCheckVersionDone(
-    const BusinessError &businessError, const CheckResultEx &checkResultEx)
+    const BusinessError &businessError, const CheckResult &checkResult)
 {
-    ENGINE_LOGI("OnCheckVersionDone status %{public}d", checkResultEx.isExistNewVersion);
+    ENGINE_LOGI("OnCheckVersionDone status %{public}d", checkResult.isExistNewVersion);
     if (updateCallback_.checkNewVersionDone != nullptr) {
-        updateCallback_.checkNewVersionDone(businessError, checkResultEx);
+        updateCallback_.checkNewVersionDone(businessError, checkResult);
     }
 }
 
 void UpdateServiceKitsImpl::RemoteUpdateCallback::OnEvent(const EventInfo &eventInfo)
 {
-    ENGINE_LOGI("OnEvent progress %{public}d", eventInfo.eventId);
+    ENGINE_LOGI("OnEvent eventId %{public}d", eventInfo.eventId);
     if (updateCallback_.onEvent != nullptr) {
         updateCallback_.onEvent(eventInfo);
     }
@@ -160,7 +163,7 @@ int32_t UpdateServiceKitsImpl::Download(const UpgradeInfo &info, const VersionDi
     ENGINE_LOGI("UpdateServiceKitsImpl::Download");
     auto updateService = GetService();
     RETURN_FAIL_WHEN_SERVICE_NULL(updateService);
-    return updateService->DownloadVersion(info, versionDigestInfo, downloadOptions, businessError);
+    return updateService->Download(info, versionDigestInfo, downloadOptions, businessError);
 }
 
 int32_t UpdateServiceKitsImpl::PauseDownload(const UpgradeInfo &info, const VersionDigestInfo &versionDigestInfo,
@@ -187,7 +190,7 @@ int32_t UpdateServiceKitsImpl::Upgrade(const UpgradeInfo &info, const VersionDig
     ENGINE_LOGI("UpdateServiceKitsImpl::Upgrade");
     auto updateService = GetService();
     RETURN_FAIL_WHEN_SERVICE_NULL(updateService);
-    return updateService->DoUpdate(info, versionDigest, upgradeOptions, businessError);
+    return updateService->Upgrade(info, versionDigest, upgradeOptions, businessError);
 }
 
 int32_t UpdateServiceKitsImpl::ClearError(const UpgradeInfo &info, const VersionDigestInfo &versionDigest,
@@ -213,7 +216,7 @@ int32_t UpdateServiceKitsImpl::GetNewVersionInfo(const UpgradeInfo &info, NewVer
     ENGINE_LOGI("UpdateServiceKitsImpl::GetNewVersionInfo");
     auto updateService = GetService();
     RETURN_FAIL_WHEN_SERVICE_NULL(updateService);
-    return updateService->GetNewVersion(info, newVersionInfo, businessError);
+    return updateService->GetNewVersionInfo(info, newVersionInfo, businessError);
 }
 
 int32_t UpdateServiceKitsImpl::GetNewVersionDescription(const UpgradeInfo &info,

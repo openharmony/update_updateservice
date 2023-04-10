@@ -14,8 +14,13 @@
  */
 
 #include "update_service_proxy.h"
-#include "update_helper.h"
+
 #include "securec.h"
+
+#include "message_parcel_helper.h"
+#include "update_define.h"
+#include "update_helper.h"
+#include "update_log.h"
 
 namespace OHOS {
 namespace UpdateEngine {
@@ -55,7 +60,7 @@ int32_t UpdateServiceProxy::RegisterUpdateCallback(const UpgradeInfo &info,
 
     MessageParcel data;
     RETURN_WHEN_TOKEN_WRITE_FAIL(data);
-    UpdateHelper::WriteUpgradeInfo(data, info);
+    MessageParcelHelper::WriteUpgradeInfo(data, info);
     bool res = data.WriteRemoteObject(updateCallback->AsObject());
     ENGINE_CHECK(res, return INT_CALL_IPC_ERR, "RegisterUpdateCallback error, WriteRemoteObject fail");
 
@@ -73,7 +78,7 @@ int32_t UpdateServiceProxy::UnregisterUpdateCallback(const UpgradeInfo &info)
 
     MessageParcel data;
     RETURN_WHEN_TOKEN_WRITE_FAIL(data);
-    UpdateHelper::WriteUpgradeInfo(data, info);
+    MessageParcelHelper::WriteUpgradeInfo(data, info);
 
     MessageParcel reply;
     MessageOption option;
@@ -90,7 +95,7 @@ int32_t UpdateServiceProxy::CheckNewVersion(const UpgradeInfo &info)
 
     MessageParcel data;
     RETURN_WHEN_TOKEN_WRITE_FAIL(data);
-    UpdateHelper::WriteUpgradeInfo(data, info);
+    MessageParcelHelper::WriteUpgradeInfo(data, info);
 
     MessageParcel reply;
     MessageOption option;
@@ -99,24 +104,26 @@ int32_t UpdateServiceProxy::CheckNewVersion(const UpgradeInfo &info)
     return INT_CALL_SUCCESS;
 }
 
-int32_t UpdateServiceProxy::DownloadVersion(const UpgradeInfo &info, const VersionDigestInfo &versionDigestInfo,
+int32_t UpdateServiceProxy::Download(const UpgradeInfo &info, const VersionDigestInfo &versionDigestInfo,
     const DownloadOptions &downloadOptions, BusinessError &businessError)
 {
-    ENGINE_LOGI("UpdateServiceProxy::DownloadVersion");
+    ENGINE_LOGI("UpdateServiceProxy::Download");
     auto remote = Remote();
     RETURN_WHEN_REMOTE_NULL(remote);
 
     MessageParcel data;
     RETURN_WHEN_TOKEN_WRITE_FAIL(data);
-    UpdateHelper::WriteUpgradeInfo(data, info);
-    UpdateHelper::WriteVersionDigestInfo(data, versionDigestInfo);
-    UpdateHelper::WriteDownloadOptions(data, downloadOptions);
+    MessageParcelHelper::WriteUpgradeInfo(data, info);
+    MessageParcelHelper::WriteVersionDigestInfo(data, versionDigestInfo);
+    MessageParcelHelper::WriteDownloadOptions(data, downloadOptions);
 
     MessageParcel reply;
     MessageOption option;
     int32_t ret = remote->SendRequest(DOWNLOAD, data, reply, option);
-    RETURN_FAIL_WHEN_REMOTE_ERR("UpdateServiceProxy::DownloadVersion", ret);
-    UpdateHelper::ReadBusinessError(reply, businessError);
+    RETURN_FAIL_WHEN_REMOTE_ERR("UpdateServiceProxy::Download", ret);
+    BusinessError remoteBusinessError;
+    MessageParcelHelper::ReadBusinessError(reply, remoteBusinessError);
+    businessError = remoteBusinessError;
     return INT_CALL_SUCCESS;
 }
 
@@ -129,15 +136,17 @@ int32_t UpdateServiceProxy::PauseDownload(const UpgradeInfo &info, const Version
 
     MessageParcel data;
     RETURN_WHEN_TOKEN_WRITE_FAIL(data);
-    UpdateHelper::WriteUpgradeInfo(data, info);
-    UpdateHelper::WriteVersionDigestInfo(data, versionDigestInfo);
-    UpdateHelper::WritePauseDownloadOptions(data, pauseDownloadOptions);
+    MessageParcelHelper::WriteUpgradeInfo(data, info);
+    MessageParcelHelper::WriteVersionDigestInfo(data, versionDigestInfo);
+    MessageParcelHelper::WritePauseDownloadOptions(data, pauseDownloadOptions);
 
     MessageParcel reply;
     MessageOption option;
     int32_t ret = remote->SendRequest(PAUSE_DOWNLOAD, data, reply, option);
     RETURN_FAIL_WHEN_REMOTE_ERR("UpdateServiceProxy::ResumeDownload", ret);
-    UpdateHelper::ReadBusinessError(reply, businessError);
+    BusinessError remoteBusinessError;
+    MessageParcelHelper::ReadBusinessError(reply, remoteBusinessError);
+    businessError = remoteBusinessError;
     return INT_CALL_SUCCESS;
 }
 
@@ -150,22 +159,24 @@ int32_t UpdateServiceProxy::ResumeDownload(const UpgradeInfo &info, const Versio
 
     MessageParcel data;
     RETURN_WHEN_TOKEN_WRITE_FAIL(data);
-    UpdateHelper::WriteUpgradeInfo(data, info);
-    UpdateHelper::WriteVersionDigestInfo(data, versionDigestInfo);
-    UpdateHelper::WriteResumeDownloadOptions(data, resumeDownloadOptions);
+    MessageParcelHelper::WriteUpgradeInfo(data, info);
+    MessageParcelHelper::WriteVersionDigestInfo(data, versionDigestInfo);
+    MessageParcelHelper::WriteResumeDownloadOptions(data, resumeDownloadOptions);
 
     MessageParcel reply;
     MessageOption option;
     int32_t ret = remote->SendRequest(RESUME_DOWNLOAD, data, reply, option);
     RETURN_FAIL_WHEN_REMOTE_ERR("UpdateServiceProxy::ResumeDownload", ret);
-    UpdateHelper::ReadBusinessError(reply, businessError);
+    BusinessError remoteBusinessError;
+    MessageParcelHelper::ReadBusinessError(reply, remoteBusinessError);
+    businessError = remoteBusinessError;
     return INT_CALL_SUCCESS;
 }
 
-int32_t UpdateServiceProxy::DoUpdate(const UpgradeInfo &info, const VersionDigestInfo &versionDigest,
+int32_t UpdateServiceProxy::Upgrade(const UpgradeInfo &info, const VersionDigestInfo &versionDigest,
     const UpgradeOptions &upgradeOptions, BusinessError &businessError)
 {
-    ENGINE_LOGI("UpdateServiceProxy::DoUpdate, versionDigest %{public}s upgradeOptions %{public}d",
+    ENGINE_LOGI("UpdateServiceProxy::Upgrade, versionDigest %{public}s upgradeOptions %{public}d",
         versionDigest.versionDigest.c_str(),
         upgradeOptions.order);
     auto remote = Remote();
@@ -173,15 +184,17 @@ int32_t UpdateServiceProxy::DoUpdate(const UpgradeInfo &info, const VersionDiges
 
     MessageParcel data;
     RETURN_WHEN_TOKEN_WRITE_FAIL(data);
-    UpdateHelper::WriteUpgradeInfo(data, info);
-    UpdateHelper::WriteVersionDigestInfo(data, versionDigest);
-    UpdateHelper::WriteUpgradeOptions(data, upgradeOptions);
+    MessageParcelHelper::WriteUpgradeInfo(data, info);
+    MessageParcelHelper::WriteVersionDigestInfo(data, versionDigest);
+    MessageParcelHelper::WriteUpgradeOptions(data, upgradeOptions);
 
     MessageParcel reply;
     MessageOption option;
     int32_t ret = remote->SendRequest(UPGRADE, data, reply, option);
-    RETURN_FAIL_WHEN_REMOTE_ERR("UpdateServiceProxy::DoUpdate", ret);
-    UpdateHelper::ReadBusinessError(reply, businessError);
+    RETURN_FAIL_WHEN_REMOTE_ERR("UpdateServiceProxy::Upgrade", ret);
+    BusinessError remoteBusinessError;
+    MessageParcelHelper::ReadBusinessError(reply, remoteBusinessError);
+    businessError = remoteBusinessError;
     return INT_CALL_SUCCESS;
 }
 
@@ -193,15 +206,17 @@ int32_t UpdateServiceProxy::ClearError(const UpgradeInfo &info, const VersionDig
 
     MessageParcel data;
     RETURN_WHEN_TOKEN_WRITE_FAIL(data);
-    UpdateHelper::WriteUpgradeInfo(data, info);
-    UpdateHelper::WriteVersionDigestInfo(data, versionDigest);
-    UpdateHelper::WriteClearOptions(data, clearOptions);
+    MessageParcelHelper::WriteUpgradeInfo(data, info);
+    MessageParcelHelper::WriteVersionDigestInfo(data, versionDigest);
+    MessageParcelHelper::WriteClearOptions(data, clearOptions);
 
     MessageParcel reply;
     MessageOption option;
     int32_t ret = remote->SendRequest(CLEAR_ERROR, data, reply, option);
     RETURN_FAIL_WHEN_REMOTE_ERR("UpdateServiceProxy::ClearError", ret);
-    UpdateHelper::ReadBusinessError(reply, businessError);
+    BusinessError remoteBusinessError;
+    MessageParcelHelper::ReadBusinessError(reply, remoteBusinessError);
+    businessError = remoteBusinessError;
     return INT_CALL_SUCCESS;
 }
 
@@ -212,34 +227,40 @@ int32_t UpdateServiceProxy::TerminateUpgrade(const UpgradeInfo &info, BusinessEr
 
     MessageParcel data;
     RETURN_WHEN_TOKEN_WRITE_FAIL(data);
-    UpdateHelper::WriteUpgradeInfo(data, info);
+    MessageParcelHelper::WriteUpgradeInfo(data, info);
 
     MessageParcel reply;
     MessageOption option;
     int32_t ret = remote->SendRequest(TERMINATE_UPGRADE, data, reply, option);
     RETURN_FAIL_WHEN_REMOTE_ERR("UpdateServiceProxy::TerminateUpgrade", ret);
-    UpdateHelper::ReadBusinessError(reply, businessError);
+    BusinessError remoteBusinessError;
+    MessageParcelHelper::ReadBusinessError(reply, remoteBusinessError);
+    businessError = remoteBusinessError;
     return INT_CALL_SUCCESS;
 }
 
-int32_t UpdateServiceProxy::GetNewVersion(const UpgradeInfo &info, NewVersionInfo &newVersionInfo,
+int32_t UpdateServiceProxy::GetNewVersionInfo(const UpgradeInfo &info, NewVersionInfo &newVersionInfo,
     BusinessError &businessError)
 {
-    ENGINE_LOGI("UpdateServiceProxy::GetNewVersion");
+    ENGINE_LOGI("UpdateServiceProxy::GetNewVersionInfo");
     auto remote = Remote();
     RETURN_WHEN_REMOTE_NULL(remote);
 
     MessageParcel data;
     RETURN_WHEN_TOKEN_WRITE_FAIL(data);
-    UpdateHelper::WriteUpgradeInfo(data, info);
+    MessageParcelHelper::WriteUpgradeInfo(data, info);
 
     MessageParcel reply;
     MessageOption option;
     int32_t ret = remote->SendRequest(GET_NEW_VERSION, data, reply, option);
-    RETURN_FAIL_WHEN_REMOTE_ERR("UpdateServiceProxy::GetNewVersion", ret);
+    RETURN_FAIL_WHEN_REMOTE_ERR("UpdateServiceProxy::GetNewVersionInfo", ret);
 
-    UpdateHelper::ReadBusinessError(reply, businessError);
-    UpdateHelper::ReadNewVersionInfo(reply, newVersionInfo);
+    BusinessError remoteBusinessError;
+    MessageParcelHelper::ReadBusinessError(reply, remoteBusinessError);
+    businessError = remoteBusinessError;
+    NewVersionInfo remoteNewVersionInfo;
+    MessageParcelHelper::ReadNewVersionInfo(reply, remoteNewVersionInfo);
+    newVersionInfo = remoteNewVersionInfo;
     return INT_CALL_SUCCESS;
 }
 
@@ -253,16 +274,21 @@ int32_t UpdateServiceProxy::GetNewVersionDescription(const UpgradeInfo &info,
 
     MessageParcel data;
     RETURN_WHEN_TOKEN_WRITE_FAIL(data);
-    UpdateHelper::WriteUpgradeInfo(data, info);
-    UpdateHelper::WriteVersionDigestInfo(data, versionDigestInfo);
-    UpdateHelper::WriteDescriptionOptions(data, descriptionOptions);
+    MessageParcelHelper::WriteUpgradeInfo(data, info);
+    MessageParcelHelper::WriteVersionDigestInfo(data, versionDigestInfo);
+    MessageParcelHelper::WriteDescriptionOptions(data, descriptionOptions);
 
     MessageParcel reply;
     MessageOption option;
     int32_t ret = remote->SendRequest(GET_NEW_VERSION_DESCRIPTION, data, reply, option);
     RETURN_FAIL_WHEN_REMOTE_ERR("UpdateServiceProxy::GetNewVersionDescription", ret);
-    UpdateHelper::ReadBusinessError(reply, businessError);
-    UpdateHelper::ReadVersionDescriptionInfo(reply, newVersionDescriptionInfo);
+
+    BusinessError remoteBusinessError;
+    MessageParcelHelper::ReadBusinessError(reply, remoteBusinessError);
+    businessError = remoteBusinessError;
+    VersionDescriptionInfo remoteVersionDescriptionInfo;
+    MessageParcelHelper::ReadVersionDescriptionInfo(reply, remoteVersionDescriptionInfo);
+    newVersionDescriptionInfo = remoteVersionDescriptionInfo;
     return INT_CALL_SUCCESS;
 }
 
@@ -275,15 +301,19 @@ int32_t UpdateServiceProxy::GetCurrentVersionInfo(const UpgradeInfo &info, Curre
 
     MessageParcel data;
     RETURN_WHEN_TOKEN_WRITE_FAIL(data);
-    UpdateHelper::WriteUpgradeInfo(data, info);
+    MessageParcelHelper::WriteUpgradeInfo(data, info);
 
     MessageParcel reply;
     MessageOption option;
     int32_t ret = remote->SendRequest(GET_CURRENT_VERSION, data, reply, option);
     RETURN_FAIL_WHEN_REMOTE_ERR("UpdateServiceProxy::GetCurrentVersionInfo", ret);
 
-    UpdateHelper::ReadBusinessError(reply, businessError);
-    UpdateHelper::ReadCurrentVersionInfo(reply, currentVersionInfo);
+    BusinessError remoteBusinessError;
+    MessageParcelHelper::ReadBusinessError(reply, remoteBusinessError);
+    businessError = remoteBusinessError;
+    CurrentVersionInfo remoteCurrentVersionInfo;
+    MessageParcelHelper::ReadCurrentVersionInfo(reply, remoteCurrentVersionInfo);
+    currentVersionInfo = remoteCurrentVersionInfo;
     return INT_CALL_SUCCESS;
 }
 
@@ -297,15 +327,20 @@ int32_t UpdateServiceProxy::GetCurrentVersionDescription(const UpgradeInfo &info
 
     MessageParcel data;
     RETURN_WHEN_TOKEN_WRITE_FAIL(data);
-    UpdateHelper::WriteUpgradeInfo(data, info);
-    UpdateHelper::WriteDescriptionOptions(data, descriptionOptions);
+    MessageParcelHelper::WriteUpgradeInfo(data, info);
+    MessageParcelHelper::WriteDescriptionOptions(data, descriptionOptions);
 
     MessageParcel reply;
     MessageOption option;
     int32_t ret = remote->SendRequest(GET_CURRENT_VERSION_DESCRIPTION, data, reply, option);
     RETURN_FAIL_WHEN_REMOTE_ERR("UpdateServiceProxy::GetCurrentVersionDescription", ret);
-    UpdateHelper::ReadBusinessError(reply, businessError);
-    UpdateHelper::ReadVersionDescriptionInfo(reply, currentVersionDescriptionInfo);
+
+    BusinessError remoteBusinessError;
+    MessageParcelHelper::ReadBusinessError(reply, remoteBusinessError);
+    businessError = remoteBusinessError;
+    VersionDescriptionInfo remoteVersionDescriptionInfo;
+    MessageParcelHelper::ReadVersionDescriptionInfo(reply, remoteVersionDescriptionInfo);
+    currentVersionDescriptionInfo = remoteVersionDescriptionInfo;
     return INT_CALL_SUCCESS;
 }
 
@@ -317,15 +352,19 @@ int32_t UpdateServiceProxy::GetTaskInfo(const UpgradeInfo &info, TaskInfo &taskI
 
     MessageParcel data;
     RETURN_WHEN_TOKEN_WRITE_FAIL(data);
-    UpdateHelper::WriteUpgradeInfo(data, info);
+    MessageParcelHelper::WriteUpgradeInfo(data, info);
 
     MessageParcel reply;
     MessageOption option;
     int32_t ret = remote->SendRequest(GET_TASK_INFO, data, reply, option);
     RETURN_FAIL_WHEN_REMOTE_ERR("UpdateServiceProxy::GetTaskInfo", ret);
 
-    UpdateHelper::ReadBusinessError(reply, businessError);
-    UpdateHelper::ReadTaskInfo(reply, taskInfo);
+    BusinessError remoteBusinessError;
+    MessageParcelHelper::ReadBusinessError(reply, remoteBusinessError);
+    businessError = remoteBusinessError;
+    TaskInfo remoteTaskInfo;
+    MessageParcelHelper::ReadTaskInfo(reply, remoteTaskInfo);
+    taskInfo = remoteTaskInfo;
     return INT_CALL_SUCCESS;
 }
 
@@ -338,15 +377,17 @@ int32_t UpdateServiceProxy::SetUpgradePolicy(const UpgradeInfo &info, const Upgr
 
     MessageParcel data;
     RETURN_WHEN_TOKEN_WRITE_FAIL(data);
-    UpdateHelper::WriteUpgradeInfo(data, info);
-    UpdateHelper::WriteUpgradePolicy(data, policy);
+    MessageParcelHelper::WriteUpgradeInfo(data, info);
+    MessageParcelHelper::WriteUpgradePolicy(data, policy);
 
     MessageParcel reply;
     MessageOption option;
     int32_t ret = remote->SendRequest(SET_POLICY, data, reply, option);
     RETURN_FAIL_WHEN_REMOTE_ERR("UpdateServiceProxy::SetUpgradePolicy", ret);
 
-    UpdateHelper::ReadBusinessError(reply, businessError);
+    BusinessError remoteBusinessError;
+    MessageParcelHelper::ReadBusinessError(reply, remoteBusinessError);
+    businessError = remoteBusinessError;
     return INT_CALL_SUCCESS;
 }
 
@@ -359,15 +400,19 @@ int32_t UpdateServiceProxy::GetUpgradePolicy(const UpgradeInfo &info, UpgradePol
 
     MessageParcel data;
     RETURN_WHEN_TOKEN_WRITE_FAIL(data);
-    UpdateHelper::WriteUpgradeInfo(data, info);
+    MessageParcelHelper::WriteUpgradeInfo(data, info);
 
     MessageParcel reply;
     MessageOption option;
     int32_t ret = remote->SendRequest(GET_POLICY, data, reply, option);
     RETURN_FAIL_WHEN_REMOTE_ERR("UpdateServiceProxy::GetUpgradePolicy", ret);
 
-    UpdateHelper::ReadBusinessError(reply, businessError);
-    UpdateHelper::ReadUpgradePolicy(reply, policy);
+    BusinessError remoteBusinessError;
+    MessageParcelHelper::ReadBusinessError(reply, remoteBusinessError);
+    businessError = remoteBusinessError;
+    UpgradePolicy remoteUpgradePolicy;
+    MessageParcelHelper::ReadUpgradePolicy(reply, remoteUpgradePolicy);
+    policy = remoteUpgradePolicy;
     return INT_CALL_SUCCESS;
 }
 
@@ -379,7 +424,7 @@ int32_t UpdateServiceProxy::Cancel(const UpgradeInfo &info, int32_t service, Bus
 
     MessageParcel data;
     RETURN_WHEN_TOKEN_WRITE_FAIL(data);
-    UpdateHelper::WriteUpgradeInfo(data, info);
+    MessageParcelHelper::WriteUpgradeInfo(data, info);
     data.WriteInt32(static_cast<int32_t>(service));
 
     MessageParcel reply;
@@ -387,7 +432,9 @@ int32_t UpdateServiceProxy::Cancel(const UpgradeInfo &info, int32_t service, Bus
     int32_t ret = remote->SendRequest(CANCEL, data, reply, option);
     RETURN_FAIL_WHEN_REMOTE_ERR("UpdateServiceProxy::Cancel", ret);
 
-    UpdateHelper::ReadBusinessError(reply, businessError);
+    BusinessError remoteBusinessError;
+    MessageParcelHelper::ReadBusinessError(reply, remoteBusinessError);
+    businessError = remoteBusinessError;
     return INT_CALL_SUCCESS;
 }
 
@@ -407,7 +454,10 @@ int32_t UpdateServiceProxy::FactoryReset(BusinessError &businessError)
     ret = remote->SendRequest(FACTORY_RESET, data, reply, option);
 #endif
     RETURN_FAIL_WHEN_REMOTE_ERR("UpdateServiceProxy::FactoryReset", ret);
-    UpdateHelper::ReadBusinessError(reply, businessError);
+
+    BusinessError remoteBusinessError;
+    MessageParcelHelper::ReadBusinessError(reply, remoteBusinessError);
+    businessError = remoteBusinessError;
     return INT_CALL_SUCCESS;
 }
 
@@ -420,7 +470,7 @@ int32_t UpdateServiceProxy::ApplyNewVersion(const UpgradeInfo &info, const std::
 
     MessageParcel data;
     RETURN_WHEN_TOKEN_WRITE_FAIL(data);
-    UpdateHelper::WriteUpgradeInfo(data, info);
+    MessageParcelHelper::WriteUpgradeInfo(data, info);
     data.WriteString16(Str8ToStr16(miscFile));
     data.WriteString16(Str8ToStr16(packageName));
 
@@ -431,7 +481,10 @@ int32_t UpdateServiceProxy::ApplyNewVersion(const UpgradeInfo &info, const std::
     ret = remote->SendRequest(APPLY_NEW_VERSION, data, reply, option);
 #endif
     RETURN_FAIL_WHEN_REMOTE_ERR("UpdateServiceProxy::ApplyNewVersion", ret);
-    UpdateHelper::ReadBusinessError(reply, businessError);
+
+    BusinessError remoteBusinessError;
+    MessageParcelHelper::ReadBusinessError(reply, remoteBusinessError);
+    businessError = remoteBusinessError;
     return INT_CALL_SUCCESS;
 }
 
@@ -451,7 +504,10 @@ int32_t UpdateServiceProxy::VerifyUpgradePackage(const std::string &packagePath,
     MessageOption option;
     int32_t ret = remote->SendRequest(VERIFY_UPGRADE_PACKAGE, data, reply, option);
     RETURN_FAIL_WHEN_REMOTE_ERR("UpdateServiceProxy::VerifyUpgradePackage", ret);
-    UpdateHelper::ReadBusinessError(reply, businessError);
+
+    BusinessError remoteBusinessError;
+    MessageParcelHelper::ReadBusinessError(reply, remoteBusinessError);
+    businessError = remoteBusinessError;
     return INT_CALL_SUCCESS;
 }
 } // namespace UpdateEngine

@@ -1,0 +1,93 @@
+# Copyright (c) 2022 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//base/update/updateservice/updateengine.gni")
+
+firmware_root_path = "$updateengine_root_path/services/firmware"
+
+ab_update_include = [
+  "//base/update/sys_installer/include",
+  "//base/update/sys_installer/interfaces/innerkits",
+  "//base/update/sys_installer/interfaces/inner_api/include",
+  "//base/update/sys_installer/interfaces/innerkits/ipc_client/include",
+]
+
+download_include = [
+  "//base/update/updateservice/services/core/ability/download/data/include",
+]
+
+firmware_include = [
+  "$firmware_root_path/alarm/include",
+  "$firmware_root_path/callback/include",
+  "$firmware_root_path/check/include",
+  "$firmware_root_path/common/include",
+  "$firmware_root_path/data/db/include",
+  "$firmware_root_path/data/manager/include",
+  "$firmware_root_path/event/include",
+  "$firmware_root_path/service/include",
+  "$firmware_root_path/upgrade/data_processor/include",
+  "$firmware_root_path/upgrade/executor/include",
+  "$firmware_root_path/upgrade/flow/include",
+  "$firmware_root_path/upgrade/install/include",
+  "$firmware_root_path/upgrade/mode/include",
+  "$firmware_root_path/upgrade/status/include",
+  "$firmware_root_path/utils/include",
+]
+firmware_include += ab_update_include
+firmware_include += download_include
+
+ab_update_src = [
+  "$firmware_root_path/upgrade/install/src/firmware_sys_installer_callback.cpp",
+  "$firmware_root_path/upgrade/install/src/firmware_sys_installer_install.cpp",
+]
+
+firmware_src = [
+  "$firmware_root_path/callback/src/firmware_callback_utils.cpp",
+  "$firmware_root_path/common/src/firmware_update_helper.cpp",
+  "$firmware_root_path/data/db/src/firmware_component_operator.cpp",
+  "$firmware_root_path/data/db/src/firmware_component_table.cpp",
+  "$firmware_root_path/data/db/src/firmware_database_callback.cpp",
+  "$firmware_root_path/data/db/src/firmware_database.cpp",
+  "$firmware_root_path/data/db/src/firmware_task_operator.cpp",
+  "$firmware_root_path/data/db/src/firmware_task_table.cpp",
+  "$firmware_root_path/data/manager/src/firmware_preferences_utils.cpp",
+  "$firmware_root_path/event/src/firmware_event_listener.cpp",
+  "$firmware_root_path/upgrade/data_processor/src/firmware_check_data_processor.cpp",
+  "$firmware_root_path/upgrade/data_processor/src/firmware_download_data_processor.cpp",
+  "$firmware_root_path/upgrade/data_processor/src/firmware_install_data_processor.cpp",
+  "$firmware_root_path/upgrade/executor/src/firmware_apply_executor.cpp",
+  "$firmware_root_path/upgrade/executor/src/firmware_check_executor.cpp",
+  "$firmware_root_path/upgrade/executor/src/firmware_download_executor.cpp",
+  "$firmware_root_path/upgrade/executor/src/firmware_install_executor.cpp",
+  "$firmware_root_path/upgrade/flow/src/firmware_flow_manager.cpp",
+  "$firmware_root_path/upgrade/flow/src/firmware_manager.cpp",
+  "$firmware_root_path/upgrade/install/src/firmware_install.cpp",
+  "$firmware_root_path/upgrade/install/src/firmware_updater_install.cpp",
+  "$firmware_root_path/upgrade/install/src/firmware_install_factory.cpp",
+  "$firmware_root_path/upgrade/mode/src/firmware_manual_check_mode.cpp",
+  "$firmware_root_path/upgrade/mode/src/firmware_download_mode.cpp",
+  "$firmware_root_path/upgrade/mode/src/firmware_install_apply_mode.cpp",
+  "$firmware_root_path/upgrade/status/src/firmware_status_cache.cpp",
+  "$firmware_root_path/upgrade/status/src/firmware_result_process.cpp",
+  "$firmware_root_path/utils/src/firmware_check_analyze_utils.cpp",
+  "$firmware_root_path/utils/src/firmware_changelog_utils.cpp",
+  "$firmware_root_path/utils/src/firmware_combine_version_utils.cpp",
+]
+firmware_src += ab_update_src
+
+firmware_external_deps = []
+
+ab_update_deps = [ "//base/update/sys_installer/interfaces/innerkits/ipc_client:libsysinstallerkits" ]
+
+firmware_deps = []
+firmware_deps += ab_update_deps

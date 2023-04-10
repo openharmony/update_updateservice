@@ -16,9 +16,11 @@
 #ifndef UPDATE_SERVICE_KITS_IMPL_H
 #define UPDATE_SERVICE_KITS_IMPL_H
 
-#include "update_service_kits.h"
-#include "update_helper.h"
 #include "singleton.h"
+
+#include "update_define.h"
+#include "update_helper.h"
+#include "update_service_kits.h"
 #include "iupdate_callback.h"
 #include "update_callback.h"
 #include "update_service_proxy.h"
@@ -94,7 +96,7 @@ private:
 
         DISALLOW_COPY_AND_MOVE(RemoteUpdateCallback);
 
-        void OnCheckVersionDone(const BusinessError &businessError, const CheckResultEx &checkResultEx) final;
+        void OnCheckVersionDone(const BusinessError &businessError, const CheckResult &checkResult) final;
 
         void OnEvent(const EventInfo &eventInfo) final;
     private:

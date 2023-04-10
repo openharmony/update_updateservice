@@ -19,6 +19,7 @@
 #include <atomic>
 #include <functional>
 #include <thread>
+#include <file_utils.h>
 #include "curl/curl.h"
 #include "update_helper.h"
 
@@ -61,7 +62,8 @@ private:
 
 class DownloadThread : public ProgressThread {
 public:
-    using ProgressCallback = std::function<int (const std::string &fileName, const Progress &progress)>;
+    using ProgressCallback = std::function<void (const std::string serverUrl, const std::string &fileName,
+        const Progress &progress)>;
     explicit DownloadThread(ProgressCallback callback) : ProgressThread(), callback_(callback) {}
     ~DownloadThread() override
     {
@@ -78,6 +80,7 @@ public:
 
     double GetPackageSize()
     {
+        packageSize_ = GetLocalFileLength(downloadFileName_);
         return static_cast<double>(packageSize_);
     };
 

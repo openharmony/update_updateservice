@@ -14,7 +14,10 @@
  */
 
 #include "update_callback_stub.h"
+
+#include "message_parcel_helper.h"
 #include "update_helper.h"
+#include "update_log.h"
 
 using namespace std;
 
@@ -32,15 +35,15 @@ int32_t UpdateCallbackStub::OnRemoteRequest(uint32_t code,
     BusinessError businessError;
     switch (code) {
         case CHECK_VERSION: {
-            CheckResultEx checkResultEx;
-            UpdateHelper::ReadBusinessError(data, businessError);
-            UpdateHelper::ReadCheckResult(data, checkResultEx);
-            OnCheckVersionDone(businessError, checkResultEx);
+            CheckResult checkResult;
+            MessageParcelHelper::ReadBusinessError(data, businessError);
+            MessageParcelHelper::ReadCheckResult(data, checkResult);
+            OnCheckVersionDone(businessError, checkResult);
             break;
         }
         case ON_EVENT: {
             EventInfo eventInfo;
-            UpdateHelper::ReadEventInfo(data, eventInfo);
+            MessageParcelHelper::ReadEventInfo(data, eventInfo);
             OnEvent(eventInfo);
             break;
         }
