@@ -34,6 +34,8 @@ public:
 
     virtual void GetUpdateResult(SessionType type, UpdateResult &result);
 
+    virtual void NotifyCheckVersionDone(const BusinessError &businessError, const CheckResult &checkResult) {};
+
     void RemoveSession(uint32_t sessionId)
     {
         if (sessionsMgr_ == nullptr) {

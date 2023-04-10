@@ -12,7 +12,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #include "iupdater.h"
+
+#include "client_helper.h"
 #include "update_session.h"
 
 namespace OHOS {
@@ -26,7 +29,11 @@ napi_value IUpdater::On(napi_env env, napi_callback_info info)
 
     EventClassifyInfo eventClassifyInfo;
     ClientStatus ret = ClientHelper::GetEventClassifyInfoFromArg(env, args[0], eventClassifyInfo);
-    PARAM_CHECK_NAPI_CALL(env, ret == ClientStatus::CLIENT_SUCCESS, return nullptr, "Error get eventClassifyInfo");
+    std::vector<std::pair<std::string, std::string>> paramInfos;
+    paramInfos.push_back({"eventClassifyInfo", "EventClassifyInfo"});
+    PARAM_CHECK_NAPI_CALL(env, ret == ClientStatus::CLIENT_SUCCESS,
+        ClientHelper::NapiThrowParamError(env, paramInfos);
+        return nullptr, "Error get eventClassifyInfo");
     PARAM_CHECK(sessionsMgr_->FindSessionByHandle(env, eventClassifyInfo, args[1]) == nullptr, return nullptr,
         "Handle has been sub");
 
@@ -53,12 +60,20 @@ napi_value IUpdater::Off(napi_env env, napi_callback_info info)
 
     EventClassifyInfo eventClassifyInfo;
     ClientStatus ret = ClientHelper::GetEventClassifyInfoFromArg(env, args[0], eventClassifyInfo);
-    PARAM_CHECK_NAPI_CALL(env, ret == ClientStatus::CLIENT_SUCCESS, return nullptr, "Error get eventClassifyInfo");
+    std::vector<std::pair<std::string, std::string>> paramInfos;
+    paramInfos.push_back({"eventClassifyInfo", "EventClassifyInfo"});
+    PARAM_CHECK_NAPI_CALL(env, ret == ClientStatus::CLIENT_SUCCESS,
+        ClientHelper::NapiThrowParamError(env, paramInfos);
+        return nullptr, "Error get eventClassifyInfo");
 
     napi_value handle = nullptr;
     if (argc >= ARG_NUM_TWO) {
         ret = NapiUtil::IsTypeOf(env, args[1], napi_function);
-        PARAM_CHECK_NAPI_CALL(env, ret == ClientStatus::CLIENT_SUCCESS, return nullptr, "invalid type");
+        std::vector<std::pair<std::string, std::string>> paramErrors;
+        paramErrors.push_back({"callback", "napi_function"});
+        PARAM_CHECK_NAPI_CALL(env, ret == ClientStatus::CLIENT_SUCCESS,
+            ClientHelper::NapiThrowParamError(env, paramErrors);
+            return nullptr, "invalid type");
         handle = args[1];
     }
     sessionsMgr_->Unsubscribe(eventClassifyInfo, handle);
@@ -84,7 +99,7 @@ napi_value IUpdater::StartSession(napi_env env, napi_callback_info info, Session
         static_cast<int32_t>(sessionParams.type), argc, static_cast<int>(sessionParams.callbackStartIndex));
     std::shared_ptr<IUpdateSession> sess = nullptr;
     if (argc > sessionParams.callbackStartIndex) {
-        sess = std::make_shared<UpdateAsyncSession>(this, sessionParams, argc);
+        sess = std::make_shared<UpdateAsyncession>(this, sessionParams, argc);
     } else {
         sess = std::make_shared<UpdatePromiseSession>(this, sessionParams, argc);
     }

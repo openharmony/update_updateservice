@@ -65,7 +65,7 @@ FuzztestHelper::~FuzztestHelper()
 {
 }
 
-static void FtCheckNewVersionDone(const BusinessError &businessError, const CheckResultEx &checkResultEx)
+static void FtCheckNewVersionDone(const BusinessError &businessError, const CheckResult &checkResult)
 {
 }
 

@@ -14,10 +14,15 @@
  */
 
 #include "progress_thread.h"
+
 #include <unistd.h>
+#include <file_utils.h>
+
 #include "curl/curl.h"
 #include "curl/easy.h"
-#include "update_helper.h"
+
+#include "update_define.h"
+#include "update_log.h"
 
 namespace OHOS {
 namespace UpdateEngine {
@@ -73,7 +78,9 @@ void ProgressThread::ExecuteThreadFunc()
             }
             isWake_ = false;
         }
-        ProcessThreadExecute();
+        if (!ProcessThreadExecute()) {
+            return;
+        }
     }
     // thread exit and release resource
     ProcessThreadExit();
@@ -81,6 +88,7 @@ void ProgressThread::ExecuteThreadFunc()
 
 int32_t DownloadThread::StartDownload(const std::string &fileName, const std::string &url)
 {
+    ENGINE_LOGI("StopDownload downloadFileName_ %s, serverUrl_ = %s", downloadFileName_.c_str(), serverUrl_.c_str());
     downloadFileName_ = fileName;
     serverUrl_ = url;
     exitDownload_ = false;
@@ -98,22 +106,23 @@ void DownloadThread::StopDownload()
 
 bool DownloadThread::ProcessThreadExecute()
 {
+    ENGINE_LOGI("ProcessThreadExecute");
     packageSize_ = GetLocalFileLength(downloadFileName_);
     ENGINE_LOGI("download  packageSize_: %zu ", packageSize_);
     bool findDot = (downloadFileName_.find("/.") != std::string::npos) ||
         (downloadFileName_.find("./") != std::string::npos);
     ENGINE_CHECK(!findDot,
-        DownloadCallback(0, UPDATE_STATE_DOWNLOAD_FAIL, "Failed to check file");
+        DownloadCallback(0, UpgradeStatus::DOWNLOAD_FAIL, "Failed to check file");
         return true, "Failed to check file %s", downloadFileName_.c_str());
     downloadFile_ = fopen(downloadFileName_.c_str(), "ab+");
     ENGINE_CHECK(downloadFile_ != nullptr,
-        DownloadCallback(0, UPDATE_STATE_DOWNLOAD_FAIL, "Failed ot open file");
+        DownloadCallback(0, UpgradeStatus::DOWNLOAD_FAIL, "Failed ot open file");
         return true, "Failed to open file %s", downloadFileName_.c_str());
 
     downloadHandle_ = curl_easy_init();
     ENGINE_CHECK(downloadHandle_ != nullptr,
         ProcessThreadExit();
-        DownloadCallback(0, UPDATE_STATE_DOWNLOAD_FAIL, "Failed to init curl");
+        DownloadCallback(0, UpgradeStatus::DOWNLOAD_FAIL, "Failed to init curl");
         return true, "Failed to init curl");
 
     curl_easy_setopt(downloadHandle_, CURLOPT_TIMEOUT, TIMEOUT_FOR_DOWNLOAD);
@@ -132,17 +141,13 @@ bool DownloadThread::ProcessThreadExecute()
         ProcessThreadExit();
         ENGINE_LOGI("Failed to download res %s", curl_easy_strerror(res));
         if (res != CURLE_ABORTED_BY_CALLBACK) { // cancel by user, do not callback
-            DownloadCallback(0, UPDATE_STATE_DOWNLOAD_FAIL, curl_easy_strerror(res));
+            DownloadCallback(0, UpgradeStatus::DOWNLOAD_FAIL, curl_easy_strerror(res));
         }
     } else {
         ProcessThreadExit();
         ENGINE_LOGI("Success to download");
-        DownloadCallback(DOWNLOAD_FINISH_PERCENT, UPDATE_STATE_DOWNLOAD_SUCCESS, "");
+        DownloadCallback(DOWNLOAD_FINISH_PERCENT, UpgradeStatus::DOWNLOAD_SUCCESS, "");
     }
-    // clear up
-    downloadProgress_.endReason = "";
-    downloadProgress_.percent = 0;
-    downloadProgress_.status = UPDATE_STATE_DOWNLOAD_ON;
     return false;
 }
 
@@ -162,28 +167,34 @@ void DownloadThread::ProcessThreadExit()
 int32_t DownloadThread::DownloadCallback(uint32_t percent, UpgradeStatus status, const std::string &error)
 {
     if (exitDownload_) {
-        ENGINE_LOGI("StopDownlDownloadCallbackoad");
+        ENGINE_LOGI("StopDownloadCallback");
         return -1;
     }
-    if (status == UPDATE_STATE_DOWNLOAD_FAIL) {
+    if (downloadProgress_.status == status && downloadProgress_.percent == percent) {
+        // 避免回调过于频繁
+        return 0;
+    }
+    ENGINE_LOGI("DownloadCallback percent %d, status %d, exitDownload_ %d, error %s, downloadFileName_ %s",
+        percent, CAST_INT(status), exitDownload_ ? 1 : 0,  error.c_str(), downloadFileName_.c_str());
+    if (status == UpgradeStatus::DOWNLOAD_FAIL) {
         if (access(downloadFileName_.c_str(), 0) == 0) {
             unlink(downloadFileName_.c_str());
         }
-    } else if (percent != DOWNLOAD_FINISH_PERCENT
-        && (percent < (downloadProgress_.percent + DOWNLOAD_PERIOD_PERCENT))) {
+    } else if (percent != DOWNLOAD_FINISH_PERCENT &&
+               (percent < (downloadProgress_.percent + DOWNLOAD_PERIOD_PERCENT))) {
         return 0;
     }
 
     // wait until the download is complete, and then make a notification
     if (percent == DOWNLOAD_FINISH_PERCENT
-        && status == UPDATE_STATE_DOWNLOAD_ON) {
+        && status == UpgradeStatus::DOWNLOADING) {
         return 0;
     }
     downloadProgress_.endReason = error;
     downloadProgress_.percent = percent;
     downloadProgress_.status = status;
     if (callback_ != nullptr) {
-        callback_(downloadFileName_, downloadProgress_);
+        callback_(serverUrl_, downloadFileName_, downloadProgress_);
     }
     return 0;
 }
@@ -196,7 +207,7 @@ int32_t DownloadThread::DownloadProgress(const void *localData,
     ENGINE_CHECK(engine != nullptr, return -1, "Can not find engine");
     double curr = engine->GetPackageSize();
     unsigned int percent = (dlNow + curr) / (curr + dlTotal) * DOWNLOAD_FINISH_PERCENT;
-    return engine->DownloadCallback(percent, UPDATE_STATE_DOWNLOAD_ON, "");
+    return engine->DownloadCallback(percent, UpgradeStatus::DOWNLOADING, "");
 }
 
 size_t DownloadThread::WriteFunc(void *ptr, size_t size, size_t nmemb, const void *stream)

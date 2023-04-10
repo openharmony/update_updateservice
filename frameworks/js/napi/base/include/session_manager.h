@@ -36,10 +36,9 @@ public:
     IUpdateSession *FindSessionByHandle(napi_env env, const std::string &eventType, napi_value arg);
     IUpdateSession *FindSessionByHandle(napi_env env, const EventClassifyInfo &eventClassifyInfo, napi_value arg);
 
-    void PublishToJS(const std::string &type, const UpdateResult &result);
     void PublishToJS(const EventClassifyInfo &eventClassifyInfo, const EventInfo &eventInfo);
 
-    void Emit(const std::string &type, const UpdateResult &result);
+    void Emit(const std::string &type, const BusinessError &businessError);
     void Emit(const EventClassifyInfo &eventClassifyInfo, const EventInfo &eventInfo);
 
 private:
@@ -50,7 +49,7 @@ private:
     napi_ref thisReference_ {};
     std::map<uint32_t, std::shared_ptr<IUpdateSession>> sessions_;
 #ifndef UPDATER_API_TEST
-    std::mutex sessionMutex_;
+    std::recursive_mutex sessionMutex_;
 #endif
 };
 } // namespace UpdateEngine

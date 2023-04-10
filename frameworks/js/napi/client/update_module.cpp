@@ -12,14 +12,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #include "js_native_api.h"
 #include "js_native_api_types.h"
-#include "client_helper.h"
-#include "local_updater.h"
 #include "napi/native_common.h"
+
+#include "client_helper.h"
+#include "define_property.h"
+#include "local_updater.h"
 #include "napi_util.h"
 #include "restorer.h"
 #include "update_client.h"
+#include "update_define.h"
 
 namespace OHOS {
 namespace UpdateEngine {
@@ -69,6 +73,7 @@ napi_value JsConstructor(napi_env env, napi_callback_info info)
         UpgradeInfo upgradeInfo;
         ClientStatus ret = ClientHelper::GetUpgradeInfoFromArg(env, arg, upgradeInfo);
         if (ret != ClientStatus::CLIENT_SUCCESS) {
+            CLIENT_LOGE("JsConstructor GetUpgradeInfoFromArg error");
             T* object = NULL;
             return object;
         }
@@ -401,6 +406,7 @@ static napi_value UpdateClientInit(napi_env env, napi_value exports)
     PARAM_CHECK_NAPI_CALL(env, ret, return nullptr, "DefineLocalUpdater fail");
     CLIENT_LOGI("DefineLocalUpdater success");
 
+    DefineProperty::DefineProperties(env, exports);
     return exports;
 }
 

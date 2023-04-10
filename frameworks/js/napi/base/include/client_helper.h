@@ -17,10 +17,13 @@
 #define UPDATE_CLIENT_HELPER_H
 
 #include <string>
+
 #include "node_api.h"
-#include "update_define.h"
+
+#include "client_define.h"
 #include "update_helper.h"
 
+constexpr int32_t COMPONENT_ERR = 11500000;
 namespace OHOS {
 namespace UpdateEngine {
 // Update status
@@ -80,7 +83,7 @@ struct UpdateResult {
         Progress *progress;
         NewVersionInfo *newVersionInfo;
         VersionDescriptionInfo *versionDescriptionInfo;
-        CheckResultEx *checkResultEx;
+        CheckResult *checkResult;
         CurrentVersionInfo *currentVersionInfo;
         TaskInfo *taskInfo;
     } result;
@@ -94,8 +97,8 @@ struct UpdateResult {
             delete result.progress;
             result.progress = nullptr;
         } else if (type == SessionType::SESSION_CHECK_VERSION) {
-            delete result.checkResultEx;
-            result.checkResultEx = nullptr;
+            delete result.checkResult;
+            result.checkResult = nullptr;
         } else if (type == SessionType::SESSION_GET_NEW_VERSION) {
             delete result.newVersionInfo;
             result.newVersionInfo = nullptr;
@@ -134,11 +137,11 @@ struct UpdateResult {
                 *(result.progress) = *(updateResult.result.progress);
             }
         } else if (type == SessionType::SESSION_CHECK_VERSION) {
-            if (result.checkResultEx == nullptr) {
-                result.checkResultEx = new (std::nothrow) CheckResultEx();
+            if (result.checkResult == nullptr) {
+                result.checkResult = new (std::nothrow) CheckResult();
             }
-            if ((result.checkResultEx != nullptr) && (updateResult.result.checkResultEx != nullptr)) {
-                *(result.checkResultEx) = *(updateResult.result.checkResultEx);
+            if ((result.checkResult != nullptr) && (updateResult.result.checkResult != nullptr)) {
+                *(result.checkResult) = *(updateResult.result.checkResult);
             }
         } else if (type == SessionType::SESSION_GET_NEW_VERSION) {
             if (result.newVersionInfo == nullptr) {
@@ -182,7 +185,7 @@ public:
     static void TrimString(std::string &str);
     static bool IsValidUpgradeFile(const std::string &upgradeFile);
 
-    static int32_t BuildCheckResultEx(napi_env env, napi_value &obj, const UpdateResult &result);
+    static int32_t BuildCheckResult(napi_env env, napi_value &obj, const UpdateResult &result);
     static int32_t BuildNewVersionInfo(napi_env env, napi_value &obj, const UpdateResult &result);
     static int32_t BuildVersionDescriptionInfo(napi_env env, napi_value &obj, const UpdateResult &result);
     static int32_t BuildUpgradePolicy(napi_env env, napi_value &obj, const UpdateResult &result);
@@ -191,7 +194,7 @@ public:
     static int32_t BuildUndefinedStatus(napi_env env, napi_value &obj, const UpdateResult &result);
     static napi_value BuildThrowError(napi_env env, const BusinessError &businessError);
     static void NapiThrowParamError(
-        napi_env env, std::vector<std::string> &paramNames, std::vector<std::string> &paramTypes);
+        napi_env env, std::vector<std::pair<std::string, std::string>> &paramInfos);
 
     static ClientStatus GetUpgradeInfoFromArg(napi_env env, const napi_value arg, UpgradeInfo &upgradeInfo);
     static ClientStatus GetUpgradePolicyFromArg(napi_env env, const napi_value arg, UpgradePolicy &upgradePolicy);
@@ -213,11 +216,18 @@ public:
         EventClassifyInfo &eventClassifyInfo);
     static int32_t BuildBusinessError(napi_env env, napi_value &obj, const BusinessError &businessError);
     static ClientStatus BuildEventInfo(napi_env env, napi_value &obj, const EventInfo &eventInfo);
+    static int32_t ConvertToErrorCode(CallResult callResult);
+
+    static bool IsErrorExist(const BusinessError &businessError);
 
 private:
     static ClientStatus GetDescriptionFormat(napi_env env, const napi_value arg, DescriptionFormat &format);
     static ClientStatus GetNetType(napi_env env, const napi_value arg, NetType &netType);
     static ClientStatus GetOrder(napi_env env, const napi_value arg, Order &order);
+    static std::string ConvertVectorToStr(std::vector<std::pair<std::string, std::string>> &strVector, bool isFirst);
+    static bool IsCommonError(CallResult callResult);
+    static std::string GetParamNames(std::vector<std::pair<std::string, std::string>> &strVector);
+    static std::string GetParamTypes(std::vector<std::pair<std::string, std::string>> &strVector);
 };
 } // namespace UpdateEngine
 } // namespace OHOS

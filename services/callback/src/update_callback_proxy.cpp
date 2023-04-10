@@ -14,11 +14,14 @@
  */
 
 #include "update_callback_proxy.h"
+
+#include "message_parcel_helper.h"
 #include "update_helper.h"
+#include "update_log.h"
 
 namespace OHOS {
 namespace UpdateEngine {
-void UpdateCallbackProxy::OnCheckVersionDone(const BusinessError &businessError, const CheckResultEx &checkResultEx)
+void UpdateCallbackProxy::OnCheckVersionDone(const BusinessError &businessError, const CheckResult &checkResult)
 {
     ENGINE_LOGI("UpdateCallbackProxy::OnCheckVersionDone");
     MessageParcel data;
@@ -33,11 +36,11 @@ void UpdateCallbackProxy::OnCheckVersionDone(const BusinessError &businessError,
     auto remote = Remote();
     ENGINE_CHECK(remote != nullptr, return, "Can not get remote");
 
-    int32_t result = UpdateHelper::WriteBusinessError(data, businessError);
+    int32_t result = MessageParcelHelper::WriteBusinessError(data, businessError);
     ENGINE_CHECK(result == 0, return, "Can not WriteBusinessError");
-    result = UpdateHelper::WriteCheckResult(data, checkResultEx);
 
-    ENGINE_CHECK(result == 0, return, "Can not WriteVersionInfo");
+    result = MessageParcelHelper::WriteCheckResult(data, checkResult);
+    ENGINE_CHECK(result == 0, return, "Can not WriteCheckResult");
 
     result = remote->SendRequest(CHECK_VERSION, data, reply, option);
     ENGINE_CHECK(result == ERR_OK, return, "Can not SendRequest");
@@ -59,7 +62,7 @@ void UpdateCallbackProxy::OnEvent(const EventInfo &eventInfo)
     auto remote = Remote();
     ENGINE_CHECK(remote != nullptr, return, "Can not get remote");
 
-    int32_t result = UpdateHelper::WriteEventInfo(data, eventInfo);
+    int32_t result = MessageParcelHelper::WriteEventInfo(data, eventInfo);
     ENGINE_CHECK(result == 0, return, "Can not WriteEventInfo");
 
     result = remote->SendRequest(ON_EVENT, data, reply, option);

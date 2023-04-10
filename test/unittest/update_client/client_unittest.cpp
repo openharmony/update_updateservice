@@ -171,7 +171,7 @@ public:
         g_testClient->NotifyDownloadProgress(info);
 
         info.percent = PERCENT_100;
-        info.status = UPDATE_STATE_DOWNLOAD_SUCCESS;
+        info.status = DOWNLOAD_SUCCESS;
         g_testClient->NotifyDownloadProgress(info);
 
         // end of execution
@@ -208,7 +208,7 @@ public:
         g_testClient->NotifyUpgradeProgresss(info);
 
         info.percent = PERCENT_100;
-        info.status = UPDATE_STATE_DOWNLOAD_SUCCESS;
+        info.status = DOWNLOAD_SUCCESS;
         g_testClient->NotifyUpgradeProgresss(info);
 
         // end of execution
@@ -372,7 +372,7 @@ public:
         g_testClient->NotifyDownloadProgress(info);
 
         info.percent = PERCENT_100;
-        info.status = UPDATE_STATE_DOWNLOAD_SUCCESS;
+        info.status = DOWNLOAD_SUCCESS;
         g_testClient->NotifyDownloadProgress(info);
         FreeAllNapiValues();
         return 0;

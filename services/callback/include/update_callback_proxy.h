@@ -29,7 +29,7 @@ public:
 
     virtual ~UpdateCallbackProxy() = default;
 
-    void OnCheckVersionDone(const BusinessError &businessError, const CheckResultEx &checkResultEx) override;
+    void OnCheckVersionDone(const BusinessError &businessError, const CheckResult &checkResult) override;
 
     void OnEvent(const EventInfo &eventInfo) override;
 

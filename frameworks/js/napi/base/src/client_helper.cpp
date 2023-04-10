@@ -20,39 +20,12 @@
 
 #include "napi_util.h"
 #include "node_api.h"
+
+#include "update_define.h"
 #include "update_helper.h"
 
 namespace OHOS {
 namespace UpdateEngine {
-enum TaskBodyMemeberMask {
-    VERSION_DIGEST_INFO = 0x00000001,
-    UPGRADE_STATUS      = 0x00000010,
-    SUB_STATUS          = 0x00000100,
-    PROGRESS            = 0x00001000,
-    INSTALL_MODE        = 0x00010000,
-    ERROR_MESSAGE       = 0x00100000,
-    VERSION_COMPONENT   = 0x01000000
-};
-
-std::map<EventId, uint32_t> g_taskBodyTemplateMap = {
-    { EventId::EVENT_TASK_RECEIVE,     VERSION_DIGEST_INFO },
-    { EventId::EVENT_TASK_CANCEL,      VERSION_DIGEST_INFO },
-    { EventId::EVENT_DOWNLOAD_WAIT,    VERSION_DIGEST_INFO | UPGRADE_STATUS | INSTALL_MODE },
-    { EventId::EVENT_DOWNLOAD_START,   VERSION_DIGEST_INFO | INSTALL_MODE },
-    { EventId::EVENT_DOWNLOAD_UPDATE,  VERSION_DIGEST_INFO | UPGRADE_STATUS | PROGRESS | INSTALL_MODE },
-    { EventId::EVENT_DOWNLOAD_PAUSE,   VERSION_DIGEST_INFO | UPGRADE_STATUS | PROGRESS | INSTALL_MODE | ERROR_MESSAGE },
-    { EventId::EVENT_DOWNLOAD_RESUME,  VERSION_DIGEST_INFO | UPGRADE_STATUS | PROGRESS | INSTALL_MODE },
-    { EventId::EVENT_DOWNLOAD_SUCCESS, VERSION_DIGEST_INFO | INSTALL_MODE },
-    { EventId::EVENT_DOWNLOAD_FAIL,    VERSION_DIGEST_INFO | INSTALL_MODE | ERROR_MESSAGE },
-    { EventId::EVENT_UPGRADE_WAIT,     VERSION_DIGEST_INFO | INSTALL_MODE | ERROR_MESSAGE },
-    { EventId::EVENT_UPGRADE_START,    VERSION_DIGEST_INFO | INSTALL_MODE },
-    { EventId::EVENT_UPGRADE_UPDATE,   VERSION_DIGEST_INFO | UPGRADE_STATUS | PROGRESS | INSTALL_MODE },
-    { EventId::EVENT_APPLY_WAIT,       VERSION_DIGEST_INFO | UPGRADE_STATUS | ERROR_MESSAGE },
-    { EventId::EVENT_APPLY_START,      VERSION_DIGEST_INFO },
-    { EventId::EVENT_UPGRADE_SUCCESS,  VERSION_DIGEST_INFO | VERSION_COMPONENT },
-    { EventId::EVENT_UPGRADE_FAIL,     VERSION_DIGEST_INFO | VERSION_COMPONENT }
-};
-
 void ClientHelper::TrimString(std::string &str)
 {
     str.erase(0, str.find_first_not_of(" "));
@@ -105,40 +78,41 @@ bool IsValidData(const ErrorMessage &errorMessage)
 
 bool IsValidData(const ComponentDescription &componentDescription)
 {
-    return !componentDescription.componentId.empty();
+    return componentDescription.componentId != "";
 }
 
 bool IsValidData(const VersionComponent &versionComponent)
 {
-    return versionComponent.componentType != static_cast<uint32_t>(ComponentType::INVALID);
+    return versionComponent.componentType != CAST_INT(ComponentType::INVALID);
 }
 
-template<typename T>
-size_t GetValidDataCount(const T dataArray[], size_t arraySize)
+template <typename T>
+size_t GetValidDataCount(const std::vector<T> &list)
 {
     size_t validDataCount = 0;
-    for (size_t i = 0; i < arraySize; i++) {
-        if (IsValidData(dataArray[i])) {
+    for (size_t i = 0; i < list.size(); i++) {
+        if (IsValidData(list[i])) {
             validDataCount++;
         }
     }
     return validDataCount;
 }
 
-void BuildComponentDescriptions(napi_env env, napi_value &obj, const ComponentDescription componentDescriptions[],
-    size_t arraySize)
+void BuildComponentDescriptions(napi_env env, napi_value &obj, const std::vector<ComponentDescription>
+    &componentDescriptions)
 {
-    size_t validComponentCount = GetValidDataCount(componentDescriptions, arraySize);
+    size_t validComponentCount = GetValidDataCount(componentDescriptions);
     if (validComponentCount == 0) {
         return;
     }
     napi_create_array_with_length(env, validComponentCount, &obj);
     napi_status status;
     size_t index = 0;
-    for (size_t i = 0; (i < arraySize) && (index < validComponentCount); i++) {
+    for (size_t i = 0; (i < componentDescriptions.size()) && (index < validComponentCount); i++) {
         if (IsValidData(componentDescriptions[i])) {
             napi_value napiComponentDescription;
             status = napi_create_object(env, &napiComponentDescription);
+            PARAM_CHECK(status == napi_ok, continue, "Failed to napi_create_object %d", static_cast<int32_t>(status));
             NapiUtil::SetString(env, napiComponentDescription, "componentId",
                 componentDescriptions[i].componentId.c_str());
             BuildDescInfo(env, napiComponentDescription, componentDescriptions[i].descriptionInfo);
@@ -148,9 +122,9 @@ void BuildComponentDescriptions(napi_env env, napi_value &obj, const ComponentDe
     }
 }
 
-void BuildVersionComponents(napi_env env, napi_value &obj, const VersionComponent versionComponents[], size_t arraySize)
+void BuildVersionComponents(napi_env env, napi_value &obj, const std::vector<VersionComponent> &versionComponents)
 {
-    size_t validComponentCount = GetValidDataCount(versionComponents, arraySize);
+    size_t validComponentCount = GetValidDataCount(versionComponents);
     if (validComponentCount == 0) {
         return;
     }
@@ -158,20 +132,22 @@ void BuildVersionComponents(napi_env env, napi_value &obj, const VersionComponen
     napi_create_array_with_length(env, validComponentCount, &napiVersionComponents);
     napi_status status;
     size_t index = 0;
-    for (size_t i = 0; (i < arraySize) && (index < validComponentCount); i++) {
+    for (size_t i = 0; (i < versionComponents.size()) && (index < validComponentCount); i++) {
         if (IsValidData(versionComponents[i])) {
             napi_value napiVersionComponent;
             status = napi_create_object(env, &napiVersionComponent);
+            PARAM_CHECK(status == napi_ok, continue, "Failed to napi_create_object %d", static_cast<int32_t>(status));
             NapiUtil::SetString(env, napiVersionComponent, "componentId", versionComponents[i].componentId.c_str());
             NapiUtil::SetInt32(env, napiVersionComponent, "componentType", versionComponents[i].componentType);
-            NapiUtil::SetString(env, napiVersionComponent, "upgradeAction",
-                versionComponents[i].upgradeAction.c_str());
-            NapiUtil::SetString(env, napiVersionComponent, "displayVersion",
-                versionComponents[i].displayVersion.c_str());
+            NapiUtil::SetString(env, napiVersionComponent, "upgradeAction", versionComponents[i].upgradeAction.c_str());
+            NapiUtil::SetString(
+                env, napiVersionComponent, "displayVersion", versionComponents[i].displayVersion.c_str());
             NapiUtil::SetString(env, napiVersionComponent, "innerVersion", versionComponents[i].innerVersion.c_str());
             NapiUtil::SetInt32(env, napiVersionComponent, "size", versionComponents[i].size);
             NapiUtil::SetInt32(env, napiVersionComponent, "effectiveMode", versionComponents[i].effectiveMode);
             BuildDescInfo(env, napiVersionComponent, versionComponents[i].descriptionInfo);
+            NapiUtil::SetString(
+                env, napiVersionComponent, "componentExtra", versionComponents[i].componentExtra.c_str());
             napi_set_element(env, napiVersionComponents, index, napiVersionComponent);
             index++;
         }
@@ -195,7 +171,7 @@ int32_t ClientHelper::BuildCurrentVersionInfo(napi_env env, napi_value &obj, con
 
     NapiUtil::SetString(env, obj, "osVersion", info->osVersion);
     NapiUtil::SetString(env, obj, "deviceName", info->deviceName);
-    BuildVersionComponents(env, obj, info->versionComponents, COUNT_OF(info->versionComponents));
+    BuildVersionComponents(env, obj, info->versionComponents);
     return CAST_INT(ClientStatus::CLIENT_SUCCESS);
 }
 
@@ -207,10 +183,10 @@ void BuildVersionDigestInfo(napi_env env, napi_value &obj, const VersionDigestIn
     napi_set_named_property(env, obj, "versionDigestInfo", napiVersionDigestInfo);
 }
 
-void BuildErrorMessages(napi_env env, napi_value &obj, const std::string &name, const ErrorMessage errorMessages[],
-    size_t arraySize)
+void BuildErrorMessages(
+    napi_env env, napi_value &obj, const std::string &name, const std::vector<ErrorMessage> &errorMessages)
 {
-    size_t validErrorMsgCount = GetValidDataCount(errorMessages, arraySize);
+    size_t validErrorMsgCount = GetValidDataCount(errorMessages);
     if (validErrorMsgCount == 0) {
         return;
     }
@@ -218,7 +194,7 @@ void BuildErrorMessages(napi_env env, napi_value &obj, const std::string &name, 
     napi_value napiErrorMessages;
     napi_create_array_with_length(env, validErrorMsgCount, &napiErrorMessages);
     size_t index = 0;
-    for (size_t i = 0; (i < arraySize) && (index < validErrorMsgCount); i++) {
+    for (size_t i = 0; (i < errorMessages.size()) && (index < validErrorMsgCount); i++) {
         if (IsValidData(errorMessages[i])) {
             napi_value napiErrorMessage;
             napi_create_object(env, &napiErrorMessage);
@@ -236,12 +212,12 @@ void BuildTaskBody(napi_env env, napi_value &obj, const TaskBody &taskBody)
     napi_value napiTaskBody;
     napi_create_object(env, &napiTaskBody);
     BuildVersionDigestInfo(env, napiTaskBody, taskBody.versionDigestInfo);
-    NapiUtil::SetInt32(env, napiTaskBody, "status", taskBody.status);
+    NapiUtil::SetInt32(env, napiTaskBody, "status", CAST_INT(taskBody.status));
     NapiUtil::SetInt32(env, napiTaskBody, "subStatus", taskBody.subStatus);
     NapiUtil::SetInt32(env, napiTaskBody, "progress", taskBody.progress);
     NapiUtil::SetInt32(env, napiTaskBody, "installMode", taskBody.installMode);
-    BuildErrorMessages(env, napiTaskBody, "errorMessages", taskBody.errorMessages, COUNT_OF(taskBody.errorMessages));
-    BuildVersionComponents(env, napiTaskBody, taskBody.versionComponents, COUNT_OF(taskBody.versionComponents));
+    BuildErrorMessages(env, napiTaskBody, "errorMessages", taskBody.errorMessages);
+    BuildVersionComponents(env, napiTaskBody, taskBody.versionComponents);
     napi_set_named_property(env, obj, "taskBody", napiTaskBody);
 }
 
@@ -273,8 +249,7 @@ int32_t ClientHelper::BuildNewVersionInfo(napi_env env, napi_value &obj, const U
         "Failed to create napi_create_object %d", static_cast<int32_t>(status));
 
     BuildVersionDigestInfo(env, obj, result.result.newVersionInfo->versionDigestInfo);
-    BuildVersionComponents(env, obj, result.result.newVersionInfo->versionComponents,
-        COUNT_OF(result.result.newVersionInfo->versionComponents));
+    BuildVersionComponents(env, obj, result.result.newVersionInfo->versionComponents);
     return CAST_INT(ClientStatus::CLIENT_SUCCESS);
 }
 
@@ -290,29 +265,28 @@ int32_t ClientHelper::BuildVersionDescriptionInfo(napi_env env, napi_value &obj,
     VersionDescriptionInfo *info = result.result.versionDescriptionInfo;
     PARAM_CHECK(info != nullptr, return CAST_INT(ClientStatus::CLIENT_FAIL), "info is null");
 
-    BuildComponentDescriptions(env, obj, info->componentDescriptions, COUNT_OF(info->componentDescriptions));
+    BuildComponentDescriptions(env, obj, info->componentDescriptions);
     PARAM_CHECK(obj != nullptr, return CAST_INT(ClientStatus::CLIENT_SUCCESS), "BuildComponentDescriptions null");
     return CAST_INT(ClientStatus::CLIENT_SUCCESS);
 }
 
-int32_t ClientHelper::BuildCheckResultEx(napi_env env, napi_value &obj, const UpdateResult &result)
+int32_t ClientHelper::BuildCheckResult(napi_env env, napi_value &obj, const UpdateResult &result)
 {
-    PARAM_CHECK(result.result.checkResultEx != nullptr, return CAST_INT(ClientStatus::CLIENT_SUCCESS),
-        "ClientHelper::BuildCheckResultEx null");
+    PARAM_CHECK(result.result.checkResult != nullptr, return CAST_INT(ClientStatus::CLIENT_SUCCESS),
+        "ClientHelper::BuildCheckResult null");
     PARAM_CHECK(result.type == SessionType::SESSION_CHECK_VERSION,
         return CAST_INT(ClientStatus::CLIENT_INVALID_TYPE), "invalid type %d", result.type);
     napi_status status = napi_create_object(env, &obj);
     PARAM_CHECK(status == napi_ok, return CAST_INT(ClientStatus::CLIENT_INVALID_TYPE),
         "Failed to create napi_create_object %d", static_cast<int32_t>(status));
-    CheckResultEx *checkResultEx = result.result.checkResultEx;
-    NapiUtil::SetBool(env, obj, "isExistNewVersion", checkResultEx->isExistNewVersion);
+    CheckResult *checkResult = result.result.checkResult;
+    NapiUtil::SetBool(env, obj, "isExistNewVersion", checkResult->isExistNewVersion);
 
-    if (checkResultEx->isExistNewVersion) {
+    if (checkResult->isExistNewVersion) {
         napi_value newVersionInfo;
         napi_create_object(env, &newVersionInfo);
-        BuildVersionDigestInfo(env, newVersionInfo, checkResultEx->newVersionInfo.versionDigestInfo);
-        BuildVersionComponents(env, newVersionInfo, checkResultEx->newVersionInfo.versionComponents,
-            COUNT_OF(checkResultEx->newVersionInfo.versionComponents));
+        BuildVersionDigestInfo(env, newVersionInfo, checkResult->newVersionInfo.versionDigestInfo);
+        BuildVersionComponents(env, newVersionInfo, checkResult->newVersionInfo.versionComponents);
         napi_set_named_property(env, obj, "newVersionInfo", newVersionInfo);
     }
     return CAST_INT(ClientStatus::CLIENT_SUCCESS);
@@ -339,12 +313,14 @@ int32_t ClientHelper::BuildUpgradePolicy(napi_env env, napi_value &obj, const Up
     for (size_t i = 0; i < count; i++) {
         napi_value result;
         status = napi_create_object(env, &result);
-        PARAM_CHECK(status == napi_ok, return status, "Failed to create napi_create_object %d", status);
+        PARAM_CHECK(status == napi_ok, continue, "Failed to napi_create_object %d", static_cast<int32_t>(status));
         NapiUtil::SetInt32(env, result, "start", upgradePolicy.autoUpgradePeriods[i].start);
         NapiUtil::SetInt32(env, result, "end", upgradePolicy.autoUpgradePeriods[i].end);
         napi_set_element(env, autoUpgradePeriods, i, result);
     }
-    napi_set_named_property(env, obj, "autoUpgradePeriods", autoUpgradePeriods);
+    status = napi_set_named_property(env, obj, "autoUpgradePeriods", autoUpgradePeriods);
+    PARAM_CHECK(status == napi_ok, return CAST_INT(ClientStatus::CLIENT_INVALID_TYPE),
+            "Failed to napi_set_named_property %d", static_cast<int32_t>(status));
     return napi_ok;
 }
 
@@ -371,9 +347,16 @@ void ParseBusinessType(napi_env env, const napi_value arg, UpgradeInfo &upgradeI
     if (result && (status == napi_ok)) {
         napi_value businessTypeValue;
         status = napi_get_named_property(env, arg, "businessType", &businessTypeValue);
+        PARAM_CHECK(status == napi_ok, return, "Failed to napi_set_named_property %d", static_cast<int32_t>(status));
         NapiUtil::GetString(env, businessTypeValue, "vendor", upgradeInfo.businessType.vendor);
+
+        int32_t subType;
+        NapiUtil::GetInt32(env, businessTypeValue, "subType", subType);
+        upgradeInfo.businessType.subType = static_cast<BusinessSubType>(subType);
     }
-    upgradeInfo.businessType.subType = BusinessSubType::FIRMWARE;
+    if (upgradeInfo.businessType.subType != BusinessSubType::PARAM) {
+        upgradeInfo.businessType.subType = BusinessSubType::FIRMWARE;
+    }
 }
 
 ClientStatus ClientHelper::GetUpgradeInfoFromArg(napi_env env, const napi_value arg, UpgradeInfo &upgradeInfo)
@@ -515,17 +498,17 @@ ClientStatus ClientHelper::GetOptionsFromArg(napi_env env, const napi_value arg,
     int32_t status = 0;
     NapiUtil::GetInt32(env, arg, "status", status);
     static const std::list statusList = {
-        UpgradeStatus::UPDATE_STATE_INIT,                  UpgradeStatus::UPDATE_STATE_CHECK_VERSION_ON,
-        UpgradeStatus::UPDATE_STATE_CHECK_VERSION_FAIL,    UpgradeStatus::UPDATE_STATE_CHECK_VERSION_SUCCESS,
-        UpgradeStatus::UPDATE_STATE_DOWNLOAD_ON,           UpgradeStatus::UPDATE_STATE_DOWNLOAD_PAUSE,
-        UpgradeStatus::UPDATE_STATE_DOWNLOAD_CANCEL,       UpgradeStatus::UPDATE_STATE_DOWNLOAD_FAIL,
-        UpgradeStatus::UPDATE_STATE_DOWNLOAD_SUCCESS,      UpgradeStatus::UPDATE_STATE_VERIFY_ON,
-        UpgradeStatus::UPDATE_STATE_VERIFY_FAIL,           UpgradeStatus::UPDATE_STATE_VERIFY_SUCCESS,
-        UpgradeStatus::UPDATE_STATE_PACKAGE_TRANS_ON,      UpgradeStatus::UPDATE_STATE_PACKAGE_TRANS_FAIL,
-        UpgradeStatus::UPDATE_STATE_PACKAGE_TRANS_SUCCESS, UpgradeStatus::UPDATE_STATE_INSTALL_ON,
-        UpgradeStatus::UPDATE_STATE_INSTALL_FAIL,          UpgradeStatus::UPDATE_STATE_INSTALL_SUCCESS,
-        UpgradeStatus::UPDATE_STATE_UPDATE_ON,             UpgradeStatus::UPDATE_STATE_UPDATE_FAIL,
-        UpgradeStatus::UPDATE_STATE_UPDATE_SUCCESS };
+        UpgradeStatus::INIT,                  UpgradeStatus::CHECKING_VERSION,
+        UpgradeStatus::CHECK_VERSION_FAIL,    UpgradeStatus::CHECK_VERSION_SUCCESS,
+        UpgradeStatus::DOWNLOADING,           UpgradeStatus::DOWNLOAD_PAUSE,
+        UpgradeStatus::DOWNLOAD_CANCEL,       UpgradeStatus::DOWNLOAD_FAIL,
+        UpgradeStatus::DOWNLOAD_SUCCESS,      UpgradeStatus::VERIFYING,
+        UpgradeStatus::VERIFY_FAIL,           UpgradeStatus::VERIFY_SUCCESS,
+        UpgradeStatus::PACKAGE_TRANSING,      UpgradeStatus::PACKAGE_TRANS_FAIL,
+        UpgradeStatus::PACKAGE_TRANS_SUCCESS, UpgradeStatus::INSTALLING,
+        UpgradeStatus::INSTALL_FAIL,          UpgradeStatus::INSTALL_SUCCESS,
+        UpgradeStatus::UPDATING,              UpgradeStatus::UPDATE_FAIL,
+        UpgradeStatus::UPDATE_SUCCESS };
     PARAM_CHECK(IsValidEnum(statusList, status), return ClientStatus::CLIENT_INVALID_TYPE,
         "GetClearOptionsFromArg error, invalid status:%{public}d", status);
     clearOptions.status = static_cast<UpgradeStatus>(status);
@@ -609,9 +592,24 @@ ClientStatus ClientHelper::GetEventClassifyInfoFromArg(napi_env env, const napi_
     return ClientStatus::CLIENT_SUCCESS;
 }
 
+bool ClientHelper::IsCommonError(CallResult callResult)
+{
+    return callResult == CallResult::UN_SUPPORT || callResult == CallResult::NOT_SYSTEM_APP ||
+        callResult == CallResult::APP_NOT_GRANTED || callResult == CallResult::PARAM_ERR;
+}
+
+int32_t ClientHelper::ConvertToErrorCode(CallResult callResult)
+{
+    if (IsCommonError(callResult) || callResult == CallResult::SUCCESS) {
+        return CAST_INT(callResult);
+    } else {
+        return COMPONENT_ERR + CAST_INT(callResult);
+    }
+}
+
 int32_t ClientHelper::BuildBusinessError(napi_env env, napi_value &obj, const BusinessError &businessError)
 {
-    if (!UpdateHelper::IsErrorExist(businessError)) {
+    if (!IsErrorExist(businessError)) {
         // success, no need to set businessError
         return CAST_INT(ClientStatus::CLIENT_SUCCESS);
     }
@@ -621,9 +619,10 @@ int32_t ClientHelper::BuildBusinessError(napi_env env, napi_value &obj, const Bu
         "Failed to create napi_create_object %d",
         static_cast<int32_t>(status));
 
+    // 转码处理
     NapiUtil::SetString(env, obj, "message", businessError.message);
-    NapiUtil::SetInt32(env, obj, "errorNum", static_cast<int32_t>(businessError.errorNum));
-    BuildErrorMessages(env, obj, "data", businessError.data, COUNT_OF(businessError.data));
+    NapiUtil::SetInt32(env, obj, "code", ConvertToErrorCode(businessError.errorNum));
+    BuildErrorMessages(env, obj, "data", businessError.data);
     return CAST_INT(ClientStatus::CLIENT_SUCCESS);
 }
 
@@ -635,32 +634,49 @@ napi_value ClientHelper::BuildThrowError(napi_env env, const BusinessError &busi
     napi_status status = napi_create_error(env, nullptr, message, &error);
     PARAM_CHECK(status == napi_ok, return nullptr, "Failed to create napi_create_object %d",
         static_cast<int32_t>(status));
-    NapiUtil::SetInt32(env, error, "code", static_cast<int32_t>(businessError.errorNum));
+
+    // 转码处理
+    NapiUtil::SetInt32(env, error, "code", ConvertToErrorCode(businessError.errorNum));
     NapiUtil::SetString(env, error, "message", businessError.message);
-    BuildErrorMessages(env, error, "data", businessError.data, COUNT_OF(businessError.data));
+    BuildErrorMessages(env, error, "data", businessError.data);
     return error;
 }
 
-static std::string ConvertVectorToStr(std::vector<std::string> &strVector)
+std::string ClientHelper::ConvertVectorToStr(std::vector<std::pair<std::string, std::string>> &strVector,
+    bool isFirst)
 {
     std::string strValue;
     for (auto &str : strVector) {
         if (!strValue.empty()) {
             strValue.append(", ");
         }
-        strValue.append(str);
+        if (isFirst) {
+            strValue.append(str.first);
+        } else {
+            strValue.append(str.second);
+        }
     }
     return strValue;
 }
 
+std::string ClientHelper::GetParamNames(std::vector<std::pair<std::string, std::string>> &strVector)
+{
+    return ConvertVectorToStr(strVector, true);
+}
+
+std::string ClientHelper::GetParamTypes(std::vector<std::pair<std::string, std::string>> &strVector)
+{
+    return ConvertVectorToStr(strVector, false);
+}
+
 void ClientHelper::NapiThrowParamError(
-    napi_env env, std::vector<std::string> &paramNames, std::vector<std::string> &paramTypes)
+    napi_env env, std::vector<std::pair<std::string, std::string>> &paramInfos)
 {
     BusinessError businessError;
     CallResult errCode = CallResult::PARAM_ERR;
-    std::string errMsg = "BusinessError " + std::to_string(static_cast<int32_t>(errCode))
-        .append(": Parameter error. The type of { ").append(ConvertVectorToStr(paramNames)).append(" }")
-        .append("must be { ").append(ConvertVectorToStr(paramTypes)).append(" }.");
+    std::string errMsg = "BusinessError " + std::to_string(CAST_INT(errCode))
+        .append(": Parameter error. The type of { ").append(GetParamNames(paramInfos)).append(" }")
+        .append("must be { ").append(GetParamTypes(paramInfos)).append(" }.");
     businessError.Build(errCode, errMsg);
     napi_value msg = BuildThrowError(env, businessError);
     napi_status status = napi_throw(env, msg);
@@ -679,7 +695,7 @@ ClientStatus BuildTaskBody(napi_env env, napi_value &obj, EventId eventId, const
         BuildVersionDigestInfo(env, napiTaskBody, taskBody.versionDigestInfo);
     }
     if (taskBodyTemplate & UPGRADE_STATUS) {
-        NapiUtil::SetInt32(env, napiTaskBody, "status", taskBody.status);
+        NapiUtil::SetInt32(env, napiTaskBody, "status",  CAST_INT(taskBody.status));
     }
     if (taskBodyTemplate & SUB_STATUS) {
         NapiUtil::SetInt32(env, napiTaskBody, "subStatus", taskBody.subStatus);
@@ -691,11 +707,10 @@ ClientStatus BuildTaskBody(napi_env env, napi_value &obj, EventId eventId, const
         NapiUtil::SetInt32(env, napiTaskBody, "installMode", taskBody.installMode);
     }
     if (taskBodyTemplate & ERROR_MESSAGE) {
-        BuildErrorMessages(env, napiTaskBody, "errorMessages", taskBody.errorMessages,
-            COUNT_OF(taskBody.errorMessages));
+        BuildErrorMessages(env, napiTaskBody, "errorMessages", taskBody.errorMessages);
     }
     if (taskBodyTemplate & VERSION_COMPONENT) {
-        BuildVersionComponents(env, napiTaskBody, taskBody.versionComponents, COUNT_OF(taskBody.versionComponents));
+        BuildVersionComponents(env, napiTaskBody, taskBody.versionComponents);
     }
     napi_set_named_property(env, obj, "taskBody", napiTaskBody);
     return ClientStatus::CLIENT_SUCCESS;
@@ -712,6 +727,11 @@ ClientStatus ClientHelper::BuildEventInfo(napi_env env, napi_value &obj, const E
     PARAM_CHECK(ret == ClientStatus::CLIENT_SUCCESS, return ClientStatus::CLIENT_FAIL,
         "BuildEventInfo error, build task info fail");
     return ClientStatus::CLIENT_SUCCESS;
+}
+
+bool ClientHelper::IsErrorExist(const BusinessError &businessError)
+{
+    return businessError.errorNum != CallResult::SUCCESS;
 }
 } // namespace UpdateEngine
 } // namespace OHOS
