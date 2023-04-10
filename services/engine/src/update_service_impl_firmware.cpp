@@ -101,7 +101,6 @@ int32_t UpdateServiceImplFirmware::Upgrade(const UpgradeInfo &info, const Versio
     FirmwareTask task;
     FirmwareTaskOperator firmwareTaskOperator;
     firmwareTaskOperator.QueryTask(task);
-
     firmwareTaskOperator.UpdateUpgradeModeByTaskId(task.taskId, UpgradeMode::MANUAL);
     DelayedSingleton<FirmwareManager>::GetInstance()->DoInstall(upgradeOptions, businessError,
         FirmwareUpdateHelper::GetInstallType());
