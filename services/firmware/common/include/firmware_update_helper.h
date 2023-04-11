@@ -18,7 +18,6 @@
 
 #include <algorithm>
 
-#include "battery_srv_client.h"
 #include "config_policy_utils.h"
 #include "nlohmann/json.hpp"
 #include <power_mgr_client.h>
