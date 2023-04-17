@@ -27,11 +27,10 @@ namespace OHOS {
 namespace UpdateEngine {
 #ifdef RELATIONAL_STORE_NATIVE_RDB_ENABLE
 class FirmwareDatabase final : public SqliteDb, DelayedSingleton<FirmwareDatabase> {
+    DECLARE_DELAYED_SINGLETON(FirmwareDatabase);
 #else
 class FirmwareDatabase final {
 #endif
-    DECLARE_DELAYED_SINGLETON(FirmwareDatabase);
-
 public:
 #ifdef RELATIONAL_STORE_NATIVE_RDB_ENABLE
     std::string GetDbName() final;
