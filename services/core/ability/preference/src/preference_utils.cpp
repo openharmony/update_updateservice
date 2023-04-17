@@ -17,12 +17,15 @@
 
 #include <ohos_types.h>
 
+#ifdef NATIVE_PREFERENCES_ENABLE
 #include "preferences_helper.h"
+#endif
 
 #include "update_log.h"
 
 namespace OHOS {
 namespace UpdateEngine {
+#ifdef NATIVE_PREFERENCES_ENABLE
 std::shared_ptr<NativePreferences::Preferences> PreferencesUtil::GetPreference()
 {
     std::string path = GetPath();
@@ -37,14 +40,19 @@ std::shared_ptr<NativePreferences::Preferences> PreferencesUtil::GetPreference()
     }
     return ptr;
 }
+#endif
 
 bool PreferencesUtil::DeletePreference()
 {
+#ifdef NATIVE_PREFERENCES_ENABLE
     std::string path = GetPath();
     if (path.empty()) {
         return false;
     }
     return NativePreferences::PreferencesHelper::DeletePreferences(path) == NativePreferences::E_OK;
+#else
+    return true;
+#endif
 }
 
 bool PreferencesUtil::SaveString(const std::string &key, const std::string &value)
@@ -75,6 +83,7 @@ bool PreferencesUtil::SaveFloat(const std::string &key, float value)
 template <typename T>
 bool PreferencesUtil::Save(const std::string &key, const T &value)
 {
+#ifdef NATIVE_PREFERENCES_ENABLE
     std::shared_ptr<NativePreferences::Preferences> ptr = GetPreference();
     if (ptr == nullptr) {
         return false;
@@ -84,8 +93,12 @@ bool PreferencesUtil::Save(const std::string &key, const T &value)
         return false;
     }
     return RefreshSync();
+#else
+    return true;
+#endif
 }
 
+#ifdef NATIVE_PREFERENCES_ENABLE
 bool PreferencesUtil::SaveInner(
     std::shared_ptr<NativePreferences::Preferences> ptr, const std::string &key, const std::string &value)
 {
@@ -115,6 +128,7 @@ bool PreferencesUtil::SaveInner(
 {
     return ptr->PutFloat(key, value) == NativePreferences::E_OK;
 }
+#endif
 
 std::string PreferencesUtil::ObtainString(const std::string &key, const std::string &defValue)
 {
@@ -144,6 +158,7 @@ float PreferencesUtil::ObtainFloat(const std::string &key, float defValue)
 template <typename T>
 T PreferencesUtil::Obtain(const std::string &key, const T &defValue)
 {
+#ifdef NATIVE_PREFERENCES_ENABLE
     int errCode = OHOS_FAILURE;
     std::shared_ptr<NativePreferences::Preferences> ptr = GetPreference();
     if (ptr == nullptr) {
@@ -151,8 +166,12 @@ T PreferencesUtil::Obtain(const std::string &key, const T &defValue)
         return defValue;
     }
     return ObtainInner(ptr, key, defValue);
+#else
+    return defValue;
+#endif
 }
 
+#ifdef NATIVE_PREFERENCES_ENABLE
 std::string PreferencesUtil::ObtainInner(
     std::shared_ptr<NativePreferences::Preferences> ptr, const std::string &key, const std::string &defValue)
 {
@@ -182,18 +201,24 @@ float PreferencesUtil::ObtainInner(
 {
     return ptr->GetFloat(key, defValue);
 }
+#endif
 
 bool PreferencesUtil::IsExist(const std::string &key)
 {
+#ifdef NATIVE_PREFERENCES_ENABLE
     std::shared_ptr<NativePreferences::Preferences> ptr = GetPreference();
     if (ptr == nullptr) {
         return false;
     }
     return ptr->HasKey(key);
+#else
+    return true;
+#endif
 }
 
 bool PreferencesUtil::Remove(const std::string &key)
 {
+#ifdef NATIVE_PREFERENCES_ENABLE
     std::shared_ptr<NativePreferences::Preferences> ptr = GetPreference();
     if (ptr == nullptr) {
         return false;
@@ -202,10 +227,14 @@ bool PreferencesUtil::Remove(const std::string &key)
         return false;
     }
     return RefreshSync();
+#else
+    return true;
+#endif
 }
 
 bool PreferencesUtil::RemoveAll()
 {
+#ifdef NATIVE_PREFERENCES_ENABLE
     std::shared_ptr<NativePreferences::Preferences> ptr = GetPreference();
     if (ptr == nullptr) {
         return false;
@@ -214,10 +243,14 @@ bool PreferencesUtil::RemoveAll()
         return false;
     }
     return RefreshSync();
+#else
+    return true;
+#endif
 }
 
 bool PreferencesUtil::RefreshSync()
 {
+#ifdef NATIVE_PREFERENCES_ENABLE
     std::shared_ptr<NativePreferences::Preferences> ptr = GetPreference();
     if (ptr == nullptr) {
         ENGINE_LOGE("RefreshSync error ptr is null");
@@ -228,6 +261,9 @@ bool PreferencesUtil::RefreshSync()
         return false;
     }
     return true;
+#else
+    return true;
+#endif
 }
 } // namespace UpdateEngine
 } // namespace OHOS

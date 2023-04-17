@@ -19,8 +19,26 @@
 
 namespace OHOS {
 namespace UpdateEngine {
+#ifdef RELATIONAL_SOTRE_NATIVE_RDB_ENABLE
+bool FirmwareComponentOperator::QueryAll(const std::vector<FirmwareComponent> &results)
+{
+    return true;
+}
+
+bool bool FirmwareComponentOperator::Insert(const std::vector<FirmwareComponent> &values)
+{
+    return true;
+}
+
+bool bool FirmwareComponentOperator::DeleteAll()
+{
+    return true;
+}
+#endif
+
 bool FirmwareComponentOperator::UpdateProgressByUrl(const std::string &url, UpgradeStatus status, int32_t progress)
 {
+#ifdef RELATIONAL_SOTRE_NATIVE_RDB_ENABLE
     NativeRdb::ValuesBucket values;
     values.PutInt(COLUMN_COMPONENT_STATUS, CAST_INT(status));
     values.PutInt(COLUMN_COMPONENT_PROGRESS, progress);
@@ -28,20 +46,28 @@ bool FirmwareComponentOperator::UpdateProgressByUrl(const std::string &url, Upgr
     OHOS::NativeRdb::RdbPredicates predicates(GetTableName());
     predicates.EqualTo(COLUMN_COMPONENT_DOWNLOAD_URL, url);
     return TableBaseOperator::Update(values, predicates);
+#else
+    return true;
+#endif
 }
 
 bool FirmwareComponentOperator::UpdateUrlByVersionId(const std::string &versionId, const std::string &url)
 {
+#ifdef RELATIONAL_SOTRE_NATIVE_RDB_ENABLE
     NativeRdb::ValuesBucket values;
     values.PutString(COLUMN_COMPONENT_DOWNLOAD_URL, url);
 
     OHOS::NativeRdb::RdbPredicates predicates(GetTableName());
     predicates.EqualTo(COLUMN_COMPONENT_VERSION_ID, versionId);
     return TableBaseOperator::Update(values, predicates);
+#else
+    return true;
+#endif
 }
 
 bool FirmwareComponentOperator::QueryByVersionId(const std::string &versionId, FirmwareComponent &component)
 {
+#ifdef RELATIONAL_SOTRE_NATIVE_RDB_ENABLE
     std::vector<FirmwareComponent> components;
     OHOS::NativeRdb::RdbPredicates predicates(GetTableName());
     predicates.EqualTo(COLUMN_COMPONENT_VERSION_ID, versionId);
@@ -50,10 +76,14 @@ bool FirmwareComponentOperator::QueryByVersionId(const std::string &versionId, F
         return true;
     }
     return false;
+#else
+    return true;
+#endif
 }
 
 bool FirmwareComponentOperator::QueryByUrl(const std::string &url, FirmwareComponent &component)
 {
+#ifdef RELATIONAL_SOTRE_NATIVE_RDB_ENABLE
     std::vector<FirmwareComponent> components;
     OHOS::NativeRdb::RdbPredicates predicates(GetTableName());
     predicates.EqualTo(COLUMN_COMPONENT_DOWNLOAD_URL, url);
@@ -62,6 +92,9 @@ bool FirmwareComponentOperator::QueryByUrl(const std::string &url, FirmwareCompo
         return true;
     }
     return false;
+#else
+    return true;
+#endif
 }
 } // namespace UpdateEngine
 } // namespace OHOS
