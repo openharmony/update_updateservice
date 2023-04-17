@@ -15,47 +15,49 @@ import("//build/ohos.gni")
 import("../../../../updateengine.gni")
 
 ohos_shared_library("$updateengine_client_library_name") {
-  sources = [
-    "$updateengine_root_path/frameworks/js/napi/base/src/client_helper.cpp",
-    "$updateengine_root_path/frameworks/js/napi/base/src/define_property.cpp",
-    "$updateengine_root_path/frameworks/js/napi/base/src/iupdater.cpp",
-    "$updateengine_root_path/frameworks/js/napi/base/src/napi_util.cpp",
-    "$updateengine_root_path/frameworks/js/napi/base/src/session_manager.cpp",
-    "$updateengine_root_path/frameworks/js/napi/client/local_updater.cpp",
-    "$updateengine_root_path/frameworks/js/napi/client/restorer.cpp",
-    "$updateengine_root_path/frameworks/js/napi/client/update_client.cpp",
-    "$updateengine_root_path/frameworks/js/napi/client/update_module.cpp",
-    "$updateengine_root_path/frameworks/js/napi/client/update_session.cpp",
-  ]
+  if (support_jsapi) {
+    sources = [
+      "$updateengine_root_path/frameworks/js/napi/base/src/client_helper.cpp",
+      "$updateengine_root_path/frameworks/js/napi/base/src/define_property.cpp",
+      "$updateengine_root_path/frameworks/js/napi/base/src/iupdater.cpp",
+      "$updateengine_root_path/frameworks/js/napi/base/src/napi_util.cpp",
+      "$updateengine_root_path/frameworks/js/napi/base/src/session_manager.cpp",
+      "$updateengine_root_path/frameworks/js/napi/client/local_updater.cpp",
+      "$updateengine_root_path/frameworks/js/napi/client/restorer.cpp",
+      "$updateengine_root_path/frameworks/js/napi/client/update_client.cpp",
+      "$updateengine_root_path/frameworks/js/napi/client/update_module.cpp",
+      "$updateengine_root_path/frameworks/js/napi/client/update_session.cpp",
+    ]
 
-  include_dirs = [
-    "$updateengine_root_path/frameworks/js/napi/base/include",
-    "$updateengine_root_path/frameworks/js/napi/client",
-    "$updateengine_root_path/interfaces/inner_api/include",
-    "//foundation/arkui/napi/interfaces/kits",
-    "//third_party/node/src",  # napi
-  ]
+    include_dirs = [
+      "$updateengine_root_path/frameworks/js/napi/base/include",
+      "$updateengine_root_path/frameworks/js/napi/client",
+      "$updateengine_root_path/interfaces/inner_api/include",
+      "//foundation/arkui/napi/interfaces/kits",
+      "//third_party/node/src",  # napi
+    ]
 
-  deps = [
-    "$updateengine_root_path/interfaces/inner_api/engine:$updateengine_inner_library_name",
-    "//foundation/arkui/napi:ace_napi",
-  ]
+    deps = [
+      "$updateengine_root_path/interfaces/inner_api/engine:$updateengine_inner_library_name",
+      "//foundation/arkui/napi:ace_napi",
+    ]
 
-  external_deps = [
-    "c_utils:utils",  # sptr
-    "hiviewdfx_hilog_native:libhilog",
-    "ipc:ipc_core",
-    "safwk:system_ability_fwk",
-    "samgr:samgr_proxy",
-  ]
+    external_deps = [
+      "c_utils:utils",  # sptr
+      "hiviewdfx_hilog_native:libhilog",
+      "ipc:ipc_core",
+      "safwk:system_ability_fwk",
+      "samgr:samgr_proxy",
+    ]
 
-  install_enable = true
-  relative_install_dir = "module"
-  part_name = "$updateengine_part_name"
+    install_enable = true
+    relative_install_dir = "module"
+    part_name = "$updateengine_part_name"
 
-  cflags = [
-    "-fPIC",
-    "-Os",
-    "-Werror",
-  ]
+    cflags = [
+      "-fPIC",
+      "-Os",
+      "-Werror",
+    ]
+  }
 }

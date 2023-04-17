@@ -33,13 +33,22 @@ using NetObserverCallback = std::function<void(NetType)>;
 
 class INetObserverCallback {
 public:
+#ifdef NETMANAGER_BASE_ENABLE
     virtual bool OnNetChange(NetType netType) = 0;
+#else
+    bool OnNetChange(NetType netType);
+#endif
 };
 
 class DupdateINetObserver {
 public:
+#ifdef NETMANAGER_BASE_ENABLE
     virtual void SetCallback(const std::weak_ptr<INetObserverCallback> &callback) = 0;
     virtual void StartObserver() = 0;
+#else
+    void SetCallback(const std::weak_ptr<INetObserverCallback> &callback);
+    void StartObserver();
+#endif
 };
 } // namespace UpdateEngine
 } // namespace OHOS

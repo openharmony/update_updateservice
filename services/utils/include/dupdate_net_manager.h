@@ -44,12 +44,18 @@ public:
         NetChangeCallbackType callbackType, const std::set<NetType> &netTypes, NetObserverCallback cb);
     void UnregisterCallback(NetChangeCallbackType callbackType);
 
+#ifdef NETMANAGER_BASE_ENABLE
     bool OnNetChange(NetType netType) final;
+#else
+    bool OnNetChange(NetType netType);
+#endif
 
 private:
     bool IsBaseNetType(NetType netType);
 
+    #ifdef NETMANAGER_BASE_ENABLE
     sptr<NetObserver> observer_ = nullptr;
+    #endif
     std::mutex netChangeMutex_;
     NetType netType_ = NetType::NO_NET;
     std::map<NetChangeCallbackType, NetChangeCallback> netChangeCallbackMap_;

@@ -16,9 +16,11 @@
 #ifndef FIRMWARE_COMPONENT_TABLE_H
 #define FIRMWARE_COMPONENT_TABLE_H
 
+#ifdef RELATIONAL_STORE_NATIVE_RDB_ENABLE
 #include "values_bucket.h"
 
 #include "itable.h"
+#endif
 #include "firmware_component.h"
 
 namespace OHOS {
@@ -55,14 +57,23 @@ const std::string COLUMN_COMPONENT_EXTENDS4 = "extends4";
 const std::string COLUMN_COMPONENT_EXTENDS5 = "extends5";
 const std::string COLUMN_COMPONENT_EXTENDS6 = "extends6";
 
+#ifdef RELATIONAL_STORE_NATIVE_RDB_ENABLE
 class FirmwareComponentTable final: public ITable<FirmwareComponent> {
+#else 
+class FirmwareComponentTable final {
+#endif
 public:
     FirmwareComponentTable() = default;
     ~FirmwareComponentTable() = default;
+#ifdef RELATIONAL_STORE_NATIVE_RDB_ENABLE
     std::string GetTableName() final;
     std::string GetTableCreateSql() final;
     void ParseDbValue(ResultSet *resultSet, FirmwareComponent &value) final;
     void BuildDbValue(const FirmwareComponent &value, NativeRdb::ValuesBucket &dbValue) final;
+#else
+    std::string GetTableName();
+    std::string GetTableCreateSql();
+#endif
 };
 } // namespace UpdateEngine
 } // namespace OHOS
