@@ -67,18 +67,16 @@ sa_sources = [
 ]
 
 if (ability_ability_base_enable || ability_ability_runtime_enable) {
-  sa_sources += [
-    "$updateengine_root_path/services/engine/src/update_notify.cpp",
-  ]
+  sa_sources +=
+      [ "$updateengine_root_path/services/engine/src/update_notify.cpp" ]
 }
 if (communication_netmanager_base_enable) {
-  sa_sources += [
-    "$updateengine_root_path/services/utils/src/dupdate_net_observer.cpp",
-  ]
+  sa_sources +=
+      [ "$updateengine_root_path/services/utils/src/dupdate_net_observer.cpp" ]
 }
 sa_sources += firmware_src
 if (relational_store_native_rdb_enable) {
-sa_sources += sqlite_src
+  sa_sources += sqlite_src
 }
 sa_sources += update_log_src
 sa_sources += startup_src
@@ -159,19 +157,13 @@ if (ability_ability_base_enable) {
   ]
 }
 if (ability_ability_runtime_enable) {
-  sa_external_deps += [
-    "ability_runtime:ability_manager",
-  ]
+  sa_external_deps += [ "ability_runtime:ability_manager" ]
 }
 if (communication_netmanager_base_enable) {
-  sa_external_deps += [
-    "netmanager_base:net_conn_manager_if",
-  ]
+  sa_external_deps += [ "netmanager_base:net_conn_manager_if" ]
 }
 if (preference_native_preferences_enable) {
-  sa_external_deps += [
-    "preferences:native_preferences",
-  ]
+  sa_external_deps += [ "preferences:native_preferences" ]
 }
 
 sa_external_deps += firmware_external_deps
@@ -190,16 +182,16 @@ sa_defines = [
 ]
 
 if (ability_ability_base_enable) {
-  sa_defines += ["ABILITY_BASE_ENABLE"]
+  sa_defines += [ "ABILITY_BASE_ENABLE" ]
 }
 if (ability_ability_runtime_enable) {
-  sa_defines += ["ABILITY_RUNTIME_ENABLE"]
+  sa_defines += [ "ABILITY_RUNTIME_ENABLE" ]
 }
 if (communication_netmanager_base_enable) {
-  sa_defines += ["NETMANAGER_BASE_ENABLE"]
+  sa_defines += [ "NETMANAGER_BASE_ENABLE" ]
 }
 if (preference_native_preferences_enable) {
-  sa_defines += ["NATIVE_PREFERENCES_ENABLE"]
+  sa_defines += [ "NATIVE_PREFERENCES_ENABLE" ]
 }
 if (relational_store_native_rdb_enable) {
   sa_defines += sqlite_defines
