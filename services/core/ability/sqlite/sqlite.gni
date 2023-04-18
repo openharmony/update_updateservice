@@ -21,7 +21,7 @@ declare_args() {
 }
 
 sqlite_defines = []
-if (relational_store_native_rdb_enable) {
+  if (relational_store_native_rdb_enable) {
   sqlite_root_path = "$updateengine_root_path/services/core/ability/sqlite"
   sqlite_external_deps = [ "relational_store:native_rdb" ]
   sqlite_include = [
@@ -29,5 +29,6 @@ if (relational_store_native_rdb_enable) {
     "//foundation/distributeddatamgr/relational_store/interfaces/inner_api/rdb/include",
   ]
   sqlite_src = [ "$sqlite_root_path/core/src/sqlite_db.cpp" ]
-  sqlite_defines = [ "RELATIONAL_STORE_RDB_ENABLE" ]
+  sqlite_defines = ["RELATIONAL_STORE_NATIVE_RDB_ENABLE",]
 }
+
