@@ -28,7 +28,7 @@ bool FirmwareTaskOperator::Insert(const FirmwareTask &values)
     return true;
 }
 
-void FirmwareTaskOperator::DeleteAll()
+bool FirmwareTaskOperator::DeleteAll()
 {
     return true;
 }

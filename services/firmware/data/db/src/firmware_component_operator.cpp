@@ -19,18 +19,18 @@
 
 namespace OHOS {
 namespace UpdateEngine {
-#ifdef RELATIONAL_STORE_NATIVE_RDB_ENABLE
+#ifndef RELATIONAL_STORE_NATIVE_RDB_ENABLE
 bool FirmwareComponentOperator::QueryAll(const std::vector<FirmwareComponent> &results)
 {
     return true;
 }
 
-bool bool FirmwareComponentOperator::Insert(const std::vector<FirmwareComponent> &values)
+bool FirmwareComponentOperator::Insert(const std::vector<FirmwareComponent> &values)
 {
     return true;
 }
 
-bool bool FirmwareComponentOperator::DeleteAll()
+bool FirmwareComponentOperator::DeleteAll()
 {
     return true;
 }
