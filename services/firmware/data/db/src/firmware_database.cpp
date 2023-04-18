@@ -56,7 +56,7 @@ NativeRdb::RdbOpenCallback &FirmwareDatabase::GetDbOpenCallback()
 #endif
 
 #ifndef RELATIONAL_STORE_NATIVE_RDB_ENABLE
-bool FirmwareDadatabase::DeleteDbStore()
+bool FirmwareDatabase::DeleteDbStore()
 {
     return true;
 }
