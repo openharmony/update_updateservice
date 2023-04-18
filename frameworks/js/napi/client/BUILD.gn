@@ -36,17 +36,15 @@ ohos_shared_library("$updateengine_client_library_name") {
       "//third_party/node/src",  # napi
     ]
 
-    deps = [
-      "$updateengine_root_path/interfaces/inner_api/engine:$updateengine_inner_library_name",
-    ]
+    deps = [ "$updateengine_root_path/interfaces/inner_api/engine:$updateengine_inner_library_name" ]
 
     external_deps = [
       "c_utils:utils",  # sptr
       "hiviewdfx_hilog_native:libhilog",
       "ipc:ipc_core",
+      "napi:ace_napi",
       "safwk:system_ability_fwk",
       "samgr:samgr_proxy",
-      "napi:ace_napi",
     ]
 
     install_enable = true

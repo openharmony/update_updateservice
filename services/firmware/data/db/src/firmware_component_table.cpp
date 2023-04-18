@@ -17,7 +17,7 @@
 
 namespace OHOS {
 namespace UpdateEngine {
-#ifdef RELATIONAL_STORE_NATIVE_RDB_ENABLE
+#ifndef RELATIONAL_STORE_NATIVE_RDB_ENABLE
 const std::string COLUMN_ID = "id";
 #endif
 
