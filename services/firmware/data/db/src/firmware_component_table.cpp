@@ -17,7 +17,7 @@
 
 namespace OHOS {
 namespace UpdateEngine {
-#ifdef RELATIONAL_SOTRE_NATIVE_RDB_ENABLE
+#ifdef RELATIONAL_STORE_NATIVE_RDB_ENABLE
 const std::string COLUMN_ID = "id";
 #endif
 
@@ -62,7 +62,7 @@ std::string FirmwareComponentTable::GetTableCreateSql()
         .append(")");
 }
 
-#ifdef RELATIONAL_SOTRE_NATIVE_RDB_ENABLE
+#ifdef RELATIONAL_STORE_NATIVE_RDB_ENABLE
 void FirmwareComponentTable::ParseDbValue(ResultSet *resultSet, FirmwareComponent &value)
 {
     GetColumnValue(resultSet, COLUMN_ID, value.id);

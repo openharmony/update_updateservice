@@ -16,7 +16,7 @@
 #ifndef FIRMWARE_TASK_TABLE_H
 #define FIRMWARE_TASK_TABLE_H
 
-#ifdef RELATIONAL_SOTRE_NATIVE_RDB_ENABLE
+#ifdef RELATIONAL_STORE_NATIVE_RDB_ENABLE
 #include "values_bucket.h"
 
 #include "itable.h"
@@ -55,7 +55,7 @@ const std::string COLUMN_TASK_EXTENDS4 = "extends4";
 const std::string COLUMN_TASK_EXTENDS5 = "extends5";
 const std::string COLUMN_TASK_EXTENDS6 = "extends6";
 
-#ifdef RELATIONAL_SOTRE_NATIVE_RDB_ENABLE
+#ifdef RELATIONAL_STORE_NATIVE_RDB_ENABLE
 class FirmwareTaskTable : public ITable<FirmwareTask> {
 #else
     class FirmwareTaskTable {
@@ -63,7 +63,7 @@ class FirmwareTaskTable : public ITable<FirmwareTask> {
 public:
     FirmwareTaskTable() = default;
     ~FirmwareTaskTable() = default;
-    #ifdef RELATIONAL_SOTRE_NATIVE_RDB_ENABLE
+    #ifdef RELATIONAL_STORE_NATIVE_RDB_ENABLE
     std::string GetTableName() final;
     std::string GetTableCreateSql() final;
     void ParseDbValue(ResultSet *resultSet, FirmwareTask &value) final;
