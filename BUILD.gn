@@ -16,6 +16,7 @@ import("./updateengine.gni")
 group("update_service") {
   deps = [
     "interfaces/inner_api/engine:updateservicekits",
+    "services/engine:dupdate_config.json",
     "services/engine:updater_sa.rc",
     "services/engine:updateservice",
     "services/engine/sa_profile:updater_sa_profile",
