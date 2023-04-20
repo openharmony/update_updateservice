@@ -38,12 +38,7 @@
     },
     "build": {
       "sub_component": [
-        "//base/update/updateservice/frameworks/js/napi/client:update",
-        "//base/update/updateservice/services/engine:updateservice",
-        "//base/update/updateservice/services/engine:updater_sa.rc",
-        "//base/update/updateservice/services/engine:dupdate_config.json",
-        "//base/update/updateservice/services/engine/sa_profile:updater_sa_profile",
-        "//base/update/updateservice/interfaces/inner_api/engine:updateservicekits"
+        "//base/update/updateservice:update_service"
       ],
       "inner_kits": [
         {
