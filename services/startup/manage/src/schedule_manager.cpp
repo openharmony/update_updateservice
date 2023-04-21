@@ -38,7 +38,8 @@ bool ScheduleManager::IdleCheck()
     if (accessManager_ != nullptr && !accessManager_->IsIdle()) {
         return false;
     }
-    return TaskManage(scheduleTask_);
+    ENGINE_LOGD("IdleCheck true");
+    return true;
 }
 
 bool ScheduleManager::Exit()
