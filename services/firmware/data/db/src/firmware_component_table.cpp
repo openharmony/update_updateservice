@@ -20,7 +20,6 @@ namespace UpdateEngine {
 #ifndef RELATIONAL_STORE_NATIVE_RDB_ENABLE
 const std::string COLUMN_ID = "id";
 #endif
-
 std::string FirmwareComponentTable::GetTableName()
 {
     return FIRMWARE_TABLE_COMPONENT;

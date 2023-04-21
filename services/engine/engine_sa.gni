@@ -75,9 +75,7 @@ if (communication_netmanager_base_enable) {
       [ "$updateengine_root_path/services/utils/src/dupdate_net_observer.cpp" ]
 }
 sa_sources += firmware_src
-if (relational_store_native_rdb_enable) {
-  sa_sources += sqlite_src
-}
+sa_sources += sqlite_src
 sa_sources += update_log_src
 sa_sources += startup_src
 
@@ -114,9 +112,7 @@ sa_include_dirs = [
 ]
 
 sa_include_dirs += firmware_include
-if (relational_store_native_rdb_enable) {
-  sa_include_dirs += sqlite_include
-}
+sa_include_dirs += sqlite_include
 sa_include_dirs += update_log_include
 sa_include_dirs += startup_include
 
@@ -167,9 +163,7 @@ if (preference_native_preferences_enable) {
 }
 
 sa_external_deps += firmware_external_deps
-if (relational_store_native_rdb_enable) {
-  sa_external_deps += sqlite_external_deps
-}
+sa_external_deps += sqlite_external_deps
 sa_external_deps += update_log_external_deps
 sa_external_deps += startup_external_deps
 
@@ -193,9 +187,7 @@ if (communication_netmanager_base_enable) {
 if (preference_native_preferences_enable) {
   sa_defines += [ "NATIVE_PREFERENCES_ENABLE" ]
 }
-if (relational_store_native_rdb_enable) {
-  sa_defines += sqlite_defines
-}
+sa_defines += sqlite_defines
 
 sa_cflags = [
   "-fPIC",

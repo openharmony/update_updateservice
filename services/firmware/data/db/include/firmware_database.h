@@ -53,7 +53,6 @@ private:
 #ifdef RELATIONAL_STORE_NATIVE_RDB_ENABLE
     FirmwareDatabaseCallback dbOpenCallback_;
 #endif
-
 };
 } // namespace UpdateEngine
 } // namespace OHOS
