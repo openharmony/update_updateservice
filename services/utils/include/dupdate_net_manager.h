@@ -53,9 +53,9 @@ public:
 private:
     bool IsBaseNetType(NetType netType);
 
-    #ifdef NETMANAGER_BASE_ENABLE
+#ifdef NETMANAGER_BASE_ENABLE
     sptr<NetObserver> observer_ = nullptr;
-    #endif
+#endif
     std::mutex netChangeMutex_;
     NetType netType_ = NetType::NO_NET;
     std::map<NetChangeCallbackType, NetChangeCallback> netChangeCallbackMap_;
