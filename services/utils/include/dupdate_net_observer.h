@@ -16,6 +16,7 @@
 #ifndef DUPDATE_NET_OBSERVER_H
 #define DUPDATE_NET_OBSERVER_H
 
+#ifdef NETMANAGER_BASE_ENABLE
 #include "net_all_capabilities.h"
 #include "net_conn_callback_stub.h"
 #include "net_specifier.h"
@@ -39,4 +40,5 @@ private:
 };
 } // namespace UpdateEngine
 } // namespace OHOS
+#endif // NETMANAGER_BASE_ENABLE
 #endif // DUPDATE_NET_OBSERVER_H
