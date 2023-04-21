@@ -18,9 +18,7 @@
 
 #include <algorithm>
 
-#include "config_policy_utils.h"
 #include "nlohmann/json.hpp"
-#include <power_mgr_client.h>
 
 #include "firmware_changelog_utils.h"
 #include "firmware_constant.h"

@@ -19,16 +19,24 @@
 #include <string>
 #include <vector>
 
+#ifdef RELATIONAL_STORE_NATIVE_RDB_ENABLE
 #include "rdb_open_callback.h"
 #include "rdb_store.h"
+#endif
 
 namespace OHOS {
 namespace UpdateEngine {
+#ifdef RELATIONAL_STORE_NATIVE_RDB_ENABLE
 class FirmwareDatabaseCallback final : public NativeRdb::RdbOpenCallback {
+#else
+class FirmwareDatabaseCallback final {
+#endif
 public:
+#ifdef RELATIONAL_STORE_NATIVE_RDB_ENABLE
     int OnCreate(NativeRdb::RdbStore &rdbStore) final;
     int OnUpgrade(NativeRdb::RdbStore &rdbStore, int oldVersion, int newVersion) final;
     int OnOpen(NativeRdb::RdbStore &rdbStore) final;
+#endif
 
 private:
     std::vector<std::string> GenerateDbCreateSqlVector();

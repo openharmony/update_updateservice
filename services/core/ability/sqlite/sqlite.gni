@@ -13,10 +13,24 @@
 
 import("//base/update/updateservice/updateengine.gni")
 
-sqlite_root_path = "$updateengine_root_path/services/core/ability/sqlite"
-sqlite_external_deps = [ "relational_store:native_rdb" ]
-sqlite_include = [
-  "$sqlite_root_path/core/include",
-  "//foundation/distributeddatamgr/relational_store/interfaces/inner_api/rdb/include",
-]
-sqlite_src = [ "$sqlite_root_path/core/src/sqlite_db.cpp" ]
+declare_args() {
+  relational_store_native_rdb_enable = true
+  if (!defined(global_parts_info.distributeddatamgr_relational_store)) {
+    relational_store_native_rdb_enable = false
+  }
+}
+
+sqlite_defines = []
+sqlite_include = []
+sqlite_external_deps = []
+sqlite_src = []
+if (relational_store_native_rdb_enable) {
+  sqlite_root_path = "$updateengine_root_path/services/core/ability/sqlite"
+  sqlite_external_deps += [ "relational_store:native_rdb" ]
+  sqlite_include += [
+    "$sqlite_root_path/core/include",
+    "//foundation/distributeddatamgr/relational_store/interfaces/inner_api/rdb/include",
+  ]
+  sqlite_src += [ "$sqlite_root_path/core/src/sqlite_db.cpp" ]
+  sqlite_defines += [ "RELATIONAL_STORE_NATIVE_RDB_ENABLE" ]
+}

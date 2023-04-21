@@ -21,14 +21,27 @@
 #include "firmware_component.h"
 #include "firmware_component_table.h"
 #include "firmware_database.h"
+#ifdef RELATIONAL_STORE_NATIVE_RDB_ENABLE
 #include "table_base_operator.h"
+#endif
 #include "update_helper.h"
 
 namespace OHOS {
 namespace UpdateEngine {
+#ifdef RELATIONAL_STORE_NATIVE_RDB_ENABLE
 class FirmwareComponentOperator final : public TableBaseOperator<FirmwareComponentTable, FirmwareComponent> {
+#else
+class FirmwareComponentOperator final {
+#endif
 public:
+#ifdef RELATIONAL_STORE_NATIVE_RDB_ENABLE
     FirmwareComponentOperator() : TableBaseOperator(DelayedSingleton<FirmwareDatabase>::GetInstance()) {}
+#else
+    FirmwareComponentOperator() = default;
+    bool QueryAll(const std::vector<FirmwareComponent> &results);
+    bool Insert(const std::vector<FirmwareComponent> &values);
+    bool DeleteAll();
+#endif
     ~FirmwareComponentOperator() = default;
     bool UpdateProgressByUrl(const std::string &url, UpgradeStatus status, int32_t progress);
     bool UpdateUrlByVersionId(const std::string &versionId, const std::string &url);

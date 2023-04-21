@@ -20,8 +20,10 @@
 #include <string>
 #include <vector>
 
+#ifdef NATIVE_PREFERENCES_ENABLE
 #include "preferences.h"
 #include "preferences_errno.h"
+#endif
 
 namespace OHOS {
 namespace UpdateEngine {
@@ -52,23 +54,27 @@ protected:
     virtual std::string GetPath() = 0;
 
 private:
+#ifdef NATIVE_PREFERENCES_ENABLE
     std::shared_ptr<NativePreferences::Preferences> GetPreference();
+#endif
 
     bool RefreshSync();
 
     template <typename T>
     bool Save(const std::string &key, const T &value);
 
+#ifdef NATIVE_PREFERENCES_ENABLE
     bool SaveInner(
         std::shared_ptr<NativePreferences::Preferences> ptr, const std::string &key, const std::string &value);
     bool SaveInner(std::shared_ptr<NativePreferences::Preferences> ptr, const std::string &key, const int &value);
     bool SaveInner(std::shared_ptr<NativePreferences::Preferences> ptr, const std::string &key, const bool &value);
     bool SaveInner(std::shared_ptr<NativePreferences::Preferences> ptr, const std::string &key, const int64_t &value);
     bool SaveInner(std::shared_ptr<NativePreferences::Preferences> ptr, const std::string &key, const float &value);
-
+#endif
     template <typename T>
     T Obtain(const std::string &key, const T &defValue);
 
+#ifdef NATIVE_PREFERENCES_ENABLE
     std::string ObtainInner(
         std::shared_ptr<NativePreferences::Preferences> ptr, const std::string &key, const std::string &defValue);
     int ObtainInner(std::shared_ptr<NativePreferences::Preferences> ptr, const std::string &key, const int &defValue);
@@ -77,6 +83,7 @@ private:
         std::shared_ptr<NativePreferences::Preferences> ptr, const std::string &key, const int64_t &defValue);
     float ObtainInner(
         std::shared_ptr<NativePreferences::Preferences> ptr, const std::string &key, const float &defValue);
+#endif
 };
 } // namespace UpdateEngine
 } // namespace OHOS

@@ -22,13 +22,25 @@
 #include "firmware_database.h"
 #include "firmware_task_table.h"
 #include "firmware_task.h"
+#ifdef RELATIONAL_STORE_NATIVE_RDB_ENABLE
 #include "table_base_operator.h"
+#endif
 
 namespace OHOS {
 namespace UpdateEngine {
+#ifdef RELATIONAL_STORE_NATIVE_RDB_ENABLE
 class FirmwareTaskOperator final : public TableBaseOperator<FirmwareTaskTable, FirmwareTask> {
+#else
+class FirmwareTaskOperator final {
+#endif
 public:
+#ifdef RELATIONAL_STORE_NATIVE_RDB_ENABLE
     FirmwareTaskOperator() : TableBaseOperator(DelayedSingleton<FirmwareDatabase>::GetInstance()) {}
+#else
+    FirmwareTaskOperator() = default;
+    bool Insert(const FirmwareTask &value);
+    bool DeleteAll();
+#endif
     ~FirmwareTaskOperator() = default;
     void QueryTask(FirmwareTask &task);
     bool UpdateProgressByTaskId(const std::string &taskId, UpgradeStatus status, int32_t progress);
@@ -47,7 +59,9 @@ public:
     bool UpdateUpgradeOrderByTaskId(const std::string &taskId, Order upgradeOrder);
 
 private:
+#ifdef RELATIONAL_STORE_NATIVE_RDB_ENABLE
     bool UpdateByTaskId(const std::string &taskId, const NativeRdb::ValuesBucket &values);
+#endif
 };
 } // namespace UpdateEngine
 } // namespace OHOS

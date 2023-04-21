@@ -48,9 +48,18 @@ std::string FirmwareDatabase::GetDbStoreDir()
     return dbStoreDir_;
 }
 
+#ifdef RELATIONAL_STORE_NATIVE_RDB_ENABLE
 NativeRdb::RdbOpenCallback &FirmwareDatabase::GetDbOpenCallback()
 {
     return dbOpenCallback_;
 }
+#endif
+
+#ifndef RELATIONAL_STORE_NATIVE_RDB_ENABLE
+bool FirmwareDatabase::DeleteDbStore()
+{
+    return true;
+}
+#endif
 } // namespace UpdateEngine
 } // namespace OHOS
