@@ -58,7 +58,7 @@ const std::string COLUMN_TASK_EXTENDS6 = "extends6";
 #ifdef RELATIONAL_STORE_NATIVE_RDB_ENABLE
 class FirmwareTaskTable : public ITable<FirmwareTask> {
 #else
-    class FirmwareTaskTable {
+class FirmwareTaskTable {
 #endif
 public:
     FirmwareTaskTable() = default;
