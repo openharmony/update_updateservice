@@ -38,7 +38,9 @@ bool ScheduleManager::IdleCheck()
     if (accessManager_ != nullptr && !accessManager_->IsIdle()) {
         return false;
     }
-    return TaskManage(scheduleTask_);
+    ENGINE_LOGI("IdleCheck true");
+    TaskManage(scheduleTask_);
+    return true;
 }
 
 bool ScheduleManager::Exit()
@@ -51,26 +53,9 @@ bool ScheduleManager::Exit()
 
 bool ScheduleManager::TaskManage(ScheduleTask &scheduleTask)
 {
-    if (accessManager_ == nullptr) {
-        ENGINE_LOGE("TaskManage accessManager is null, return idle");
-        return true;
-    }
-
-    std::vector<ScheduleTask> tasks = accessManager_->GetScheduleTasks();
-    std::sort(tasks.begin(), tasks.end());
-    for (ScheduleTask &task : tasks) {
-        ENGINE_LOGD("TaskManage task is %{public}s", task.ToString().c_str());
-    }
-
-    if (tasks.empty() || tasks.front().minDelayTime > ScheduleConfig::GetPullupInterval()) {
-        // 待执行任务列表为空 || 最长任务大于SA轮询间隔，满足空闲条件，设置延时拉起
-        scheduleTask.minDelayTime = ScheduleConfig::GetPullupInterval();
-        ENGINE_LOGI("TaskManage task idle");
-        return true;
-    }
-
-    ENGINE_LOGI("TaskManage task not idle");
-    return false;
+    scheduleTask.minDelayTime = ScheduleConfig::GetPullupInterval();
+    ENGINE_LOGI("TaskManage task idle");
+    return true;
 }
 
 bool ScheduleManager::TaskSchedule(const ScheduleTask &scheduleTask)
