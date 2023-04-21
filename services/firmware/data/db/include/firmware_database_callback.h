@@ -31,7 +31,6 @@ class FirmwareDatabaseCallback final : public NativeRdb::RdbOpenCallback {
 #else
 class FirmwareDatabaseCallback final {
 #endif
-
 public:
 #ifdef RELATIONAL_STORE_NATIVE_RDB_ENABLE
     int OnCreate(NativeRdb::RdbStore &rdbStore) final;
