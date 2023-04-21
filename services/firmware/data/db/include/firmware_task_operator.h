@@ -31,7 +31,7 @@ namespace UpdateEngine {
 #ifdef RELATIONAL_STORE_NATIVE_RDB_ENABLE
 class FirmwareTaskOperator final : public TableBaseOperator<FirmwareTaskTable, FirmwareTask> {
 #else
-    class FirmwareTaskOperator final {
+class FirmwareTaskOperator final {
 #endif
 public:
 #ifdef RELATIONAL_STORE_NATIVE_RDB_ENABLE

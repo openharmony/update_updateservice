@@ -63,15 +63,15 @@ class FirmwareTaskTable {
 public:
     FirmwareTaskTable() = default;
     ~FirmwareTaskTable() = default;
-    #ifdef RELATIONAL_STORE_NATIVE_RDB_ENABLE
+#ifdef RELATIONAL_STORE_NATIVE_RDB_ENABLE
     std::string GetTableName() final;
     std::string GetTableCreateSql() final;
     void ParseDbValue(ResultSet *resultSet, FirmwareTask &value) final;
     void BuildDbValue(const FirmwareTask &value, NativeRdb::ValuesBucket &dbValue) final;
-    #else
+#else
     std::string GetTableName();
     std::string GetTableCreateSql();
-    #endif
+#endif
 };
 } // namespace UpdateEngine
 } // namespace OHOS
