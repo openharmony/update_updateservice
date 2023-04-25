@@ -460,31 +460,26 @@ void FirmwareManager::HandleBootDownloadOnStatusProcess(FirmwareTask &task)
     // 下载中重启，清除记录和数据
     FIRMWARE_LOGI("HandleBootDownloadOnStatusProcess ClearFirmwareInfo");
     FirmwareUpdateHelper::ClearFirmwareInfo();
-    return;
 }
 
 void FirmwareManager::HandleBootDownloadPauseStatusProcess(FirmwareTask &task)
 {
     FirmwareUpdateHelper::ClearFirmwareInfo();
-    return;
 }
 
 void FirmwareManager::HandleResumeDownload(FirmwareTask &task)
 {
     FIRMWARE_LOGI("HandleResumeDownload");
-    return;
 }
 
 void FirmwareManager::HandleBootDownloadedStatusProcess(FirmwareTask &task)
 {
     FIRMWARE_LOGI("HandleBootDownloadedStatusProcess");
-    return;
 }
 
 void FirmwareManager::DoAutoDownload(const FirmwareTask &task)
 {
     FIRMWARE_LOGI("DoAutoDownload");
-    return;
 }
 
 void FirmwareManager::NotifyInitEvent()

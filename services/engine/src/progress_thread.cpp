@@ -145,7 +145,8 @@ bool DownloadThread::ProcessThreadExecute()
         ProcessThreadExit();
         ENGINE_LOGI("Failed to download res %s", curl_easy_strerror(res));
         if (res != CURLE_ABORTED_BY_CALLBACK) { // cancel by user, do not callback
-            DownloadCallback(0, UpgradeStatus::DOWNLOAD_FAIL, curl_easy_strerror(res));
+            DownloadCallback(0, UpgradeStatus::DOWNLOAD_FAIL,
+                std::to_string(CAST_INT(DownloadEndReason::CURL_ERROR)));
         }
     } else {
         ProcessThreadExit();
@@ -236,21 +237,6 @@ size_t DownloadThread::GetLocalFileLength(const std::string &fileName)
     ret = fclose(fp);
     ENGINE_CHECK_NO_LOG(ret == 0, return 0);
     return length;
-}
-
-bool ProgressThread::GetNetFlag()
-{
-    return isNoNet_;
-}
-
-bool ProgressThread::GetCancelFlag()
-{
-    return isCancel_;
-}
-
-void ProgressThread::SetCancelFlag(bool flag)
-{
-    isCancel_ = flag;
 }
 
 bool DownloadThread::DealAbnormal(uint32_t percent)
