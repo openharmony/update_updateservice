@@ -43,11 +43,16 @@ class ProgressThread {
 public:
     ProgressThread() = default;
     virtual ~ProgressThread();
+    static bool isNoNet_;
+    static bool isCancel_;
 protected:
     int32_t StartProgress();
     void StopProgress();
     void ExitThread();
     void ExecuteThreadFunc();
+    bool GetNetFlag();
+    bool GetCancelFlag();
+    bool SetCancelFlag(bool flag);
 
     virtual bool ProcessThreadExecute() = 0;
     virtual void ProcessThreadExit() = 0;
@@ -98,6 +103,7 @@ private:
     std::atomic<bool> exitDownload_ { false };
     size_t packageSize_ { 1 };
     std::string downloadFileName_;
+    bool DealAbnormal(uint32_t percent);
 };
 } // namespace UpdateEngine
 } // namespace OHOS
