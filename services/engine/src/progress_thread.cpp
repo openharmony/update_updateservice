@@ -244,10 +244,10 @@ bool DownloadThread::DealAbnormal(uint32_t percent)
     bool dealResult = false;
     if (isNoNet_ || isCancel_) {
         ENGINE_LOGI("No network or user cancel");
-        downloadProgress_.endReason = GetNetFlag() ? std::to_string(CAST_INT(DownloadEndReason::NET_NOT_AVAILIABLE)) :
-            std::to_string(CAST_INT(DownloadEndReason::NET_NOT_AVAILIABLE));
+        downloadProgress_.endReason = isNoNet_ ? std::to_string(CAST_INT(DownloadEndReason::NET_NOT_AVAILIABLE)) :
+            std::to_string(CAST_INT(DownloadEndReason::CANCEL));
         downloadProgress_.percent = percent;
-        downloadProgress_.status = GetNetFlag() ? UpgradeStatus::DOWNLOAD_FAIL : UpgradeStatus::DOWNLOAD_CANCEL;
+        downloadProgress_.status = isNoNet_ ? UpgradeStatus::DOWNLOAD_FAIL : UpgradeStatus::DOWNLOAD_CANCEL;
         if (callback_ != nullptr) {
             callback_(serverUrl_, downloadFileName_, downloadProgress_);
         }
