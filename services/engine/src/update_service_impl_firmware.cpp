@@ -150,6 +150,12 @@ int32_t UpdateServiceImplFirmware::GetNewVersionDescription(const UpgradeInfo &i
         ComponentDescription componentDescription;
         componentDescription.componentId = component.componentId;
         std::string changelogFilePath = Firmware::CHANGELOG_PATH + "/" + component.componentId + ".xml";
+        char realPath[PATH_MAX + 1] = {0};
+        if (realpath(changelogFilePath.c_str(), realPath) == nullptr) {
+            FIRMWARE_LOGI("GetNewVersionDescription: no data");
+            businessError.Build(CallResult::FAIL, "GetNewVersionDescription failed");
+            return INT_CALL_SUCCESS;
+        }
         if (!FileUtils::IsFileExist(changelogFilePath)) {
             FIRMWARE_LOGE("changelog file [%{public}s] is not exist!", changelogFilePath.c_str());
             businessError.Build(CallResult::FAIL, "GetNewVersionDescription failed");
@@ -190,9 +196,15 @@ int32_t UpdateServiceImplFirmware::GetCurrentVersionDescription(const UpgradeInf
     }
 
     std::string changelogFilePath = Firmware::CHANGELOG_PATH + "/" + descriptionContent.componentId + ".xml";
+    char realPath[PATH_MAX + 1] = {0};
+    if (realpath(changelogFilePath.c_str(), realPath) == nullptr) {
+        FIRMWARE_LOGI("GetNewVersionDescription: no data");
+        businessError.Build(CallResult::FAIL, "GetCurrentVersionDescription failed");
+        return INT_CALL_SUCCESS;
+    }
     if (!FileUtils::IsFileExist(changelogFilePath)) {
         FIRMWARE_LOGE("current changelog file [%{public}s] is not exist!", changelogFilePath.c_str());
-        businessError.Build(CallResult::FAIL, "GetNewVersionDescription failed");
+        businessError.Build(CallResult::FAIL, "GetCurrentVersionDescription failed");
         return INT_CALL_SUCCESS;
     }
     std::string dataXml = FileUtils::ReadDataFromFile(changelogFilePath);

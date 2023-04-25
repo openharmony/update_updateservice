@@ -50,9 +50,6 @@ protected:
     void StopProgress();
     void ExitThread();
     void ExecuteThreadFunc();
-    bool GetNetFlag();
-    bool GetCancelFlag();
-    void SetCancelFlag(bool flag);
 
     virtual bool ProcessThreadExecute() = 0;
     virtual void ProcessThreadExit() = 0;
