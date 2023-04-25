@@ -242,7 +242,7 @@ size_t DownloadThread::GetLocalFileLength(const std::string &fileName)
 bool DownloadThread::DealAbnormal(uint32_t percent)
 {
     bool dealResult = false;
-    if (GetNetFlag() || GetCancelFlag()) {
+    if (isNoNet_ || isCancel_) {
         ENGINE_LOGI("No network or user cancel");
         downloadProgress_.endReason = GetNetFlag() ? std::to_string(CAST_INT(DownloadEndReason::NET_NOT_AVAILIABLE)) :
             std::to_string(CAST_INT(DownloadEndReason::NET_NOT_AVAILIABLE));
@@ -251,8 +251,8 @@ bool DownloadThread::DealAbnormal(uint32_t percent)
         if (callback_ != nullptr) {
             callback_(serverUrl_, downloadFileName_, downloadProgress_);
         }
-        if (GetCancelFlag()) {
-            SetCancelFlag(false);
+        if (isCancel_) {
+            isCancel_ = false;
         }
         dealResult = true;
     }
