@@ -21,11 +21,15 @@
 #include "curl/curl.h"
 #include "curl/easy.h"
 
+#include "firmware_common.h"
 #include "update_define.h"
 #include "update_log.h"
 
 namespace OHOS {
 namespace UpdateEngine {
+bool ProgressThread::isNoNet_ = false;
+bool ProgressThread::isCancel_ = false;
+
 ProgressThread::~ProgressThread() {}
 
 void ProgressThread::ExitThread()
@@ -88,7 +92,7 @@ void ProgressThread::ExecuteThreadFunc()
 
 int32_t DownloadThread::StartDownload(const std::string &fileName, const std::string &url)
 {
-    ENGINE_LOGI("StopDownload downloadFileName_ %s, serverUrl_ = %s", downloadFileName_.c_str(), serverUrl_.c_str());
+    ENGINE_LOGI("StartDownload downloadFileName_ %s, serverUrl_ = %s", downloadFileName_.c_str(), serverUrl_.c_str());
     downloadFileName_ = fileName;
     serverUrl_ = url;
     exitDownload_ = false;
@@ -98,7 +102,7 @@ int32_t DownloadThread::StartDownload(const std::string &fileName, const std::st
 
 void DownloadThread::StopDownload()
 {
-    ENGINE_LOGI("StopDownload ");
+    ENGINE_LOGI("StopDownload");
     exitDownload_ = true;
     StopProgress();
     curl_global_cleanup();
@@ -170,6 +174,9 @@ int32_t DownloadThread::DownloadCallback(uint32_t percent, UpgradeStatus status,
         ENGINE_LOGI("StopDownloadCallback");
         return -1;
     }
+    ENGINE_CHECK_NO_LOG(!DealAbnormal(percent),
+        ENGINE_LOGI("DealAbnormal");
+        return -1);
     if (downloadProgress_.status == status && downloadProgress_.percent == percent) {
         // 避免回调过于频繁
         return 0;
@@ -229,6 +236,40 @@ size_t DownloadThread::GetLocalFileLength(const std::string &fileName)
     ret = fclose(fp);
     ENGINE_CHECK_NO_LOG(ret == 0, return 0);
     return length;
+}
+
+bool ProgressThread::GetNetFlag()
+{
+    return isNoNet_;
+}
+
+bool ProgressThread::GetCancelFlag()
+{
+    return isCancel_;
+}
+
+void ProgressThread::SetCancelFlag(bool flag)
+{
+    isCancel_ = flag;
+}
+
+bool DownloadThread::DealAbnormal(uint32_t percent)
+{
+    bool dealResult = false;
+    if (GetNetFlag() || GetCancelFlag()) {
+        ENGINE_LOGI("No network or user cancel");
+        downloadProgress_.endReason = GetNetFlag() ? std::to_string(CAST_INT(DownloadEndReason::NET_NOT_AVAILIABLE)) :
+            std::to_string(CAST_INT(DownloadEndReason::NET_NOT_AVAILIABLE));
+        downloadProgress_.percent = percent;
+        downloadProgress_.status = GetNetFlag() ? UpgradeStatus::DOWNLOAD_FAIL : UpgradeStatus::DOWNLOAD_CANCEL;
+        if (callback_ != nullptr) {
+            callback_(serverUrl_, downloadFileName_, downloadProgress_);
+        }
+        if (GetCancelFlag()) {
+            SetCancelFlag(false);
+        }
+        dealResult = true;
+    }
 }
 } // namespace UpdateEngine
 } // namespace OHOS

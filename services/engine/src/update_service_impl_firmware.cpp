@@ -32,15 +32,6 @@
 
 namespace OHOS {
 namespace UpdateEngine {
-const std::string CURRENT_VERSION_DEMO_TEXT = "<?xml version=\"1.0\" encoding=\"utf-8\"?><root>"
-    "<component name=\"TCPU\" version=\"current version\"/>"
-    "<default-language name=\"en-gb\">2057</default-language>"
-    "<language name=\"zh-cn\" code=\"2052\">"
-    "<features module=\"\" type=\"header\">"
-    "<feature>current version</feature>"
-    "</features>"
-    "</language>"
-    "</root>";
 int32_t UpdateServiceImplFirmware::CheckNewVersion(const UpgradeInfo &info)
 {
     FIRMWARE_LOGI("CheckNewVersion");
@@ -193,8 +184,21 @@ int32_t UpdateServiceImplFirmware::GetCurrentVersionDescription(const UpgradeInf
     ComponentDescription descriptionContent;
     descriptionContent.componentId =
         DelayedSingleton<FirmwarePreferencesUtil>::GetInstance()->ObtainString(Firmware::HOTA_CURRENT_COMPONENT_ID, "");
-    descriptionContent.descriptionInfo.descriptionType = DescriptionType::CONTENT;
-    descriptionContent.descriptionInfo.content = CURRENT_VERSION_DEMO_TEXT;
+    if (descriptionContent.componentId.empty()) {
+        FIRMWARE_LOGE("componentId is null");
+        return INT_CALL_SUCCESS;
+    }
+
+    std::string changelogFilePath = Firmware::CHANGELOG_PATH + "/" + descriptionContent.componentId + ".xml";
+    if (!FileUtils::IsFileExist(changelogFilePath)) {
+        FIRMWARE_LOGE("current changelog file [%{public}s] is not exist!", changelogFilePath.c_str());
+        businessError.Build(CallResult::FAIL, "GetNewVersionDescription failed");
+        return INT_CALL_SUCCESS;
+    }
+    std::string dataXml = FileUtils::ReadDataFromFile(changelogFilePath);
+    descriptionContent.descriptionInfo.content = dataXml.substr(dataXml.find_first_of("|") + 1, dataXml.size());
+    descriptionContent.descriptionInfo.descriptionType =
+        static_cast<DescriptionType>(atoi(dataXml.substr(0, dataXml.find_first_of("|")).c_str()));
     currentVersionDescriptionInfo.componentDescriptions.push_back(descriptionContent);
     businessError.Build(CallResult::SUCCESS, "GetCurrentVersionDescription ok");
     return INT_CALL_SUCCESS;
@@ -254,7 +258,15 @@ int32_t UpdateServiceImplFirmware::GetUpgradePolicy(const UpgradeInfo &info, Upg
 int32_t UpdateServiceImplFirmware::Cancel(const UpgradeInfo &info, int32_t service, BusinessError &businessError)
 {
     FIRMWARE_LOGI("Cancel %{public}d", service);
-    businessError.Build(CallResult::UN_SUPPORT, "resume download not support");
+    businessError.errorNum = CallResult::SUCCESS;
+    FirmwareTask task;
+    FirmwareTaskOperator().QueryTask(task);
+    if (task.status != UpgradeStatus::DOWNLOADING && task.status != UpgradeStatus::DOWNLOAD_PAUSE) {
+        FIRMWARE_LOGI("Cancel fail current status: %{public}d", CAST_INT(task.status));
+        businessError.build(CallResult::FAIL, "Cancel download error");
+    } else {
+        DelayedSingleton<FirmwareManager>::GetInstance()->DoCancelDownload(businessError);
+    }
     return INT_CALL_SUCCESS;
 }
 } // namespace UpdateEngine

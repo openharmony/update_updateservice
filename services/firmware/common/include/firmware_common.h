@@ -171,6 +171,26 @@ enum class RequestType {
     CHECK = 0,
     AUTH
 };
+
+enum class DownloadEndReason {
+    INIT = 0,
+    SUCCESS = 1,
+    DOWNLOADING = 2,
+    FAIL = 3,
+    VERIFY_FAIL = 4,
+    IO_EXCEPTION = 5,
+    REDIRECT = 6,
+    SERVER_TIMEOUT = 7,
+    PAUSE = 8,
+    CANCEL = 9,
+    NO_ENOUGH_MEMORY = 10,
+    NET_NOT_AVAILIABLE,
+    DOWNLAOD_INFO_EMPTY,
+    CURL_ERROR,
+    SYSTEM_BUSY,
+    INIT_PACKAGE_FAIL,
+    NET_CHANGE,
+};
 } // namespace UpdateEngine
 } // namespace OHOS
 #endif // FIRMWARE_COMMON_H
