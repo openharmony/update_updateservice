@@ -270,6 +270,7 @@ bool DownloadThread::DealAbnormal(uint32_t percent)
         }
         dealResult = true;
     }
+    return dealResult;
 }
 } // namespace UpdateEngine
 } // namespace OHOS
