@@ -263,7 +263,7 @@ int32_t UpdateServiceImplFirmware::Cancel(const UpgradeInfo &info, int32_t servi
     FirmwareTaskOperator().QueryTask(task);
     if (task.status != UpgradeStatus::DOWNLOADING && task.status != UpgradeStatus::DOWNLOAD_PAUSE) {
         FIRMWARE_LOGI("Cancel fail current status: %{public}d", CAST_INT(task.status));
-        businessError.build(CallResult::FAIL, "Cancel download error");
+        businessError.Build(CallResult::FAIL, "Cancel download error");
     } else {
         DelayedSingleton<FirmwareManager>::GetInstance()->DoCancelDownload(businessError);
     }

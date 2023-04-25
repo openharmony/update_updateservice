@@ -52,7 +52,7 @@ protected:
     void ExecuteThreadFunc();
     bool GetNetFlag();
     bool GetCancelFlag();
-    bool SetCancelFlag(bool flag);
+    void SetCancelFlag(bool flag);
 
     virtual bool ProcessThreadExecute() = 0;
     virtual void ProcessThreadExit() = 0;
