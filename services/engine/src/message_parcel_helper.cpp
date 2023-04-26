@@ -24,9 +24,16 @@
 
 namespace OHOS {
 namespace UpdateEngine {
+static constexpr int32_t MAX_VECTOR_SIZE = 128;
+
 void ReadErrorMessages(MessageParcel &reply, std::vector<ErrorMessage> &errorMessages)
 {
     int32_t size = reply.ReadInt32();
+    // codecheck warning fix
+    if (size > MAX_VECTOR_SIZE) {
+        ENGINE_LOGE("ReadErrorMessages size is over MAX_VECTOR_SIZE, size=%{public}d", size);
+        return;
+    }
     for (size_t i = 0; i < static_cast<size_t>(size); i++) {
         ErrorMessage errorMsg;
         errorMsg.errorCode = reply.ReadInt32();
@@ -47,6 +54,10 @@ void WriteErrorMessages(MessageParcel &data, const std::vector<ErrorMessage> err
 void ReadComponentDescriptions(MessageParcel &reply, std::vector<ComponentDescription> &componentDescriptions)
 {
     int32_t size = reply.ReadInt32();
+    if (size > MAX_VECTOR_SIZE) {
+        ENGINE_LOGE("ReadComponentDescriptions size is over MAX_VECTOR_SIZE, size=%{public}d", size);
+        return;
+    }
     for (size_t i = 0; i < static_cast<size_t>(size); i++) {
         ComponentDescription componentDescription;
         componentDescription.componentId = Str16ToStr8(reply.ReadString16());
@@ -119,6 +130,10 @@ int32_t MessageParcelHelper::WriteBusinessError(MessageParcel &data, const Busin
 void ReadVersionComponents(MessageParcel &reply, std::vector<VersionComponent> &versionComponents)
 {
     int32_t size = reply.ReadInt32();
+    if (size > MAX_VECTOR_SIZE) {
+        ENGINE_LOGE("ReadVersionComponents size is over MAX_VECTOR_SIZE, size=%{public}d", size);
+        return;
+    }
     for (size_t i = 0; i < static_cast<size_t>(size); i++) {
         VersionComponent versionComponent;
         versionComponent.componentId = Str16ToStr8(reply.ReadString16());
@@ -251,6 +266,10 @@ int32_t MessageParcelHelper::ReadUpgradePolicy(MessageParcel &reply, UpgradePoli
     policy.autoUpgradeStrategy = static_cast<bool>(reply.ReadBool());
     size_t size = static_cast<size_t>(reply.ReadInt32());
     size_t arraySize = COUNT_OF(policy.autoUpgradePeriods);
+    if (size > MAX_VECTOR_SIZE) {
+        ENGINE_LOGE("ReadUpgradePolicy size is over MAX_VECTOR_SIZE, size=%{public}zu", size);
+        return -1;
+    }
     for (size_t i = 0; (i < size) && (i < arraySize); i++) {
         policy.autoUpgradePeriods[i].start = reply.ReadUint32();
         policy.autoUpgradePeriods[i].end = reply.ReadUint32();
