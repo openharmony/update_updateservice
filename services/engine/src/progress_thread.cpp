@@ -251,10 +251,10 @@ bool DownloadThread::DealAbnormal(uint32_t percent)
         if (isCancel_) {
             isCancel_ = false;
         }
+        dealResult = true;
         if (callback_ != nullptr) {
             callback_(serverUrl_, downloadFileName_, downloadProgress_);
         }
-        dealResult = true;
     }
     return dealResult;
 }
