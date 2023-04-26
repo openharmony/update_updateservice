@@ -248,11 +248,11 @@ bool DownloadThread::DealAbnormal(uint32_t percent)
             std::to_string(CAST_INT(DownloadEndReason::CANCEL));
         downloadProgress_.percent = percent;
         downloadProgress_.status = isNoNet_ ? UpgradeStatus::DOWNLOAD_FAIL : UpgradeStatus::DOWNLOAD_CANCEL;
-        if (callback_ != nullptr) {
-            callback_(serverUrl_, downloadFileName_, downloadProgress_);
-        }
         if (isCancel_) {
             isCancel_ = false;
+        }
+        if (callback_ != nullptr) {
+            callback_(serverUrl_, downloadFileName_, downloadProgress_);
         }
         dealResult = true;
     }

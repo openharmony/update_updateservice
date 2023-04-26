@@ -101,7 +101,6 @@ void FirmwareDownloadExecutor::PerformDownload()
                 const Progress &progress) -> void {
                 DownloadCallback(serverUrl, fileName, progress);
             });
-        ProgressThread::isCancel_ = false;
         int32_t ret = downloadThread_->StartDownload(downloadFileName, downloadInfo.url);
         if (ret != 0) {
             Progress progress0;
