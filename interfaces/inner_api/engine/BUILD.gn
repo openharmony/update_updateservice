@@ -22,6 +22,7 @@ ohos_prebuilt_etc("updater_sa.rc") {
 
 config("updateengine_inner_library_native_config") {
   include_dirs = [
+    "$updateengine_root_path/interfaces/inner_api/include",
     "$updateengine_root_path/services/core/ability/define/include",
     "$updateengine_root_path/services/core/ability/log/include",
     "$updateengine_root_path/services/core/ability/utils/include",
