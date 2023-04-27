@@ -43,6 +43,8 @@ class ProgressThread {
 public:
     ProgressThread() = default;
     virtual ~ProgressThread();
+    static bool isNoNet_;
+    static bool isCancel_;
 protected:
     int32_t StartProgress();
     void StopProgress();
@@ -98,6 +100,7 @@ private:
     std::atomic<bool> exitDownload_ { false };
     size_t packageSize_ { 1 };
     std::string downloadFileName_;
+    bool DealAbnormal(uint32_t percent);
 };
 } // namespace UpdateEngine
 } // namespace OHOS

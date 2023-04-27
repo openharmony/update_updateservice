@@ -21,11 +21,15 @@
 #include "curl/curl.h"
 #include "curl/easy.h"
 
+#include "firmware_common.h"
 #include "update_define.h"
 #include "update_log.h"
 
 namespace OHOS {
 namespace UpdateEngine {
+bool ProgressThread::isNoNet_ = false;
+bool ProgressThread::isCancel_ = false;
+
 ProgressThread::~ProgressThread() {}
 
 void ProgressThread::ExitThread()
@@ -88,7 +92,7 @@ void ProgressThread::ExecuteThreadFunc()
 
 int32_t DownloadThread::StartDownload(const std::string &fileName, const std::string &url)
 {
-    ENGINE_LOGI("StopDownload downloadFileName_ %s, serverUrl_ = %s", downloadFileName_.c_str(), serverUrl_.c_str());
+    ENGINE_LOGI("StartDownload downloadFileName_ %s, serverUrl_ = %s", downloadFileName_.c_str(), serverUrl_.c_str());
     downloadFileName_ = fileName;
     serverUrl_ = url;
     exitDownload_ = false;
@@ -98,7 +102,7 @@ int32_t DownloadThread::StartDownload(const std::string &fileName, const std::st
 
 void DownloadThread::StopDownload()
 {
-    ENGINE_LOGI("StopDownload ");
+    ENGINE_LOGI("StopDownload");
     exitDownload_ = true;
     StopProgress();
     curl_global_cleanup();
@@ -141,7 +145,8 @@ bool DownloadThread::ProcessThreadExecute()
         ProcessThreadExit();
         ENGINE_LOGI("Failed to download res %s", curl_easy_strerror(res));
         if (res != CURLE_ABORTED_BY_CALLBACK) { // cancel by user, do not callback
-            DownloadCallback(0, UpgradeStatus::DOWNLOAD_FAIL, curl_easy_strerror(res));
+            DownloadCallback(0, UpgradeStatus::DOWNLOAD_FAIL,
+                std::to_string(CAST_INT(DownloadEndReason::CURL_ERROR)));
         }
     } else {
         ProcessThreadExit();
@@ -170,6 +175,9 @@ int32_t DownloadThread::DownloadCallback(uint32_t percent, UpgradeStatus status,
         ENGINE_LOGI("StopDownloadCallback");
         return -1;
     }
+    ENGINE_CHECK_NO_LOG(!DealAbnormal(percent),
+        ENGINE_LOGI("DealAbnormal");
+        return -1);
     if (downloadProgress_.status == status && downloadProgress_.percent == percent) {
         // 避免回调过于频繁
         return 0;
@@ -229,6 +237,26 @@ size_t DownloadThread::GetLocalFileLength(const std::string &fileName)
     ret = fclose(fp);
     ENGINE_CHECK_NO_LOG(ret == 0, return 0);
     return length;
+}
+
+bool DownloadThread::DealAbnormal(uint32_t percent)
+{
+    bool dealResult = false;
+    if (isNoNet_ || isCancel_) {
+        ENGINE_LOGI("No network or user cancel");
+        downloadProgress_.endReason = isNoNet_ ? std::to_string(CAST_INT(DownloadEndReason::NET_NOT_AVAILIABLE)) :
+            std::to_string(CAST_INT(DownloadEndReason::CANCEL));
+        downloadProgress_.percent = percent;
+        downloadProgress_.status = isNoNet_ ? UpgradeStatus::DOWNLOAD_FAIL : UpgradeStatus::DOWNLOAD_CANCEL;
+        if (isCancel_) {
+            isCancel_ = false;
+        }
+        dealResult = true;
+        if (callback_ != nullptr) {
+            callback_(serverUrl_, downloadFileName_, downloadProgress_);
+        }
+    }
+    return dealResult;
 }
 } // namespace UpdateEngine
 } // namespace OHOS
