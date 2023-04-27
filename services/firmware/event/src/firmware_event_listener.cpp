@@ -37,7 +37,7 @@ void FirmwareEventListener::RegisterNetChangedListener()
 {
     FIRMWARE_LOGI("FirmwareEventListener RegisterNetChangedListener");
     DelayedSingleton<NetManager>::GetInstance()->RegisterCallback(NetChangeCallbackType::HOTA_DOWNLOAD,
-        {NetType::CELLULAR, NetType::METERED_WIFI, NetType::NOT_METERED_WIFI},
+        {NetType::CELLULAR, NetType::METERED_WIFI, NetType::NOT_METERED_WIFI, NetType::NO_NET},
         [=](NetType netType) {
             FIRMWARE_LOGI("FirmwareEventListener on NetChanged type: %{public}d", CAST_INT(netType));
             DelayedSingleton<FirmwareManager>::GetInstance()->HandleEvent(CommonEventType::NET_CHANGED);

@@ -39,6 +39,7 @@
 #include "firmware_status_cache.h"
 #include "firmware_task_operator.h"
 #include "firmware_update_helper.h"
+#include "progress_thread.h"
 #include "schedule_task.h"
 #include "startup_schedule.h"
 #include "string_utils.h"
@@ -160,6 +161,8 @@ void FirmwareManager::DoCancelDownload(BusinessError &businessError)
         businessError.AddErrorMessage(CAST_INT(DUPDATE_ERR_DOWNLOAD_COMMON_ERROR), "no download task to cancel!");
         return;
     }
+    ProgressThread::isCancel_ = true;
+    return;
 }
 
 void FirmwareManager::DoTerminateUpgrade(BusinessError &businessError)
@@ -313,9 +316,11 @@ void FirmwareManager::HandleNetChanged()
     FIRMWARE_LOGI("HandleNetChanged");
     if (!DelayedSingleton<NetManager>::GetInstance()->IsNetAvailable()) {
         FIRMWARE_LOGE("HandleNetChanged network not available.");
+        ProgressThread::isNoNet_ = true;
         return;
     }
 
+    ProgressThread::isNoNet_ = false;
     FirmwareTask task;
     FirmwareTaskOperator().QueryTask(task);
     FIRMWARE_LOGI("HandleNetChanged status %{public}d", task.status);
@@ -452,40 +457,19 @@ void FirmwareManager::HandleBootInstallOnStatusProcess(FirmwareTask &task)
 
 void FirmwareManager::HandleBootDownloadOnStatusProcess(FirmwareTask &task)
 {
-    // 下载中重启，状态回退为下载暂停
-    FirmwareTaskOperator().UpdateProgressByTaskId(
-        task.taskId, UpgradeStatus::DOWNLOAD_PAUSE, task.progress);
-    std::vector<FirmwareComponent> firmwareComponentList;
-    FirmwareComponentOperator firmwareComponentOperator;
-    firmwareComponentOperator.QueryAll(firmwareComponentList);
-    for (const FirmwareComponent &component : firmwareComponentList) {
-        if (component.status == UpgradeStatus::DOWNLOADING) {
-            firmwareComponentOperator.UpdateProgressByUrl(
-                component.url, UpgradeStatus::DOWNLOAD_PAUSE, component.progress);
-        }
-    }
-    // 回滚状态之后，根据网络判断是否恢复下载
-    HandleResumeDownload(task);
+    // 下载中重启，清除记录和数据
+    FIRMWARE_LOGI("HandleBootDownloadOnStatusProcess ClearFirmwareInfo");
+    FirmwareUpdateHelper::ClearFirmwareInfo();
 }
 
 void FirmwareManager::HandleBootDownloadPauseStatusProcess(FirmwareTask &task)
 {
-    HandleResumeDownload(task);
+    FirmwareUpdateHelper::ClearFirmwareInfo();
 }
 
 void FirmwareManager::HandleResumeDownload(FirmwareTask &task)
 {
-    NetType currentNetType = DelayedSingleton<NetManager>::GetInstance()->GetNetType();
-    FIRMWARE_LOGI("HandleResumeDownload current net type: %{public}d , task allow net type: %{public}d",
-        currentNetType, task.downloadAllowNetwork);
-    if (DelayedSingleton<NetManager>::GetInstance()->IsNetAvailable(task.downloadAllowNetwork)) {
-        // 当网络符合下载网络的要求，恢复下载
-        BusinessError businessError;
-        DownloadOptions options;
-        options.order = task.downloadOrder;
-        options.allowNetwork = task.downloadAllowNetwork;
-        DoDownload(options, businessError);
-    }
+    FIRMWARE_LOGI("HandleResumeDownload");
 }
 
 void FirmwareManager::HandleBootDownloadedStatusProcess(FirmwareTask &task)
@@ -495,14 +479,7 @@ void FirmwareManager::HandleBootDownloadedStatusProcess(FirmwareTask &task)
 
 void FirmwareManager::DoAutoDownload(const FirmwareTask &task)
 {
-    BusinessError businessError;
-    DownloadOptions options;
-    options.order = Order::DOWNLOAD;
-    options.allowNetwork = NetType::NOT_METERED_WIFI;
-
-    FirmwareTaskOperator().UpdateDownloadOptionByTaskId(task.taskId,
-        DownloadMode::AUTO, NetType::NOT_METERED_WIFI, Order::DOWNLOAD);
-    DoDownload(options, businessError);
+    FIRMWARE_LOGI("DoAutoDownload");
 }
 
 void FirmwareManager::NotifyInitEvent()

@@ -96,17 +96,16 @@ void FirmwareDownloadExecutor::PerformDownload()
             DownloadCallback(downloadInfo.url, downloadFileName, progress0);
         }
         upgradeStatus_ = UpgradeStatus::DOWNLOADING;
-        if (downloadThread_ == nullptr) {
-            downloadThread_ = new DownloadThread([&](const std::string serverUrl, const std::string &fileName,
-                    const Progress &progress) -> void {
+        downloadThread_ = std::make_shared<DownloadThread>(
+            [&](const std::string serverUrl, const std::string &fileName,
+                const Progress &progress) -> void {
                 DownloadCallback(serverUrl, fileName, progress);
             });
-        }
         int32_t ret = downloadThread_->StartDownload(downloadFileName, downloadInfo.url);
         if (ret != 0) {
             Progress progress0;
             progress0.status = UpgradeStatus::DOWNLOAD_FAIL;
-            progress0.endReason = "start download fail";
+            progress0.endReason = std::to_string(CAST_INT(DownloadEndReason::FAIL));
             firmwareProgressCallback_.progressCallback(progress0);
         }
     }
