@@ -27,7 +27,7 @@ class SysInstallerCallback : public SysInstaller::ISysInstallerCallbackFunc {
 public:
     explicit SysInstallerCallback(SysInstallerExecutorCallback &installCallback);
 
-    void OnUpgradeProgress(SysInstaller::UpdateStatus updateStatus, int percent) final;
+    void OnUpgradeProgress(SysInstaller::UpdateStatus updateStatus, int percent, const std::string &resultMsg) final;
 
 private:
     SysInstallerExecutorCallback sysInstallCallback_;
