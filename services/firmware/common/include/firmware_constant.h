@@ -41,7 +41,7 @@ static const std::string CHANGELOG_PATH = ENCRYPTED_ROOT_PATH + "/changelogs";
 
 static const std::string AUTO_DOWNLOAD_SWITCH = "auto_download_switch"; // 自动下载开关
 
-constexpr float COMPRESSION_RATIO = 2.2;
+constexpr float COMPRESSION_RATIO = 0.2;
 
 constexpr int32_t ONE_HUNDRED = 100;
 
