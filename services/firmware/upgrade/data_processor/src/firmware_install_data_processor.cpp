@@ -27,6 +27,8 @@
 
 namespace OHOS {
 namespace UpdateEngine {
+constexpr int64_t SPACE_OFFSET = 100 *1024 *1024;
+
 bool FirmwareInstallDataProcessor::IsSpaceEnough(int64_t &requireTotalSize)
 {
     std::vector<FirmwareComponent> components;
@@ -34,7 +36,8 @@ bool FirmwareInstallDataProcessor::IsSpaceEnough(int64_t &requireTotalSize)
     for (const auto &component : components) {
         requireTotalSize = requireTotalSize + component.size;
     }
-    bool isSpaceEnough = FirmwareFileUtils::IsSpaceEnough(requireTotalSize * Firmware::COMPRESSION_RATIO);
+    bool isSpaceEnough = FirmwareFileUtils::IsSpaceEnough(requireTotalSize * Firmware::COMPRESSION_RATIO
+        + SPACE_OFFSET);
     FIRMWARE_LOGI("IsSpaceEnough %{public}s", StringUtils::GetBoolStr(isSpaceEnough).c_str());
     return isSpaceEnough;
 }
