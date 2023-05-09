@@ -133,6 +133,9 @@ bool FirmwareInstallApplyMode::IsUpgradeFilesReady()
 FirmwareStep FirmwareInstallApplyMode::GetStepAfterInstall()
 {
     FIRMWARE_LOGI("FirmwareInstallApplyMode installOptions %{public}d", CAST_INT(upgradeOptions_.order));
+    if (!installStepDataProcessor_.HasInstallSuccess()) {
+        FirmwareUpdateHelper::ClearFirmwareInfo();
+    }
     return FirmwareStep::COMPLETE;
 }
 
