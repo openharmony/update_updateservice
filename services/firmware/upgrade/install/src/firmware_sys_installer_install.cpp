@@ -110,13 +110,23 @@ int32_t SysInstallerInstall::StartUpdatePackageZip(const FirmwareComponent &firm
     return OHOS_SUCCESS;
 }
 
-int32_t SysInstallerInstall::ProcessStateNotInit(const FirmwareComponent &firmwareComponent)
+int32_t SysInstallerInstall::StartSysInstall(const FirmwareComponent &firmwareComponent)
 {
-    FIRMWARE_LOGD("SysInstallerInstall::ProcessStateNotInit");
+    FIRMWARE_LOGD("SysInstallerInstall::StartSysInstall");
     if (SysInstallerInit() != OHOS_SUCCESS) {
         return OHOS_FAILURE;
     }
 
+    if (DoSetCallbakAndUnzip(firmwareComponent) != OHOS_SUCCESS) {
+        return OHOS_FAILURE;
+    }
+
+    return OHOS_SUCCESS;
+}
+
+int32_t SysInstallerInstall::DoSetCallbakAndUnzip(const FirmwareComponent &firmwareComponent)
+{
+    FIRMWARE_LOGI("SysInstallerInstall::DoSetCallbakAndUnzip");
     if (SetUpdateCallback(firmwareComponent) != OHOS_SUCCESS) {
         return OHOS_FAILURE;
     }
@@ -126,42 +136,6 @@ int32_t SysInstallerInstall::ProcessStateNotInit(const FirmwareComponent &firmwa
     }
 
     return OHOS_SUCCESS;
-}
-
-int32_t SysInstallerInstall::ProcessStateInit(const FirmwareComponent &firmwareComponent)
-{
-    FIRMWARE_LOGI("SysInstallerInstall::ProcessStateInit");
-    if (SetUpdateCallback(firmwareComponent) != OHOS_SUCCESS) {
-        return OHOS_FAILURE;
-    }
-
-    if (StartUpdatePackageZip(firmwareComponent) != OHOS_SUCCESS) {
-        return OHOS_FAILURE;
-    }
-    return OHOS_SUCCESS;
-}
-
-int32_t SysInstallerInstall::ProcessStateOnGoing(const FirmwareComponent &firmwareComponent)
-{
-    FIRMWARE_LOGI("SysInstallerInstall::ProcessStateOnGoing");
-    if (SetUpdateCallback(firmwareComponent) != OHOS_SUCCESS) {
-        return OHOS_FAILURE;
-    }
-
-    return OHOS_SUCCESS;
-}
-
-void SysInstallerInstall::ProcessStateFailed()
-{
-    FIRMWARE_LOGI("SysInstallerInstall::ProcessStateFailed");
-    sysInstallProgress_.status = UpgradeStatus::INSTALL_FAIL;
-}
-
-void SysInstallerInstall::ProcessStateSuccess()
-{
-    FIRMWARE_LOGI("SysInstallerInstall::ProcessStateSuccess");
-    sysInstallProgress_.percent = Firmware::ONE_HUNDRED;
-    sysInstallProgress_.status = UpgradeStatus::INSTALL_SUCCESS;
 }
 
 int32_t SysInstallerInstall::DoSysInstall(const FirmwareComponent &firmwareComponent)
@@ -174,19 +148,20 @@ int32_t SysInstallerInstall::DoSysInstall(const FirmwareComponent &firmwareCompo
         firmwareComponent.status, updateStatus);
     switch (updateStatus) {
         case -1:
-            ProcessStateNotInit(firmwareComponent);
+            StartSysInstall(firmwareComponent);
             break;
         case SysInstaller::UpdateStatus::UPDATE_STATE_INIT:
-            ProcessStateInit(firmwareComponent);
+            DoSetCallbakAndUnzip(firmwareComponent);
             break;
         case SysInstaller::UpdateStatus::UPDATE_STATE_ONGOING:
-            ProcessStateOnGoing(firmwareComponent);
+            SetUpdateCallback(firmwareComponent);
             break;
         case SysInstaller::UpdateStatus::UPDATE_STATE_SUCCESSFUL:
-            ProcessStateSuccess();
+            sysInstallProgress_.percent = Firmware::ONE_HUNDRED;
+            sysInstallProgress_.status = UpgradeStatus::INSTALL_SUCCESS;
             break;
         default:
-            ProcessStateFailed();
+            sysInstallProgress_.status = UpgradeStatus::INSTALL_FAIL;
             break;
     }
 
