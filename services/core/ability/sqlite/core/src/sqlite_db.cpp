@@ -43,6 +43,7 @@ std::shared_ptr<NativeRdb::RdbStore> SqliteDb::CreateDbStore()
     ENGINE_CHECK(!dbStoreDir.empty(), return nullptr, "SqliteDb failed to create: path is empty");
 
     NativeRdb::RdbStoreConfig config(dbStoreDir);
+    config.SetSecurityLevel(NativeRdb::SecurityLevel::S1);
     int ret = NativeRdb::E_OK;
     std::shared_ptr<NativeRdb::RdbStore> dbStore =
         NativeRdb::RdbHelper::GetRdbStore(config, GetDbVersion(), GetDbOpenCallback(), ret);
