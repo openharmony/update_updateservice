@@ -38,11 +38,8 @@ private:
     int32_t SysInstallerInit();
     int32_t SetUpdateCallback(const FirmwareComponent &firmwareComponent);
     int32_t StartUpdatePackageZip(const FirmwareComponent &firmwareComponent);
-    int32_t ProcessStateNotInit(const FirmwareComponent &firmwareComponent);
-    int32_t ProcessStateInit(const FirmwareComponent &firmwareComponent);
-    int32_t ProcessStateOnGoing(const FirmwareComponent &firmwareComponent);
-    void ProcessStateFailed();
-    void ProcessStateSuccess();
+    int32_t StartSysInstall(const FirmwareComponent &firmwareComponent);
+    int32_t DoSetCallbakAndUnzip(const FirmwareComponent &firmwareComponent);
     void InitInstallProgress();
     int32_t WaitInstallResult();
 
