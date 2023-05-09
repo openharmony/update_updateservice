@@ -36,7 +36,7 @@ private:
     bool PerformInstall(const std::vector<FirmwareComponent> &componentList) final;
     int32_t DoSysInstall(const FirmwareComponent &firmwareComponent);
     int32_t SysInstallerInit();
-    int32_t SetUpdateCallback(const FirmwareComponent &firmwareComponent);
+    int32_t SetSysInstallerCallback(const FirmwareComponent &firmwareComponent);
     int32_t StartUpdatePackageZip(const FirmwareComponent &firmwareComponent);
     int32_t StartSysInstall(const FirmwareComponent &firmwareComponent);
     int32_t DoSetCallbackAndUnzip(const FirmwareComponent &firmwareComponent);
