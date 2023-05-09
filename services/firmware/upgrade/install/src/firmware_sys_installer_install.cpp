@@ -117,16 +117,16 @@ int32_t SysInstallerInstall::StartSysInstall(const FirmwareComponent &firmwareCo
         return OHOS_FAILURE;
     }
 
-    if (DoSetCallbakAndUnzip(firmwareComponent) != OHOS_SUCCESS) {
+    if (DoSetCallbackAndUnzip(firmwareComponent) != OHOS_SUCCESS) {
         return OHOS_FAILURE;
     }
 
     return OHOS_SUCCESS;
 }
 
-int32_t SysInstallerInstall::DoSetCallbakAndUnzip(const FirmwareComponent &firmwareComponent)
+int32_t SysInstallerInstall::DoSetCallbackAndUnzip(const FirmwareComponent &firmwareComponent)
 {
-    FIRMWARE_LOGI("SysInstallerInstall::DoSetCallbakAndUnzip");
+    FIRMWARE_LOGI("SysInstallerInstall::DoSetCallbackAndUnzip");
     if (SetUpdateCallback(firmwareComponent) != OHOS_SUCCESS) {
         return OHOS_FAILURE;
     }
@@ -151,7 +151,7 @@ int32_t SysInstallerInstall::DoSysInstall(const FirmwareComponent &firmwareCompo
             StartSysInstall(firmwareComponent);
             break;
         case SysInstaller::UpdateStatus::UPDATE_STATE_INIT:
-            DoSetCallbakAndUnzip(firmwareComponent);
+            DoSetCallbackAndUnzip(firmwareComponent);
             break;
         case SysInstaller::UpdateStatus::UPDATE_STATE_ONGOING:
             SetUpdateCallback(firmwareComponent);
