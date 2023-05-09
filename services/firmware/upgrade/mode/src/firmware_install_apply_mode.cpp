@@ -136,6 +136,7 @@ FirmwareStep FirmwareInstallApplyMode::GetStepAfterInstall()
     if (!installStepDataProcessor_.HasInstallSuccess()) {
         FirmwareUpdateHelper::ClearFirmwareInfo();
     }
+
     return FirmwareStep::COMPLETE;
 }
 
