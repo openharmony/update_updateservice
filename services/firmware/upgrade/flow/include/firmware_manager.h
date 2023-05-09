@@ -58,8 +58,6 @@ private:
     void HandleBootInstallOnStatusProcess(FirmwareTask &task);
     void HandleBootApplyOnStatusProcess(const FirmwareTask &task);
     void HandleBootUpdateOnStatusProcess(const FirmwareTask &task);
-    void HandleAbInstallBootUpdateOnStatusProcess(const FirmwareTask &task,
-        const std::map<std::string, UpdateResult> &resultMap);
     void HandleBootDownloadOnStatusProcess(FirmwareTask &task);
     void HandleBootDownloadPauseStatusProcess(FirmwareTask &task);
     void HandleBootDownloadedStatusProcess(FirmwareTask &task);

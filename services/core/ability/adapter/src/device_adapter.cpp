@@ -71,7 +71,7 @@ std::string DeviceAdapter::GetOsVersion()
 
     std::string DeviceAdapter::GetDisplayVersion()
 {
-    return GetParameter("const.build.display.id", "");
+    return GetParameter("const.product.software.version", "");
 }
 
 std::string DeviceAdapter::GetRealVersion()
