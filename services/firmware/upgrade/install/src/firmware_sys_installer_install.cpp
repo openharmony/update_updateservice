@@ -67,9 +67,9 @@ int32_t SysInstallerInstall::SysInstallerInit()
     return OHOS_SUCCESS;
 }
 
-int32_t SysInstallerInstall::SetUpdateCallback(const FirmwareComponent &firmwareComponent)
+int32_t SysInstallerInstall::SetSysInstallerCallback(const FirmwareComponent &firmwareComponent)
 {
-    FIRMWARE_LOGD("SysInstallerInstall SetUpdateCallback");
+    FIRMWARE_LOGD("SysInstallerInstall SetSysInstallerCallback");
     SysInstallerExecutorCallback callback { [&](const InstallProgress &installProgress) {
         sysInstallProgress_ = installProgress.progress;
         errMsg_ = installProgress.errMsg;
@@ -85,7 +85,7 @@ int32_t SysInstallerInstall::SetUpdateCallback(const FirmwareComponent &firmware
         return OHOS_FAILURE;
     }
 
-    int32_t ret = SysInstaller::SysInstallerKitsImpl::GetInstance().SetUpdateCallback(cb);
+    int32_t ret = SysInstaller::SysInstallerKitsImpl::GetInstance().SetSysInstallerCallback(cb);
     if (ret != OHOS_SUCCESS) {
         FIRMWARE_LOGE("set sys installer callback failed");
         errMsg_.errorMsg = "set sys installer callback failed";
@@ -127,7 +127,7 @@ int32_t SysInstallerInstall::StartSysInstall(const FirmwareComponent &firmwareCo
 int32_t SysInstallerInstall::DoSetCallbackAndUnzip(const FirmwareComponent &firmwareComponent)
 {
     FIRMWARE_LOGI("SysInstallerInstall::DoSetCallbackAndUnzip");
-    if (SetUpdateCallback(firmwareComponent) != OHOS_SUCCESS) {
+    if (SetSysInstallerCallback(firmwareComponent) != OHOS_SUCCESS) {
         return OHOS_FAILURE;
     }
 
@@ -154,7 +154,7 @@ int32_t SysInstallerInstall::DoSysInstall(const FirmwareComponent &firmwareCompo
             DoSetCallbackAndUnzip(firmwareComponent);
             break;
         case SysInstaller::UpdateStatus::UPDATE_STATE_ONGOING:
-            SetUpdateCallback(firmwareComponent);
+            SetSysInstallerCallback(firmwareComponent);
             break;
         case SysInstaller::UpdateStatus::UPDATE_STATE_SUCCESSFUL:
             sysInstallProgress_.percent = Firmware::ONE_HUNDRED;
