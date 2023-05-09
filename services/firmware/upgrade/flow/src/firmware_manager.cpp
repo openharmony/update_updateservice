@@ -357,22 +357,11 @@ void FirmwareManager::HandleBootUpdateOnStatusProcess(const FirmwareTask &task)
             HandleBootUpdateSuccess(task, resultMap);
             break;
         case UpdateResultCode::FAILURE:
-        case UpdateResultCode::FILE_ERROR:
             HandleBootUpdateFail(task, resultMap);
             break;
         default:
-            HandleAbInstallBootUpdateOnStatusProcess(task, resultMap);
             break;
     }
-}
-
-void FirmwareManager::HandleAbInstallBootUpdateOnStatusProcess(const FirmwareTask &task, const std::map<std::string,
-    UpdateResult> &resultMap)
-{
-    if (task.status != UpgradeStatus::UPDATING) {
-        return;
-    }
-    HandleBootUpdateSuccess(task, resultMap);
 }
 
 void FirmwareManager::HandleBootUpdateSuccess(const FirmwareTask &task,
