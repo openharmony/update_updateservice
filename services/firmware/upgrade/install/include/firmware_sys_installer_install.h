@@ -34,8 +34,15 @@ class SysInstallerInstall final : public FirmwareInstall {
 private:
     bool IsComponentLegal(const std::vector<FirmwareComponent> &componentList) final;
     bool PerformInstall(const std::vector<FirmwareComponent> &componentList) final;
-
     int32_t DoSysInstall(const FirmwareComponent &firmwareComponent);
+    int32_t SysInstallerInit();
+    int32_t SetUpdateCallback(const FirmwareComponent &firmwareComponent);
+    int32_t StartUpdatePackageZip(const FirmwareComponent &firmwareComponent);
+    int32_t ProcessStateNotInit(const FirmwareComponent &firmwareComponent);
+    int32_t ProcessStateInit(const FirmwareComponent &firmwareComponent);
+    int32_t ProcessStateOnGoing(const FirmwareComponent &firmwareComponent);
+    void ProcessStateFailed();
+    void ProcessStateSuccess();
     void InitInstallProgress();
     int32_t WaitInstallResult();
 

@@ -47,11 +47,9 @@ bool SysInstallerInstall::PerformInstall(const std::vector<FirmwareComponent> &c
     return false;
 }
 
-int32_t SysInstallerInstall::DoSysInstall(const FirmwareComponent &firmwareComponent)
+int32_t SysInstallerInstall::SysInstallerInit()
 {
-    FIRMWARE_LOGI("DoSysInstall, status=%{public}d", firmwareComponent.status);
-    FirmwareComponent sysComponent = firmwareComponent;
-    InitInstallProgress();
+    FIRMWARE_LOGD("SysInstallerInstall::DoInit SysInstallerInit");
     int32_t ret = SysInstaller::SysInstallerKitsImpl::GetInstance().SysInstallerInit();
     if (ret != OHOS_SUCCESS) {
         FIRMWARE_LOGE("sys installer init failed");
@@ -59,7 +57,6 @@ int32_t SysInstallerInstall::DoSysInstall(const FirmwareComponent &firmwareCompo
         errMsg_.errorCode = DUPDATE_ERR_IPC_ERROR;
         return OHOS_FAILURE;
     }
-
     int32_t updateStatus = SysInstaller::SysInstallerKitsImpl::GetInstance().GetUpdateStatus();
     if (updateStatus != CAST_INT(SysInstaller::UpdateStatus::UPDATE_STATE_INIT)) {
         FIRMWARE_LOGE("StartUnpack status: %{public}d , system busy", updateStatus);
@@ -67,15 +64,18 @@ int32_t SysInstallerInstall::DoSysInstall(const FirmwareComponent &firmwareCompo
         errMsg_.errorCode = ret;
         return OHOS_FAILURE;
     }
+    return OHOS_SUCCESS;
+}
 
+int32_t SysInstallerInstall::SetUpdateCallback(const FirmwareComponent &firmwareComponent)
+{
+    FIRMWARE_LOGD("SysInstallerInstall SetUpdateCallback");
     SysInstallerExecutorCallback callback { [&](const InstallProgress &installProgress) {
         sysInstallProgress_ = installProgress.progress;
         errMsg_ = installProgress.errMsg;
-        sysComponent.status = installProgress.progress.status;
-        sysComponent.progress = installProgress.progress.percent;
         FIRMWARE_LOGI("SysInstallerExecutorCallback status=%{public}d , progress=%{public}d",
-            sysComponent.status, sysComponent.progress);
-        onInstallCallback_.onFirmwareProgress(sysComponent);
+            firmwareComponent.status, firmwareComponent.progress);
+        onInstallCallback_.onFirmwareProgress(firmwareComponent);
     } };
     sptr<SysInstaller::ISysInstallerCallbackFunc> cb = new SysInstallerCallback(callback);
     if (cb == nullptr) {
@@ -85,7 +85,7 @@ int32_t SysInstallerInstall::DoSysInstall(const FirmwareComponent &firmwareCompo
         return OHOS_FAILURE;
     }
 
-    ret = SysInstaller::SysInstallerKitsImpl::GetInstance().SetUpdateCallback(cb);
+    int32_t ret = SysInstaller::SysInstallerKitsImpl::GetInstance().SetUpdateCallback(cb);
     if (ret != OHOS_SUCCESS) {
         FIRMWARE_LOGE("set sys installer callback failed");
         errMsg_.errorMsg = "set sys installer callback failed";
@@ -93,13 +93,103 @@ int32_t SysInstallerInstall::DoSysInstall(const FirmwareComponent &firmwareCompo
         return OHOS_FAILURE;
     }
 
-    ret = SysInstaller::SysInstallerKitsImpl::GetInstance().StartUpdatePackageZip(sysComponent.spath);
+    return OHOS_SUCCESS;
+}
+
+int32_t SysInstallerInstall::StartUpdatePackageZip(const FirmwareComponent &firmwareComponent)
+{
+    FIRMWARE_LOGD("SysInstallerInstall StartUpdatePackageZip");
+    int32_t ret = SysInstaller::SysInstallerKitsImpl::GetInstance().StartUpdatePackageZip(firmwareComponent.spath);
     if (ret != OHOS_SUCCESS) {
         errMsg_.errorMsg = "sys installer StartUpdatePackageZip failed";
         errMsg_.errorCode = ret;
         FIRMWARE_LOGE("sys installer StartUpdatePackageZip failed ret = %{public}d", ret);
         return OHOS_FAILURE;
     }
+
+    return OHOS_SUCCESS;
+}
+
+int32_t SysInstallerInstall::ProcessStateNotInit(const FirmwareComponent &firmwareComponent)
+{
+    FIRMWARE_LOGD("SysInstallerInstall::ProcessStateNotInit");
+    if (SysInstallerInit() != OHOS_SUCCESS) {
+        return OHOS_FAILURE;
+    }
+
+    if (SetUpdateCallback(firmwareComponent) != OHOS_SUCCESS) {
+        return OHOS_FAILURE;
+    }
+
+    if (StartUpdatePackageZip(firmwareComponent) != OHOS_SUCCESS) {
+        return OHOS_FAILURE;
+    }
+
+    return OHOS_SUCCESS;
+}
+
+int32_t SysInstallerInstall::ProcessStateInit(const FirmwareComponent &firmwareComponent)
+{
+    FIRMWARE_LOGI("SysInstallerInstall::ProcessStateInit");
+    if (SetUpdateCallback(firmwareComponent) != OHOS_SUCCESS) {
+        return OHOS_FAILURE;
+    }
+
+    if (StartUpdatePackageZip(firmwareComponent) != OHOS_SUCCESS) {
+        return OHOS_FAILURE;
+    }
+    return OHOS_SUCCESS;
+}
+
+int32_t SysInstallerInstall::ProcessStateOnGoing(const FirmwareComponent &firmwareComponent)
+{
+    FIRMWARE_LOGI("SysInstallerInstall::ProcessStateOnGoing");
+    if (SetUpdateCallback(firmwareComponent) != OHOS_SUCCESS) {
+        return OHOS_FAILURE;
+    }
+
+    return OHOS_SUCCESS;
+}
+
+void SysInstallerInstall::ProcessStateFailed()
+{
+    FIRMWARE_LOGI("SysInstallerInstall::ProcessStateFailed");
+    sysInstallProgress_.status = UpgradeStatus::INSTALL_FAIL;
+}
+
+void SysInstallerInstall::ProcessStateSuccess()
+{
+    FIRMWARE_LOGI("SysInstallerInstall::ProcessStateSuccess");
+    sysInstallProgress_.percent = Firmware::ONE_HUNDRED;
+    sysInstallProgress_.status = UpgradeStatus::INSTALL_SUCCESS;
+}
+
+int32_t SysInstallerInstall::DoSysInstall(const FirmwareComponent &firmwareComponent)
+{
+    FIRMWARE_LOGI("DoSysInstall, status=%{public}d", firmwareComponent.status);
+    FirmwareComponent sysComponent = firmwareComponent;
+    InitInstallProgress();
+    int32_t updateStatus = SysInstaller::SysInstallerKitsImpl::GetInstance().GetUpdateStatus();
+    FIRMWARE_LOGD("SysInstallerInstall DoSysInstall component status=%{public}d, GetUpdateStatus, status=%{public}d",
+        firmwareComponent.status, updateStatus);
+    switch (updateStatus) {
+        case -1:
+            ProcessStateNotInit(firmwareComponent);
+            break;
+        case SysInstaller::UpdateStatus::UPDATE_STATE_INIT:
+            ProcessStateInit(firmwareComponent);
+            break;
+        case SysInstaller::UpdateStatus::UPDATE_STATE_ONGOING:
+            ProcessStateOnGoing(firmwareComponent);
+            break;
+        case SysInstaller::UpdateStatus::UPDATE_STATE_SUCCESSFUL:
+            ProcessStateSuccess();
+            break;
+        default:
+            ProcessStateFailed();
+            break;
+    }
+
     return WaitInstallResult();
 }
 
