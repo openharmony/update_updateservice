@@ -85,7 +85,7 @@ int32_t SysInstallerInstall::SetSysInstallerCallback(const FirmwareComponent &fi
         return OHOS_FAILURE;
     }
 
-    int32_t ret = SysInstaller::SysInstallerKitsImpl::GetInstance().SetSysInstallerCallback(cb);
+    int32_t ret = SysInstaller::SysInstallerKitsImpl::GetInstance().SetUpdateCallback(cb);
     if (ret != OHOS_SUCCESS) {
         FIRMWARE_LOGE("set sys installer callback failed");
         errMsg_.errorMsg = "set sys installer callback failed";
