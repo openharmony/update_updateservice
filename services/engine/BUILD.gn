@@ -11,8 +11,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("../../services/engine/engine_sa.gni")
 import("//build/ohos.gni")
+import("../../services/engine/engine_sa.gni")
 
 ohos_prebuilt_etc("dupdate_config.json") {
   source = "etc/dupdate_config.json"
