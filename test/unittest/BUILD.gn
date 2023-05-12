@@ -14,6 +14,13 @@
 import("//build/test.gni")
 import("../../updateengine.gni")
 
+group("unittest") {
+  testonly = true
+  deps = [
+    "$updateengine_root_path/test/unittest:$updateengine_unittest_name",
+  ]
+}
+
 module_output_path = "updater/updateservice_test"
 config("utest_config") {
   visibility = [ ":*" ]
@@ -32,90 +39,18 @@ config("utest_config") {
 ohos_unittest("$updateengine_unittest_name") {
   testonly = true
   module_out_path = module_output_path
-  sources = [
-    "update_client/client_stub.cpp",
-    "update_client/client_unittest.cpp",
-    "update_engine/server_unittest.cpp",
-    "update_server_ut_entry.cpp",
-  ]
+  sources = []
 
-  sources += [
-    "$updateengine_root_path/frameworks/js/napi/client/update_client.cpp",
-    "$updateengine_root_path/frameworks/js/napi/client/update_module.cpp",
-    "$updateengine_root_path/frameworks/js/napi/client/update_session.cpp",
-    "$updateengine_root_path/interfaces/inner_api/engine/update_service_kits_impl.cpp",
-    "$updateengine_root_path/interfaces/inner_api/engine/update_service_proxy.cpp",
-    "$updateengine_root_path/services/callback/src/update_callback.cpp",
-    "$updateengine_root_path/services/callback/src/update_callback_proxy.cpp",
-    "$updateengine_root_path/services/callback/src/update_callback_stub.cpp",
-    "$updateengine_root_path/services/engine/src/progress_thread.cpp",
-    "$updateengine_root_path/services/engine/src/update_helper.cpp",
-    "$updateengine_root_path/services/engine/src/update_service.cpp",
-    "$updateengine_root_path/services/engine/src/update_service_stub.cpp",
-    "//base/update/updater/interfaces/kits/packages/package.cpp",
-    "//base/update/updater/interfaces/kits/updaterkits/updaterkits.cpp",
-  ]
-  include_dirs = [
-    "//base/update/updater/interfaces/kits/include/",
-    "//base/update/updater/interfaces/kits/include/package",
-    "$updateengine_root_path",
-    "$updateengine_root_path/interfaces/inner_api/include",
-    "$updateengine_root_path/frameworks/js/napi/client/",
-    "$updateengine_root_path/services/engine/include",
-    "$updateengine_root_path/services/callback/include",
-    "//base/update/updater/utils/include/",
-    "//base/update/updater/services/include/",
-    "//base/update/updater/services/include/log",
-    "//base/update/updater/services/include/package",
-    "//base/update/updater/test/unittest",
-    "//third_party/bounds_checking_function/include",
-    "//third_party/googletest/googletest/include",
-    "//third_party/node/src",
-    "//foundation/arkui/napi/interfaces/kits",
-    "//third_party/cJSON",
-    "//third_party/libxml2/include",
-    "//third_party/curl/include",
-    "//third_party/openssl/include",
-    "//foundation/communication/ipc/interfaces/innerkits/ipc_core/include",
-    "//foundation/systemabilitymgr/samgr/interfaces/innerkits/samgr_proxy/include",
-    "//foundation/systemabilitymgr/safwk/services/safwk/include",
-    "//foundation/systemabilitymgr/safwk/interfaces/innerkits/safwk",
-    "//foundation/systemabilitymgr/samgr/adapter/interfaces/innerkits/include",
-    "//foundation/systemabilitymgr/samgr/interfaces/innerkits/samgr_proxy/include",
-  ]
+  include_dirs = []
 
-  deps = [
-    "//base/update/updater/interfaces/kits/misc_info:libmiscinfo",
-    "//base/update/updater/interfaces/kits/packages:libpackageExt",
-    "//base/update/updater/interfaces/kits/updaterkits:libupdaterkits",
-    "//base/update/updater/services/log:libupdaterlog",
-    "//base/update/updater/services/package:libupdaterpackage",
-    "//base/update/updater/utils:libutils",
-    "//third_party/bounds_checking_function:libsec_static",
-    "//third_party/cJSON:cjson_static",
-    "//third_party/curl:curl",
-    "//third_party/googletest:gmock_main",
-    "//third_party/googletest:gtest_main",
-    "//third_party/libxml2:xml2",
-    "//third_party/lz4:liblz4_static",
-    "//third_party/openssl:libcrypto_shared",
-    "//third_party/openssl:libssl_shared",
-  ]
+  deps = []
 
   defines = [
     "UPDATER_UT",
     "UPDATER_API_TEST",
   ]
 
-  external_deps = [
-    "c_utils:utils",
-    "hiviewdfx_hilog_native:libhilog",
-    "init:libbegetutil",
-    "ipc:ipc_core",
-    "samgr:samgr_proxy",
-  ]
-
-  cflags_cc = [ "-fexceptions" ]
+  external_deps = []
 
   public_configs = [ ":utest_config" ]
   install_enable = true

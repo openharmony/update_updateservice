@@ -49,6 +49,7 @@ ohos_shared_library("$updateengine_client_library_name") {
   install_enable = true
   relative_install_dir = "module"
   part_name = "$updateengine_part_name"
+  subsystem_name = "updater"
 
   cflags = [
     "-fPIC",

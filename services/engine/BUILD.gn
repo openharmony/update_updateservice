@@ -11,7 +11,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("//base/update/updateservice/services/engine/engine_sa.gni")
+import("../../services/engine/engine_sa.gni")
 import("//build/ohos.gni")
 
 ohos_prebuilt_etc("dupdate_config.json") {
@@ -25,6 +25,7 @@ ohos_prebuilt_etc("updater_sa.rc") {
   source = "etc/updater_sa.cfg"
   relative_install_dir = "init"
   part_name = "$updateengine_part_name"
+  subsystem_name = "updater"
 }
 
 ohos_shared_library("$updateengine_library_name") {
@@ -34,6 +35,7 @@ ohos_shared_library("$updateengine_library_name") {
   external_deps = sa_external_deps
   public_deps = sa_public_deps
   part_name = "$updateengine_part_name"
+  subsystem_name = "updater"
   defines = sa_defines
   cflags = sa_cflags
 }
