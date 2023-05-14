@@ -42,6 +42,8 @@ constexpr uint32_t MAX_LINE = 512;
 UpdateResultCode FirmwareResultProcess::GetUpdaterResult(const std::vector<FirmwareComponent> &components,
     std::map<std::string, UpdateResult> &resultMap)
 {
+    FIRMWARE_LOGE("GetUpdaterResult");
+    sleep(1);
     if (components.empty()) {
         FIRMWARE_LOGE("components is empty");
         return UpdateResultCode::FAILURE;
@@ -159,7 +161,9 @@ UpdateResultCode FirmwareResultProcess::HandleFileResults(std::map<std::string, 
             resultMap.emplace(std::make_pair(updateResult.spath, updateResult));
             updateResultStatus = updateResult.result;
         }
-        updateResultStatus = result->second.result;
+        else {
+            updateResultStatus = result->second.result;
+        }
         hotaUpdateResult |= updateResultStatus == UPDATER_RESULT_SUCCESS ? UPDATE_SUCCESSED : UPDATE_FAILED;
     }
 
