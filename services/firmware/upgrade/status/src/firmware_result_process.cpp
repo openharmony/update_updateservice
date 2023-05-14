@@ -47,6 +47,11 @@ UpdateResultCode FirmwareResultProcess::GetUpdaterResult(const std::vector<Firmw
         return UpdateResultCode::FAILURE;
     }
     resultMap.clear();
+
+    if (!FileUtils::IsFileExist(UPDATER_RESULT_FILE)) {
+        FIRMWARE_LOGE("GetUpdaterResult fileName = %{pubilc}s is not exist", UPDATER_RESULT_FILE.c_str());
+        return HandleFileResults(resultMap, components);
+    }
     std::ifstream infile;
     infile.open(UPDATER_RESULT_FILE, std::ios_base::in);
     if (!infile.is_open()) {
@@ -72,7 +77,8 @@ UpdateResult FirmwareResultProcess::CompareVersion(const FirmwareComponent &comp
 {
     bool isResultSuccess = false;
     isResultSuccess = component.versionNumber == FirmwareUpdateAdapter::GetDisplayVersion();
-
+    FIRMWARE_LOGI("component.versionNumber=%{pubilc}s, GetDisplayVersion=%{pubilc}s",
+        component.versionNumber.c_str(), FirmwareUpdateAdapter::GetDisplayVersion().c_str());
     UpdateResult updateResult;
     updateResult.spath = component.spath;
     if (isResultSuccess) {
