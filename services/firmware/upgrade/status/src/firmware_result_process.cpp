@@ -160,8 +160,7 @@ UpdateResultCode FirmwareResultProcess::HandleFileResults(std::map<std::string, 
             UpdateResult updateResult = CompareVersion(component);
             resultMap.emplace(std::make_pair(updateResult.spath, updateResult));
             updateResultStatus = updateResult.result;
-        }
-        else {
+        } else {
             updateResultStatus = result->second.result;
         }
         hotaUpdateResult |= updateResultStatus == UPDATER_RESULT_SUCCESS ? UPDATE_SUCCESSED : UPDATE_FAILED;
