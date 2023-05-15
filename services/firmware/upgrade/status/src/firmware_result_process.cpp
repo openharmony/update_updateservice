@@ -43,7 +43,6 @@ UpdateResultCode FirmwareResultProcess::GetUpdaterResult(const std::vector<Firmw
     std::map<std::string, UpdateResult> &resultMap)
 {
     FIRMWARE_LOGE("GetUpdaterResult");
-    sleep(1);
     if (components.empty()) {
         FIRMWARE_LOGE("components is empty");
         return UpdateResultCode::FAILURE;
@@ -156,9 +155,9 @@ UpdateResultCode FirmwareResultProcess::HandleFileResults(std::map<std::string, 
         std::string updateResultStatus;
         auto result = resultMap.find(component.spath);
         if (result == resultMap.end()) {
-            FIRMWARE_LOGE("spath is %{public}s", component.spath.c_str());
             UpdateResult updateResult = CompareVersion(component);
             resultMap.emplace(std::make_pair(updateResult.spath, updateResult));
+            FIRMWARE_LOGE("spath %{public}s, result %{public}s", component.spath.c_str(), updateResult.result.c_str());
             updateResultStatus = updateResult.result;
         } else {
             updateResultStatus = result->second.result;
