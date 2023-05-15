@@ -25,8 +25,8 @@
 
 namespace OHOS {
 namespace UpdateEngine {
-static const std::string UPDATER_RESULT_SUCCESS = "pass";
-static const std::string UPDATER_RESULT_FAILURE = "fail";
+const std::string UPDATER_RESULT_SUCCESS = "pass";
+const std::string UPDATER_RESULT_FAILURE = "fail";
 const std::string UPDATER_RESULT_FAILURE_REASON = "compare version fail";
 const std::string UPDATER_RESULT_SUCCESS_REASON = "compare version success";
 
