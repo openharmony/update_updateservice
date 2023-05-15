@@ -71,6 +71,7 @@ std::string DeviceAdapter::GetOsVersion()
 
 std::string DeviceAdapter::GetDisplayVersion()
 {
+    ENGINE_LOGI("GetDisplayVersion %{public}s",  GetParameter("const.product.software.version", "").c_str());
     return GetParameter("const.product.software.version", "");
 }
 
