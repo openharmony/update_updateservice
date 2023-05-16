@@ -127,6 +127,7 @@ public:
                 xmlString = tmpString;
             }
         }
+        return xmlString;
     }
 };
 } // namespace UpdateEngine
