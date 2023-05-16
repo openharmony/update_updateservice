@@ -156,7 +156,14 @@ int32_t UpdateServiceImplFirmware::GetNewVersionDescription(const UpgradeInfo &i
             return INT_CALL_SUCCESS;
         }
         std::string dataXml = FileUtils::ReadDataFromFile(changelogFilePath);
-        componentDescription.descriptionInfo.content = dataXml.substr(dataXml.find_first_of("|") + 1, dataXml.size());
+        std::string dataXmlFinal = dataXml.substr(dataXml.find_first_of("|") + 1, dataXml.size());
+        std::string languageStart = "<language name=\"en-us\" code=\"1033\">";
+        std::string languageEnd = "</language>";
+        if (descriptionOptions.language.compare("zh-cn") != 0) {
+            languageStart = "<language name=\"zh-cn\" code=\"2052\">";
+        }
+        StringUtils::XmlStringRemove(dataXmlFinal, languageStart, languageEnd);
+        componentDescription.descriptionInfo.content = dataXmlFinal;
         componentDescription.descriptionInfo.descriptionType =
             static_cast<DescriptionType>(atoi(dataXml.substr(0, dataXml.find_first_of("|")).c_str()));
         newVersionDescriptionInfo.componentDescriptions.push_back(componentDescription);
@@ -185,6 +192,7 @@ int32_t UpdateServiceImplFirmware::GetCurrentVersionDescription(const UpgradeInf
     descriptionContent.componentId =
         DelayedSingleton<FirmwarePreferencesUtil>::GetInstance()->ObtainString(Firmware::HOTA_CURRENT_COMPONENT_ID, "");
     if (descriptionContent.componentId.empty()) {
+        businessError.Build(CallResult::FAIL, "GetCurrentVersionDescription failed");
         FIRMWARE_LOGE("componentId is null");
         return INT_CALL_SUCCESS;
     }
@@ -196,7 +204,14 @@ int32_t UpdateServiceImplFirmware::GetCurrentVersionDescription(const UpgradeInf
         return INT_CALL_SUCCESS;
     }
     std::string dataXml = FileUtils::ReadDataFromFile(changelogFilePath);
-    descriptionContent.descriptionInfo.content = dataXml.substr(dataXml.find_first_of("|") + 1, dataXml.size());
+    std::string dataXmlFinal = dataXml.substr(dataXml.find_first_of("|") + 1, dataXml.size());
+    std::string languageStart = "<language name=\"en-us\" code=\"1033\">";
+    std::string languageEnd = "</language>";
+    if (descriptionOptions.language.compare("zh-cn") != 0) {
+        languageStart = "<language name=\"zh-cn\" code=\"2052\">";
+    }
+    StringUtils::XmlStringRemove(dataXmlFinal, languageStart, languageEnd);
+    descriptionContent.descriptionInfo.content = dataXmlFinal;
     descriptionContent.descriptionInfo.descriptionType =
         static_cast<DescriptionType>(atoi(dataXml.substr(0, dataXml.find_first_of("|")).c_str()));
     currentVersionDescriptionInfo.componentDescriptions.push_back(descriptionContent);

@@ -111,6 +111,22 @@ public:
         }
         srcString = resultString;
     }
+
+    static std::string XmlStringRemove(std::string &xmlString, const std::string &startString, const std::string &endString)
+    {
+        if (xmlString.empty()) {
+            return xmlString;
+        }
+        std::string::size_type indexStart = xmlString.find(startString);
+        if (indexStart != std::string::npos) {
+            std::string::size_type indexEnd = xmlString.find(endString, indexStart);
+            if (indexEnd != std::string::npos) {
+                std::string tmpString = xmlString.substr(0, indexStart) +
+                    xmlString.substr(indexEnd + endString.length(), xmlString.length());
+                xmlString = tmpString;
+            }
+        }
+    }
 };
 } // namespace UpdateEngine
 } // namespace OHOS
