@@ -112,7 +112,8 @@ public:
         srcString = resultString;
     }
 
-    static std::string XmlStringRemove(std::string &xmlString, const std::string &startString, const std::string &endString)
+    static std::string XmlStringRemove(std::string &xmlString, const std::string &startString,
+        const std::string &endString)
     {
         if (xmlString.empty()) {
             return xmlString;
