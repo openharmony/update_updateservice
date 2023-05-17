@@ -37,7 +37,6 @@ static const std::string UPDATER_RESULT_FILE = "/data/updater/updater_result";
 constexpr int32_t SYMBOL_LENGTH = 1;
 constexpr uint32_t UPDATE_SUCCESSED = 1;
 constexpr uint32_t UPDATE_FAILED = 2;
-constexpr uint32_t MAX_LINE = 512;
 
 UpdateResultCode FirmwareResultProcess::GetUpdaterResult(const std::vector<FirmwareComponent> &components,
     std::map<std::string, UpdateResult> &resultMap)
@@ -49,28 +48,19 @@ UpdateResultCode FirmwareResultProcess::GetUpdaterResult(const std::vector<Firmw
     }
     resultMap.clear();
 
-    if (!FileUtils::IsFileExist(UPDATER_RESULT_FILE)) {
-        FIRMWARE_LOGE("GetUpdaterResult fileName = %{pubilc}s is not exist", UPDATER_RESULT_FILE.c_str());
-        return HandleFileResults(resultMap, components);
-    }
     std::ifstream infile;
     infile.open(UPDATER_RESULT_FILE, std::ios_base::in);
-    if (!infile.is_open()) {
-        FIRMWARE_LOGE("open update status file fail!");
+    if (!FileUtils::IsFileExist(UPDATER_RESULT_FILE) || !infile.is_open()) {
+        FIRMWARE_LOGE("file not exist or open update status file fail!");
         HandleFileError(resultMap, components);
-    }
-    std::string buffer;
-    uint32_t count = 0;
-    while (!infile.eof()) {
-        count++;
-        getline(infile, buffer);
-        if (count > MAX_LINE) {
-            FIRMWARE_LOGE("count > MAX_LINE!");
-            break;
+    } else {
+        std::string buffer;
+        while (!infile.eof()) {
+            getline(infile, buffer);
+            ParseUpdaterResultRecord(buffer, resultMap);
         }
-        ParseUpdaterResultRecord(buffer, resultMap);
+        infile.close();
     }
-    infile.close();
     return HandleFileResults(resultMap, components);
 }
 
