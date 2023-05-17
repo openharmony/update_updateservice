@@ -75,6 +75,7 @@ public:
 private:
     std::shared_ptr<FirmwarePreferencesUtil> preferencesUtil_ =
         DelayedSingleton<FirmwarePreferencesUtil>::GetInstance();
+    void GetChangelogContent(std::string &dataXml, const std::string &language);
 };
 } // namespace UpdateEngine
 } // namespace OHOS

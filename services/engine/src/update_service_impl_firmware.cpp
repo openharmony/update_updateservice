@@ -32,6 +32,10 @@
 
 namespace OHOS {
 namespace UpdateEngine {
+const std::string LANGUAGE_CHINESE = "<language name=\"zh-cn\" code=\"2052\">";			
+const std::string LANGUAGE_ENGLISH = "<language name=\"en-us\" code=\"1033\">";
+const std::string LANGUAGE_END = "</language>";
+
 int32_t UpdateServiceImplFirmware::CheckNewVersion(const UpgradeInfo &info)
 {
     FIRMWARE_LOGI("CheckNewVersion");
@@ -157,12 +161,7 @@ int32_t UpdateServiceImplFirmware::GetNewVersionDescription(const UpgradeInfo &i
         }
         std::string dataXml = FileUtils::ReadDataFromFile(changelogFilePath);
         std::string dataXmlFinal = dataXml.substr(dataXml.find_first_of("|") + 1, dataXml.size());
-        std::string languageStart = "<language name=\"en-us\" code=\"1033\">";
-        std::string languageEnd = "</language>";
-        if (descriptionOptions.language.compare("zh-cn") != 0) {
-            languageStart = "<language name=\"zh-cn\" code=\"2052\">";
-        }
-        StringUtils::XmlStringRemove(dataXmlFinal, languageStart, languageEnd);
+        GetChangelogContent(dataXmlFinal, descriptionOptions.language);
         componentDescription.descriptionInfo.content = dataXmlFinal;
         componentDescription.descriptionInfo.descriptionType =
             static_cast<DescriptionType>(atoi(dataXml.substr(0, dataXml.find_first_of("|")).c_str()));
@@ -205,12 +204,7 @@ int32_t UpdateServiceImplFirmware::GetCurrentVersionDescription(const UpgradeInf
     }
     std::string dataXml = FileUtils::ReadDataFromFile(changelogFilePath);
     std::string dataXmlFinal = dataXml.substr(dataXml.find_first_of("|") + 1, dataXml.size());
-    std::string languageStart = "<language name=\"en-us\" code=\"1033\">";
-    std::string languageEnd = "</language>";
-    if (descriptionOptions.language.compare("zh-cn") != 0) {
-        languageStart = "<language name=\"zh-cn\" code=\"2052\">";
-    }
-    StringUtils::XmlStringRemove(dataXmlFinal, languageStart, languageEnd);
+    GetChangelogContent(dataXmlFinal, descriptionOptions.language);
     descriptionContent.descriptionInfo.content = dataXmlFinal;
     descriptionContent.descriptionInfo.descriptionType =
         static_cast<DescriptionType>(atoi(dataXml.substr(0, dataXml.find_first_of("|")).c_str()));
@@ -283,6 +277,16 @@ int32_t UpdateServiceImplFirmware::Cancel(const UpgradeInfo &info, int32_t servi
         DelayedSingleton<FirmwareManager>::GetInstance()->DoCancelDownload(businessError);
     }
     return INT_CALL_SUCCESS;
+}
+
+void UpdateServiceImplFirmware::GetChangelogContent(std::string &dataXml, const std::string &language)
+{
+    std::string languageStart = LANGUAGE_ENGLISH;
+    if (language.compare("zh-cn") != 0) {
+        languageStart = LANGUAGE_CHINESE;
+    }
+    StringUtils::XmlStringRemove(dataXml, languageStart, LANGUAGE_END);
+    return;
 }
 } // namespace UpdateEngine
 } // namespace OHOS
