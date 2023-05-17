@@ -112,22 +112,22 @@ public:
         srcString = resultString;
     }
 
-    static std::string XmlStringRemove(std::string &xmlString, const std::string &startString,
+    static void StringRemove(std::string &sourceString, const std::string &startString,
         const std::string &endString)
     {
-        if (xmlString.empty()) {
-            return xmlString;
+        if (sourceString.empty()) {
+            return;
         }
-        std::string::size_type indexStart = xmlString.find(startString);
+        std::string::size_type indexStart = sourceString.find(startString);
         if (indexStart != std::string::npos) {
-            std::string::size_type indexEnd = xmlString.find(endString, indexStart);
+            std::string::size_type indexEnd = sourceString.find(endString, indexStart);
             if (indexEnd != std::string::npos) {
-                std::string tmpString = xmlString.substr(0, indexStart) +
-                    xmlString.substr(indexEnd + endString.length(), xmlString.length());
-                xmlString = tmpString;
+                std::string tmpString = sourceString.substr(0, indexStart) +
+                    sourceString.substr(indexEnd + endString.length(), sourceString.length());
+                sourceString = tmpString;
             }
         }
-        return xmlString;
+        return;
     }
 };
 } // namespace UpdateEngine
