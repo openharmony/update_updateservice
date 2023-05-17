@@ -285,7 +285,7 @@ void UpdateServiceImplFirmware::GetChangelogContent(std::string &dataXml, const 
     if (language.compare("zh-cn") != 0) {
         languageStart = LANGUAGE_CHINESE;
     }
-    StringUtils::XmlStringRemove(dataXml, languageStart, LANGUAGE_END);
+    StringUtils::StringRemove(dataXml, languageStart, LANGUAGE_END);
     return;
 }
 } // namespace UpdateEngine
