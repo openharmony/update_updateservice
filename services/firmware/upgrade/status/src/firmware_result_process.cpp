@@ -47,11 +47,10 @@ UpdateResultCode FirmwareResultProcess::GetUpdaterResult(const std::vector<Firmw
         return UpdateResultCode::FAILURE;
     }
     resultMap.clear();
-
     std::ifstream infile;
     infile.open(UPDATER_RESULT_FILE, std::ios_base::in);
-    if (!FileUtils::IsFileExist(UPDATER_RESULT_FILE) || !infile.is_open()) {
-        FIRMWARE_LOGE("file not exist or open update status file fail!");
+    if (!infile.is_open()) {
+        FIRMWARE_LOGE("open update status file fail!");
         HandleFileError(resultMap, components);
     } else {
         std::string buffer;
