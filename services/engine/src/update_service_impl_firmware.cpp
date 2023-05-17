@@ -32,7 +32,7 @@
 
 namespace OHOS {
 namespace UpdateEngine {
-const std::string LANGUAGE_CHINESE = "<language name=\"zh-cn\" code=\"2052\">";			
+const std::string LANGUAGE_CHINESE = "<language name=\"zh-cn\" code=\"2052\">";
 const std::string LANGUAGE_ENGLISH = "<language name=\"en-us\" code=\"1033\">";
 const std::string LANGUAGE_END = "</language>";
 
