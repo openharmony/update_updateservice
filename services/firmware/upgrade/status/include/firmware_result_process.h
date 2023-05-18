@@ -25,21 +25,20 @@
 
 namespace OHOS {
 namespace UpdateEngine {
-static const std::string UPDATER_RESULT_SUCCESS = "pass";
-static const std::string UPDATER_RESULT_FAILURE = "fail";
-static const std::string UPDATER_FILE_ERROR = "fileError";
+const std::string UPDATER_RESULT_SUCCESS = "pass";
+const std::string UPDATER_RESULT_FAILURE = "fail";
+const std::string UPDATER_RESULT_FAILURE_REASON = "compare version fail";
+const std::string UPDATER_RESULT_SUCCESS_REASON = "compare version success";
 
 enum class UpdateResultCode {
     SUCCESS = 0,
     FAILURE,
-    FILE_ERROR,
     PART_SUCCESS
 };
 
 enum class UpdateComponentResultCode {
     SUCCESS = 0,
     FAILURE,
-    FILE_ERROR,
     UNEXECUTED
 };
 
@@ -56,9 +55,6 @@ struct UpdateResult {
         if (result == UPDATER_RESULT_FAILURE) {
             return UpdateComponentResultCode::FAILURE;
         }
-        if (result == UPDATER_FILE_ERROR) {
-            return UpdateComponentResultCode::FILE_ERROR;
-        }
         return UpdateComponentResultCode::UNEXECUTED;
     };
 };
@@ -69,6 +65,7 @@ public:
         std::map<std::string, UpdateResult> &resultMap);
 
 private:
+    UpdateResult CompareVersion(const FirmwareComponent &component);
     void ParseUpdaterResultRecord(const std::string &resultLine, std::map<std::string, UpdateResult> &resultMap);
     void HandleFileError(std::map<std::string, UpdateResult> &resultMap,
         const std::vector<FirmwareComponent> &components);
