@@ -28,6 +28,7 @@
 #include "firmware_preferences_utils.h"
 #include "firmware_task.h"
 #include "firmware_task_operator.h"
+#include "firmware_update_adapter.h"
 #include "firmware_update_helper.h"
 
 namespace OHOS {
@@ -40,6 +41,7 @@ constexpr uint32_t UPDATE_FAILED = 2;
 UpdateResultCode FirmwareResultProcess::GetUpdaterResult(const std::vector<FirmwareComponent> &components,
     std::map<std::string, UpdateResult> &resultMap)
 {
+    FIRMWARE_LOGE("GetUpdaterResult");
     if (components.empty()) {
         FIRMWARE_LOGE("components is empty");
         return UpdateResultCode::FAILURE;
@@ -50,15 +52,33 @@ UpdateResultCode FirmwareResultProcess::GetUpdaterResult(const std::vector<Firmw
     if (!infile.is_open()) {
         FIRMWARE_LOGE("open update status file fail!");
         HandleFileError(resultMap, components);
-        return UpdateResultCode::FILE_ERROR;
+    } else {
+        std::string buffer;
+        while (!infile.eof()) {
+            getline(infile, buffer);
+            ParseUpdaterResultRecord(buffer, resultMap);
+        }
+        infile.close();
     }
-    std::string buffer;
-    while (!infile.eof()) {
-        getline(infile, buffer);
-        ParseUpdaterResultRecord(buffer, resultMap);
-    }
-    infile.close();
     return HandleFileResults(resultMap, components);
+}
+
+UpdateResult FirmwareResultProcess::CompareVersion(const FirmwareComponent &component)
+{
+    bool isResultSuccess = false;
+    isResultSuccess = component.versionNumber == FirmwareUpdateAdapter::GetDisplayVersion();
+    FIRMWARE_LOGI("component.versionNumber=%{pubilc}s, GetDisplayVersion=%{pubilc}s",
+        component.versionNumber.c_str(), FirmwareUpdateAdapter::GetDisplayVersion().c_str());
+    UpdateResult updateResult;
+    updateResult.spath = component.spath;
+    if (isResultSuccess) {
+        updateResult.result = UPDATER_RESULT_SUCCESS;
+        updateResult.reason = UPDATER_RESULT_SUCCESS_REASON;
+    } else {
+        updateResult.result = UPDATER_RESULT_FAILURE;
+        updateResult.reason = UPDATER_RESULT_FAILURE_REASON;
+    }
+    return updateResult;
 }
 
 /*
@@ -105,10 +125,8 @@ void FirmwareResultProcess::HandleFileError(std::map<std::string, UpdateResult> 
 {
     resultMap.clear();
     for (const auto &component : components) {
-        UpdateResult updaterReason;
-        updaterReason.spath = component.spath;
-        updaterReason.result = UPDATER_FILE_ERROR;
-        resultMap.emplace(std::make_pair(updaterReason.spath, updaterReason));
+        UpdateResult updateResult = CompareVersion(component);
+        resultMap.emplace(std::make_pair(updateResult.spath, updateResult));
     }
 }
 
@@ -123,14 +141,17 @@ UpdateResultCode FirmwareResultProcess::HandleFileResults(std::map<std::string, 
     }
     uint32_t hotaUpdateResult = 0;
     for (const auto &component : components) {
+        std::string updateResultStatus;
         auto result = resultMap.find(component.spath);
         if (result == resultMap.end()) {
-            FIRMWARE_LOGE("spath is %{public}s", component.spath.c_str());
-            HandleFileError(resultMap, components);
-            return UpdateResultCode::FILE_ERROR; // 文件格式不对
+            UpdateResult updateResult = CompareVersion(component);
+            resultMap.emplace(std::make_pair(updateResult.spath, updateResult));
+            FIRMWARE_LOGE("spath %{public}s, result %{public}s", component.spath.c_str(), updateResult.result.c_str());
+            updateResultStatus = updateResult.result;
+        } else {
+            updateResultStatus = result->second.result;
         }
-        std::string updateResult = result->second.result;
-        hotaUpdateResult |= updateResult == UPDATER_RESULT_SUCCESS ? UPDATE_SUCCESSED : UPDATE_FAILED;
+        hotaUpdateResult |= updateResultStatus == UPDATER_RESULT_SUCCESS ? UPDATE_SUCCESSED : UPDATE_FAILED;
     }
 
     if (task.combinationType == CombinationType::HOTA) {

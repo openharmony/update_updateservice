@@ -69,9 +69,10 @@ std::string DeviceAdapter::GetOsVersion()
     return GetParameter("const.ohos.fullname", "");
 }
 
-    std::string DeviceAdapter::GetDisplayVersion()
+std::string DeviceAdapter::GetDisplayVersion()
 {
-    return GetParameter("const.build.display.id", "");
+    ENGINE_LOGI("GetDisplayVersion %{public}s",  GetParameter("const.product.software.version", "").c_str());
+    return GetParameter("const.product.software.version", "");
 }
 
 std::string DeviceAdapter::GetRealVersion()
