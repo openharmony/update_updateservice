@@ -111,6 +111,24 @@ public:
         }
         srcString = resultString;
     }
+
+    static void StringRemove(std::string &sourceString, const std::string &startString,
+        const std::string &endString)
+    {
+        if (sourceString.empty()) {
+            return;
+        }
+        std::string::size_type indexStart = sourceString.find(startString);
+        if (indexStart != std::string::npos) {
+            std::string::size_type indexEnd = sourceString.find(endString, indexStart);
+            if (indexEnd != std::string::npos) {
+                std::string tmpString = sourceString.substr(0, indexStart) +
+                    sourceString.substr(indexEnd + endString.length(), sourceString.length());
+                sourceString = tmpString;
+            }
+        }
+        return;
+    }
 };
 } // namespace UpdateEngine
 } // namespace OHOS
