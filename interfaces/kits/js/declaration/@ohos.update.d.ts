@@ -247,8 +247,7 @@ declare namespace update {
      * @permission ohos.permission.UPDATE_SYSTEM
      * @param { VersionDigestInfo } versionDigestInfo - Version digest information.
      * @param { DownloadOptions } downloadOptions - Download options.
-     * @param { AsyncCallback<void> } callback - Callback used to return the result.
-     *   If the operation is successful, `err` is `undefined`; otherwise, `err` is an `Error` object.
+     * @param { AsyncCallback<void> } callback - Callback used to return the result. If the operation is successful, `err` is `undefined`; otherwise, `err` is an `Error` object.
      * @throws { BusinessError } 201 - Permission denied.
      * @throws { BusinessError } 401 - Parameter error.
      * @throws { BusinessError } 11500104 - IPC error.
@@ -286,8 +285,7 @@ declare namespace update {
      * @permission ohos.permission.UPDATE_SYSTEM
      * @param { VersionDigestInfo } versionDigestInfo - Version digest information.
      * @param { ResumeDownloadOptions } resumeDownloadOptions - Options for resume download.
-     * @param { AsyncCallback<void> } callback - Callback used to return the result.
-     *   If the operation is successful, `err` is `undefined`; otherwise, `err` is an `Error` object.
+     * @param { AsyncCallback<void> } callback - Callback used to return the result. If the operation is successful, `err` is `undefined`; otherwise, `err` is an `Error` object.
      * @throws { BusinessError } 201 - Permission denied.
      * @throws { BusinessError } 401 - Parameter error.
      * @throws { BusinessError } 11500104 - IPC error.
@@ -325,8 +323,7 @@ declare namespace update {
      * @permission ohos.permission.UPDATE_SYSTEM
      * @param { VersionDigestInfo } versionDigestInfo - Version digest information.
      * @param { PauseDownloadOptions } pauseDownloadOptions - Options for pause download.
-     * @param { AsyncCallback<void> } callback - Callback used to return the result.
-     *   If the operation is successful, `err` is `undefined`; otherwise, `err` is an `Error` object.
+     * @param { AsyncCallback<void> } callback - Callback used to return the result. If the operation is successful, `err` is `undefined`; otherwise, `err` is an `Error` object.
      * @throws { BusinessError } 201 - Permission denied.
      * @throws { BusinessError } 401 - Parameter error.
      * @throws { BusinessError } 11500104 - IPC error.
@@ -364,8 +361,7 @@ declare namespace update {
      * @permission ohos.permission.UPDATE_SYSTEM
      * @param { VersionDigestInfo } versionDigestInfo - Version digest information.
      * @param { UpgradeOptions } upgradeOptions - Update options.
-     * @param { AsyncCallback<void> } callback - Callback used to return the result.
-     *   If the operation is successful, `err` is `undefined`; otherwise, `err` is an `Error` object.
+     * @param { AsyncCallback<void> } callback - Callback used to return the result. If the operation is successful, `err` is `undefined`; otherwise, `err` is an `Error` object.
      * @throws { BusinessError } 201 - Permission denied.
      * @throws { BusinessError } 401 - Parameter error.
      * @throws { BusinessError } 11500104 - IPC error.
@@ -398,8 +394,7 @@ declare namespace update {
      * @permission ohos.permission.UPDATE_SYSTEM
      * @param { VersionDigestInfo } versionDigestInfo - Version digest information.
      * @param { ClearOptions } clearOptions - Clear options.
-     * @param { AsyncCallback<void> } callback - Callback used to return the result.
-     *   If the operation is successful, `err` is `undefined`; otherwise, `err` is an `Error` object.
+     * @param { AsyncCallback<void> } callback - Callback used to return the result. If the operation is successful, `err` is `undefined`; otherwise, `err` is an `Error` object.
      * @throws { BusinessError } 201 - Permission denied.
      * @throws { BusinessError } 401 - Parameter error.
      * @throws { BusinessError } 11500104 - IPC error.
@@ -483,8 +478,7 @@ declare namespace update {
      * Terminate upgrade task.
      *
      * @permission ohos.permission.UPDATE_SYSTEM
-     * @param { AsyncCallback<void> } callback - Callback used to return the result.
-     *   If the operation is successful, 'err' is 'undefined'; otherwise, 'err' is an 'Error' object.
+     * @param { AsyncCallback<void> } callback - Callback used to return the result. If the operation is successful, 'err' is 'undefined'; otherwise, 'err' is an 'Error' object.
      * @throws { BusinessError } 201 - Permission denied.
      * @throws { BusinessError } 11500104 - IPC error.
      * @syscap SystemCapability.Update.UpdateService
@@ -542,8 +536,7 @@ declare namespace update {
      * Reboot and clean user data.
      *
      * @permission ohos.permission.FACTORY_RESET
-     * @param { AsyncCallback<void> } callback - Callback used to return the result.
-     *   If the operation is successful, `err` is `undefined`; otherwise, `err` is an `Error` object.
+     * @param { AsyncCallback<void> } callback - Callback used to return the result. If the operation is successful, `err` is `undefined`; otherwise, `err` is an `Error` object.
      * @throws { BusinessError } 201 - Permission denied.
      * @throws { BusinessError } 11500104 - IPC error.
      * @syscap SystemCapability.Update.UpdateService
@@ -844,7 +837,7 @@ declare namespace update {
     /**
      * Display version number
      *
-     * @type { string }+
+     * @type { string }
      * @syscap SystemCapability.Update.UpdateService
      * @systemapi hide for inner use.
      * @since 9
@@ -1469,16 +1462,7 @@ declare namespace update {
      * @systemapi hide for inner use.
      * @since 9
      */
-    PUBLIC = 'public',
-
-    /**
-     * Device vendor is huawei.
-     *
-     * @syscap SystemCapability.Update.UpdateService
-     * @systemapi hide for inner use.
-     * @since 9
-     */
-    HUAWEI = 'huawei'
+    PUBLIC = 'public'
   }
 
   /**
@@ -1497,16 +1481,7 @@ declare namespace update {
      * @systemapi hide for inner use.
      * @since 9
      */
-    FIRMWARE = 1,
-
-    /**
-     * Business sub type is Param.
-     *
-     * @syscap SystemCapability.Update.UpdateService
-     * @systemapi hide for inner use.
-     * @since 9
-     */
-    PARAM = 2
+    FIRMWARE = 1
   }
 
   /**
@@ -1525,34 +1500,7 @@ declare namespace update {
      * @systemapi hide for inner use.
      * @since 9
      */
-    OTA = 1,
-
-    /**
-     * Component type is PATCH.
-     *
-     * @syscap SystemCapability.Update.UpdateService
-     * @systemapi hide for inner use.
-     * @since 9
-     */
-    PATCH = 2,
-
-    /**
-     * Component type is COTA.
-     *
-     * @syscap SystemCapability.Update.UpdateService
-     * @systemapi hide for inner use.
-     * @since 9
-     */
-    COTA = 4,
-
-    /**
-     * Component type is PARAM.
-     *
-     * @syscap SystemCapability.Update.UpdateService
-     * @systemapi hide for inner use.
-     * @since 9
-     */
-    PARAM = 8
+    OTA = 1
   }
 
   /**
@@ -1645,16 +1593,7 @@ declare namespace update {
      * @systemapi hide for inner use.
      * @since 9
      */
-    URI = 1,
-
-    /**
-     * Description type is id.
-     *
-     * @syscap SystemCapability.Update.UpdateService
-     * @systemapi hide for inner use.
-     * @since 9
-     */
-    ID = 2
+    URI = 1
   }
 
   /**
@@ -2074,34 +2013,7 @@ declare namespace update {
      * @systemapi hide for inner use.
      * @since 9
      */
-    EVENT_UPGRADE_FAIL,
-
-    /**
-     * Event id is auth start.
-     *
-     * @syscap SystemCapability.Update.UpdateService
-     * @systemapi hide for inner use.
-     * @since 9
-     */
-    EVENT_AUTH_START,
-
-    /**
-     * Event id is auth success.
-     *
-     * @syscap SystemCapability.Update.UpdateService
-     * @systemapi hide for inner use.
-     * @since 9
-     */
-    EVENT_AUTH_SUCCESS,
-
-    /**
-     * Event id is download cancel.
-     *
-     * @syscap SystemCapability.Update.UpdateService
-     * @systemapi hide for inner use.
-     * @since 9
-     */
-    EVENT_DOWNLOAD_CANCEL
+    EVENT_UPGRADE_FAIL
   }
 }
 
