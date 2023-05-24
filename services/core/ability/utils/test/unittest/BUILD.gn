@@ -51,3 +51,4 @@ ohos_unittest("CoreAbilityUtilsTest") {
     "//third_party/googletest:gtest_main"
   ]
 }
+
