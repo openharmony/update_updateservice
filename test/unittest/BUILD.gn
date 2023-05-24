@@ -16,7 +16,10 @@ import("../../updateengine.gni")
 
 group("unittest") {
   testonly = true
-  deps = [ "$updateengine_root_path/test/unittest:$updateengine_unittest_name" ]
+  deps = [
+    "$updateengine_root_path/test/unittest:$updateengine_unittest_name",
+    "$updateengine_root_path/services/core/ability/utils/test/unittest:CoreAbilityUtilsTest"
+  ]
 }
 
 module_output_path = "updater/updateservice_test"
