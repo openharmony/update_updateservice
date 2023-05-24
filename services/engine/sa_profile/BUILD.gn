@@ -15,7 +15,7 @@ import("//build/ohos/sa_profile/sa_profile.gni")
 import("../../../updateengine.gni")
 
 ohos_sa_profile("updater_sa_profile") {
-  sources = [ "updater_sa.json" ]
+  sources = [ "3006.json" ]
 
   part_name = "$updateengine_part_name"
 }
