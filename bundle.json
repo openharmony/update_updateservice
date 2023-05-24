@@ -57,7 +57,8 @@
         "//base/update/updateservice/test/fuzztest/updateservicegetupgradepolicy_fuzzer:UpdateServiceGetUpgradePolicyFuzzTest",
         "//base/update/updateservice/test/fuzztest/updateserviceregisterupdatecallback_fuzzer:UpdateServiceRegisterUpdateCallbackFuzzTest",
         "//base/update/updateservice/test/fuzztest/updateservicesetupgradepolicy_fuzzer:UpdateServiceSetUpgradePolicyFuzzTest",
-        "//base/update/updateservice/test/fuzztest/updateserviceunregisterupdatecallback_fuzzer:UpdateServiceUnregisterUpdateCallbackFuzzTest"
+        "//base/update/updateservice/test/fuzztest/updateserviceunregisterupdatecallback_fuzzer:UpdateServiceUnregisterUpdateCallbackFuzzTest",
+        "//base/update/updateservice/test/unittest:unittest"
       ]
     },
     "hisysevent_config": [
