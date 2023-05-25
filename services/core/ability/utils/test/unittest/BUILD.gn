@@ -11,8 +11,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("//base/update/updateservice/updateengine.gni")
 import("//base/update/updateservice/services/engine/engine_sa.gni")
+import("//base/update/updateservice/updateengine.gni")
 import("//build/test.gni")
 
 module_output_path = "updateservice/core_ability"
@@ -35,20 +35,15 @@ ohos_unittest("CoreAbilityUtilsTest") {
     "$updateengine_root_path/services/core/ability/log/include",
     "$updateengine_root_path/services/service/include",
     "//third_party/glib/glib",
-    "//third_party/glib"
+    "//third_party/glib",
   ]
 
-  sources += [
-    "string_utils_test.cpp"
-  ]
+  sources += [ "string_utils_test.cpp" ]
 
-  configs = [
-    ":module_private_config"
-  ]
+  configs = [ ":module_private_config" ]
 
   deps += [
     "//third_party/glib:glib_packages",
-    "//third_party/googletest:gtest_main"
+    "//third_party/googletest:gtest_main",
   ]
 }
-
