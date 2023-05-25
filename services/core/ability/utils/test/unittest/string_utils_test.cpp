@@ -244,7 +244,6 @@ HWTEST_F(StringUtilsTest, GetEnumValueStringWithoutSplit, TestSize.Level1)
     EXPECT_EQ("", StringUtils::GetEnumValueString(itemValueString));
 }
 
-
 /**
  * @tc.name: GetEnumValueStringWithSplit
  * @tc.desc: EnumValueString With Split
