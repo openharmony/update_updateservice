@@ -20,39 +20,3 @@ group("unittest") {
     "$updateengine_root_path/services/core/ability/utils/test/unittest:CoreAbilityUtilsTest",
   ]
 }
-
-module_output_path = "updater/updateservice_test"
-config("utest_config") {
-  visibility = [ ":*" ]
-
-  cflags = [
-    "-fprofile-arcs",
-    "-ftest-coverage",
-    "-Wno-implicit-fallthrough",
-    "-Wno-unused-function",
-  ]
-  cflags_cc = [ "-Wno-implicit-fallthrough" ]
-
-  ldflags = [ "--coverage" ]
-}
-
-ohos_unittest("$updateengine_unittest_name") {
-  testonly = true
-  module_out_path = module_output_path
-  sources = []
-
-  include_dirs = []
-
-  deps = []
-
-  defines = [
-    "UPDATER_UT",
-    "UPDATER_API_TEST",
-  ]
-
-  external_deps = []
-
-  public_configs = [ ":utest_config" ]
-  install_enable = true
-  part_name = "$updateengine_part_name"
-}
