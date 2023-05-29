@@ -34,8 +34,6 @@ ohos_unittest("CoreAbilityUtilsTest") {
     "$updateengine_root_path/services/core/ability/log/include",
     "$updateengine_root_path/services/core/ability/utils/include",
     "$updateengine_root_path/services/service/include",
-    "//third_party/glib/glib",
-    "//third_party/glib",
   ]
 
   sources += [ "string_utils_test.cpp" ]
