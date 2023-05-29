@@ -109,8 +109,7 @@ enum class UpgradeStatus {
 
 enum class PackageType {
     DYNAMIC = 0,
-    NORMAL = 1,
-    BASE = 2
+    NORMAL = 1
 };
 
 enum class ComponentType {
