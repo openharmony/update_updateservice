@@ -110,20 +110,12 @@ enum class UpgradeStatus {
 enum class PackageType {
     DYNAMIC = 0,
     NORMAL = 1,
-    BASE = 2,
-    CUST = 3,
-    PRELOAD = 4,
-    COTA = 5,
-    VERSION = 6,
-    PATCH = 8
+    BASE = 2
 };
 
 enum class ComponentType {
     INVALID = 0,
-    OTA = 1,
-    PATCH = 2,
-    COTA = 4,
-    PARAM = 8
+    OTA = 1
 };
 
 enum class EffectiveMode {
