@@ -50,9 +50,7 @@ enum class CheckStatus {
 enum class BlType {
     HOTA_TYPE = 1,
     COTA_TYPE = 2,
-    PATCH_TYPE = 3,
-    DYNAMIC_TYPE = 100,
-    OPEN_OTA_TYPE = 101
+    DYNAMIC_TYPE = 100
 };
 
 enum class CheckResultStatus {
@@ -149,12 +147,7 @@ struct CheckAndAuthInfo {
 
 enum class CombinationType {
     INVALLID_TYPE = 0,
-    HOTA = 1,
-    COLD_PATCH = 2,
-    HOT_PATCH = 4,
-    HOTA_AND_COLD_PATCH = HOTA | COLD_PATCH,
-    HOTA_AND_HOT_PATCH = HOTA | HOT_PATCH,
-    HOTA_AND_HOT_COLD_PATCH = HOTA | COLD_PATCH | HOT_PATCH
+    HOTA = 1
 };
 
 enum class DownloadMode {
