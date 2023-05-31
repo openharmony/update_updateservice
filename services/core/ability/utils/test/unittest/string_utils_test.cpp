@@ -229,7 +229,7 @@ HWTEST_F(StringUtilsTest, SafeSubStringNormal, TestSize.Level1)
     std::string defaultString = "default";
     int beginIndex = 5;
     int endIndex = 9;
-    EXPECT_NE("default", StringUtils::SafeSubString(sourceString, beginIndex, endIndex, defaultString));
+    EXPECT_EQ("ubString ", StringUtils::SafeSubString(sourceString, beginIndex, endIndex, defaultString));
 }
 
 /**
