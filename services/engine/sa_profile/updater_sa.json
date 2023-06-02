@@ -8,10 +8,6 @@
       "distributed": false,
       "bootphase": "BootStartPhase",
       "dump-level": 1,
-      "start-on-demand": {
-        "allow-update": true,
-        "bindercall": true
-      },
       "auto-restart" : true
     }
   ]
