@@ -1,12 +1,18 @@
 {
-    "process": "updater_sa",
-    "systemability": [
-        {
-            "name": 3006,
-            "libpath": "libupdateservice.z.so",
-            "run-on-create": true,
-            "distributed": false,
-            "dump_level": 1
-        }
-    ]
+  "process": "updater_sa",
+  "systemability": [
+    {
+      "name": 3006,
+      "libpath": "libupdateservice.z.so",
+      "run-on-create": true,
+      "distributed": false,
+      "bootphase": "BootStartPhase",
+      "dump-level": 1,
+      "start-on-demand": {
+        "allow-update": true,
+        "bindercall": true
+      },
+      "auto-restart" : true
+    }
+  ]
 }
