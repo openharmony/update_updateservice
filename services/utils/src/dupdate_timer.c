@@ -18,7 +18,6 @@
 #include <ohos_types.h>
 #include <pthread.h>
 #include <time.h>
-
 #include <unistd.h>
 #include "dupdate_log.h"
 #include "securec.h"
