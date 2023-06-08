@@ -24,6 +24,7 @@
 #include "update_log.h"
 #include "update_service_stub.h"
 #include "update_system_event.h"
+#include "updater_sa_ipc_interface_code.h"
 
 using namespace std;
 
@@ -37,7 +38,35 @@ constexpr const pid_t EDM_UID = 3057;
 #define RETURN_FAIL_WHEN_SERVICE_NULL(service) \
     ENGINE_CHECK((service) != nullptr, return INT_CALL_IPC_ERR, "service null")
 
-static int32_t GetNewVersionStub(UpdateServiceStub::UpdateServiceStubPtr service,
+UpdateServiceStub::UpdateServiceStub()
+{
+    requestFuncMap_ = {
+        {CAST_UINT(UpdaterSaInterfaceCode::CHECK_VERSION), &UpdateServiceStub::CheckNewVersionStub},
+        {CAST_UINT(UpdaterSaInterfaceCode::DOWNLOAD), &UpdateServiceStub::DownloadVersionStub},
+        {CAST_UINT(UpdaterSaInterfaceCode::PAUSE_DOWNLOAD), &UpdateServiceStub::PauseDownloadStub},
+        {CAST_UINT(UpdaterSaInterfaceCode::RESUME_DOWNLOAD), &UpdateServiceStub::ResumeDownloadStub},
+        {CAST_UINT(UpdaterSaInterfaceCode::UPGRADE), &UpdateServiceStub::DoUpdateStub},
+        {CAST_UINT(UpdaterSaInterfaceCode::CLEAR_ERROR), &UpdateServiceStub::ClearErrorStub},
+        {CAST_UINT(UpdaterSaInterfaceCode::TERMINATE_UPGRADE), &UpdateServiceStub::TerminateUpgradeStub},
+        {CAST_UINT(UpdaterSaInterfaceCode::SET_POLICY), &UpdateServiceStub::SetUpgradePolicyStub},
+        {CAST_UINT(UpdaterSaInterfaceCode::GET_POLICY), &UpdateServiceStub::GetUpgradePolicyStub},
+        {CAST_UINT(UpdaterSaInterfaceCode::GET_NEW_VERSION), &UpdateServiceStub::GetNewVersionStub},
+        {CAST_UINT(UpdaterSaInterfaceCode::GET_NEW_VERSION_DESCRIPTION),
+            &UpdateServiceStub::GetNewVersionDescriptionStub},
+        {CAST_UINT(UpdaterSaInterfaceCode::GET_CURRENT_VERSION), &UpdateServiceStub::GetCurrentVersionStub},
+        {CAST_UINT(UpdaterSaInterfaceCode::GET_CURRENT_VERSION_DESCRIPTION),
+            &UpdateServiceStub::GetCurrentVersionDescriptionStub},
+        {CAST_UINT(UpdaterSaInterfaceCode::GET_TASK_INFO), &UpdateServiceStub::GetTaskInfoStub},
+        {CAST_UINT(UpdaterSaInterfaceCode::REGISTER_CALLBACK), &UpdateServiceStub::RegisterUpdateCallbackStub},
+        {CAST_UINT(UpdaterSaInterfaceCode::UNREGISTER_CALLBACK), &UpdateServiceStub::UnregisterUpdateCallbackStub},
+        {CAST_UINT(UpdaterSaInterfaceCode::CANCEL), &UpdateServiceStub::CancelStub},
+        {CAST_UINT(UpdaterSaInterfaceCode::FACTORY_RESET), &UpdateServiceStub::FactoryResetStub},
+        {CAST_UINT(UpdaterSaInterfaceCode::APPLY_NEW_VERSION), &UpdateServiceStub::ApplyNewVersionStub},
+        {CAST_UINT(UpdaterSaInterfaceCode::VERIFY_UPGRADE_PACKAGE), &UpdateServiceStub::VerifyUpgradePackageStub}
+    };
+}
+
+int32_t UpdateServiceStub::GetNewVersionStub(UpdateServiceStubPtr service,
     MessageParcel& data, MessageParcel& reply, MessageOption &option)
 {
     RETURN_FAIL_WHEN_SERVICE_NULL(service);
@@ -52,7 +81,7 @@ static int32_t GetNewVersionStub(UpdateServiceStub::UpdateServiceStubPtr service
     return INT_CALL_SUCCESS;
 }
 
-static int32_t GetNewVersionDescriptionStub(UpdateServiceStub::UpdateServiceStubPtr service,
+int32_t UpdateServiceStub::GetNewVersionDescriptionStub(UpdateServiceStubPtr service,
     MessageParcel& data, MessageParcel& reply, MessageOption &option)
 {
     RETURN_FAIL_WHEN_SERVICE_NULL(service);
@@ -73,7 +102,7 @@ static int32_t GetNewVersionDescriptionStub(UpdateServiceStub::UpdateServiceStub
     return INT_CALL_SUCCESS;
 }
 
-static int32_t GetCurrentVersionStub(UpdateServiceStub::UpdateServiceStubPtr service,
+int32_t UpdateServiceStub::GetCurrentVersionStub(UpdateServiceStubPtr service,
     MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
     RETURN_FAIL_WHEN_SERVICE_NULL(service);
@@ -88,7 +117,7 @@ static int32_t GetCurrentVersionStub(UpdateServiceStub::UpdateServiceStubPtr ser
     return INT_CALL_SUCCESS;
 }
 
-static int32_t GetCurrentVersionDescriptionStub(UpdateServiceStub::UpdateServiceStubPtr service,
+int32_t UpdateServiceStub::GetCurrentVersionDescriptionStub(UpdateServiceStubPtr service,
     MessageParcel& data, MessageParcel& reply, MessageOption &option)
 {
     RETURN_FAIL_WHEN_SERVICE_NULL(service);
@@ -107,7 +136,7 @@ static int32_t GetCurrentVersionDescriptionStub(UpdateServiceStub::UpdateService
     return INT_CALL_SUCCESS;
 }
 
-static int32_t GetTaskInfoStub(UpdateServiceStub::UpdateServiceStubPtr service,
+int32_t UpdateServiceStub::GetTaskInfoStub(UpdateServiceStubPtr service,
     MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
     RETURN_FAIL_WHEN_SERVICE_NULL(service);
@@ -122,7 +151,7 @@ static int32_t GetTaskInfoStub(UpdateServiceStub::UpdateServiceStubPtr service,
     return INT_CALL_SUCCESS;
 }
 
-static int32_t CheckNewVersionStub(UpdateServiceStub::UpdateServiceStubPtr service,
+int32_t UpdateServiceStub::CheckNewVersionStub(UpdateServiceStubPtr service,
     MessageParcel& data, MessageParcel& reply, MessageOption &option)
 {
     RETURN_FAIL_WHEN_SERVICE_NULL(service);
@@ -131,8 +160,8 @@ static int32_t CheckNewVersionStub(UpdateServiceStub::UpdateServiceStubPtr servi
     return service->CheckNewVersion(upgradeInfo);
 }
 
-static int32_t DownloadVersionStub(UpdateServiceStub::UpdateServiceStubPtr service, MessageParcel &data,
-    MessageParcel &reply, MessageOption &option)
+int32_t UpdateServiceStub::DownloadVersionStub(UpdateServiceStubPtr service,
+    MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
     RETURN_FAIL_WHEN_SERVICE_NULL(service);
     UpgradeInfo upgradeInfo;
@@ -148,7 +177,7 @@ static int32_t DownloadVersionStub(UpdateServiceStub::UpdateServiceStubPtr servi
     return INT_CALL_SUCCESS;
 }
 
-static int32_t PauseDownloadStub(UpdateServiceStub::UpdateServiceStubPtr service,
+int32_t UpdateServiceStub::PauseDownloadStub(UpdateServiceStubPtr service,
     MessageParcel& data, MessageParcel& reply, MessageOption &option)
 {
     RETURN_FAIL_WHEN_SERVICE_NULL(service);
@@ -166,7 +195,7 @@ static int32_t PauseDownloadStub(UpdateServiceStub::UpdateServiceStubPtr service
     return INT_CALL_SUCCESS;
 }
 
-static int32_t ResumeDownloadStub(UpdateServiceStub::UpdateServiceStubPtr service,
+int32_t UpdateServiceStub::ResumeDownloadStub(UpdateServiceStubPtr service,
     MessageParcel& data, MessageParcel& reply, MessageOption &option)
 {
     RETURN_FAIL_WHEN_SERVICE_NULL(service);
@@ -184,7 +213,7 @@ static int32_t ResumeDownloadStub(UpdateServiceStub::UpdateServiceStubPtr servic
     return INT_CALL_SUCCESS;
 }
 
-static int32_t DoUpdateStub(UpdateServiceStub::UpdateServiceStubPtr service,
+int32_t UpdateServiceStub::DoUpdateStub(UpdateServiceStubPtr service,
     MessageParcel& data, MessageParcel& reply, MessageOption &option)
 {
     RETURN_FAIL_WHEN_SERVICE_NULL(service);
@@ -202,7 +231,7 @@ static int32_t DoUpdateStub(UpdateServiceStub::UpdateServiceStubPtr service,
     return INT_CALL_SUCCESS;
 }
 
-static int32_t ClearErrorStub(UpdateServiceStub::UpdateServiceStubPtr service,
+int32_t UpdateServiceStub::ClearErrorStub(UpdateServiceStubPtr service,
     MessageParcel& data, MessageParcel& reply, MessageOption &option)
 {
     RETURN_FAIL_WHEN_SERVICE_NULL(service);
@@ -220,7 +249,7 @@ static int32_t ClearErrorStub(UpdateServiceStub::UpdateServiceStubPtr service,
     return INT_CALL_SUCCESS;
 }
 
-static int32_t TerminateUpgradeStub(UpdateServiceStub::UpdateServiceStubPtr service, MessageParcel &data,
+int32_t UpdateServiceStub::TerminateUpgradeStub(UpdateServiceStubPtr service, MessageParcel &data,
     MessageParcel &reply, MessageOption &option)
 {
     RETURN_FAIL_WHEN_SERVICE_NULL(service);
@@ -234,8 +263,8 @@ static int32_t TerminateUpgradeStub(UpdateServiceStub::UpdateServiceStubPtr serv
     return INT_CALL_SUCCESS;
 }
 
-static int32_t SetUpgradePolicyStub(
-    UpdateServiceStub::UpdateServiceStubPtr service, MessageParcel &data, MessageParcel &reply, MessageOption &option)
+int32_t UpdateServiceStub::SetUpgradePolicyStub(UpdateServiceStubPtr service,
+    MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
     RETURN_FAIL_WHEN_SERVICE_NULL(service);
     UpgradeInfo upgradeInfo {};
@@ -249,7 +278,7 @@ static int32_t SetUpgradePolicyStub(
     return INT_CALL_SUCCESS;
 }
 
-static int32_t GetUpgradePolicyStub(UpdateServiceStub::UpdateServiceStubPtr service,
+int32_t UpdateServiceStub::GetUpgradePolicyStub(UpdateServiceStubPtr service,
     MessageParcel& data, MessageParcel& reply, MessageOption &option)
 {
     RETURN_FAIL_WHEN_SERVICE_NULL(service);
@@ -264,7 +293,7 @@ static int32_t GetUpgradePolicyStub(UpdateServiceStub::UpdateServiceStubPtr serv
     return INT_CALL_SUCCESS;
 }
 
-static int32_t RegisterUpdateCallbackStub(UpdateServiceStub::UpdateServiceStubPtr service,
+int32_t UpdateServiceStub::RegisterUpdateCallbackStub(UpdateServiceStubPtr service,
     MessageParcel& data, MessageParcel& reply, MessageOption &option)
 {
     ENGINE_LOGI("RegisterUpdateCallbackStub");
@@ -276,7 +305,7 @@ static int32_t RegisterUpdateCallbackStub(UpdateServiceStub::UpdateServiceStubPt
     return service->RegisterUpdateCallback(upgradeInfo, iface_cast<IUpdateCallback>(remote));
 }
 
-static int32_t UnregisterUpdateCallbackStub(UpdateServiceStub::UpdateServiceStubPtr service,
+int32_t UpdateServiceStub::UnregisterUpdateCallbackStub(UpdateServiceStubPtr service,
     MessageParcel& data, MessageParcel& reply, MessageOption &option)
 {
     RETURN_FAIL_WHEN_SERVICE_NULL(service);
@@ -285,7 +314,7 @@ static int32_t UnregisterUpdateCallbackStub(UpdateServiceStub::UpdateServiceStub
     return service->UnregisterUpdateCallback(upgradeInfo);
 }
 
-static int32_t CancelStub(UpdateServiceStub::UpdateServiceStubPtr service,
+int32_t UpdateServiceStub::CancelStub(UpdateServiceStubPtr service,
     MessageParcel& data, MessageParcel& reply, MessageOption &option)
 {
     RETURN_FAIL_WHEN_SERVICE_NULL(service);
@@ -298,7 +327,7 @@ static int32_t CancelStub(UpdateServiceStub::UpdateServiceStubPtr service,
     return INT_CALL_SUCCESS;
 }
 
-static int32_t FactoryResetStub(UpdateServiceStub::UpdateServiceStubPtr service,
+int32_t UpdateServiceStub::FactoryResetStub(UpdateServiceStubPtr service,
     MessageParcel& data, MessageParcel& reply, MessageOption &option)
 {
     RETURN_FAIL_WHEN_SERVICE_NULL(service);
@@ -310,7 +339,7 @@ static int32_t FactoryResetStub(UpdateServiceStub::UpdateServiceStubPtr service,
     return INT_CALL_SUCCESS;
 }
 
-static int32_t ApplyNewVersionStub(UpdateServiceStub::UpdateServiceStubPtr service,
+int32_t UpdateServiceStub::ApplyNewVersionStub(UpdateServiceStubPtr service,
     MessageParcel& data, MessageParcel& reply, MessageOption &option)
 {
     RETURN_FAIL_WHEN_SERVICE_NULL(service);
@@ -325,7 +354,7 @@ static int32_t ApplyNewVersionStub(UpdateServiceStub::UpdateServiceStubPtr servi
     return INT_CALL_SUCCESS;
 }
 
-static int32_t VerifyUpgradePackageStub(UpdateServiceStub::UpdateServiceStubPtr service,
+int32_t UpdateServiceStub::VerifyUpgradePackageStub(UpdateServiceStubPtr service,
     MessageParcel& data, MessageParcel& reply, MessageOption &option)
 {
     RETURN_FAIL_WHEN_SERVICE_NULL(service);
@@ -338,7 +367,7 @@ static int32_t VerifyUpgradePackageStub(UpdateServiceStub::UpdateServiceStubPtr 
     return INT_CALL_SUCCESS;
 }
 
-static bool IsCallerValid()
+bool UpdateServiceStub::IsCallerValid()
 {
     OHOS::Security::AccessToken::AccessTokenID callerToken = IPCSkeleton::GetCallingTokenID();
     auto callerTokenType = OHOS::Security::AccessToken::AccessTokenKit::GetTokenType(callerToken);
@@ -359,11 +388,11 @@ static bool IsCallerValid()
     }
 }
 
-static bool IsPermissionGranted(uint32_t code)
+bool UpdateServiceStub::IsPermissionGranted(uint32_t code)
 {
     Security::AccessToken::AccessTokenID callerToken = IPCSkeleton::GetCallingTokenID();
     string permission = "ohos.permission.UPDATE_SYSTEM";
-    if (code == IUpdateService::FACTORY_RESET) {
+    if (code == CAST_UINT(UpdaterSaInterfaceCode::FACTORY_RESET)) {
         permission = "ohos.permission.FACTORY_RESET";
     }
     int verifyResult = Security::AccessToken::AccessTokenKit::VerifyAccessToken(callerToken, permission);
@@ -381,32 +410,10 @@ int32_t UpdateServiceStub::OnRemoteRequest(uint32_t code,
         ENGINE_LOGI("UpdateServiceStub ReadInterfaceToken fail");
         return CALL_RESULT_TO_IPC_RESULT(INT_CALL_IPC_ERR);
     }
-    static std::map<uint32_t, UpdateServiceStub::RequestFuncType> requestFuncMap = {
-        {IUpdateService::CHECK_VERSION, CheckNewVersionStub},
-        {IUpdateService::DOWNLOAD, DownloadVersionStub},
-        {IUpdateService::PAUSE_DOWNLOAD, PauseDownloadStub},
-        {IUpdateService::RESUME_DOWNLOAD, ResumeDownloadStub},
-        {IUpdateService::UPGRADE, DoUpdateStub},
-        {IUpdateService::CLEAR_ERROR, ClearErrorStub},
-        {IUpdateService::TERMINATE_UPGRADE, TerminateUpgradeStub},
-        {IUpdateService::SET_POLICY, SetUpgradePolicyStub},
-        {IUpdateService::GET_POLICY, GetUpgradePolicyStub},
-        {IUpdateService::GET_NEW_VERSION, GetNewVersionStub},
-        {IUpdateService::GET_NEW_VERSION_DESCRIPTION, GetNewVersionDescriptionStub},
-        {IUpdateService::GET_CURRENT_VERSION, GetCurrentVersionStub},
-        {IUpdateService::GET_CURRENT_VERSION_DESCRIPTION, GetCurrentVersionDescriptionStub},
-        {IUpdateService::GET_TASK_INFO, GetTaskInfoStub},
-        {IUpdateService::REGISTER_CALLBACK, RegisterUpdateCallbackStub},
-        {IUpdateService::UNREGISTER_CALLBACK, UnregisterUpdateCallbackStub},
-        {IUpdateService::CANCEL, CancelStub},
-        {IUpdateService::FACTORY_RESET, FactoryResetStub},
-        {IUpdateService::APPLY_NEW_VERSION, ApplyNewVersionStub},
-        {IUpdateService::VERIFY_UPGRADE_PACKAGE, VerifyUpgradePackageStub},
-    };
 
     ENGINE_LOGI("UpdateServiceStub func code %{public}u", code);
-    auto iter = requestFuncMap.find(code);
-    if (iter == requestFuncMap.end()) {
+    auto iter = requestFuncMap_.find(code);
+    if (iter == requestFuncMap_.end()) {
         ENGINE_LOGE("UpdateServiceStub OnRemoteRequest code %{public}u not found", code);
         return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
     }
@@ -422,7 +429,7 @@ int32_t UpdateServiceStub::OnRemoteRequest(uint32_t code,
             UpdateSystemEvent::EVENT_PERMISSION_VERIFY_FAILED);
         return CALL_RESULT_TO_IPC_RESULT(INT_APP_NOT_GRANTED);
     }
-    return CALL_RESULT_TO_IPC_RESULT(iter->second(this, data, reply, option));
+    return CALL_RESULT_TO_IPC_RESULT((this->*(iter->second))(this, data, reply, option));
 }
 } // namespace UpdateEngine
 } // namespace OHOS

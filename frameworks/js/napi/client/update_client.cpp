@@ -23,6 +23,7 @@
 #include "update_helper.h"
 #include "update_service_kits.h"
 #include "update_session.h"
+#include "updater_sa_ipc_interface_code.h"
 
 using namespace std;
 
@@ -127,7 +128,8 @@ napi_value UpdateClient::CancelUpgrade(napi_env env, napi_callback_info info)
         args,
         [=](SessionType type, void *context) -> int {
             BusinessError *businessError = reinterpret_cast<BusinessError *>(context);
-            return UpdateServiceKits::GetInstance().Cancel(upgradeInfo_, IUpdateService::DOWNLOAD, *businessError);
+            return UpdateServiceKits::GetInstance().Cancel(upgradeInfo_,
+                CAST_INT(UpdaterSaInterfaceCode::DOWNLOAD), *businessError);
         },
         nullptr);
     PARAM_CHECK(retValue != nullptr, sessionsMgr_->RemoveSession(sess->GetSessionId());

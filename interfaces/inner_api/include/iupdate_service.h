@@ -30,29 +30,6 @@ namespace UpdateEngine {
 class IUpdateService : public OHOS::IRemoteBroker, public IServiceOnlineUpdater, public IServiceRestorer,
     public IServiceLocalUpdater {
 public:
-    enum {
-        CHECK_VERSION = 1,
-        DOWNLOAD,
-        PAUSE_DOWNLOAD,
-        RESUME_DOWNLOAD,
-        UPGRADE,
-        CLEAR_ERROR,
-        TERMINATE_UPGRADE,
-        SET_POLICY,
-        GET_POLICY,
-        GET_NEW_VERSION,
-        GET_NEW_VERSION_DESCRIPTION,
-        GET_CURRENT_VERSION,
-        GET_CURRENT_VERSION_DESCRIPTION,
-        GET_TASK_INFO,
-        REGISTER_CALLBACK,
-        UNREGISTER_CALLBACK,
-        CANCEL,
-        FACTORY_RESET,
-        APPLY_NEW_VERSION,
-        VERIFY_UPGRADE_PACKAGE
-    };
-
     virtual int32_t RegisterUpdateCallback(const UpgradeInfo &info, const sptr<IUpdateCallback>& updateCallback) = 0;
 
     virtual int32_t UnregisterUpdateCallback(const UpgradeInfo &info) = 0;
