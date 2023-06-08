@@ -66,7 +66,7 @@ int32_t UpdateServiceProxy::RegisterUpdateCallback(const UpgradeInfo &info,
 
     MessageParcel reply;
     MessageOption option;
-    int32_t ret = remote->SendRequest(CAST_INT(UpdaterSaInterfaceCode::REGISTER_CALLBACK), data, reply, option);
+    int32_t ret = remote->SendRequest(CAST_UINT(UpdaterSaInterfaceCode::REGISTER_CALLBACK), data, reply, option);
     RETURN_FAIL_WHEN_REMOTE_ERR("UpdateServiceProxy::RegisterUpdateCallback", ret);
     return INT_CALL_SUCCESS;
 }
@@ -82,7 +82,7 @@ int32_t UpdateServiceProxy::UnregisterUpdateCallback(const UpgradeInfo &info)
 
     MessageParcel reply;
     MessageOption option;
-    int32_t ret = remote->SendRequest(CAST_INT(UpdaterSaInterfaceCode::UNREGISTER_CALLBACK), data, reply, option);
+    int32_t ret = remote->SendRequest(CAST_UINT(UpdaterSaInterfaceCode::UNREGISTER_CALLBACK), data, reply, option);
     RETURN_FAIL_WHEN_REMOTE_ERR("UpdateServiceProxy::UnregisterUpdateCallback", ret);
     return INT_CALL_SUCCESS;
 }
@@ -99,7 +99,7 @@ int32_t UpdateServiceProxy::CheckNewVersion(const UpgradeInfo &info)
 
     MessageParcel reply;
     MessageOption option;
-    int32_t ret = remote->SendRequest(CAST_INT(UpdaterSaInterfaceCode::CHECK_VERSION), data, reply, option);
+    int32_t ret = remote->SendRequest(CAST_UINT(UpdaterSaInterfaceCode::CHECK_VERSION), data, reply, option);
     RETURN_FAIL_WHEN_REMOTE_ERR("UpdateServiceProxy::CheckNewVersion", ret);
     return INT_CALL_SUCCESS;
 }
@@ -119,7 +119,7 @@ int32_t UpdateServiceProxy::Download(const UpgradeInfo &info, const VersionDiges
 
     MessageParcel reply;
     MessageOption option;
-    int32_t ret = remote->SendRequest(CAST_INT(UpdaterSaInterfaceCode::DOWNLOAD), data, reply, option);
+    int32_t ret = remote->SendRequest(CAST_UINT(UpdaterSaInterfaceCode::DOWNLOAD), data, reply, option);
     RETURN_FAIL_WHEN_REMOTE_ERR("UpdateServiceProxy::Download", ret);
     BusinessError remoteBusinessError;
     MessageParcelHelper::ReadBusinessError(reply, remoteBusinessError);
@@ -142,7 +142,7 @@ int32_t UpdateServiceProxy::PauseDownload(const UpgradeInfo &info, const Version
 
     MessageParcel reply;
     MessageOption option;
-    int32_t ret = remote->SendRequest(CAST_INT(UpdaterSaInterfaceCode::PAUSE_DOWNLOAD), data, reply, option);
+    int32_t ret = remote->SendRequest(CAST_UINT(UpdaterSaInterfaceCode::PAUSE_DOWNLOAD), data, reply, option);
     RETURN_FAIL_WHEN_REMOTE_ERR("UpdateServiceProxy::ResumeDownload", ret);
     BusinessError remoteBusinessError;
     MessageParcelHelper::ReadBusinessError(reply, remoteBusinessError);
@@ -165,7 +165,7 @@ int32_t UpdateServiceProxy::ResumeDownload(const UpgradeInfo &info, const Versio
 
     MessageParcel reply;
     MessageOption option;
-    int32_t ret = remote->SendRequest(CAST_INT(UpdaterSaInterfaceCode::RESUME_DOWNLOAD), data, reply, option);
+    int32_t ret = remote->SendRequest(CAST_UINT(UpdaterSaInterfaceCode::RESUME_DOWNLOAD), data, reply, option);
     RETURN_FAIL_WHEN_REMOTE_ERR("UpdateServiceProxy::ResumeDownload", ret);
     BusinessError remoteBusinessError;
     MessageParcelHelper::ReadBusinessError(reply, remoteBusinessError);
@@ -190,7 +190,7 @@ int32_t UpdateServiceProxy::Upgrade(const UpgradeInfo &info, const VersionDigest
 
     MessageParcel reply;
     MessageOption option;
-    int32_t ret = remote->SendRequest(CAST_INT(UpdaterSaInterfaceCode::UPGRADE), data, reply, option);
+    int32_t ret = remote->SendRequest(CAST_UINT(UpdaterSaInterfaceCode::UPGRADE), data, reply, option);
     RETURN_FAIL_WHEN_REMOTE_ERR("UpdateServiceProxy::Upgrade", ret);
     BusinessError remoteBusinessError;
     MessageParcelHelper::ReadBusinessError(reply, remoteBusinessError);
@@ -212,7 +212,7 @@ int32_t UpdateServiceProxy::ClearError(const UpgradeInfo &info, const VersionDig
 
     MessageParcel reply;
     MessageOption option;
-    int32_t ret = remote->SendRequest(CAST_INT(UpdaterSaInterfaceCode::CLEAR_ERROR), data, reply, option);
+    int32_t ret = remote->SendRequest(CAST_UINT(UpdaterSaInterfaceCode::CLEAR_ERROR), data, reply, option);
     RETURN_FAIL_WHEN_REMOTE_ERR("UpdateServiceProxy::ClearError", ret);
     BusinessError remoteBusinessError;
     MessageParcelHelper::ReadBusinessError(reply, remoteBusinessError);
@@ -231,7 +231,7 @@ int32_t UpdateServiceProxy::TerminateUpgrade(const UpgradeInfo &info, BusinessEr
 
     MessageParcel reply;
     MessageOption option;
-    int32_t ret = remote->SendRequest(CAST_INT(UpdaterSaInterfaceCode::TERMINATE_UPGRADE), data, reply, option);
+    int32_t ret = remote->SendRequest(CAST_UINT(UpdaterSaInterfaceCode::TERMINATE_UPGRADE), data, reply, option);
     RETURN_FAIL_WHEN_REMOTE_ERR("UpdateServiceProxy::TerminateUpgrade", ret);
     BusinessError remoteBusinessError;
     MessageParcelHelper::ReadBusinessError(reply, remoteBusinessError);
@@ -252,7 +252,7 @@ int32_t UpdateServiceProxy::GetNewVersionInfo(const UpgradeInfo &info, NewVersio
 
     MessageParcel reply;
     MessageOption option;
-    int32_t ret = remote->SendRequest(CAST_INT(UpdaterSaInterfaceCode::GET_NEW_VERSION), data, reply, option);
+    int32_t ret = remote->SendRequest(CAST_UINT(UpdaterSaInterfaceCode::GET_NEW_VERSION), data, reply, option);
     RETURN_FAIL_WHEN_REMOTE_ERR("UpdateServiceProxy::GetNewVersionInfo", ret);
 
     BusinessError remoteBusinessError;
@@ -280,7 +280,7 @@ int32_t UpdateServiceProxy::GetNewVersionDescription(const UpgradeInfo &info,
 
     MessageParcel reply;
     MessageOption option;
-    int32_t ret = remote->SendRequest(CAST_INT(UpdaterSaInterfaceCode::GET_NEW_VERSION_DESCRIPTION),
+    int32_t ret = remote->SendRequest(CAST_UINT(UpdaterSaInterfaceCode::GET_NEW_VERSION_DESCRIPTION),
         data, reply, option);
     RETURN_FAIL_WHEN_REMOTE_ERR("UpdateServiceProxy::GetNewVersionDescription", ret);
 
@@ -306,7 +306,7 @@ int32_t UpdateServiceProxy::GetCurrentVersionInfo(const UpgradeInfo &info, Curre
 
     MessageParcel reply;
     MessageOption option;
-    int32_t ret = remote->SendRequest(CAST_INT(UpdaterSaInterfaceCode::GET_CURRENT_VERSION), data, reply, option);
+    int32_t ret = remote->SendRequest(CAST_UINT(UpdaterSaInterfaceCode::GET_CURRENT_VERSION), data, reply, option);
     RETURN_FAIL_WHEN_REMOTE_ERR("UpdateServiceProxy::GetCurrentVersionInfo", ret);
 
     BusinessError remoteBusinessError;
@@ -333,7 +333,7 @@ int32_t UpdateServiceProxy::GetCurrentVersionDescription(const UpgradeInfo &info
 
     MessageParcel reply;
     MessageOption option;
-    int32_t ret = remote->SendRequest(CAST_INT(UpdaterSaInterfaceCode::GET_CURRENT_VERSION_DESCRIPTION),
+    int32_t ret = remote->SendRequest(CAST_UINT(UpdaterSaInterfaceCode::GET_CURRENT_VERSION_DESCRIPTION),
         data, reply, option);
     RETURN_FAIL_WHEN_REMOTE_ERR("UpdateServiceProxy::GetCurrentVersionDescription", ret);
 
@@ -358,7 +358,7 @@ int32_t UpdateServiceProxy::GetTaskInfo(const UpgradeInfo &info, TaskInfo &taskI
 
     MessageParcel reply;
     MessageOption option;
-    int32_t ret = remote->SendRequest(CAST_INT(UpdaterSaInterfaceCode::GET_TASK_INFO), data, reply, option);
+    int32_t ret = remote->SendRequest(CAST_UINT(UpdaterSaInterfaceCode::GET_TASK_INFO), data, reply, option);
     RETURN_FAIL_WHEN_REMOTE_ERR("UpdateServiceProxy::GetTaskInfo", ret);
 
     BusinessError remoteBusinessError;
@@ -384,7 +384,7 @@ int32_t UpdateServiceProxy::SetUpgradePolicy(const UpgradeInfo &info, const Upgr
 
     MessageParcel reply;
     MessageOption option;
-    int32_t ret = remote->SendRequest(CAST_INT(UpdaterSaInterfaceCode::SET_POLICY), data, reply, option);
+    int32_t ret = remote->SendRequest(CAST_UINT(UpdaterSaInterfaceCode::SET_POLICY), data, reply, option);
     RETURN_FAIL_WHEN_REMOTE_ERR("UpdateServiceProxy::SetUpgradePolicy", ret);
 
     BusinessError remoteBusinessError;
@@ -406,7 +406,7 @@ int32_t UpdateServiceProxy::GetUpgradePolicy(const UpgradeInfo &info, UpgradePol
 
     MessageParcel reply;
     MessageOption option;
-    int32_t ret = remote->SendRequest(CAST_INT(UpdaterSaInterfaceCode::GET_POLICY), data, reply, option);
+    int32_t ret = remote->SendRequest(CAST_UINT(UpdaterSaInterfaceCode::GET_POLICY), data, reply, option);
     RETURN_FAIL_WHEN_REMOTE_ERR("UpdateServiceProxy::GetUpgradePolicy", ret);
 
     BusinessError remoteBusinessError;
@@ -431,7 +431,7 @@ int32_t UpdateServiceProxy::Cancel(const UpgradeInfo &info, int32_t service, Bus
 
     MessageParcel reply;
     MessageOption option;
-    int32_t ret = remote->SendRequest(CAST_INT(UpdaterSaInterfaceCode::CANCEL), data, reply, option);
+    int32_t ret = remote->SendRequest(CAST_UINT(UpdaterSaInterfaceCode::CANCEL), data, reply, option);
     RETURN_FAIL_WHEN_REMOTE_ERR("UpdateServiceProxy::Cancel", ret);
 
     BusinessError remoteBusinessError;
@@ -453,7 +453,7 @@ int32_t UpdateServiceProxy::FactoryReset(BusinessError &businessError)
     MessageOption option;
     int32_t ret = ERR_NONE; // IPC errCode: defined in ipc_types.h
 #ifndef UPDATER_UT
-    ret = remote->SendRequest(CAST_INT(UpdaterSaInterfaceCode::FACTORY_RESET), data, reply, option);
+    ret = remote->SendRequest(CAST_UINT(UpdaterSaInterfaceCode::FACTORY_RESET), data, reply, option);
 #endif
     RETURN_FAIL_WHEN_REMOTE_ERR("UpdateServiceProxy::FactoryReset", ret);
 
@@ -480,7 +480,7 @@ int32_t UpdateServiceProxy::ApplyNewVersion(const UpgradeInfo &info, const std::
     MessageOption option;
     int32_t ret = ERR_NONE;
 #ifndef UPDATER_UT
-    ret = remote->SendRequest(CAST_INT(UpdaterSaInterfaceCode::APPLY_NEW_VERSION), data, reply, option);
+    ret = remote->SendRequest(CAST_UINT(UpdaterSaInterfaceCode::APPLY_NEW_VERSION), data, reply, option);
 #endif
     RETURN_FAIL_WHEN_REMOTE_ERR("UpdateServiceProxy::ApplyNewVersion", ret);
 
@@ -504,7 +504,7 @@ int32_t UpdateServiceProxy::VerifyUpgradePackage(const std::string &packagePath,
 
     MessageParcel reply;
     MessageOption option;
-    int32_t ret = remote->SendRequest(CAST_INT(UpdaterSaInterfaceCode::VERIFY_UPGRADE_PACKAGE), data, reply, option);
+    int32_t ret = remote->SendRequest(CAST_UINT(UpdaterSaInterfaceCode::VERIFY_UPGRADE_PACKAGE), data, reply, option);
     RETURN_FAIL_WHEN_REMOTE_ERR("UpdateServiceProxy::VerifyUpgradePackage", ret);
 
     BusinessError remoteBusinessError;
