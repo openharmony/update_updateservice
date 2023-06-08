@@ -18,6 +18,7 @@
 
 #include "iremote_proxy.h"
 #include "iupdate_service.h"
+#include "updater_sa_ipc_interface_code.h"
 
 namespace OHOS {
 namespace UpdateEngine {
