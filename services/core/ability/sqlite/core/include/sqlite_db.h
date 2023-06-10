@@ -35,7 +35,7 @@ public:
     bool DeleteDbStore() final;
     bool Insert(const std::string &tableName, const std::vector<NativeRdb::ValuesBucket> &values) final;
     bool Delete(int32_t &deletedRows, const NativeRdb::RdbPredicates &predicates) final;
-    std::unique_ptr<NativeRdb::ResultSet> Query(
+    std::shared_ptr<NativeRdb::ResultSet> Query(
         const NativeRdb::RdbPredicates &predicates, const std::vector<std::string> &columns) final;
     bool Update(
         int &changedRows, const NativeRdb::ValuesBucket &values, const NativeRdb::RdbPredicates &predicates) final;

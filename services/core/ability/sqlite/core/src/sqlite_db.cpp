@@ -85,7 +85,7 @@ bool SqliteDb::Delete(int32_t &deletedRows, const NativeRdb::RdbPredicates &pred
     return true;
 }
 
-std::unique_ptr<NativeRdb::ResultSet> SqliteDb::Query(
+std::shared_ptr<NativeRdb::ResultSet> SqliteDb::Query(
     const NativeRdb::RdbPredicates &predicates, const std::vector<std::string> &columns)
 {
     std::shared_ptr<NativeRdb::RdbStore> dbStore = GetDbStore();
