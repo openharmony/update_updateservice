@@ -129,7 +129,7 @@ bool TableBaseOperator<Table, T>::Query(std::vector<T> &results, const NativeRdb
 {
     std::vector<std::string> columns;
     ENGINE_CHECK(dataBase_ != nullptr, return false, "TableBaseOperator Query db is null");
-    std::unique_ptr<ResultSet> resultSet = dataBase_->Query(predicates, columns);
+    auto resultSet = dataBase_->Query(predicates, columns);
     ENGINE_CHECK(resultSet != nullptr, return false, "TableBaseOperator Query failed to get result");
 
     ENGINE_CHECK(table_ != nullptr, return false, "TableBaseOperator Query table is null");
