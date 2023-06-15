@@ -38,7 +38,7 @@ public:
     virtual std::string GetTableName() = 0;
     virtual std::string GetTableCreateSql() = 0;
 
-    void ParseDbValues(std::unique_ptr<ResultSet> resultSet, std::vector<T> &values)
+    void ParseDbValues(std::shared_ptr<ResultSet> resultSet, std::vector<T> &values)
     {
         ENGINE_CHECK(resultSet != nullptr, return, "ParseDbValues resultSet is null");
         resultSet->GoToFirstRow();
