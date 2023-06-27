@@ -15,7 +15,7 @@ import("//base/update/updateservice/updateengine.gni")
 
 update_log_root_path = "$updateengine_root_path/services/core/ability/log"
 
-update_log_external_deps = [ "hiviewdfx_hilog_native:libhilog" ]
+update_log_external_deps = [ "hilog:libhilog" ]
 update_log_deps = []
 update_log_include = [ "$update_log_root_path/include" ]
 update_log_src = [ "$update_log_root_path/src/update_log.cpp" ]
