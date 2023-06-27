@@ -136,8 +136,8 @@ sa_external_deps = [
   "access_token:libaccesstoken_sdk",
   "access_token:libtokenid_sdk",
   "c_utils:utils",  # refbase
-  "hisysevent_native:libhisysevent",
-  "hiviewdfx_hilog_native:libhilog",
+  "hisysevent:libhisysevent",
+  "hilog:libhilog",
   "init:libbegetutil",
   "ipc:ipc_core",
   "safwk:system_ability_fwk",
