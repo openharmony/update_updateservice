@@ -1,5 +1,5 @@
 {
-  "name": "@ohos/updateservice",
+  "name": "@ohos/update_service",
   "description": "A system ability started by the init process of OHOS to implement an update",
   "version": "3.1",
   "license": "Apache License 2.0",
