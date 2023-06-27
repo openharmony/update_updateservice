@@ -57,7 +57,7 @@ ohos_static_library("$updateengine_inner_library_name") {
 
   external_deps = [
     "c_utils:utils",  # sptr
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
