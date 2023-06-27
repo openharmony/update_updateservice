@@ -39,7 +39,7 @@ ohos_shared_library("$updateengine_client_library_name") {
 
   external_deps = [
     "c_utils:utils",  # sptr
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
     "ipc:ipc_core",
     "napi:ace_napi",
     "safwk:system_ability_fwk",
