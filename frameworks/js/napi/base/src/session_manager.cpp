@@ -288,7 +288,8 @@ void SessionManager::Emit(const EventClassifyInfo &eventClassifyInfo, const Even
             mgr->PublishToJS(eventClassifyInfo, eventInfo);
             delete data;
             delete work;
-        });
+        },
+        uv_qos_t::uv_qos_default);
 }
 } // namespace UpdateEngine
 } // namespace OHOS
