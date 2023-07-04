@@ -289,7 +289,7 @@ void SessionManager::Emit(const EventClassifyInfo &eventClassifyInfo, const Even
             delete data;
             delete work;
         },
-        uv_qos_default);
+        uv_qos_t::uv_qos_default);
 }
 } // namespace UpdateEngine
 } // namespace OHOS

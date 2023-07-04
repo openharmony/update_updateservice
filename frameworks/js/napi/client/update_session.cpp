@@ -15,6 +15,7 @@
 
 #include "update_session.h"
 
+#include "napi/native_api.h"
 #include "node_api.h"
 #include "securec.h"
 
@@ -129,7 +130,7 @@ napi_value UpdateAsyncession::StartWork(napi_env env, size_t startIndex, const n
     PARAM_CHECK_NAPI_CALL(env, status == napi_ok, return nullptr, "Failed to create worker");
 
     // Put the thread in the task execution queue.
-    status = napi_queue_async_work_with_qos(env, worker_, napi_qos_default);
+    status = napi_queue_async_work_with_qos(env, worker_, napi_qos_t::napi_qos_default);
     PARAM_CHECK_NAPI_CALL(env, status == napi_ok, return nullptr, "Failed to queue worker");
     napi_value result;
     napi_create_int32(env, 0, &result);
@@ -201,7 +202,7 @@ napi_value UpdatePromiseSession::StartWork(napi_env env, size_t startIndex, cons
         UpdateSession::CompleteWork, this, &(worker_));
     PARAM_CHECK_NAPI_CALL(env, status == napi_ok, return nullptr, "Failed to napi_create_async_work");
     // Put the thread in the task execution queue.
-    status = napi_queue_async_work_with_qos(env, worker_, napi_qos_default);
+    status = napi_queue_async_work_with_qos(env, worker_, napi_qos_t::napi_qos_default);
     PARAM_CHECK_NAPI_CALL(env, status == napi_ok, return nullptr, "Failed to napi_queue_async_work");
     return promise;
 }
