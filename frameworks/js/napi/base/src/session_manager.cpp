@@ -278,7 +278,7 @@ void SessionManager::Emit(const EventClassifyInfo &eventClassifyInfo, const Even
     PARAM_CHECK(work != nullptr, delete data; return, "alloc work failed.");
 
     work->data = static_cast<void *>(data);
-    uv_queue_work(
+    uv_queue_work_with_qos(
         loop,
         work,
         [](uv_work_t *work) {},
@@ -288,7 +288,8 @@ void SessionManager::Emit(const EventClassifyInfo &eventClassifyInfo, const Even
             mgr->PublishToJS(eventClassifyInfo, eventInfo);
             delete data;
             delete work;
-        });
+        },
+        uv_qos_default);
 }
 } // namespace UpdateEngine
 } // namespace OHOS
