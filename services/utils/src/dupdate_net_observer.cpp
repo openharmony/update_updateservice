@@ -48,7 +48,7 @@ void NetObserver::StartObserver()
         int32_t retryCount = 0;
         int32_t ret = NetConnResultCode::NET_CONN_SUCCESS;
         do {
-            ret = DelayedSingleton<NetConnClient>::GetInstance()->RegisterNetConnCallback(specifier, this, 0);
+            ret = NetConnClient::GetInstance().RegisterNetConnCallback(specifier, this, 0);
             if (ret == NetConnResultCode::NET_CONN_SUCCESS) {
                 ENGINE_LOGI("StartObserver register success");
                 return;
