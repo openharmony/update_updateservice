@@ -38,13 +38,19 @@ void FirmwareCheckAnalyzeUtils::DoAnalyze(const std::string &rawJson, std::vecto
 {
     BlCheckResponse response;
     int32_t ret = CAST_INT(JsonParseError::ERR_OK);
-    nlohmann::json root = nlohmann::json::parse(rawJson, nullptr, false);
-    if (root.is_discarded()) {
-        FIRMWARE_LOGE("json parse error!");
+    nlohmann::json root;
+    if (!JsonUtils::ParseAndGetJsonObject(rawJson, root)) {
+        FIRMWARE_LOGE("fail to parse out a json object");
         return;
     }
+
+    std::string statusStr;
+    JsonUtils::GetValueAndSetTo(root, "searchStatus", statusStr);
     int32_t status = CAST_INT(CheckResultStatus::STATUS_SYSTEM_ERROR);
-    status = root.at("searchStatus");
+    if (!statusStr.empty()) {
+        status = static_cast<int32_t>(stoi(statusStr));
+    }
+
     checkAndAuthInfo.responseStatus = std::to_string(status);
     if (!IsLegalStatus(status)) {
         FIRMWARE_LOGI("not found new version!");
@@ -63,11 +69,19 @@ void FirmwareCheckAnalyzeUtils::DoAnalyze(const std::string &rawJson, std::vecto
 
 int32_t FirmwareCheckAnalyzeUtils::AnalyzeBlVersionCheckResults(nlohmann::json &root, BlCheckResponse &response)
 {
+    if (root.find("checkResults") == root.end()) {
+        FIRMWARE_LOGE("FirmwareCheckAnalyzeUtils::AnalyzeBlVersionCheckResults no key checkResults");
+        return CAST_INT(JsonParseError::MISSING_PROP);
+    }
     FIRMWARE_LOGI("blVersionCheckResults size is %{public}lu ", root["blVersionCheckResults"].size());
     int32_t ret = CAST_INT(JsonParseError::ERR_OK);
     for (auto &result : root["checkResults"]) {
         int32_t status = CAST_INT(CheckResultStatus::STATUS_SYSTEM_ERROR);
-        status = root.at("searchStatus");
+        std::string statusStr;
+        JsonUtils::GetValueAndSetTo(root, "searchStatus", statusStr);
+        if (!statusStr.empty()) {
+            status = static_cast<int32_t>(stoi(statusStr));
+        }
         if (status == CAST_INT(CheckResultStatus::STATUS_NEW_VERSION_AVAILABLE)) {
             BlVersionCheckResult checkResult;
             ret += JsonUtils::GetValueAndSetTo(result, "descriptPackageId", checkResult.descriptPackageId);
@@ -99,6 +113,11 @@ int32_t FirmwareCheckAnalyzeUtils::AnalyzeBlVersionCheckResults(nlohmann::json &
 
 int32_t FirmwareCheckAnalyzeUtils::AnalyzeComponents(nlohmann::json &root)
 {
+    if (root.find("checkResults") == root.end()) {
+        FIRMWARE_LOGE("FirmwareCheckAnalyzeUtils::AnalyzeComponents no key checkResults");
+        return CAST_INT(JsonParseError::MISSING_PROP);
+    }
+    FIRMWARE_LOGI("checkResults size is %{public}lu ", root["blVersionCheckResults"].size());
     int32_t ret = CAST_INT(JsonParseError::ERR_OK);
     std::string componentId;
     for (auto &result : root["checkResults"]) {
