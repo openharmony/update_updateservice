@@ -51,6 +51,24 @@ public:
         jsonObject.at(key).get_to(value);
         return CAST_INT(JsonParseError::ERR_OK);
     };
+
+    static bool ParseAndGetJsonObject(const std::string &jsonStr, nlohmann::json &root)
+    {
+        root = nlohmann::json::parse(jsonStr, nullptr, false);
+        if (root.is_discarded() || !root.is_object()) {
+            return false;
+        }
+        return true;
+    }
+
+    static bool ParseAndGetJsonArray(const std::string &jsonStr, nlohmann::json &root)
+    {
+        root = nlohmann::json::parse(jsonStr, nullptr, false);
+        if (root.is_discarded() || !root.is_array()) {
+            return false;
+        }
+        return true;
+    }
 private:
     static bool CheckType(const nlohmann::json &jsonObject, const std::string &key, std::string &value)
     {
