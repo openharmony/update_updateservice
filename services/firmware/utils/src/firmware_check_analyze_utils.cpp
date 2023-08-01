@@ -44,12 +44,8 @@ void FirmwareCheckAnalyzeUtils::DoAnalyze(const std::string &rawJson, std::vecto
         return;
     }
 
-    std::string statusStr;
-    JsonUtils::GetValueAndSetTo(root, "searchStatus", statusStr);
     int32_t status = CAST_INT(CheckResultStatus::STATUS_SYSTEM_ERROR);
-    if (!statusStr.empty()) {
-        status = static_cast<int32_t>(stoi(statusStr));
-    }
+    JsonUtils::GetValueAndSetTo(root, "searchStatus", status);
 
     checkAndAuthInfo.responseStatus = std::to_string(status);
     if (!IsLegalStatus(status)) {
@@ -77,11 +73,7 @@ int32_t FirmwareCheckAnalyzeUtils::AnalyzeBlVersionCheckResults(nlohmann::json &
     int32_t ret = CAST_INT(JsonParseError::ERR_OK);
     for (auto &result : root["checkResults"]) {
         int32_t status = CAST_INT(CheckResultStatus::STATUS_SYSTEM_ERROR);
-        std::string statusStr;
-        JsonUtils::GetValueAndSetTo(root, "searchStatus", statusStr);
-        if (!statusStr.empty()) {
-            status = static_cast<int32_t>(stoi(statusStr));
-        }
+        JsonUtils::GetValueAndSetTo(root, "searchStatus", status);
         if (status == CAST_INT(CheckResultStatus::STATUS_NEW_VERSION_AVAILABLE)) {
             BlVersionCheckResult checkResult;
             ret += JsonUtils::GetValueAndSetTo(result, "descriptPackageId", checkResult.descriptPackageId);
