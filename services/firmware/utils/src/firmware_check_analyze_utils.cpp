@@ -69,7 +69,7 @@ int32_t FirmwareCheckAnalyzeUtils::AnalyzeBlVersionCheckResults(nlohmann::json &
         FIRMWARE_LOGE("FirmwareCheckAnalyzeUtils::AnalyzeBlVersionCheckResults no key checkResults");
         return CAST_INT(JsonParseError::MISSING_PROP);
     }
-    FIRMWARE_LOGI("blVersionCheckResults size is %{public}lu ", root["blVersionCheckResults"].size());
+    FIRMWARE_LOGI("checkResults size is %{public}lu ", root["checkResults"].size());
     int32_t ret = CAST_INT(JsonParseError::ERR_OK);
     for (auto &result : root["checkResults"]) {
         int32_t status = CAST_INT(CheckResultStatus::STATUS_SYSTEM_ERROR);
@@ -109,7 +109,7 @@ int32_t FirmwareCheckAnalyzeUtils::AnalyzeComponents(nlohmann::json &root)
         FIRMWARE_LOGE("FirmwareCheckAnalyzeUtils::AnalyzeComponents no key checkResults");
         return CAST_INT(JsonParseError::MISSING_PROP);
     }
-    FIRMWARE_LOGI("checkResults size is %{public}lu ", root["blVersionCheckResults"].size());
+    FIRMWARE_LOGI("checkResults size is %{public}lu ", root["checkResults"].size());
     int32_t ret = CAST_INT(JsonParseError::ERR_OK);
     std::string componentId;
     for (auto &result : root["checkResults"]) {
@@ -131,7 +131,11 @@ int32_t FirmwareCheckAnalyzeUtils::AnalyzeComponents(nlohmann::json &root)
         componentId = component.descriptPackageId;
         components_.push_back(component);
     }
-
+    
+    if (root.find("descriptInfo") == root.end()) {
+        FIRMWARE_LOGE("FirmwareCheckAnalyzeUtils::AnalyzeComponents no key descriptInfo");
+        return CAST_INT(JsonParseError::MISSING_PROP);
+    }
     for (auto &descriptInfo : root["descriptInfo"]) {
         int32_t descriptInfoType;
         std::string descContent;
