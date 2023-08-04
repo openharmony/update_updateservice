@@ -30,7 +30,7 @@ config("updateengine_inner_library_native_config") {
   ]
 }
 
-ohos_static_library("$updateengine_inner_library_name") {
+ohos_shared_library("$updateengine_inner_library_name") {
   defines = [ "DUAL_ADAPTER" ]
   sources = [
     "$updateengine_root_path/interfaces/inner_api/engine/update_service_kits_impl.cpp",

@@ -16,7 +16,6 @@
 #ifndef UPDATE_NOTIFY_H
 #define UPDATE_NOTIFY_H
 
-#if defined(ABILITY_BASE_ENABLE) || defined(ABILITY_RUNTIME_ENABLE)
 #include <string>
 #include "ability_connect_callback_stub.h"
 #include "ability_connect_callback_interface.h"
@@ -55,5 +54,4 @@ public:
 };
 } // namespace UpdateEngine
 } // namespace OHOS
-#endif // ABILITY_BASE_ENABLE || ABILITY_RUNTIME_ENABLE
 #endif // UPDATE_NOTIFY_H

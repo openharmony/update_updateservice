@@ -16,9 +16,7 @@
 #include "firmware_apply_executor.h"
 
 #include <unistd.h>
-#ifndef RELATIONAL_STORE_NATIVE_RDB_ENABLE
 #include <thread>
-#endif
 
 #include "init_reboot.h"
 
