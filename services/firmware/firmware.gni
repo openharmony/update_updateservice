@@ -55,10 +55,6 @@ ab_update_src = [
 firmware_src = [
   "$firmware_root_path/callback/src/firmware_callback_utils.cpp",
   "$firmware_root_path/common/src/firmware_update_helper.cpp",
-  "$firmware_root_path/data/db/src/firmware_component_operator.cpp",
-  "$firmware_root_path/data/db/src/firmware_component_table.cpp",
-  "$firmware_root_path/data/db/src/firmware_database.cpp",
-  "$firmware_root_path/data/db/src/firmware_task_operator.cpp",
   "$firmware_root_path/data/manager/src/firmware_preferences_utils.cpp",
   "$firmware_root_path/event/src/firmware_event_listener.cpp",
   "$firmware_root_path/upgrade/data_processor/src/firmware_check_data_processor.cpp",
@@ -82,10 +78,23 @@ firmware_src = [
   "$firmware_root_path/utils/src/firmware_changelog_utils.cpp",
   "$firmware_root_path/utils/src/firmware_combine_version_utils.cpp",
 ]
+
 if (relational_store_native_rdb_enable) {
   firmware_src += [
+    "$firmware_root_path/data/db/src/firmware_component_operator.cpp",
+    "$firmware_root_path/data/db/src/firmware_component_table.cpp",
+    "$firmware_root_path/data/db/src/firmware_database.cpp",
     "$firmware_root_path/data/db/src/firmware_database_callback.cpp",
+    "$firmware_root_path/data/db/src/firmware_task_operator.cpp",
     "$firmware_root_path/data/db/src/firmware_task_table.cpp",
+  ]
+} else {
+  firmware_src += [
+    "$firmware_root_path/data/db/src/firmware_component_operator_empty.cpp",
+    "$firmware_root_path/data/db/src/firmware_component_table_empty.cpp",
+    "$firmware_root_path/data/db/src/firmware_database_empty.cpp",
+    "$firmware_root_path/data/db/src/firmware_task_operator_empty.cpp",
+    "$firmware_root_path/data/db/src/firmware_task_table_empty.cpp",
   ]
 }
 firmware_src += ab_update_src

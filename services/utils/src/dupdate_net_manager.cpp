@@ -25,16 +25,13 @@ namespace OHOS {
 namespace UpdateEngine {
 NetManager::NetManager()
 {
-#ifdef NETMANAGER_BASE_ENABLE
     observer_ = new NetObserver();
-#endif
 }
 
 NetManager::~NetManager() {}
 
 void NetManager::Init()
 {
-#ifdef NETMANAGER_BASE_ENABLE
     ENGINE_LOGI("NetManager init");
     if (observer_ == nullptr) {
         ENGINE_LOGE("net ovserver is nullptr");
@@ -42,7 +39,6 @@ void NetManager::Init()
     }
     observer_->SetCallback(weak_from_this());
     observer_->StartObserver();
-#endif
 }
 
 bool NetManager::RegisterCallback(

@@ -13,34 +13,21 @@
  * limitations under the License.
  */
 
-#ifndef DUPDATE_INET_OBSERVER_H
-#define DUPDATE_INET_OBSERVER_H
+#include "firmware_task_table.h"
 
-#include <functional>
-
-#include "update_helper.h"
+#include "itable.h"
+#include "update_define.h"
 
 namespace OHOS {
 namespace UpdateEngine {
-enum class NetChangeCallbackType {
-    HOTA_BI_REPORT = 0,
-    HOTA_DOWNLOAD = 1,
-    PARAM_AUTO_UPGRADE = 2,
-    COMMON_DOWNLOAD = 3,
-};
+std::string FirmwareTaskTable::GetTableName()
+{
+    return "";
+}
 
-using NetObserverCallback = std::function<void(NetType)>;
-
-class INetObserverCallback {
-public:
-    virtual bool OnNetChange(NetType netType) = 0;
-};
-
-class DupdateINetObserver {
-public:
-    virtual void SetCallback(const std::weak_ptr<INetObserverCallback> &callback) = 0;
-    virtual void StartObserver() = 0;
-};
+std::string FirmwareTaskTable::GetTableCreateSql()
+{
+    return "";
+}
 } // namespace UpdateEngine
 } // namespace OHOS
-#endif // DUPDATE_INET_OBSERVER_H

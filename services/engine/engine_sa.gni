@@ -45,8 +45,6 @@ sa_sources = [
   "$updateengine_root_path/services/core/ability/adapter/src/device_adapter.cpp",
   "$updateengine_root_path/services/core/ability/alarm/src/alarm_manager.cpp",
   "$updateengine_root_path/services/core/ability/alarm/src/timer_manager.cpp",
-  "$updateengine_root_path/services/core/ability/callback/src/base_callback_utils.cpp",
-  "$updateengine_root_path/services/core/ability/preference/src/preference_utils.cpp",
   "$updateengine_root_path/services/core/ability/status_cache/src/status_cache.cpp",
   "$updateengine_root_path/services/core/ability/utils/src/file_utils.cpp",
   "$updateengine_root_path/services/core/ability/utils/src/sha256_utils.cpp",
@@ -62,18 +60,35 @@ sa_sources = [
   "$updateengine_root_path/services/engine/src/update_service_restorer.cpp",
   "$updateengine_root_path/services/engine/src/update_service_stub.cpp",
   "$updateengine_root_path/services/engine/src/update_service_util_hmos.cpp",
-  "$updateengine_root_path/services/utils/src/dupdate_net_manager.cpp",
   "$updateengine_root_path/services/utils/src/dupdate_timer.c",
 ]
 
 if (ability_ability_base_enable || ability_ability_runtime_enable) {
-  sa_sources +=
-      [ "$updateengine_root_path/services/engine/src/update_notify.cpp" ]
+  sa_sources += [
+    "$updateengine_root_path/services/core/ability/callback/src/base_callback_utils.cpp",
+    "$updateengine_root_path/services/engine/src/update_notify.cpp",
+  ]
+} else {
+  sa_sources += [ "$updateengine_root_path/services/core/ability/callback/src/base_callback_utils_empty.cpp" ]
 }
+
 if (communication_netmanager_base_enable) {
-  sa_sources +=
-      [ "$updateengine_root_path/services/utils/src/dupdate_net_observer.cpp" ]
+  sa_sources += [
+    "$updateengine_root_path/services/utils/src/dupdate_net_manager.cpp",
+    "$updateengine_root_path/services/utils/src/dupdate_net_observer.cpp",
+  ]
+} else {
+  sa_sources += [
+    "$updateengine_root_path/services/utils/src/dupdate_net_manager_empty.cpp",
+  ]
 }
+
+if (preference_native_preferences_enable) {
+  sa_sources += [ "$updateengine_root_path/services/core/ability/preference/src/preference_utils.cpp" ]
+} else {
+  sa_sources += [ "$updateengine_root_path/services/core/ability/preference/src/preference_utils_empty.cpp" ]
+}
+
 sa_sources += firmware_src
 sa_sources += sqlite_src
 sa_sources += update_log_src
@@ -108,8 +123,42 @@ sa_include_dirs = [
   "//third_party/glib/glib",
   "//third_party/glib",
   "//third_party/openssl/include",
-  "third_party/cJSON/",
+  "//third_party/cJSON/",
 ]
+
+if (!ability_ability_base_enable || !ability_ability_runtime_enable) {
+  sa_include_dirs += [
+    "//foundation/ability/ability_base/interfaces/inner_api/base/include",
+    "//foundation/ability/ability_base/interfaces/kits/native/uri/include",
+    "//foundation/ability/ability_base/interfaces/kits/native/want/include",
+    "//foundation/ability/ability_runtime/frameworks/simulator/common/include",
+    "//foundation/ability/ability_runtime/interfaces/inner_api/ability_manager/include",
+    "//foundation/ability/ability_runtime/interfaces/inner_api/app_manager/include/appmgr",
+    "//foundation/ability/ability_runtime/interfaces/kits/native/ability/native",
+    "//foundation/bundlemanager/bundle_framework/interfaces/inner_api/appexecfwk_base/include",
+  ]
+}
+
+if (!preference_native_preferences_enable) {
+  sa_include_dirs += [
+    "//foundation/distributeddatamgr/preferences/interfaces/inner_api/include",
+  ]
+}
+
+if (!communication_netmanager_base_enable) {
+  sa_include_dirs += [
+    "//foundation/communication/netmanager_base/interfaces/innerkits/include",
+    "//foundation/communication/netmanager_base/interfaces/innerkits/netconnclient/include",
+    "//foundation/communication/netmanager_base/interfaces/innerkits/netconnclient/include/proxy",
+  ]
+}
+
+if (!relational_store_native_rdb_enable) {
+  sa_include_dirs += [
+    "//base/update/updateservice/services/core/ability/sqlite/core/include",
+    "//foundation/distributeddatamgr/relational_store/interfaces/inner_api/rdb/include",
+  ]
+}
 
 sa_include_dirs += firmware_include
 sa_include_dirs += sqlite_include
