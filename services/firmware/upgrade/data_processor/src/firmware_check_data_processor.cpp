@@ -18,9 +18,7 @@
 #include "config_parse.h"
 #include "constant.h"
 #include "dupdate_inet_observer.h"
-#ifdef NETMANAGER_BASE_ENABLE
 #include "dupdate_net_observer.h"
-#endif
 #include "firmware_changelog_utils.h"
 #include "firmware_combine_version_utils.h"
 #include "firmware_common.h"

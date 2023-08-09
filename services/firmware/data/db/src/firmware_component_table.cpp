@@ -17,9 +17,6 @@
 
 namespace OHOS {
 namespace UpdateEngine {
-#ifndef RELATIONAL_STORE_NATIVE_RDB_ENABLE
-const std::string COLUMN_ID = "id";
-#endif
 std::string FirmwareComponentTable::GetTableName()
 {
     return FIRMWARE_TABLE_COMPONENT;
@@ -61,7 +58,6 @@ std::string FirmwareComponentTable::GetTableCreateSql()
         .append(")");
 }
 
-#ifdef RELATIONAL_STORE_NATIVE_RDB_ENABLE
 void FirmwareComponentTable::ParseDbValue(ResultSet *resultSet, FirmwareComponent &value)
 {
     GetColumnValue(resultSet, COLUMN_ID, value.id);
@@ -118,6 +114,5 @@ void FirmwareComponentTable::BuildDbValue(const FirmwareComponent &value, Native
     PutColumnValue(dbValue, COLUMN_COMPONENT_STATUS, CAST_INT(value.status));
     PutColumnValue(dbValue, COLUMN_COMPONENT_PROGRESS, value.progress);
 }
-#endif
 } // namespace UpdateEngine
 } // namespace OHOS

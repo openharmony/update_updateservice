@@ -23,7 +23,7 @@ const std::string FIRMWARE_DB_NAME = "/firmware_sqlite.db";
 constexpr int32_t FIRMWARE_DB_VERSION = 1;
 FirmwareDatabase::FirmwareDatabase()
 {
-    InitDbStoreDir();
+    ENGINE_LOGI("FirmwareDatabase Constructor");
 }
 
 FirmwareDatabase::~FirmwareDatabase() {}
@@ -40,17 +40,17 @@ int32_t FirmwareDatabase::GetDbVersion()
 
 void FirmwareDatabase::InitDbStoreDir()
 {
-    dbStoreDir_ = Constant::DATABASES_ROOT_PATH + FIRMWARE_DB_NAME;
+    ENGINE_LOGI("FirmwareDatabase InitDbStoreDir");
 }
 
 std::string FirmwareDatabase::GetDbStoreDir()
 {
-    return dbStoreDir_;
+    return "";
 }
 
-NativeRdb::RdbOpenCallback &FirmwareDatabase::GetDbOpenCallback()
+bool FirmwareDatabase::DeleteDbStore()
 {
-    return dbOpenCallback_;
+    return true;
 }
 } // namespace UpdateEngine
 } // namespace OHOS
