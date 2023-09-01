@@ -52,10 +52,10 @@ private:
 
 private:
     FirmwareDownloadDataProcessor downloadDataProcessor_;
-    DownloadOptions downloadOptions_;
+    DownloadOptions downloadOptions_ {};
     BusinessError &businessError_;
     OnExecuteFinishCallback onExecuteFinishCallback_;
-    FirmwareTask tasks_;
+    FirmwareTask tasks_ {};
 };
 } // namespace UpdateEngine
 } // namespace OHOS

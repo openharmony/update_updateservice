@@ -30,7 +30,7 @@ public:
     void SetIsChecking(bool isChecking);
 
 private:
-    std::shared_ptr<StatusCache> statusCache_;
+    std::shared_ptr<StatusCache> statusCache_ = nullptr;
 };
 } // namespace UpdateEngine
 } // namespace OHOS

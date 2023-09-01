@@ -40,7 +40,7 @@ private:
 private:
     OnCheckComplete onCheckComplete_;
     FirmwareCheckDataProcessor checkDataProcessor_;
-    BusinessError businessError_;
+    BusinessError businessError_ {};
 };
 } // namespace UpdateEngine
 } // namespace OHOS

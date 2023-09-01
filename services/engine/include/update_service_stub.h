@@ -81,8 +81,7 @@ private:
     bool IsPermissionGranted(uint32_t code);
 
 private:
-    std::map<uint32_t, RequestFuncType> requestFuncMap_;
-};
+    std::map<uint32_t, RequestFuncType> requestFuncMap_ {};
 } // namespace UpdateEngine
 } // namespace OHOS
 #endif // UPDATE_SERVICE_STUB_H

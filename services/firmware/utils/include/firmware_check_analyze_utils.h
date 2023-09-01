@@ -39,7 +39,7 @@ private:
     int32_t AnalyzeBlVersionCheckResults(nlohmann::json &root, BlCheckResponse &response);
 
 private:
-    std::vector<FirmwareComponent> components_;
+    std::vector<FirmwareComponent> components_ {};
 };
 } // namespace UpdateEngine
 } // namespace OHOS

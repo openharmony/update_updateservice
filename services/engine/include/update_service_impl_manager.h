@@ -36,7 +36,7 @@ public:
 
 private:
     std::mutex updateImplMapLock_;
-    std::map<UpgradeInfo, sptr<IServiceOnlineUpdater>> updateImpMap_;
+    std::map<UpgradeInfo, sptr<IServiceOnlineUpdater>> updateImpMap_ {};
 };
 } // namespace UpdateEngine
 } // namespace OHOS
