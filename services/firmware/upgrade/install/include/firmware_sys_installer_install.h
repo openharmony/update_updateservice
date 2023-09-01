@@ -40,7 +40,7 @@ private:
     int32_t WaitInstallResult();
 
 private:
-    Progress sysInstallProgress_ ;
+    Progress sysInstallProgress_ {};
 };
 } // namespace UpdateEngine
 } // namespace OHOS

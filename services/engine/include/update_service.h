@@ -133,9 +133,9 @@ public:
 
 private:
     std::mutex clientProxyMapLock_;
-    std::map<UpgradeInfo, ClientProxy> clientProxyMap_;
+    std::map<UpgradeInfo, ClientProxy> clientProxyMap_ {};
     static sptr<UpdateService> updateService_;
-    std::shared_ptr<UpdateServiceImplManager> updateImplMgr_;
+    std::shared_ptr<UpdateServiceImplManager> updateImplMgr_ = nullptr;
 };
 } // namespace UpdateEngine
 } // namespace OHOS

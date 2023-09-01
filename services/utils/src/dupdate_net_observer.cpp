@@ -44,6 +44,9 @@ void NetObserver::StartObserver()
         netSpecifier.ident_ = "";
         netSpecifier.netCapabilities_ = netAllCapabilities;
         sptr<NetSpecifier> specifier = new NetSpecifier(netSpecifier);
+        if (specifier == nullptr) {
+            return;
+        }
         constexpr int32_t RETRY_MAX_TIMES = 10;
         int32_t retryCount = 0;
         int32_t ret = NetConnResultCode::NET_CONN_SUCCESS;

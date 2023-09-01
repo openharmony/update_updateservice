@@ -165,9 +165,9 @@ private:
     }
 
     RequestType requestType_ = RequestType::CHECK;
-    Duration duration_;
-    CheckAndAuthInfo checkAndAuthInfo_;
-    std::vector<FirmwareComponent> checkResultList_;
+    Duration duration_ {};
+    CheckAndAuthInfo checkAndAuthInfo_ {};
+    std::vector<FirmwareComponent> checkResultList_ {};
 };
 } // namespace UpdateEngine
 } // namespace OHOS

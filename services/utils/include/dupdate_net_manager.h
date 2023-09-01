@@ -52,7 +52,7 @@ private:
     sptr<NetObserver> observer_ = nullptr;
     std::mutex netChangeMutex_;
     NetType netType_ = NetType::NO_NET;
-    std::map<NetChangeCallbackType, NetChangeCallback> netChangeCallbackMap_;
+    std::map<NetChangeCallbackType, NetChangeCallback> netChangeCallbackMap_ {};
 };
 } // namespace UpdateEngine
 } // namespace OHOS

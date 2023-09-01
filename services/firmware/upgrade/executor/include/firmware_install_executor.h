@@ -42,9 +42,9 @@ private:
     InstallType installType_;
     FirmwareInstallExecutorCallback installCallback_;
     InstallCallbackInfo installCallbackInfo_;
-    std::vector<FirmwareComponent> components_;
-    FirmwareTask tasks_;
-    Progress taskProgress_;
+    std::vector<FirmwareComponent> components_ {};
+    FirmwareTask tasks_ {};
+    Progress taskProgress_ {};
     std::shared_ptr<FirmwarePreferencesUtil> preferencesUtil_ =
         DelayedSingleton<FirmwarePreferencesUtil>::GetInstance();
 };

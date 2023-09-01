@@ -56,11 +56,11 @@ private:
 
 private:
     FirmwareInstallDataProcessor installStepDataProcessor_;
-    UpgradeOptions upgradeOptions_;
+    UpgradeOptions upgradeOptions_ {};
     BusinessError &businessError_;
     InstallType installType_;
     OnExecuteFinishCallback onExecuteFinishCallback_;
-    FirmwareTask tasks_;
+    FirmwareTask tasks_ {};
     std::shared_ptr<FirmwarePreferencesUtil> preferencesUtil_ =
         DelayedSingleton<FirmwarePreferencesUtil>::GetInstance();
 };
