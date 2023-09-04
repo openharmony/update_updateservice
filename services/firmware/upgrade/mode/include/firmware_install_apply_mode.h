@@ -56,7 +56,7 @@ private:
 
 private:
     FirmwareInstallDataProcessor installStepDataProcessor_;
-    UpgradeOptions upgradeOptions_ {};
+    UpgradeOptions upgradeOptions_;
     BusinessError &businessError_;
     InstallType installType_;
     OnExecuteFinishCallback onExecuteFinishCallback_;
