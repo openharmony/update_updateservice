@@ -37,7 +37,7 @@ public:
     std::string reserveUrl;
     std::string path;
     std::string veriftInfo;
-    std::map<std::string, std::string> header;
+    std::map<std::string, std::string> header {};
     std::string requestBody;
     int32_t retryTimes = 0;
     int64_t packageSize = 0;
