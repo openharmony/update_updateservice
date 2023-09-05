@@ -40,7 +40,7 @@ private:
 
 private:
     DownloadOptions downloadOptions_ {};
-    std::vector<FirmwareComponent> components_ {};
+    std::vector<FirmwareComponent> components_;
     FirmwareProgressCallback firmwareProgressCallback_ {};
     FirmwareTask tasks_ {};
     UpgradeStatus upgradeStatus_;

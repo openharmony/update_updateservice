@@ -50,7 +50,7 @@ private:
     AlarmType alarmType_;
     std::string logTag_;
     int32_t timeLooperInterval_ = AlarmLooper::DEFAULT_LOOPER_INTERVAL;
-    std::map<BusinessAlarmType, AlarmCallback> callbackMap_ {};
+    std::map<BusinessAlarmType, AlarmCallback> callbackMap_;
 };
 } // namespace UpdateEngine
 } // namespace OHOS

@@ -56,7 +56,7 @@ private:
     void BuildVersionDigest(NewVersionInfo &newVersionInfo, const std::vector<FirmwareComponent> &componentList);
 
 private:
-    std::vector<FirmwareComponent> componentList_ {};
+    std::vector<FirmwareComponent> componentList_;
     Duration duration_ {};
     bool isSameWithDb_ = true;
     CheckStatus status_ = CheckStatus::CHECK_FAIL;

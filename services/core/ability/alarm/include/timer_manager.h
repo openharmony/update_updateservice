@@ -41,7 +41,7 @@ private:
     void BuildTimer();
 
 private:
-    std::map<AlarmType, uint32_t> lastRegisterTimeIdMap_ {};
+    std::map<AlarmType, uint32_t> lastRegisterTimeIdMap_;
     std::shared_ptr<OHOS::Utils::Timer> timer_ = nullptr;
     std::mutex mutex_;
 };

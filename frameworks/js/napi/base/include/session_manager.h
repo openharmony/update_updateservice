@@ -47,7 +47,7 @@ private:
 
     napi_env env_ {};
     napi_ref thisReference_ {};
-    std::map<uint32_t, std::shared_ptr<IUpdateSession>> sessions_ {};
+    std::map<uint32_t, std::shared_ptr<IUpdateSession>> sessions_;
 #ifndef UPDATER_API_TEST
     std::recursive_mutex sessionMutex_;
 #endif
