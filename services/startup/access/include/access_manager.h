@@ -53,7 +53,7 @@ public:
 
 private:
     std::recursive_mutex mutex_;
-    std::map<AccessType, std::shared_ptr<IAccess>> accessMap_ {};
+    std::map<AccessType, std::shared_ptr<IAccess>> accessMap_;
     bool isRemoteIdle_ = true;
 };
 } // namespace UpdateEngine
