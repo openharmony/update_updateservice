@@ -39,10 +39,10 @@ private:
     bool VerifyDownloadPkg(const std::string &pkgName, Progress &progress);
 
 private:
-    DownloadOptions downloadOptions_ {};
+    DownloadOptions downloadOptions_;
     std::vector<FirmwareComponent> components_;
-    FirmwareProgressCallback firmwareProgressCallback_ {};
-    FirmwareTask tasks_ {};
+    FirmwareProgressCallback firmwareProgressCallback_;
+    FirmwareTask tasks_;
     UpgradeStatus upgradeStatus_;
     std::shared_ptr<DownloadThread> downloadThread_ = nullptr;
 };

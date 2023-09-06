@@ -57,7 +57,7 @@ private:
 
 private:
     std::vector<FirmwareComponent> componentList_;
-    Duration duration_ {};
+    Duration duration_;
     bool isSameWithDb_ = true;
     CheckStatus status_ = CheckStatus::CHECK_FAIL;
 };

@@ -36,7 +36,7 @@ private:
     void GetTask();
 
 private:
-    FirmwareTask tasks_ {};
+    FirmwareTask tasks_;
 };
 } // namespace UpdateEngine
 } // namespace OHOS
