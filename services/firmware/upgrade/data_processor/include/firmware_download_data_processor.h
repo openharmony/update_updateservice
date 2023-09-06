@@ -37,8 +37,8 @@ private:
     void GetTask();
 
 private:
-    FirmwareTask tasks_ {};
-    Progress downloadProgress_ {};
+    FirmwareTask tasks_;
+    Progress downloadProgress_;
 };
 } // namespace UpdateEngine
 } // namespace OHOS

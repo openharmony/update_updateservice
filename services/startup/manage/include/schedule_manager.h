@@ -39,7 +39,7 @@ private:
 private:
     std::shared_ptr<IAccessManager> accessManager_ = nullptr;
     std::shared_ptr<IStartupSchedule> startupSchedule_ = nullptr;
-    ScheduleTask scheduleTask_ {};
+    ScheduleTask scheduleTask_;
 };
 } // namespace UpdateEngine
 } // namespace OHOS

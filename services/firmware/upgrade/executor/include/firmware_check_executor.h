@@ -36,9 +36,9 @@ private:
     void Complete();
 
 private:
-    FirmwareCheckComponentCallback checkComponentCallback_ {};
-    Duration duration_ {};
-    CheckAndAuthInfo checkAndAuthInfo_ {};
+    FirmwareCheckComponentCallback checkComponentCallback_;
+    Duration duration_;
+    CheckAndAuthInfo checkAndAuthInfo_;
     std::vector<FirmwareComponent> componentList_;
     CheckStatus status_ = CheckStatus::CHECK_SUCCESS;
 };
