@@ -37,8 +37,8 @@ private:
     bool TaskSchedule(const ScheduleTask &scheduleTask);
 
 private:
-    std::shared_ptr<IAccessManager> accessManager_;
-    std::shared_ptr<IStartupSchedule> startupSchedule_;
+    std::shared_ptr<IAccessManager> accessManager_ = nullptr;
+    std::shared_ptr<IStartupSchedule> startupSchedule_ = nullptr;
     ScheduleTask scheduleTask_;
 };
 } // namespace UpdateEngine

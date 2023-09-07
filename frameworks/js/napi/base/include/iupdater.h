@@ -52,7 +52,7 @@ protected:
 
     void NotifyEventInfo(const EventInfo &eventInfo);
 
-    std::shared_ptr<SessionManager> sessionsMgr_;
+    std::shared_ptr<SessionManager> sessionsMgr_ = nullptr;
 };
 } // namespace UpdateEngine
 } // namespace OHOS

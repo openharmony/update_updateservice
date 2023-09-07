@@ -45,8 +45,8 @@ private:
     void OnApplyCallback(bool isSuccess);
 
 private:
-    std::shared_ptr<FirmwareIExecuteMode> executeMode_;
-    std::shared_ptr<FirmwareIExecutor> executor_;
+    std::shared_ptr<FirmwareIExecuteMode> executeMode_ = nullptr;
+    std::shared_ptr<FirmwareIExecutor> executor_ = nullptr;
     FirmwareStep nextStep_ = FirmwareStep::INIT;
 };
 } // namespace UpdateEngine

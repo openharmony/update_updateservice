@@ -50,8 +50,8 @@ protected:
     std::string GetTableName();
 
 private:
-    std::shared_ptr<IDataBase> dataBase_;
-    std::shared_ptr<ITable<T>> table_;
+    std::shared_ptr<IDataBase> dataBase_ = nullptr;
+    std::shared_ptr<ITable<T>> table_ = nullptr;
 };
 
 template <typename Table, typename T>
