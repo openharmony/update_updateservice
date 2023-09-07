@@ -40,7 +40,7 @@ private:
     StartupReason GetStartupReason() const;
 
 private:
-    std::shared_ptr<ScheduleManager> scheduleManager_;
+    std::shared_ptr<ScheduleManager> scheduleManager_ = nullptr;
     int64_t lastIdleCheckTime_ = 0;
 };
 } // namespace UpdateEngine

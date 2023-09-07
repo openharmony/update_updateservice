@@ -44,7 +44,7 @@ private:
     FirmwareProgressCallback firmwareProgressCallback_;
     FirmwareTask tasks_;
     UpgradeStatus upgradeStatus_;
-    std::shared_ptr<DownloadThread> downloadThread_;
+    std::shared_ptr<DownloadThread> downloadThread_ = nullptr;
 };
 } // namespace UpdateEngine
 } // namespace OHOS
