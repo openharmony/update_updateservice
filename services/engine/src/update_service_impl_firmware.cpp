@@ -18,6 +18,7 @@
 #include <string>
 
 #include "firmware_check_data_processor.h"
+#include "parse_changelog_int.h"
 #include "firmware_constant.h"
 #include "firmware_component_operator.h"
 #include "firmware_log.h"
@@ -160,11 +161,17 @@ int32_t UpdateServiceImplFirmware::GetNewVersionDescription(const UpgradeInfo &i
             return INT_CALL_SUCCESS;
         }
         std::string dataXml = FileUtils::ReadDataFromFile(changelogFilePath);
+        std::string typeToken = dataXml.substr(0, dataXml.find_first_of("|"));
+        int32_t parsedType = 0;
+        if (!ParseChangelogInt(typeToken, parsedType)) {
+            FIRMWARE_LOGE("invalid changelog description type");
+            businessError.Build(CallResult::FAIL, "GetNewVersionDescription failed");
+            return INT_CALL_SUCCESS;
+        }
         std::string dataXmlFinal = dataXml.substr(dataXml.find_first_of("|") + 1, dataXml.size());
         GetChangelogContent(dataXmlFinal, descriptionOptions.language);
         componentDescription.descriptionInfo.content = dataXmlFinal;
-        componentDescription.descriptionInfo.descriptionType =
-            static_cast<DescriptionType>(atoi(dataXml.substr(0, dataXml.find_first_of("|")).c_str()));
+        componentDescription.descriptionInfo.descriptionType = static_cast<DescriptionType>(parsedType);
         newVersionDescriptionInfo.componentDescriptions.push_back(componentDescription);
     }
     return INT_CALL_SUCCESS;
@@ -203,11 +210,17 @@ int32_t UpdateServiceImplFirmware::GetCurrentVersionDescription(const UpgradeInf
         return INT_CALL_SUCCESS;
     }
     std::string dataXml = FileUtils::ReadDataFromFile(changelogFilePath);
+    std::string typeToken = dataXml.substr(0, dataXml.find_first_of("|"));
+    int32_t parsedType = 0;
+    if (!ParseChangelogInt(typeToken, parsedType)) {
+        FIRMWARE_LOGE("invalid changelog description type");
+        businessError.Build(CallResult::FAIL, "GetCurrentVersionDescription failed");
+        return INT_CALL_SUCCESS;
+    }
     std::string dataXmlFinal = dataXml.substr(dataXml.find_first_of("|") + 1, dataXml.size());
     GetChangelogContent(dataXmlFinal, descriptionOptions.language);
     descriptionContent.descriptionInfo.content = dataXmlFinal;
-    descriptionContent.descriptionInfo.descriptionType =
-        static_cast<DescriptionType>(atoi(dataXml.substr(0, dataXml.find_first_of("|")).c_str()));
+    descriptionContent.descriptionInfo.descriptionType = static_cast<DescriptionType>(parsedType);
     currentVersionDescriptionInfo.componentDescriptions.push_back(descriptionContent);
     businessError.Build(CallResult::SUCCESS, "GetCurrentVersionDescription ok");
     return INT_CALL_SUCCESS;
